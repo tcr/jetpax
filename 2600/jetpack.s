@@ -73,7 +73,7 @@ NextFrame
 ; disable one, the other, or both or not disable
 ; sta loop ... did i write this out?
 
-EMR1 equ %00110011
+EMR1 equ %01100110
 EMR2 equ %001100110
 EMR3 equ %00110011
 EMR4 equ %00110011
@@ -85,33 +85,57 @@ BigLoop
       ldy LoopCount	; counts backwards
       sta WSYNC
 
-      lda #0
-      sta GRP0	; B0 -> [GRP0]
-      SLEEP 22
-      sta RESP0	; sync to next scanline
-      sta WSYNC
+;      lda #0
+;      sta GRP0	; B0 -> [GRP0]
+;      SLEEP 22
+;      sta RESP0	; sync to next scanline
+;      sta WSYNC
+
+      ; Start new line
+
 
       lda #EMR1
       sta GRP0	; B0 -> [GRP0]
 
-      ldx #EMR5
+      ldx #$00
       ldy #EMR2
       lda #EMR3
 
-      sleep 22
+      ldx #$BA
+      stx COLUP0
 
+      sleep (11-5)
+      sta RESP0
+      sleep 3
+
+      sleep 6
+      sta RESP0
+      sleep 9
+      sta RESP0
+
+
+
+      sta WSYNC
+
+      ldx #$3A
+      stx COLUP0
+
+      ldx #%11001100
       stx GRP0
 
-;	SLEEP 18
+      sleep (20-5)
+      sta RESP0
+      sleep 9
+      sta RESP0
+      sleep 9
+      sta RESP0
 
-      sta GRP0
-      sta RESP0	; sync to next scanline
-      lda #EMR4
-      sta GRP0
+;      stx COLUBK
+
 ;        sleep 3
-      stx GRP0
-      sta RESP0	; sync to next scanline
-      sty GRP0
+;      stx GRP0
+;      sta RESP0	; sync to next scanline
+;      sty GRP0
 
       dec LoopCount	; go to next line
       bpl BigLoop	; repeat until < 0
