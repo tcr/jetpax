@@ -10,8 +10,9 @@
 
 Temp        byte
 LoopCount   byte
+LoopCount2   byte
 
-THREE_COPIES    equ %011
+THREE_COPIES    equ %00010011
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -20,13 +21,16 @@ THREE_COPIES    equ %011
 
 Start
       CLEAN_START
+      lda #0
+      sta LoopCount2
 
 NextFrame
       VERTICAL_SYNC
 
       TIMER_SETUP 37
-      lda #64
+      lda #35
       sta LoopCount	; scanline counter
+      inc LoopCount2
       lda #$00
       sta COLUBK	; background color
       lda #$B6
@@ -63,6 +67,14 @@ NextFrame
       TIMER_WAIT
 
       TIMER_SETUP 192
+
+
+      lda #$02
+      sta ENAM0
+      sta WSYNC
+      sleep 40
+      sta RESM0
+
       lda #%10101010
       sta GRP0	; B0 -> [GRP0]
       lda #00
@@ -80,10 +92,19 @@ EMR4 equ %00110011
 EMR5 equ %00110011
 
       SLEEP 30	; start near end of scanline
+      lda #1
+      and LoopCount2
+	bne loop2
+      sta WSYNC
+loop2
       sta WSYNC	; sync to next scanline
 BigLoop
+      ldx #$40
+      stx HMM0
+
       ldy LoopCount	; counts backwards
       sta WSYNC
+      sta HMOVE
 
 ;      lda #0
 ;      sta GRP0	; B0 -> [GRP0]
@@ -104,7 +125,7 @@ BigLoop
       ldx #$BA
       stx COLUP0
 
-      sleep (11-5)
+      sleep (11-5-3)
       sta RESP0
       sleep 3
 
@@ -113,22 +134,36 @@ BigLoop
       sleep 9
       sta RESP0
 
+      ldx #$C0
+      stx HMM0
 
 
       sta WSYNC
+      sta HMOVE
 
-      ldx #$3A
+;      ldx #$3A
+	ldx #$BA
       stx COLUP0
 
       ldx #%11001100
       stx GRP0
 
-      sleep (20-5)
+      sleep (20-5-3)
       sta RESP0
       sleep 9
       sta RESP0
       sleep 9
       sta RESP0
+
+      ldx #$0
+      stx HMM0
+      sta WSYNC
+      sta HMOVE
+      stx COLUP0
+      sta WSYNC
+      sta HMOVE
+      sta WSYNC
+      sta HMOVE
 
 ;      stx COLUBK
 
