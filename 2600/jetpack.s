@@ -1,4 +1,9 @@
 ; http://8bitworkshop.com/?platform=vcs&file=examples%2Fbigsprite
+;
+; TODO 03-19:
+; - Investigate RAM PLUS (FA) method and test write kernel into it
+; - Remove missile as way to render extra dots, switch to something else
+; - Proof of concept missile as way to render Jetpack Man
 
       processor 6502
       include "vcs.h"
@@ -43,9 +48,9 @@ NextFrame
 
       lda #%11110000
       sta PF0
-      lda #%11101010
+      lda #%11100001
       sta PF1
-      lda #%01010101
+      lda #%10000000
       sta PF2
       lda #$02
       sta COLUPF
@@ -69,8 +74,6 @@ NextFrame
       TIMER_SETUP 192
 
 
-      lda #$02
-      sta ENAM0
       sta WSYNC
       sleep 40
       sta RESM0
@@ -86,15 +89,20 @@ NextFrame
 ; sta loop ... did i write this out?
 
 EMR1 equ %01100110
-EMR2 equ %001100110
-EMR3 equ %00110011
-EMR4 equ %00110011
-EMR5 equ %00110011
+EMR2 equ %00000110
+EMR3 equ %01100000
+
+T1 equ %11001100
+T2 equ %00001100
+T3 equ %11000000
 
       SLEEP 30	; start near end of scanline
-      lda #1
+      lda #0
       and LoopCount2
 	bne loop2
+
+
+        ldy #EMR2
       sta WSYNC
 loop2
       sta WSYNC	; sync to next scanline
@@ -104,7 +112,6 @@ BigLoop
 
       ldy LoopCount	; counts backwards
       sta WSYNC
-      sta HMOVE
 
 ;      lda #0
 ;      sta GRP0	; B0 -> [GRP0]
@@ -115,24 +122,36 @@ BigLoop
       ; Start new line
 
 
-      lda #EMR1
-      sta GRP0	; B0 -> [GRP0]
-
-      ldx #$00
-      ldy #EMR2
-      lda #EMR3
-
+      ; reset the things
       ldx #$BA
       stx COLUP0
+      sta HMOVE
 
-      sleep (11-5-3)
+      lda #$00
+      sta ENAM0
+
+      lda #EMR1
+      ldy #EMR2
+      ldx #EMR3
+
+      sta GRP0
       sta RESP0
+
+	sleep 6
+      sta GRP0
+       ;sleep 4
+ 	;.byte $9F, $15, $00
+
+      sta RESP0
+      sta GRP0
+      ;sleep 4
+      ;lda #EMR1
       sleep 3
-
+      stx ENAM0
+      sta RESP0
+      sta GRP0
       sleep 6
-      sta RESP0
-      sleep 9
-      sta RESP0
+      sta GRP0
 
       ldx #$C0
       stx HMM0
@@ -140,30 +159,33 @@ BigLoop
 
       sta WSYNC
       sta HMOVE
-
-;      ldx #$3A
-	ldx #$BA
+;      ldx #$BA
+	ldx #$4A
       stx COLUP0
 
-      ldx #%11001100
-      stx GRP0
+      lda #T1
+      ldy #T2
+      ldx #T3
+      sta GRP0
 
-      sleep (20-5-3)
+      sleep (20-12)
       sta RESP0
-      sleep 9
+      sleep 6
+      sta GRP0
       sta RESP0
-      sleep 9
+      sta GRP0
+      sleep 6
       sta RESP0
 
-      ldx #$0
-      stx HMM0
-      sta WSYNC
-      sta HMOVE
-      stx COLUP0
-      sta WSYNC
-      sta HMOVE
-      sta WSYNC
-      sta HMOVE
+      ;ldx #$0
+      ;stx HMM0
+      ;sta WSYNC
+      ;sta HMOVE
+      ;stx COLUP0
+      ;sta WSYNC
+      ;sta HMOVE
+      ;sta WSYNC
+      ;sta HMOVE
 
 ;      stx COLUBK
 
@@ -182,47 +204,6 @@ BigLoop
       TIMER_SETUP 30
       TIMER_WAIT
       jmp NextFrame
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Bitmap data, six columns
-
-    align $100	; ensure we start on a page boundary
-Bitmap0
-    hex 00
-    hex 00000000000000000000000000000000
-    hex 00000000000000000000000000000001
-    hex 01010205040402040404040404040404
-    hex 040404060203000107df7f1f0f000000
-Bitmap1
-    hex 00
-    hex 0000073f1f0303000000000000010704
-    hex 0808101010101412120a0a1e75c38000
-    hex 0000076260e0e0e0c0c0e0e0c0c00000
-    hex 00000000408170feffffffffc7030000
-Bitmap2
-    hex 00
-    hex 007ffffcf0e0c0404040404020bb7608
-    hex 000402020809094f494949fa07010000
-    hex 00000000006070f0f0f0c0e0e0e0e0e0
-    hex 400000000010a06010e0e0f1ffff7f00
-Bitmap3
-    hex 00
-    hex 3effff07010000000000302159878184
-    hex 848efeffffff9f0f0e9c7c0402c12010
-    hex 08040207050000000002020104070f0f
-    hex 0f070703030707070f1f7efcf8f0c000
-Bitmap4
-    hex 00
-    hex 00f0f0fffff0404040404080641e02c3
-    hex 4242c3e2e2f4fcfc787838787cfa3131
-    hex 6102021cf840c04042a022c14080c4c3
-    hex c0c0c0c0808090900010180c04243800
-Bitmap5
-    hex 00
-    hex 000000fcfefc1c0c040402020202040c
-    hex f800e01804040402020101010111e192
-    hex dc700000000000000000000080808000
-    hex 00000000000000000000000000000000
 
 ; Epilogue
       org $fffc
