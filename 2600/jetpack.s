@@ -4,6 +4,8 @@
 ; - Investigate RAM PLUS (FA) method and test write kernel into it
 ; - Remove missile as way to render extra dots, switch to something else
 ; - Proof of concept missile as way to render Jetpack Man
+; RAM+ is similar but the writing happens from adresses $1000 to $10FF (256 bytes) and the reading is from $1100 to $11FF (the next 256 bytes).
+; 12K
 
       processor 6502
       include "vcs.h"
