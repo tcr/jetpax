@@ -35,13 +35,11 @@ NextFrame
       VERTICAL_SYNC
 
       TIMER_SETUP 37
-      lda #35
+      lda #16
       sta LoopCount	; scanline counter
       inc LoopCount2
       lda #$00
       sta COLUBK	; background color
-      lda #$B6
-      sta COLUP0	; show how players alternate
       lda #$12
       sta COLUP1	; by having different colors
       lda #THREE_COPIES
@@ -50,9 +48,9 @@ NextFrame
 
       lda #%11110000
       sta PF0
-      lda #%11100001
+      lda #%11100000
       sta PF1
-      lda #%10000000
+      lda #%00000000
       sta PF2
       lda #$02
       sta COLUPF
@@ -124,19 +122,19 @@ GEM_00 equ SET_1_1
 GEM_02 equ SET_1_1
 GEM_04 equ SET_1_1
 GEM_06 equ SET_1_1
-GEM_08 equ SET_0_L
-GEM_09 equ SET_0_0
-GEM_11 equ SET_0_0
-GEM_13 equ SET_0_0
-GEM_15 equ SET_0_0
-GEM_17 equ SET_0_R
+GEM_08 equ SET_1_L
+GEM_09 equ SET_1_1
+GEM_11 equ SET_1_1
+GEM_13 equ SET_1_1
+GEM_15 equ SET_1_1
+GEM_17 equ SET_1_R
 GEM_18 equ SET_1_1
 GEM_20 equ SET_1_1
 GEM_22 equ SET_1_1
 GEM_24 equ SET_1_1
 
       SLEEP 30	; start near end of scanline
-      lda #0
+      lda #01
       and LoopCount2
 	bne loop2
 
@@ -147,7 +145,7 @@ loop2:
       sta WSYNC	; sync to next scanline
 
       ; pallet_line2 cont.
-BigLoop:
+pellet_entry:
       ldx #HMM0_2
       stx HMM0
 
@@ -201,7 +199,7 @@ pellet_line1:
 pellet_line2:
       ; Start of line
       sta HMOVE
-	ldx #$4A
+	ldx #$BA
       stx COLUP0
 
       lda #T1
@@ -221,8 +219,19 @@ pellet_line2:
       .byte GEM_20, GRP0
       .byte GEM_24, GRP0
 
+      sleep 4
+      lda #0
+      sta COLUP0
+
+      sta WSYNC
+      sta WSYNC
+      sta WSYNC
+      sta WSYNC
+      sta WSYNC
+      sta WSYNC
+
       dec LoopCount	; go to next line
-      bpl BigLoop	      ; repeat until < 0
+      bpl pellet_entry	      ; repeat until < 0
 
 end_frame:
       ; End
