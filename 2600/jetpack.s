@@ -75,11 +75,22 @@ NextFrame
 
       TIMER_SETUP 192
 
+HMM0_S equ 39
+HMM0_1 equ $10
+HMM0_2 equ $c0
+HMM0_3 equ $40
 
+      ; Set where the missile goes
       sta WSYNC
-      sleep 40
+      sleep HMM0_S
       sta RESM0
 
+      lda #HMM0_1
+      sta HMM0
+      sta WSYNC
+      sta HMOVE
+
+      ; IDK
       lda #%10101010
       sta GRP0	; B0 -> [GRP0]
       lda #00
@@ -90,13 +101,39 @@ NextFrame
 ; disable one, the other, or both or not disable
 ; sta loop ... did i write this out?
 
-EMR1 equ %01100110
+EMR1 equ %01100000
 EMR2 equ %00000110
-EMR3 equ %01100000
+EMR3 equ %01100110
 
-T1 equ %11001100
+T1 equ %11000000
 T2 equ %00001100
-T3 equ %11000000
+T3 equ %11001100
+
+SET_0_0 equ $87 ; SAX (AXS)
+SET_1_0 equ $85 ; STA
+SET_0_1 equ $86 ; STX
+SET_1_1 equ $84 ; STY
+
+SET_0_L equ $86 ; STX
+SET_1_L equ $84 ; STY
+
+SET_0_R equ $85 ; STA
+SET_1_R equ $84 ; STY
+
+GEM_00 equ SET_1_1
+GEM_02 equ SET_1_1
+GEM_04 equ SET_1_1
+GEM_06 equ SET_1_1
+GEM_08 equ SET_0_L
+GEM_09 equ SET_0_0
+GEM_11 equ SET_0_0
+GEM_13 equ SET_0_0
+GEM_15 equ SET_0_0
+GEM_17 equ SET_0_R
+GEM_18 equ SET_1_1
+GEM_20 equ SET_1_1
+GEM_22 equ SET_1_1
+GEM_24 equ SET_1_1
 
       SLEEP 30	; start near end of scanline
       lda #0
@@ -104,15 +141,17 @@ T3 equ %11000000
 	bne loop2
 
 
-        ldy #EMR2
+      ldy #EMR2
       sta WSYNC
-loop2
+loop2:
       sta WSYNC	; sync to next scanline
-BigLoop
-      ldx #$40
+
+      ; pallet_line2 cont.
+BigLoop:
+      ldx #HMM0_2
       stx HMM0
 
-      ldy LoopCount	; counts backwards
+      ;ldy LoopCount	; counts backwards
       sta WSYNC
 
 ;      lda #0
@@ -122,82 +161,71 @@ BigLoop
 ;      sta WSYNC
 
       ; Start new line
-
-
+pellet_line1:
       ; reset the things
+      sta HMOVE
       ldx #$BA
       stx COLUP0
-      sta HMOVE
 
       lda #$00
       sta ENAM0
 
       lda #EMR1
-      ldy #EMR2
-      ldx #EMR3
+      ldx #EMR2
+      ldy #EMR3
 
-      sta GRP0
+      .byte GEM_00, GRP0
       sta RESP0
 
 	sleep 6
-      sta GRP0
-       ;sleep 4
- 	;.byte $9F, $15, $00
+      .byte GEM_04, GRP0
 
       sta RESP0
-      sta GRP0
-      ;sleep 4
-      ;lda #EMR1
+      .byte GEM_09, GRP0
       sleep 3
-      stx ENAM0
+      .byte GEM_13, GRP0
       sta RESP0
-      sta GRP0
-      sleep 6
-      sta GRP0
 
-      ldx #$C0
+      .byte GEM_17, ENAM0
+      .byte GEM_18, GRP0
+      sleep 3
+      .byte GEM_22, GRP0
+
+      ldx #HMM0_3
       stx HMM0
 
+      .byte GEM_08, ENAM0
 
       sta WSYNC
+
+pellet_line2:
+      ; Start of line
       sta HMOVE
-;      ldx #$BA
 	ldx #$4A
       stx COLUP0
 
       lda #T1
-      ldy #T2
-      ldx #T3
-      sta GRP0
+      ldx #T2
+      ldy #T3
+      .byte GEM_02, GRP0
 
       sleep (20-12)
       sta RESP0
       sleep 6
-      sta GRP0
+      .byte GEM_06, GRP0
       sta RESP0
-      sta GRP0
-      sleep 6
+      .byte GEM_11, GRP0
+      stx ENAM0 ; disable
+      .byte GEM_15, GRP0
       sta RESP0
-
-      ;ldx #$0
-      ;stx HMM0
-      ;sta WSYNC
-      ;sta HMOVE
-      ;stx COLUP0
-      ;sta WSYNC
-      ;sta HMOVE
-      ;sta WSYNC
-      ;sta HMOVE
-
-;      stx COLUBK
-
-;        sleep 3
-;      stx GRP0
-;      sta RESP0	; sync to next scanline
-;      sty GRP0
+      .byte GEM_20, GRP0
+      .byte GEM_24, GRP0
 
       dec LoopCount	; go to next line
-      bpl BigLoop	; repeat until < 0
+      bpl BigLoop	      ; repeat until < 0
+
+end_frame:
+      ; End
       lda #0
       sta GRP0
 

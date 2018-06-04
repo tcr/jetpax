@@ -61,9 +61,9 @@ NextFrame
 
     ; Set up VBLANK timer
     TIMER_SETUP 37
-    lda #$82
+    lda #$00
     sta COLUBK    ; bg color
-    lda #$84
+    lda #$0A
     sta COLUPF    ; fg color
     lda #$68
     sta COLUP0    ; player color
@@ -268,32 +268,32 @@ Frame0
     .byte #0
     .byte #%00000000;$F6
     .byte #%00000000;$86
-    .byte #%00001100;$86
-    .byte #%00001100;$86
-    .byte #%00001100;$C2
-    .byte #%00001100;$C2
-    .byte #%00011000;$C2
-    .byte #%00011000;$C2
-    .byte #%00011000;$16
-    .byte #%00011000;$16
-    .byte #%00011100;$16
-    .byte #%00011100;$18
+    .byte #%00000000;$86
+    .byte #%00000000;$86
+    .byte #%00000000;$C2
+    .byte #%00000000;$C2
+    .byte #%00000000;$C2
+    .byte #%00000000;$C2
+    .byte #%00001100;$16
+    .byte #%00001100;$16
+    .byte #%00001100;$16
     .byte #%00011000;$18
     .byte #%00011000;$18
+    .byte #%00011110;$18
     .byte #%00011000;$F2
     .byte #%00011000;$F4
 
 ; Color data for each line of sprite
 ColorFrame0
     .byte #$FF;
-    .byte #$86;
-    .byte #$86;
-    .byte #$C2;
-    .byte #$C2;
-    .byte #$16;
-    .byte #$16;
-    .byte #$18;
-    .byte #$F4;
+    .byte #$FF;
+    .byte #$FF;
+    .byte #$FF;
+    .byte #$FF;
+    .byte #$02;
+    .byte #$84;
+    .byte #$B4;
+    .byte #$28;
 
     ; Epilogue
     org $fffc
