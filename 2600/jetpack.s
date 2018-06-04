@@ -17,6 +17,8 @@
 
 Temp        byte
 LoopCount   byte
+
+; Adds glimmer for testing
 LoopCount2   byte
 
 THREE_COPIES    equ %00010011
@@ -46,7 +48,7 @@ NextFrame
       sta NUSIZ0
       sta NUSIZ1	; both players have 3 copies
 
-      lda #%11110000
+      lda #%11000000
       sta PF0
       lda #%11100000
       sta PF1
@@ -222,16 +224,25 @@ pellet_line2:
       sleep 4
       lda #0
       sta COLUP0
-
+      sta HMM0
+      
       sta WSYNC
+      sta HMOVE
       sta WSYNC
+      sta HMOVE
       sta WSYNC
+      sta HMOVE
       sta WSYNC
+      sta HMOVE
       sta WSYNC
+      sta HMOVE
       sta WSYNC
+      sta HMOVE
 
       dec LoopCount	; go to next line
-      bpl pellet_entry	      ; repeat until < 0
+      bmi .pellet_line2.skipjump	      ; repeat until < 0
+      jmp pellet_entry
+.pellet_line2.skipjump:
 
 end_frame:
       ; End
