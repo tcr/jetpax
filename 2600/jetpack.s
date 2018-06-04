@@ -40,22 +40,12 @@ NextFrame
       lda #16
       sta LoopCount	; scanline counter
       inc LoopCount2
-      lda #$00
-      sta COLUBK	; background color
       lda #$12
       sta COLUP1	; by having different colors
       lda #THREE_COPIES
       sta NUSIZ0
       sta NUSIZ1	; both players have 3 copies
 
-      lda #%11000000
-      sta PF0
-      lda #%11100000
-      sta PF1
-      lda #%00000000
-      sta PF2
-      lda #$02
-      sta COLUPF
       lda #%00000001
       sta CTRLPF             ; reflect playfield
 
@@ -85,12 +75,26 @@ HMM0_3 equ $40
       sleep HMM0_S
       sta RESM0
 
+      sta WSYNC
+      lda #$02
+      sta COLUPF
+      sta WSYNC
+
       lda #HMM0_1
       sta HMM0
       sta WSYNC
       sta HMOVE
+      sta WSYNC
 
-      ; IDK
+      ; Change the PF
+      lda #%00000000
+      sta PF0
+      lda #%00100000
+      sta PF1
+      lda #%00000000
+      sta PF2
+
+      ; IDK but it needs exact timing: see SLEEP 30 below??
       lda #%10101010
       sta GRP0	; B0 -> [GRP0]
       lda #00
@@ -144,9 +148,14 @@ GEM_24 equ SET_1_1
       ldy #EMR2
       sta WSYNC
 loop2:
+      lda #$00
+      sta COLUBK	; background color
       sta WSYNC	; sync to next scanline
 
-      ; pallet_line2 cont.
+
+      sta WSYNC	; sync to next scanline
+
+      ; also pallet_line2 cont.
 pellet_entry:
       ldx #HMM0_2
       stx HMM0
@@ -243,6 +252,26 @@ pellet_line2:
       bmi .pellet_line2.skipjump	      ; repeat until < 0
       jmp pellet_entry
 .pellet_line2.skipjump:
+
+      ; reset the background
+      lda #%00000000
+      sta PF0
+      lda #%00111111
+      sta PF1
+      lda #%11111111
+      sta PF2
+
+      lda #0
+      sta GRP0
+
+      sta WSYNC
+      sta WSYNC
+      sta WSYNC
+      sta WSYNC
+
+      lda #$00
+      sta COLUBK
+      sta COLUPF
 
 end_frame:
       ; End
