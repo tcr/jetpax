@@ -72,6 +72,14 @@ GEM_24 equ SET_1_1
 
 COL_BG equ $42    
 COL_EMERALD equ $CE
+COL_EMERALD_2 equ $CE
+
+; HMOVE values
+
+HMM0_S equ 39
+HMM0_1 equ $10
+HMM0_2 equ $c0
+HMM0_3 equ $00
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -83,60 +91,74 @@ Start
       lda #0
       sta LoopCount2
 
+      ;; Setup
+      lda #THREE_COPIES
+      sta NUSIZ0
+      sta NUSIZ1	; both players have 3 copies
+
+      lda #$00
+      sta COLUBK
+      lda #%00000001
+      sta CTRLPF             ; reflect playfield
+
+      ; Random P1 color
+      lda #$12
+      sta COLUP1
+      lda #$10
+      sta HMP1	; 1 pixel to the left
+
+      lda #0
+      sta VDELP0	; we need the VDEL registers
+      sta VDELP1	; so we can do our 4-store trick
+
 NextFrame
       VERTICAL_SYNC
 
       TIMER_SETUP 37
       lda #16
       sta LoopCount	; scanline counter
-      inc LoopCount2
-      lda #$12
-      sta COLUP1	; by having different colors
-      lda #THREE_COPIES
-      sta NUSIZ0
-      sta NUSIZ1	; both players have 3 copies
-
-      lda #%00000001
-      sta CTRLPF             ; reflect playfield
+      inc LoopCount2    ; frame counter
 
       sta WSYNC
       SLEEP 20
       sta RESP0	; position 1st player
       sta RESP1	; ...and 2nd player
-      lda #$10
-      sta HMP1	; 1 pixel to the left
       sta WSYNC
       sta HMOVE	; apply HMOVE
       sta HMCLR
-      lda #0
-      sta VDELP0	; we need the VDEL registers
-      sta VDELP1	; so we can do our 4-store trick
       TIMER_WAIT
 
       TIMER_SETUP 192
 
-HMM0_S equ 39
-HMM0_1 equ $10
-HMM0_2 equ $c0
-HMM0_3 equ $40
-
-      ; Set where the missile goes
+      ; Move missile to starting position
       sta WSYNC
       sleep HMM0_S
       sta RESM0
 
-      sta WSYNC
-      lda #COL_BG
-      sta COLUPF
-      sta WSYNC
+      ; Remove artifacts by moving these to end of line
+      sta RESP0
+      sta RESP1
 
       lda #HMM0_1
       sta HMM0
       sta WSYNC
       sta HMOVE
+
+      ; Start top border
+frame_top:
+      lda #COL_BG
+      sta COLUPF
+      sta WSYNC
+      sta WSYNC
+      sta WSYNC
+      sta WSYNC
+      sta WSYNC
+      sta WSYNC
+      sta WSYNC
       sta WSYNC
 
-      ; Change the PF
+PlayArea:
+      ; PF is now the playing area
       lda #%00000000
       sta PF0
       lda #%00100000
@@ -144,35 +166,28 @@ HMM0_3 equ $40
       lda #%00000000
       sta PF2
 
-      ; IDK but it needs exact timing: see SLEEP 30 below??
-      lda #%10101010
-      sta GRP0	; B0 -> [GRP0]
-      lda #00
-      sta GRP1	; B1 -> [GRP1], B0 -> GRP0
-      lda #$ff
-      ;sta NUSIZ0
-
-      SLEEP 30	; start near end of scanline
+      ; Choose which kernel to use
       lda #01
       and LoopCount2
-	bne loop2
+	bne NextFrame.2
+      jmp frame_1_entry
+NextFrame.2:
+      jmp frame_2_entry
 
 
-      ldy #EMR2
-      sta WSYNC
-loop2:
-      lda #$00
-      sta COLUBK	; background color
-      sta WSYNC	; sync to next scanline
 
-
-      sta WSYNC	; sync to next scanline
-
+frame_1_entry:
       ; also pallet_line2 cont.
-pellet_entry:
       ldx #HMM0_2
       stx HMM0
+      
+      sta WSYNC
+      sta WSYNC
 
+frame_1_start:
+
+
+      MAC Frame1Line
       ;ldy LoopCount	; counts backwards
       sta WSYNC
 
@@ -182,9 +197,6 @@ pellet_entry:
 ;      sta RESP0	; sync to next scanline
 ;      sta WSYNC
 
-      ; Start new line
-pellet_line1:
-      ; reset the things
       sta HMOVE
       ldx #COL_EMERALD
       stx COLUP0
@@ -212,18 +224,65 @@ pellet_line1:
       .byte GEM_18, GRP0
       sleep 3
       .byte GEM_22, GRP0
+      .byte GEM_08, ENAM0
 
+      lda #0
+      sta COLUP0
+      sta HMM0
+      ENDM
+
+      Frame1Line
+      Frame1Line
+      
+frame_1_remainder:
+      sta WSYNC
+      sta HMOVE
+      sta WSYNC
+      sta HMOVE
+      sta WSYNC
+      sta HMOVE
+      sta WSYNC
+      sta HMOVE
+      sta WSYNC
+      sta HMOVE
+      sta WSYNC
+      sta HMOVE
+
+      ; next line, repeat until <0
+      dec LoopCount
+      bmi frame_1_remainder.skip
+      jmp frame_1_start
+frame_1_remainder.skip:
+      jmp frame_bottom
+
+
+
+
+frame_2_entry:
+      ; also pallet_line2 cont.
       ldx #HMM0_3
       stx HMM0
 
-      .byte GEM_08, ENAM0
+      lda #$ff
+      sta ENAM0
 
       sta WSYNC
+      sta WSYNC
 
-pellet_line2:
-      ; Start of line
+frame_2_start:
+      MAC Frame2Line
+      ;ldy LoopCount	; counts backwards
+      sta WSYNC
+
+;      lda #0
+;      sta GRP0	; B0 -> [GRP0]
+;      SLEEP 22
+;      sta RESP0	; sync to next scanline
+;      sta WSYNC
+
+      ; Start new line
       sta HMOVE
-	ldx #COL_EMERALD
+	ldx #COL_EMERALD_2
       stx COLUP0
 
       lda #T1
@@ -243,11 +302,19 @@ pellet_line2:
       .byte GEM_20, GRP0
       .byte GEM_24, GRP0
 
-      sleep 4
+      ;; TODO better than $ff?
+      lda #$ff
+      sta ENAM0
+      ; sleep 4
       lda #0
       sta COLUP0
       sta HMM0
+      ENDM
+
+      Frame2Line
+      Frame2Line
       
+frame_2_remainder:
       sta WSYNC
       sta HMOVE
       sta WSYNC
@@ -261,12 +328,20 @@ pellet_line2:
       sta WSYNC
       sta HMOVE
 
-      dec LoopCount	; go to next line
-      bmi .pellet_line2.skipjump	      ; repeat until < 0
-      jmp pellet_entry
-.pellet_line2.skipjump:
+      ; next line, repeat until <0
+      dec LoopCount
+      bmi frame_2_remainder.skip
+      jmp frame_2_start
+frame_2_remainder.skip:
+      jmp frame_bottom
 
-      ; reset the background
+
+
+
+
+
+      ; reset the background for bottom frame
+frame_bottom:
       lda #%00000000
       sta PF0
       lda #%00111111
@@ -276,7 +351,12 @@ pellet_line2:
 
       lda #0
       sta GRP0
+      sta ENAM0
 
+      sta WSYNC
+      sta WSYNC
+      sta WSYNC
+      sta WSYNC
       sta WSYNC
       sta WSYNC
       sta WSYNC
@@ -286,7 +366,7 @@ pellet_line2:
       sta COLUBK
       sta COLUPF
 
-end_frame:
+frame_end:
       ; End
       lda #0
       sta GRP0
