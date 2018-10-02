@@ -23,6 +23,56 @@ LoopCount2   byte
 
 THREE_COPIES    equ %00010011
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; Sprites
+
+; Frame 1 sprites
+EMR1 equ %01100000
+EMR2 equ %00000110
+EMR3 equ %01100110
+
+; Frame 2 sprites
+T1 equ %11000000
+T2 equ %00001100
+T3 equ %11001100
+
+; Shorthands
+
+SET_0_0 equ $87 ; SAX (AXS)
+SET_1_0 equ $85 ; STA
+SET_0_1 equ $86 ; STX
+SET_1_1 equ $84 ; STY
+
+SET_0_L equ $86 ; STX
+SET_1_L equ $84 ; STY
+
+SET_0_R equ $85 ; STA
+SET_1_R equ $84 ; STY
+
+; Gem enabling/disabling globally
+
+GEM_00 equ SET_1_1
+GEM_02 equ SET_1_1
+GEM_04 equ SET_1_1
+GEM_06 equ SET_1_1
+GEM_08 equ SET_1_L
+GEM_09 equ SET_1_1
+GEM_11 equ SET_1_1
+GEM_13 equ SET_1_1
+GEM_15 equ SET_1_1
+GEM_17 equ SET_1_R
+GEM_18 equ SET_1_1
+GEM_20 equ SET_1_1
+GEM_22 equ SET_1_1
+GEM_24 equ SET_1_1
+
+; Colors
+
+COL_BG equ $42    
+COL_EMERALD equ $CE
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
       seg Code
@@ -76,7 +126,7 @@ HMM0_3 equ $40
       sta RESM0
 
       sta WSYNC
-      lda #$02
+      lda #COL_BG
       sta COLUPF
       sta WSYNC
 
@@ -101,43 +151,6 @@ HMM0_3 equ $40
       sta GRP1	; B1 -> [GRP1], B0 -> GRP0
       lda #$ff
       ;sta NUSIZ0
-
-; disable one, the other, or both or not disable
-; sta loop ... did i write this out?
-
-EMR1 equ %01100000
-EMR2 equ %00000110
-EMR3 equ %01100110
-
-T1 equ %11000000
-T2 equ %00001100
-T3 equ %11001100
-
-SET_0_0 equ $87 ; SAX (AXS)
-SET_1_0 equ $85 ; STA
-SET_0_1 equ $86 ; STX
-SET_1_1 equ $84 ; STY
-
-SET_0_L equ $86 ; STX
-SET_1_L equ $84 ; STY
-
-SET_0_R equ $85 ; STA
-SET_1_R equ $84 ; STY
-
-GEM_00 equ SET_1_1
-GEM_02 equ SET_1_1
-GEM_04 equ SET_1_1
-GEM_06 equ SET_1_1
-GEM_08 equ SET_1_L
-GEM_09 equ SET_1_1
-GEM_11 equ SET_1_1
-GEM_13 equ SET_1_1
-GEM_15 equ SET_1_1
-GEM_17 equ SET_1_R
-GEM_18 equ SET_1_1
-GEM_20 equ SET_1_1
-GEM_22 equ SET_1_1
-GEM_24 equ SET_1_1
 
       SLEEP 30	; start near end of scanline
       lda #01
@@ -173,7 +186,7 @@ pellet_entry:
 pellet_line1:
       ; reset the things
       sta HMOVE
-      ldx #$BA
+      ldx #COL_EMERALD
       stx COLUP0
 
       lda #$00
@@ -210,7 +223,7 @@ pellet_line1:
 pellet_line2:
       ; Start of line
       sta HMOVE
-	ldx #$BA
+	ldx #COL_EMERALD
       stx COLUP0
 
       lda #T1
