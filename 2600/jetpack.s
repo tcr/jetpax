@@ -111,6 +111,9 @@ Start
       sta VDELP0	; we need the VDEL registers
       sta VDELP1	; so we can do our 4-store trick
 
+      ldx #COL_EMERALD
+      stx COLUP0
+
 NextFrame
       VERTICAL_SYNC
 
@@ -130,6 +133,10 @@ NextFrame
 
       TIMER_SETUP 192
 
+
+      lda #00
+      sta ENAM0
+
       ; Move missile to starting position
       sta WSYNC
       sleep HMM0_S
@@ -139,6 +146,7 @@ NextFrame
       sta RESP0
       sta RESP1
 
+      ; Fine-tune missile
       lda #HMM0_1
       sta HMM0
       sta WSYNC
@@ -180,26 +188,19 @@ frame_1_entry:
       ; also pallet_line2 cont.
       ldx #HMM0_2
       stx HMM0
-      
-      sta WSYNC
-      sta WSYNC
 
 frame_1_start:
-
-
-      MAC Frame1Line
-      ;ldy LoopCount	; counts backwards
+      sta WSYNC
       sta WSYNC
 
-;      lda #0
-;      sta GRP0	; B0 -> [GRP0]
-;      SLEEP 22
-;      sta RESP0	; sync to next scanline
-;      sta WSYNC
+      ; Line macro; run twice
+      MAC Frame1Line
 
+      ; Start new line + HMOVE
+      sta WSYNC
       sta HMOVE
-      ldx #COL_EMERALD
-      stx COLUP0
+      
+      sleep 5
 
       lda #$00
       sta ENAM0
@@ -227,7 +228,7 @@ frame_1_start:
       .byte GEM_08, ENAM0
 
       lda #0
-      sta COLUP0
+      sta GRP0
       sta HMM0
       ENDM
 
@@ -235,18 +236,14 @@ frame_1_start:
       Frame1Line
       
 frame_1_remainder:
+      lda #0
+      sta ENAM0
+
+      ; six blank lines
       sta WSYNC
-      sta HMOVE
       sta WSYNC
-      sta HMOVE
       sta WSYNC
-      sta HMOVE
       sta WSYNC
-      sta HMOVE
-      sta WSYNC
-      sta HMOVE
-      sta WSYNC
-      sta HMOVE
 
       ; next line, repeat until <0
       dec LoopCount
@@ -263,27 +260,25 @@ frame_2_entry:
       ldx #HMM0_3
       stx HMM0
 
-      lda #$ff
+      lda #0
       sta ENAM0
 
-      sta WSYNC
-      sta WSYNC
-
 frame_2_start:
-      MAC Frame2Line
-      ;ldy LoopCount	; counts backwards
+      sta WSYNC
       sta WSYNC
 
-;      lda #0
-;      sta GRP0	; B0 -> [GRP0]
-;      SLEEP 22
-;      sta RESP0	; sync to next scanline
-;      sta WSYNC
 
-      ; Start new line
+      lda #02
+      sta ENAM0
+
+      ; Line macro; run twice
+      MAC Frame2Line
+
+      ; Start new line + HMOVE
+      sta WSYNC
       sta HMOVE
-	ldx #COL_EMERALD_2
-      stx COLUP0
+
+	sleep 5
 
       lda #T1
       ldx #T2
@@ -302,12 +297,10 @@ frame_2_start:
       .byte GEM_20, GRP0
       .byte GEM_24, GRP0
 
-      ;; TODO better than $ff?
-      lda #$ff
+      lda #02
       sta ENAM0
-      ; sleep 4
       lda #0
-      sta COLUP0
+      sta GRP0
       sta HMM0
       ENDM
 
@@ -315,18 +308,14 @@ frame_2_start:
       Frame2Line
       
 frame_2_remainder:
+      lda #0
+      sta ENAM0
+
+      ; six blank lines
       sta WSYNC
-      sta HMOVE
       sta WSYNC
-      sta HMOVE
       sta WSYNC
-      sta HMOVE
       sta WSYNC
-      sta HMOVE
-      sta WSYNC
-      sta HMOVE
-      sta WSYNC
-      sta HMOVE
 
       ; next line, repeat until <0
       dec LoopCount
