@@ -46,7 +46,7 @@ SET_0_1 equ $86 ; STX
 SET_1_1 equ $84 ; STY
 
 SET_0_L equ $86 ; STX
-SET_1_L equ $84 ; STY
+SET_1_L equ $85 ; STY
 
 SET_0_R equ $85 ; STA
 SET_1_R equ $84 ; STY
@@ -62,7 +62,7 @@ GEM_09 equ SET_1_1
 GEM_11 equ SET_1_1
 GEM_13 equ SET_1_1
 GEM_15 equ SET_1_1
-GEM_17 equ SET_1_R
+GEM_17 equ SET_0_R
 GEM_18 equ SET_1_1
 GEM_20 equ SET_1_1
 GEM_22 equ SET_1_1
@@ -193,50 +193,46 @@ frame_1_start:
       sta WSYNC
       sta WSYNC
 
-      ; Line macro; run twice
+; Line macro; run twice
       MAC Frame1Line
 
       ; Start new line + HMOVE
       sta WSYNC
       sta HMOVE
-      
-      sleep 5
-
-      lda #$00
-      sta ENAM0
 
       lda #EMR1
       ldx #EMR2
       ldy #EMR3
+      
+      sleep 10
 
       .byte GEM_00, GRP0
       sta RESP0
-
 	sleep 6
       .byte GEM_04, GRP0
-
       sta RESP0
       .byte GEM_09, GRP0
       sleep 3
       .byte GEM_13, GRP0
       sta RESP0
-
       .byte GEM_17, ENAM0
       .byte GEM_18, GRP0
       sleep 3
       .byte GEM_22, GRP0
       .byte GEM_08, ENAM0
 
-      lda #0
-      sta GRP0
-      sta HMM0
+      ; cycle 64 (start of right border)
+
+      sta HMCLR
       ENDM
 
+; Line macro invocation
       Frame1Line
       Frame1Line
       
 frame_1_remainder:
       lda #0
+      sta GRP0
       sta ENAM0
 
       ; six blank lines
@@ -260,56 +256,52 @@ frame_2_entry:
       ldx #HMM0_3
       stx HMM0
 
-      lda #0
-      sta ENAM0
-
 frame_2_start:
       sta WSYNC
       sta WSYNC
 
-
-      lda #02
-      sta ENAM0
-
-      ; Line macro; run twice
+; Line macro; run twice
       MAC Frame2Line
 
       ; Start new line + HMOVE
-      sta WSYNC
       sta HMOVE
 
-	sleep 5
+      ; Enable missile
+      lda #02
+      .byte GEM_08, ENAM0
 
       lda #T1
       ldx #T2
       ldy #T3
       .byte GEM_02, GRP0
 
-      sleep (20-12)
+      sleep 8
       sta RESP0
       sleep 6
       .byte GEM_06, GRP0
       sta RESP0
       .byte GEM_11, GRP0
-      stx ENAM0 ; disable
+      stx ENAM0 ; (disable)
       .byte GEM_15, GRP0
       sta RESP0
       .byte GEM_20, GRP0
       .byte GEM_24, GRP0
+      sleep 6
 
-      lda #02
-      sta ENAM0
-      lda #0
-      sta GRP0
-      sta HMM0
+      ; cycle 64 (start of right border)
+      
+      sta HMCLR
+      sleep 3
       ENDM
 
+; Line macro invocation
       Frame2Line
       Frame2Line
       
 frame_2_remainder:
       lda #0
       sta ENAM0
+      sta GRP0
 
       ; six blank lines
       sta WSYNC
