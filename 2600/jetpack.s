@@ -89,6 +89,7 @@ EMERALD_MI_HMOVE_3 equ $10
 ; Sprite details
 
 SpriteHeight    equ 9
+FRAME_OFFSET equ 100
 
 EMERALD_SP_COLOR        equ COLUP1
 EMERALD_SP              equ GRP1
@@ -108,6 +109,10 @@ JET_SP_COLOR            equ COLUP0
 
       seg Code
       org $f000
+
+Lol byte
+
+      org $f100
 
 Start
       CLEAN_START
@@ -137,7 +142,7 @@ Start
       sta JET_SP_COLOR
       lda #$00
       sta JET_SP
-      lda #55 
+      lda #(55  + FRAME_OFFSET)
       sta SpriteEndOriginal
       lda #55
       sta XPos
@@ -196,7 +201,7 @@ frame_top:
 
 
       MAC jet_spritedata_calc
-      lda #SpriteHeight
+      lda #(SpriteHeight + FRAME_OFFSET)
       dcp SpriteEnd
       ldy SpriteEnd
       lda Frame0,Y
@@ -270,7 +275,7 @@ frame_1_start:
       sleep (12-7)
 
       lda #SpriteHeight
-      dcp SpriteEnd
+      dec SpriteEnd
       ENDM
 
 ; Line macro invocation
@@ -356,7 +361,7 @@ frame_2_start:
       sleep (10-7)
 
       lda #SpriteHeight
-      dcp SpriteEnd
+      dec SpriteEnd
 
       ; Rollover
       lda #02
@@ -439,7 +444,7 @@ MoveJoystick
     bit SWCHA
     bne SkipMoveUp
     ldx SpriteEndOriginal
-    cpx #9
+    cpx #(9 + FRAME_OFFSET)
     bcc SkipMoveUp
     dec SpriteEndOriginal
 SkipMoveUp
@@ -449,7 +454,7 @@ SkipMoveUp
     bit SWCHA
     bne SkipMoveDown
     ldx SpriteEndOriginal
-    cpx #120
+    cpx #(120 + FRAME_OFFSET)
     bcs SkipMoveDown
     inc SpriteEndOriginal
 SkipMoveDown
@@ -502,6 +507,130 @@ DivideLoop
 ; Bitmap data for character "standing" position
 
 Frame0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
     .byte #%00000000
     .byte #%01100000
     .byte #%01100000
@@ -512,6 +641,130 @@ Frame0
     .byte #%11000000
     .byte #%11000000
     .byte #%00000000
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
 
 
 
