@@ -74,21 +74,37 @@ SET_1_R equ $84 ; STY
 
 ; Gem enabling/disabling globally
 
+; ; all off
+; GEM_00 equ SET_0_0
+; GEM_02 equ SET_0_0
+; GEM_04 equ SET_0_0
+; GEM_06 equ SET_0_0
+; GEM_08 equ SET_0_L
+; GEM_09 equ SET_0_0
+; GEM_11 equ SET_0_0
+; GEM_13 equ SET_0_0
+; GEM_15 equ SET_0_0
+; GEM_17 equ SET_0_R
+; GEM_18 equ SET_0_0
+; GEM_20 equ SET_0_0
+; GEM_22 equ SET_0_0
+; GEM_24 equ SET_0_0
+
 ; all on
-GEM_00 equ SET_0_0
-GEM_02 equ SET_0_0
-GEM_04 equ SET_0_0
-GEM_06 equ SET_0_0
-GEM_08 equ SET_0_L
-GEM_09 equ SET_0_0
-GEM_11 equ SET_0_0
-GEM_13 equ SET_0_0
-GEM_15 equ SET_0_0
-GEM_17 equ SET_0_R
-GEM_18 equ SET_0_0
-GEM_20 equ SET_0_0
-GEM_22 equ SET_0_0
-GEM_24 equ SET_0_0
+GEM_00 equ SET_1_1
+GEM_02 equ SET_1_1
+GEM_04 equ SET_1_1
+GEM_06 equ SET_1_1
+GEM_08 equ SET_1_L
+GEM_09 equ SET_1_1
+GEM_11 equ SET_1_1
+GEM_13 equ SET_1_1
+GEM_15 equ SET_1_1
+GEM_17 equ SET_1_R
+GEM_18 equ SET_1_1
+GEM_20 equ SET_1_1
+GEM_22 equ SET_1_1
+GEM_24 equ SET_1_1
 
 ; ; odd on
 ; GEM_00 equ SET_1_0
@@ -171,11 +187,41 @@ YPosStart equ 80
       rorg $F000
 
 BANK1 byte
+
+      org $D200
+      rorg $F200
+
+Bank1Start:
+      lda $FFFA
+      nop
+      nop
+      nop
+
+; Epilogue
+      org $DFFC
+      rorg $FFFC
+      .word Bank1Start
+      .word Bank1Start
       
       org $E000
       rorg $F000
 
 BANK2 byte
+
+      org $E200
+      rorg $F200
+
+Bank2Start:
+      lda $FFFA
+      nop
+      nop
+      nop
+
+; Epilogue
+      org $EFFC
+      rorg $FFFC
+      .word Bank2Start
+      .word Bank2Start
 
       org $F000
       rorg $F000
@@ -186,6 +232,11 @@ BANK3 byte
       rorg $F200
 
 Start
+      lda $FFFA
+      nop
+      nop
+      nop
+
       CLEAN_START
       lda #0
       sta FrameCount
