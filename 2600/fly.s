@@ -120,6 +120,7 @@ NewPFSegment
     sty PF2        ; Y -> PF2
 ; Load playfield length, we'll keep this in X for the loop
     ldx PFCount
+
 KernelLoop
     ; Does this scanline intersect our sprite?
     lda #SpriteHeight    ; height in 2xlines
@@ -140,6 +141,7 @@ KernelLoop
     sta Bit2p0        ; -> bit2p0
     iny
     lda (SpritePtr),y    ; bitmap for second line
+
     ; WSYNC and store values for first line
     sta WSYNC
     sta GRP0    ; Bit1p0 -> GRP0
@@ -147,6 +149,7 @@ KernelLoop
     sta COLUP0    ; Colp0 -> COLUP0
     dex
     beq NewPFSegment    ; end of this playfield segment?
+
     ; WSYNC and store values for second line
     sta WSYNC
     lda Bit2p0

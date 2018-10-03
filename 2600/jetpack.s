@@ -16,17 +16,21 @@
       org $80
 
 Temp        byte
+
+; Counters
+RowCount   byte
 LoopCount   byte
+FrameCount   byte
 
-; Adds glimmer for testing
-LoopCount2   byte
-
-THREE_COPIES    equ %00010011
-
+YP1 byte
+SpriteEnd byte
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ; Sprites
+
+; Nusiz
+THREE_COPIES    equ %00010011
 
 ; Frame 1 sprites
 EMR1 equ %01100000
@@ -81,6 +85,10 @@ HMM0_1 equ $10
 HMM0_2 equ $c0
 HMM0_3 equ $00
 
+; Sprite details
+
+SpriteHeight    equ 9
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
       seg Code
@@ -89,68 +97,68 @@ HMM0_3 equ $00
 Start
       CLEAN_START
       lda #0
-      sta LoopCount2
+      sta FrameCount
 
-      ;; Setup
+      ; P0 has three copies
       lda #THREE_COPIES
       sta NUSIZ0
-      sta NUSIZ1	; both players have 3 copies
 
       lda #$00
       sta COLUBK
       lda #%00000001
       sta CTRLPF             ; reflect playfield
 
-      ; Random P1 color
-      lda #$12
-      sta COLUP1
-      lda #$10
-      sta HMP1	; 1 pixel to the left
-
       lda #0
       sta VDELP0	; we need the VDEL registers
       sta VDELP1	; so we can do our 4-store trick
 
+      ; Player 0
       ldx #COL_EMERALD
       stx COLUP0
 
-NextFrame
+      ; Player 1
+      lda #$12
+      sta COLUP1
+      lda #$00
+      sta GRP1
+
+BeginFrame
       VERTICAL_SYNC
 
       TIMER_SETUP 37
-      lda #16
-      sta LoopCount	; scanline counter
-      inc LoopCount2    ; frame counter
 
+      ; Scanline counter
+      lda #16
+      sta LoopCount
+
+      ; Frame counter
+      inc FrameCount
+
+      ; Positioning
       sta WSYNC
-      SLEEP 20
+      SLEEP 40
       sta RESP0	; position 1st player
       sta RESP1	; ...and 2nd player
       sta WSYNC
-      sta HMOVE	; apply HMOVE
-      sta HMCLR
-      TIMER_WAIT
 
-      TIMER_SETUP 192
-
-
+      ; Misc
       lda #00
       sta ENAM0
+      lda #10
+      sta SpriteEnd
 
-      ; Move missile to starting position
+      ; Move missile to starting position and fine-tune position
+      ; TODO replace with a macro
       sta WSYNC
       sleep HMM0_S
       sta RESM0
-
-      ; Remove artifacts by moving these to end of line
-      sta RESP0
-      sta RESP1
-
-      ; Fine-tune missile
       lda #HMM0_1
       sta HMM0
       sta WSYNC
       sta HMOVE
+
+      TIMER_WAIT
+      TIMER_SETUP 192
 
       ; Start top border
 frame_top:
@@ -176,10 +184,10 @@ PlayArea:
 
       ; Choose which kernel to use
       lda #01
-      and LoopCount2
-	bne NextFrame.2
+      and FrameCount
+	bne BeginFrame.2
       jmp frame_1_entry
-NextFrame.2:
+BeginFrame.2:
       jmp frame_2_entry
 
 
@@ -199,15 +207,21 @@ frame_1_start:
       ; Start new line + HMOVE
       sta HMOVE
 
+      ; sleep 10
+      ldy SpriteEnd
+      lda Frame0,Y
+      sta GRP1
+
       lda #EMR1
       ldx #EMR2
       ldy #EMR3
-      
-      sleep 10
-
       .byte GEM_00, GRP0
+
+      ; left border: 29, riht border: 64
+
+      ; 22
       sta RESP0
-	sleep 6
+      sleep 6
       .byte GEM_04, GRP0
       sta RESP0
       .byte GEM_09, GRP0
@@ -216,14 +230,15 @@ frame_1_start:
       sta RESP0
       .byte GEM_17, ENAM0
       .byte GEM_18, GRP0
-      sleep 3
+      sta HMCLR ; movable
       .byte GEM_22, GRP0
       .byte GEM_08, ENAM0
 
       ; cycle 64 (start of right border)
+      sleep (12-7)
 
-      sta HMCLR
-      sleep 9
+      lda #SpriteHeight
+      dcp SpriteEnd
       ENDM
 
 ; Line macro invocation
@@ -233,11 +248,22 @@ frame_1_start:
       
 frame_1_remainder:
       lda #0
-      sta GRP0
       sta ENAM0
+      sta GRP0
 
-      ; six blank lines
+      ; four blank lines
       sta WSYNC
+
+      MAC p1_calc
+      lda #SpriteHeight
+      dcp SpriteEnd
+      ldy SpriteEnd
+      lda Frame0,Y
+      sta GRP1
+      ENDM
+
+      p1_calc
+
       sta WSYNC
       sta WSYNC
       sta WSYNC
@@ -258,6 +284,7 @@ frame_2_entry:
       stx HMM0
 
 frame_2_start:
+      lda #02
       sta WSYNC
       sta WSYNC
 
@@ -268,15 +295,20 @@ frame_2_start:
       sta HMOVE
 
       ; Enable missile
-      lda #02
+      ; NOTE: rolls over from STA at end of cycle
       .byte GEM_08, ENAM0
+
+      ; sleep 10
+      ldy SpriteEnd
+      lda Frame0,Y
+      sta GRP1
 
       lda #T1
       ldx #T2
       ldy #T3
       .byte GEM_02, GRP0
 
-      sleep 8
+      ; cycle 25
       sta RESP0
       sleep 6
       .byte GEM_06, GRP0
@@ -287,11 +319,18 @@ frame_2_start:
       sta RESP0
       .byte GEM_20, GRP0
       .byte GEM_24, GRP0
-      sleep 6
+      ; cycle 58
+      sta HMCLR ; movable
+      sleep 3
 
       ; cycle 64 (start of right border)
-      sta HMCLR
-      sleep 9
+      sleep (10-7)
+
+      lda #SpriteHeight
+      dcp SpriteEnd
+
+      ; Rollover
+      lda #02
       ENDM
 
 ; Line macro invocation
@@ -304,7 +343,7 @@ frame_2_remainder:
       sta ENAM0
       sta GRP0
 
-      ; six blank lines
+      ; four blank lines
       sta WSYNC
       sta WSYNC
       sta WSYNC
@@ -357,7 +396,26 @@ frame_end:
 
       TIMER_SETUP 30
       TIMER_WAIT
-      jmp NextFrame
+      jmp BeginFrame
+
+
+
+      align 256
+
+; Bitmap data for character "standing" position
+Frame0
+    .byte #%00000000
+    .byte #%00001100
+    .byte #%00001100
+    .byte #%00001100
+    .byte #%00011000
+    .byte #%00011000
+    .byte #%00011110
+    .byte #%00011000
+    .byte #%00011000
+    .byte #%00000000
+
+
 
 ; Epilogue
       org $fffc
