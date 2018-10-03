@@ -25,6 +25,7 @@ FrameCount   byte
 YP1 byte
 SpriteEndOriginal byte
 SpriteEnd byte
+XPos    byte    ; X position of player sprite
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -122,9 +123,10 @@ Start
       sta COLUP1
       lda #$00
       sta GRP1
-
       lda #55 
       sta SpriteEndOriginal
+      lda #55
+      sta XPos
 
 BeginFrame
       VERTICAL_SYNC
@@ -142,7 +144,6 @@ BeginFrame
       sta WSYNC
       SLEEP 40
       sta RESP0	; position 1st player
-      sta RESP1	; ...and 2nd player
       sta WSYNC
 
       ; Misc
@@ -160,6 +161,12 @@ BeginFrame
       sta HMM0
       sta WSYNC
       sta HMOVE
+
+      ; Player 1
+      lda XPos
+      ldx #0
+      jsr SetHorizPos
+      sta WSYNC
 
       TIMER_WAIT
       TIMER_SETUP 192
@@ -420,9 +427,53 @@ MoveJoystick
     bne SkipMoveUp
     dec SpriteEndOriginal
 SkipMoveUp
+    ; Move vertically
+    ; (up and down are actually reversed since ypos starts at bottom)
+    lda #%00100000    ;Up?
+    bit SWCHA
+    bne SkipMoveDown
+    inc SpriteEndOriginal
+SkipMoveDown
+
+    ; Move horizontally
+    ldx XPos
+    lda #%01000000    ;Left?
+    bit SWCHA
+    bne SkipMoveLeft
+    cpx #1
+    bcc SkipMoveLeft
+    dex
+SkipMoveLeft
+    lda #%10000000    ;Right?
+    bit SWCHA
+    bne SkipMoveRight
+    cpx #153
+    bcs SkipMoveRight
+    inx
+SkipMoveRight
+    stx XPos
 
       TIMER_WAIT
       jmp BeginFrame
+
+
+
+
+SetHorizPos
+    sta WSYNC    ; start a new line
+    bit 0        ; waste 3 cycles
+    sec        ; set carry flag
+DivideLoop
+    sbc #15        ; subtract 15
+    bcs DivideLoop    ; branch until negative
+    eor #7        ; calculate fine offset
+    asl
+    asl
+    asl
+    asl
+    sta RESP1,x    ; fix coarse position
+    sta HMP1,x    ; set fine offset
+    rts        ; return to caller
 
 
 
