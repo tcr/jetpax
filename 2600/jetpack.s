@@ -166,7 +166,7 @@ BeginFrame
       lda XPos
       ldx #0
       jsr SetHorizPos
-      sta WSYNC
+      stx GRP1
 
       TIMER_WAIT
       TIMER_SETUP 192
@@ -385,6 +385,7 @@ frame_2_remainder.skip:
 
       ; reset the background for bottom frame
 frame_bottom:
+      sta WSYNC
       lda #%00000000
       sta PF0
       lda #%00111111
@@ -394,6 +395,7 @@ frame_bottom:
 
       lda #0
       sta GRP0
+      sta GRP1
       sta ENAM0
 
       sta WSYNC
@@ -425,6 +427,9 @@ MoveJoystick
     lda #%00010000    ;Up?
     bit SWCHA
     bne SkipMoveUp
+    ldx SpriteEndOriginal
+    cpx #9
+    bcc SkipMoveUp
     dec SpriteEndOriginal
 SkipMoveUp
     ; Move vertically
@@ -432,6 +437,9 @@ SkipMoveUp
     lda #%00100000    ;Up?
     bit SWCHA
     bne SkipMoveDown
+    ldx SpriteEndOriginal
+    cpx #120
+    bcs SkipMoveDown
     inc SpriteEndOriginal
 SkipMoveDown
 
@@ -440,14 +448,14 @@ SkipMoveDown
     lda #%01000000    ;Left?
     bit SWCHA
     bne SkipMoveLeft
-    cpx #1
+    cpx #29
     bcc SkipMoveLeft
     dex
 SkipMoveLeft
     lda #%10000000    ;Right?
     bit SWCHA
     bne SkipMoveRight
-    cpx #153
+    cpx #128
     bcs SkipMoveRight
     inx
 SkipMoveRight
@@ -459,6 +467,7 @@ SkipMoveRight
 
 
 
+; Subroutine
 SetHorizPos
     sta WSYNC    ; start a new line
     bit 0        ; waste 3 cycles
@@ -482,14 +491,14 @@ DivideLoop
 ; Bitmap data for character "standing" position
 Frame0
     .byte #%00000000
-    .byte #%00001100
-    .byte #%00001100
-    .byte #%00001100
-    .byte #%00011000
-    .byte #%00011000
-    .byte #%00011110
-    .byte #%00011000
-    .byte #%00011000
+    .byte #%01100000
+    .byte #%01100000
+    .byte #%01100000
+    .byte #%11000000
+    .byte #%11000000
+    .byte #%11110000
+    .byte #%11000000
+    .byte #%11000000
     .byte #%00000000
 
 
