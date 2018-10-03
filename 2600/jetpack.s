@@ -6,6 +6,13 @@
 ; - Proof of concept missile as way to render Jetpack Man
 ; RAM+ is similar but the writing happens from adresses $1000 to $10FF (256 bytes) and the reading is from $1100 to $11FF (the next 256 bytes).
 ; 12K
+;
+; TODO 10-03:
+; - Need to make each of the two-line kernels into a loop...
+; - So that the rewriting code can call and overwrite the line easily
+; - Then need POC of reading from a fixed buffer of code and copying into
+;   the kernel those bytes, then a way to generate the bytes to stuff in the
+;   kernel, then have per-line mutations!!
 
       processor 6502
       include "vcs.h"
@@ -23,9 +30,17 @@ LoopCount   byte
 FrameCount   byte
 
 YP1 byte
-SpriteEndOriginal byte
 SpriteEnd byte
 XPos    byte    ; X position of player sprite
+
+
+Speed1  byte
+Speed2  byte
+
+YPos    byte    ; Y position of player sprite
+YPos2   byte
+
+GEM_02_TARGET byte
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -59,26 +74,59 @@ SET_1_R equ $84 ; STY
 
 ; Gem enabling/disabling globally
 
-GEM_00 equ SET_1_1
-GEM_02 equ SET_1_1
-GEM_04 equ SET_1_1
-GEM_06 equ SET_1_1
-GEM_08 equ SET_1_L
-GEM_09 equ SET_1_1
-GEM_11 equ SET_1_1
-GEM_13 equ SET_1_1
-GEM_15 equ SET_1_1
-GEM_17 equ SET_1_R
-GEM_18 equ SET_1_1
-GEM_20 equ SET_1_1
-GEM_22 equ SET_1_1
-GEM_24 equ SET_1_1
+; all on
+GEM_00 equ SET_0_0
+GEM_02 equ SET_0_0
+GEM_04 equ SET_0_0
+GEM_06 equ SET_0_0
+GEM_08 equ SET_0_L
+GEM_09 equ SET_0_0
+GEM_11 equ SET_0_0
+GEM_13 equ SET_0_0
+GEM_15 equ SET_0_0
+GEM_17 equ SET_0_R
+GEM_18 equ SET_0_0
+GEM_20 equ SET_0_0
+GEM_22 equ SET_0_0
+GEM_24 equ SET_0_0
+
+; ; odd on
+; GEM_00 equ SET_1_0
+; GEM_02 equ SET_1_0
+; GEM_04 equ SET_1_0
+; GEM_06 equ SET_1_0
+; GEM_08 equ SET_1_L
+; GEM_09 equ SET_0_1
+; GEM_11 equ SET_0_1
+; GEM_13 equ SET_0_1
+; GEM_15 equ SET_0_1
+; GEM_17 equ SET_0_R
+; GEM_18 equ SET_1_0
+; GEM_20 equ SET_1_0
+; GEM_22 equ SET_1_0
+; GEM_24 equ SET_1_0
+
+; ; even on
+; GEM_00 equ SET_0_1
+; GEM_02 equ SET_0_1
+; GEM_04 equ SET_0_1
+; GEM_06 equ SET_0_1
+; GEM_08 equ SET_0_L
+; GEM_09 equ SET_1_0
+; GEM_11 equ SET_1_0
+; GEM_13 equ SET_1_0
+; GEM_15 equ SET_1_0
+; GEM_17 equ SET_1_R
+; GEM_18 equ SET_0_1
+; GEM_20 equ SET_0_1
+; GEM_22 equ SET_0_1
+; GEM_24 equ SET_0_1
 
 ; Colors
 
 COL_BG equ $42    
-COL_EMERALD equ $CE
-COL_EMERALD_2 equ $CE
+COL_EMERALD equ $CC
+COL_EMERALD_2 equ $CC
 
 ; HMOVE values
 
@@ -90,9 +138,6 @@ EMERALD_MI_HMOVE_3 equ $10
 
 SpriteHeight    equ 9
 
-; Offset from the sprite label to the point
-; at which the sprite actually starts. This is the 0-padding
-FRAME_OFFSET equ 123
 
 EMERALD_SP_COLOR        equ COLUP1
 EMERALD_SP              equ GRP1
@@ -108,14 +153,37 @@ JET_SP_RESET            equ RESP0
 JET_SP_HMOVE            equ HMP0
 JET_SP_COLOR            equ COLUP0
 
+
+; Offset from the sprite label to the point
+; at which the sprite actually starts. This is the 0-padding
+; FRAME_OFFSET equ 53
+
+FLOOR_OFFSET equ 159
+HEIGHT_OFFSET equ 180
+YPosStart equ 80
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
       seg Code
-      org $f000
 
-Lol byte
 
-      org $f200
+      org $D000
+      rorg $F000
+
+BANK1 byte
+      
+      org $E000
+      rorg $F000
+
+BANK2 byte
+
+      org $F000
+      rorg $F000
+
+BANK3 byte
+
+      org $F200
+      rorg $F200
 
 Start
       CLEAN_START
@@ -136,19 +204,26 @@ Start
       sta VDELP0
       sta VDELP1
 
+
       ; Player 0
       ldx #COL_EMERALD
       stx EMERALD_SP_COLOR
 
       ; Player 1
-      lda #$86
+      lda #$98
       sta JET_SP_COLOR
       lda #$00
       sta JET_SP
-      lda #(55  + FRAME_OFFSET)
-      sta SpriteEndOriginal
+
+      ; Positions
+      lda #YPosStart
+      sta YPos
       lda #55
       sta XPos
+    lda #0
+    sta Speed1
+    sta Speed2
+    sta YPos2
 
 BeginFrame
       VERTICAL_SYNC
@@ -162,6 +237,38 @@ BeginFrame
       ; Frame counter
       inc FrameCount
 
+; Now the work stuff
+
+      lda #01
+      and FrameCount
+	bne CopyFrame2Kernel
+CopyFrame1Kernel:
+
+      ; Copy: FRAME 1
+      ldy #(frame_1_end - frame_1_start)-1
+.copy_loop:
+      lda frame_1_start,Y
+      sta $1000,Y
+      dey
+      bne .copy_loop
+      lda frame_1_start
+      sta $1000
+      jmp CopyFrameNext
+
+CopyFrame2Kernel:
+
+      ; Copy: FRAME 2
+      ldy #(frame_2_end - frame_2_start)-1
+.copy_loop2:
+      lda frame_2_start,Y
+      sta $1000,Y
+      dey
+      bne .copy_loop2
+      lda frame_2_start
+      sta $1000
+      jmp CopyFrameNext
+
+CopyFrameNext:
       ; Positioning
       sta WSYNC
       SLEEP 40
@@ -171,11 +278,14 @@ BeginFrame
       ; Misc
       lda #00
       sta EMERALD_MI_ENABLE
-      lda SpriteEndOriginal
+
+      ; Assign dervied SpriteEnd value
+      lda #HEIGHT_OFFSET
+      sbc YPos
       sta SpriteEnd
 
       ; Move missile to starting position and fine-tune position
-      ; TODO replace with a macro
+      ; TODO replace with an HMOVE macro
       sta WSYNC
       sleep EMERALD_MI_HMOVE_S
       sta EMERALD_MI_RESET
@@ -187,6 +297,10 @@ BeginFrame
 
       TIMER_WAIT
       TIMER_SETUP 192
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; start of visible frame
 
       ; Start top border
 frame_top:
@@ -213,13 +327,18 @@ PlayArea:
       ; Choose which kernel to use
       lda #01
       and FrameCount
-	bne BeginFrame.2
-      jmp frame_1_entry
-BeginFrame.2:
-      jmp frame_2_entry
+	bne doframe2
 
-      ; Important cycles for the kernels:
-      ; left border: 29, right border: 64
+      ; frame 1
+      ldx #EMERALD_MI_HMOVE_2
+      stx EMERALD_MI_HMOVE
+      jmp doframe2after
+
+      ; frame 2
+doframe2:
+      ldx #EMERALD_MI_HMOVE_3
+      stx EMERALD_MI_HMOVE
+doframe2after:
 
 ; MACRO for calculating next GRPx value
       MAC jet_spritedata_calc
@@ -229,11 +348,142 @@ BeginFrame.2:
       sta JET_SP
       ENDM
 
+frame_start:
+      sta WSYNC
+      jet_spritedata_calc
+      sta WSYNC
+      jet_spritedata_calc
+      sleep 50
+      dec SpriteEnd
+
+; Jump to copied kernel
+      jmp $1100
+
+frame_complete: subroutine
+      lda #0
+      sta EMERALD_MI_ENABLE
+      sta EMERALD_SP
+
+      ; four blank lines
+      sta WSYNC
+      jet_spritedata_calc
+
+      lda #01
+      and FrameCount
+	bne loadframe2
+loadframe1:
+      lda #SET_1_1
+      sta GEM_02_TARGET
+
+      lda #SET_1_1
+      sta GEM_02_TARGET
+
+      lda #SET_1_1
+      sta GEM_02_TARGET
+
+      lda #SET_1_L
+      sta GEM_02_TARGET
+
+      lda #SET_1_1
+      sta GEM_02_TARGET
+
+      lda #SET_1_1
+      sta GEM_02_TARGET
+
+      jmp loadframeafter
+
+loadframe2:
+      lda #SET_1_1
+      sta GEM_02_TARGET
+
+      lda #SET_1_1
+      sta GEM_02_TARGET
+
+      lda #SET_1_R
+      sta GEM_02_TARGET
+
+      lda #SET_1_1
+      sta GEM_02_TARGET
+
+      lda #SET_1_1
+      sta GEM_02_TARGET
+
+      lda #SET_1_1
+      sta GEM_02_TARGET
+
+      lda #SET_1_1
+      sta GEM_02_TARGET
+
+      jmp loadframeafter
+      
+loadframeafter:
+      sta WSYNC
+      jet_spritedata_calc
+
+      sta WSYNC
+      jet_spritedata_calc
+      sta WSYNC
+      jet_spritedata_calc
+
+      ; next line, repeat until <0
+      dec LoopCount
+      bmi .skip
+      jmp frame_start
+.skip:
+
+      ; reset the background for bottom of playfield
+frame_bottom:
+      lda #%00111111
+      sta PF1
+      lda #%11111111
+      sta PF2
+
+      lda #0
+      sta EMERALD_SP
+      sta JET_SP
+      sta EMERALD_MI_ENABLE
+
+      sta WSYNC
+      sta WSYNC
+      sta WSYNC
+      sta WSYNC
+      sta WSYNC
+      sta WSYNC
+      sta WSYNC
+      sta WSYNC
+
+      lda #$00
+      sta COLUBK
+      sta COLUPF
+
+frame_end:
+      ; End
+      lda #0
+      sta EMERALD_SP
+
+      TIMER_WAIT
+      TIMER_SETUP 30
+
+      jsr MoveJoystick
+      jsr SpeedCalculation
+
+      TIMER_WAIT
+      jmp BeginFrame
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; kernels
+
+
+      ; Important cycles for the kernels:
+      ; left border: 29, right border: 64
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ; FRAME 1
 
-; Line macro; run twice
+; Emerald line macro
       MAC Frame1Line
 
       ; Start new line + HMOVE
@@ -270,58 +520,24 @@ BeginFrame.2:
       dec SpriteEnd
       ENDM
 
-frame_1_entry:
-      ; also pallet_line2 cont.
-      ldx #EMERALD_MI_HMOVE_2
-      stx EMERALD_MI_HMOVE
-
 frame_1_start:
       sta WSYNC
-      jet_spritedata_calc
-      sta WSYNC
-      jet_spritedata_calc
-      sleep 50
-      dec SpriteEnd
-
-; Line macro invocation
-      sta WSYNC
       Frame1Line
       Frame1Line
-      
-frame_1_remainder:
-      lda #0
-      sta EMERALD_MI_ENABLE
-      sta EMERALD_SP
-
-      ; four blank lines
-      sta WSYNC
-      jet_spritedata_calc
-      sta WSYNC
-      jet_spritedata_calc
-      sta WSYNC
-      jet_spritedata_calc
-      sta WSYNC
-      jet_spritedata_calc
-
-      ; next line, repeat until <0
-      dec LoopCount
-      bmi frame_1_remainder.skip
-      jmp frame_1_start
-frame_1_remainder.skip:
-      jmp frame_bottom
+      jmp frame_complete
+frame_1_end:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ; FRAME 2
 
-; Line macro; run twice
+; Emerald line macro
       MAC Frame2Line
 
       ; Start new line + HMOVE
       sta HMOVE
 
-      ; Enable missile
-      ; NOTE: rolls over from STA at end of cycle
+      ; Enable missile (using excessive lda instructions)
       lda #02
       .byte GEM_08, EMERALD_MI_ENABLE
 
@@ -342,7 +558,8 @@ frame_1_remainder.skip:
       .byte GEM_06, EMERALD_SP
       sta EMERALD_SP_RESET
       .byte GEM_11, EMERALD_SP
-      stx EMERALD_MI_ENABLE ; stx disables it
+      ; stx EMERALD_MI_ENABLE ; stx disables it
+      sleep 3
       .byte GEM_15, EMERALD_SP
       sta EMERALD_SP_RESET
       .byte GEM_20, EMERALD_SP
@@ -351,129 +568,83 @@ frame_1_remainder.skip:
       sleep 3
 
       ; cycle 64 (start of right border)
-      sleep (10-5)
+      sleep (12-5)
 
       dec SpriteEnd
-
-      ; Rollover
-      lda #02
       ENDM
 
-frame_2_entry:
-      ; also pallet_line2 cont.
-      ldx #EMERALD_MI_HMOVE_3
-      stx EMERALD_MI_HMOVE
-
 frame_2_start:
-      ; Start
-      lda #02
-
-      sta WSYNC
-      jet_spritedata_calc
-      sta WSYNC
-      jet_spritedata_calc
-      sleep 50
-      dec SpriteEnd
-
-; Line macro invocation
       sta WSYNC
       Frame2Line
       Frame2Line
-      
-frame_2_remainder:
-      lda #0
-      sta EMERALD_MI_ENABLE
-      sta EMERALD_SP
-
-      ; four blank lines
-      sta WSYNC
-      jet_spritedata_calc
-      sta WSYNC
-      jet_spritedata_calc
-      sta WSYNC
-      jet_spritedata_calc
-      sta WSYNC
-      jet_spritedata_calc
-
-      ; next line, repeat until <0
-      dec LoopCount
-      bmi frame_2_remainder.skip
-      jmp frame_2_start
-frame_2_remainder.skip:
-      jmp frame_bottom
-
-
-
+      jmp frame_complete
+frame_2_end:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-      ; reset the background for bottom frame
-frame_bottom:
-      lda #%00111111
-      sta PF1
-      lda #%11111111
-      sta PF2
-
-      lda #0
-      sta EMERALD_SP
-      sta JET_SP
-      sta EMERALD_MI_ENABLE
-
-      sta WSYNC
-      sta WSYNC
-      sta WSYNC
-      sta WSYNC
-      sta WSYNC
-      sta WSYNC
-      sta WSYNC
-      sta WSYNC
-
-      lda #$00
-      sta COLUBK
-      sta COLUPF
-
-frame_end:
-      ; End
-      lda #0
-      sta EMERALD_SP
-
-      TIMER_WAIT
-      TIMER_SETUP 30
-
-
+; SUBROUTINE
     ; Read joystick movement and apply to object 0
 MoveJoystick
     ; Move vertically
     ; (up and down are actually reversed since ypos starts at bottom)
+;     lda #%00010000    ;Up?
+;     bit SWCHA
+;     bne SkipMoveUp
+;     lda YPos
+;     sbc #FRAME_OFFSET
+;     cmp #14
+;     bcc SkipMoveUp
+;     dec YPos
+; SkipMoveUp
+;     ; Move vertically
+;     ; (up and down are actually reversed since ypos starts at bottom)
+;     lda #%00100000    ;Up?
+;     bit SWCHA
+;     bne SkipMoveDown
+;     lda YPos
+;       sbc #130
+;     cmp #(24 + FRAME_OFFSET)
+;     bcs SkipMoveDown
+;     inc YPos
+; SkipMoveDown
+
+    ; Move vertically
+    ; (up and down are actually reversed since ypos starts at bottom)
+;     ldx YPos
     lda #%00010000    ;Up?
     bit SWCHA
     bne SkipMoveUp
-    lda SpriteEndOriginal
-    sbc #FRAME_OFFSET
-    cmp #14
-    bcc SkipMoveUp
-    dec SpriteEndOriginal
-SkipMoveUp
-    ; Move vertically
-    ; (up and down are actually reversed since ypos starts at bottom)
-    lda #%00100000    ;Up?
-    bit SWCHA
-    bne SkipMoveDown
-    lda SpriteEndOriginal
-      sbc #130
-    cmp #(24 + FRAME_OFFSET)
-    bcs SkipMoveDown
-    inc SpriteEndOriginal
-SkipMoveDown
+
+    clc
+    lda Speed2
+    adc #12
+    sta Speed2
+    lda Speed1
+    adc #00
+    sta Speed1
+SkipMoveUp:
+
+    ldx XPos
+
+      ; Only check left/right on odd frames;
+      ; TODO make this just a fractional speed
+      ; rather than dropping frames
+      lda #01
+      and FrameCount
+	bne SkipMoveRight
+
 
     ; Move horizontally
-    ldx XPos
     lda #%01000000    ;Left?
     bit SWCHA
     bne SkipMoveLeft
     cpx #29
     bcc SkipMoveLeft
     dex
+
+    ; Reflect
+;     lda #$ff
+;     sta REFP0
 SkipMoveLeft
     lda #%10000000    ;Right?
     bit SWCHA
@@ -481,12 +652,46 @@ SkipMoveLeft
     cpx #128
     bcs SkipMoveRight
     inx
+
+    ; Reflect
+;     lda #$0
+;     sta REFP0
 SkipMoveRight
     stx XPos
+    rts
 
-      TIMER_WAIT
-      jmp BeginFrame
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+SpeedCalculation
+    sec
+    lda Speed2
+    sbc #7
+    sta Speed2
+    lda Speed1
+    sbc #0
+    sta Speed1
+
+    clc
+    lda YPos2
+    adc Speed2
+    sta YPos2
+    lda YPos
+    adc Speed1
+    sta YPos
+    
+    cmp #FLOOR_OFFSET
+    bcs NewThing2
+
+    ; Reset everything?
+    lda #FLOOR_OFFSET
+    sta YPos
+    lda #0
+    sta Speed1
+    sta Speed2
+NewThing2:
+    rts
 
 
 
@@ -512,6 +717,7 @@ DivideLoop
       align 256
 
 ; Bitmap data for character "standing" position
+; Comical amount of 0's for now to simplify sprite rendering
 
 Frame0
     .byte #0
@@ -772,7 +978,6 @@ Frame0
     .byte #0
     .byte #0
     .byte #0
-
 
 
 ; Epilogue

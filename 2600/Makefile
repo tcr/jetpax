@@ -2,4 +2,4 @@ all:
 	dasm jetpack.s -f3 -v5 -obin/jetpack.bin
 
 play:
-	stella bin/jetpack.bin -center 0 -tv.phosphor always -tv.phosblend 50
+	stella  -bs FA bin/jetpack.bin -bs FA -center 0 -tv.phosphor always -tv.phosblend 50
