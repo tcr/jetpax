@@ -197,7 +197,6 @@ frame_1_start:
       MAC Frame1Line
 
       ; Start new line + HMOVE
-      sta WSYNC
       sta HMOVE
 
       lda #EMR1
@@ -224,9 +223,11 @@ frame_1_start:
       ; cycle 64 (start of right border)
 
       sta HMCLR
+      sleep 9
       ENDM
 
 ; Line macro invocation
+      sta WSYNC
       Frame1Line
       Frame1Line
       
@@ -289,12 +290,12 @@ frame_2_start:
       sleep 6
 
       ; cycle 64 (start of right border)
-      
       sta HMCLR
-      sleep 3
+      sleep 9
       ENDM
 
 ; Line macro invocation
+      sta WSYNC
       Frame2Line
       Frame2Line
       
