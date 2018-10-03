@@ -83,9 +83,9 @@ COL_EMERALD_2 equ $CE
 ; HMOVE values
 
 EMERALD_MI_HMOVE_S equ 39
-EMERALD_MI_HMOVE_1 equ $10
-EMERALD_MI_HMOVE_2 equ $c0
-EMERALD_MI_HMOVE_3 equ $00
+EMERALD_MI_HMOVE_1 equ $20
+EMERALD_MI_HMOVE_2 equ $b0
+EMERALD_MI_HMOVE_3 equ $10
 
 ; Sprite details
 
@@ -181,7 +181,6 @@ BeginFrame
       lda XPos
       ldx #0
       jsr SetHorizPos
-      stx JET_SP
 
       TIMER_WAIT
       TIMER_SETUP 192
@@ -218,7 +217,7 @@ BeginFrame.2:
 
 
 
-      MAC p1_calc
+      MAC jet_spritedata_calc
       lda #SpriteHeight
       dcp SpriteEnd
       ldy SpriteEnd
@@ -235,7 +234,7 @@ frame_1_entry:
 
 frame_1_start:
       sta WSYNC
-      p1_calc
+      jet_spritedata_calc
       sta WSYNC
 
 ; Line macro; run twice
@@ -290,13 +289,13 @@ frame_1_remainder:
 
       ; four blank lines
       sta WSYNC
-      p1_calc
+      jet_spritedata_calc
       sta WSYNC
-      p1_calc
+      jet_spritedata_calc
       sta WSYNC
-      p1_calc
+      jet_spritedata_calc
       sta WSYNC
-      p1_calc
+      jet_spritedata_calc
 
       ; next line, repeat until <0
       dec LoopCount
@@ -318,7 +317,7 @@ frame_2_start:
       lda #02
 
       sta WSYNC
-      p1_calc
+      jet_spritedata_calc
       sta WSYNC
 
 ; Line macro; run twice
@@ -378,13 +377,13 @@ frame_2_remainder:
 
       ; four blank lines
       sta WSYNC
-      p1_calc
+      jet_spritedata_calc
       sta WSYNC
-      p1_calc
+      jet_spritedata_calc
       sta WSYNC
-      p1_calc
+      jet_spritedata_calc
       sta WSYNC
-      p1_calc
+      jet_spritedata_calc
 
       ; next line, repeat until <0
       dec LoopCount
