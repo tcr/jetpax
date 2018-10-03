@@ -62,13 +62,13 @@ SET_1_R equ $84 ; STY
 GEM_00 equ SET_1_1
 GEM_02 equ SET_1_1
 GEM_04 equ SET_1_1
-GEM_06 equ SET_0_0
+GEM_06 equ SET_1_1
 GEM_08 equ SET_1_L
 GEM_09 equ SET_1_1
 GEM_11 equ SET_1_1
 GEM_13 equ SET_1_1
 GEM_15 equ SET_1_1
-GEM_17 equ SET_0_R
+GEM_17 equ SET_1_R
 GEM_18 equ SET_1_1
 GEM_20 equ SET_1_1
 GEM_22 equ SET_1_1
@@ -83,13 +83,16 @@ COL_EMERALD_2 equ $CE
 ; HMOVE values
 
 EMERALD_MI_HMOVE_S equ 39
-EMERALD_MI_HMOVE_2 equ $b0
+EMERALD_MI_HMOVE_2 equ $d0
 EMERALD_MI_HMOVE_3 equ $10
 
 ; Sprite details
 
 SpriteHeight    equ 9
-FRAME_OFFSET equ 100
+
+; Offset from the sprite label to the point
+; at which the sprite actually starts. This is the 0-padding
+FRAME_OFFSET equ 123
 
 EMERALD_SP_COLOR        equ COLUP1
 EMERALD_SP              equ GRP1
@@ -112,7 +115,7 @@ JET_SP_COLOR            equ COLUP0
 
 Lol byte
 
-      org $f100
+      org $f200
 
 Start
       CLEAN_START
@@ -198,16 +201,6 @@ frame_top:
       sta WSYNC
       sta WSYNC
 
-
-
-      MAC jet_spritedata_calc
-      lda #(SpriteHeight + FRAME_OFFSET)
-      dcp SpriteEnd
-      ldy SpriteEnd
-      lda Frame0,Y
-      sta JET_SP
-      ENDM
-
 PlayArea:
       ; PF is now the playing area
       lda #%00000000
@@ -225,18 +218,20 @@ PlayArea:
 BeginFrame.2:
       jmp frame_2_entry
 
+      ; Important cycles for the kernels:
+      ; left border: 29, right border: 64
 
+; MACRO for calculating next GRPx value
+      MAC jet_spritedata_calc
+      dec SpriteEnd
+      ldy SpriteEnd
+      lda Frame0,Y
+      sta JET_SP
+      ENDM
 
-frame_1_entry:
-      ; also pallet_line2 cont.
-      ldx #EMERALD_MI_HMOVE_2
-      stx EMERALD_MI_HMOVE
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-frame_1_start:
-      sta WSYNC
-      jet_spritedata_calc
-      sta WSYNC
-      jet_spritedata_calc
+; FRAME 1
 
 ; Line macro; run twice
       MAC Frame1Line
@@ -254,8 +249,6 @@ frame_1_start:
       ldy #EMR3
       .byte GEM_00, EMERALD_SP
 
-      ; left border: 29, right border: 64
-
       ; 22
       sta EMERALD_SP_RESET
       sleep 6
@@ -272,11 +265,23 @@ frame_1_start:
       .byte GEM_08, EMERALD_MI_ENABLE
 
       ; cycle 64 (start of right border)
-      sleep (12-7)
+      sleep (12-5)
 
-      lda #SpriteHeight
       dec SpriteEnd
       ENDM
+
+frame_1_entry:
+      ; also pallet_line2 cont.
+      ldx #EMERALD_MI_HMOVE_2
+      stx EMERALD_MI_HMOVE
+
+frame_1_start:
+      sta WSYNC
+      jet_spritedata_calc
+      sta WSYNC
+      jet_spritedata_calc
+      sleep 50
+      dec SpriteEnd
 
 ; Line macro invocation
       sta WSYNC
@@ -305,8 +310,54 @@ frame_1_remainder:
 frame_1_remainder.skip:
       jmp frame_bottom
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+; FRAME 2
 
+; Line macro; run twice
+      MAC Frame2Line
+
+      ; Start new line + HMOVE
+      sta HMOVE
+
+      ; Enable missile
+      ; NOTE: rolls over from STA at end of cycle
+      lda #02
+      .byte GEM_08, EMERALD_MI_ENABLE
+
+      ; sleep 10
+      ldy SpriteEnd
+      lda Frame0,Y
+      sta JET_SP
+
+      ; moved: lda #T1
+      ldx #T2
+      ldy #T3
+      .byte GEM_02, EMERALD_SP
+
+      ; cycle 25
+      sta EMERALD_SP_RESET
+      lda #T1 ; movable
+      sleep 4
+      .byte GEM_06, EMERALD_SP
+      sta EMERALD_SP_RESET
+      .byte GEM_11, EMERALD_SP
+      stx EMERALD_MI_ENABLE ; stx disables it
+      .byte GEM_15, EMERALD_SP
+      sta EMERALD_SP_RESET
+      .byte GEM_20, EMERALD_SP
+      .byte GEM_24, EMERALD_SP
+      sta HMCLR ; movable
+      sleep 3
+
+      ; cycle 64 (start of right border)
+      sleep (10-5)
+
+      dec SpriteEnd
+
+      ; Rollover
+      lda #02
+      ENDM
 
 frame_2_entry:
       ; also pallet_line2 cont.
@@ -321,51 +372,8 @@ frame_2_start:
       jet_spritedata_calc
       sta WSYNC
       jet_spritedata_calc
-
-; Line macro; run twice
-      MAC Frame2Line
-
-      ; Start new line + HMOVE
-      sta HMOVE
-
-      ; Enable missile
-      ; NOTE: rolls over from STA at end of cycle
-      .byte GEM_08, EMERALD_MI_ENABLE
-
-      ; sleep 10
-      ldy SpriteEnd
-      lda Frame0,Y
-      sta JET_SP
-
-      lda #T1
-      ldx #T2
-      ldy #T3
-      .byte GEM_02, EMERALD_SP
-
-      ; cycle 25
-      sta EMERALD_SP_RESET
-      sleep 6
-      .byte GEM_06, EMERALD_SP
-      sta EMERALD_SP_RESET
-      .byte GEM_11, EMERALD_SP
-      stx EMERALD_MI_ENABLE ; (disable)
-      .byte GEM_15, EMERALD_SP
-      sta EMERALD_SP_RESET
-      .byte GEM_20, EMERALD_SP
-      .byte GEM_24, EMERALD_SP
-      ; cycle 58
-      sta HMCLR ; movable
-      sleep 3
-
-      ; cycle 64 (start of right border)
-      sleep (10-7)
-
-      lda #SpriteHeight
+      sleep 50
       dec SpriteEnd
-
-      ; Rollover
-      lda #02
-      ENDM
 
 ; Line macro invocation
       sta WSYNC
@@ -397,13 +405,10 @@ frame_2_remainder.skip:
 
 
 
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
       ; reset the background for bottom frame
 frame_bottom:
-      sta WSYNC
-      lda #%00000000
-      sta PF0
       lda #%00111111
       sta PF1
       lda #%11111111
@@ -443,8 +448,9 @@ MoveJoystick
     lda #%00010000    ;Up?
     bit SWCHA
     bne SkipMoveUp
-    ldx SpriteEndOriginal
-    cpx #(9 + FRAME_OFFSET)
+    lda SpriteEndOriginal
+    sbc #FRAME_OFFSET
+    cmp #14
     bcc SkipMoveUp
     dec SpriteEndOriginal
 SkipMoveUp
@@ -453,8 +459,9 @@ SkipMoveUp
     lda #%00100000    ;Up?
     bit SWCHA
     bne SkipMoveDown
-    ldx SpriteEndOriginal
-    cpx #(120 + FRAME_OFFSET)
+    lda SpriteEndOriginal
+      sbc #130
+    cmp #(24 + FRAME_OFFSET)
     bcs SkipMoveDown
     inc SpriteEndOriginal
 SkipMoveDown
