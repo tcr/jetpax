@@ -82,14 +82,28 @@ COL_EMERALD_2 equ $CE
 
 ; HMOVE values
 
-HMM0_S equ 39
-HMM0_1 equ $10
-HMM0_2 equ $c0
-HMM0_3 equ $00
+EMERALD_MI_HMOVE_S equ 39
+EMERALD_MI_HMOVE_1 equ $10
+EMERALD_MI_HMOVE_2 equ $c0
+EMERALD_MI_HMOVE_3 equ $00
 
 ; Sprite details
 
 SpriteHeight    equ 9
+
+EMERALD_SP_COLOR        equ COLUP1
+EMERALD_SP              equ GRP1
+EMERALD_MI_ENABLE       equ ENAM1
+EMERALD_SP_RESET        equ RESP1
+EMERALD_MI_RESET        equ RESM1
+EMERALD_SP_HMOVE        equ HMP1
+EMERALD_MI_HMOVE        equ HMM1
+EMERALD_COPIES          equ NUSIZ1
+
+JET_SP                  equ GRP0
+JET_SP_RESET            equ RESP0
+JET_SP_HMOVE            equ HMP0
+JET_SP_COLOR            equ COLUP0
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -103,26 +117,27 @@ Start
 
       ; P0 has three copies
       lda #THREE_COPIES
-      sta NUSIZ0
+      sta EMERALD_COPIES
 
       lda #$00
       sta COLUBK
       lda #%00000001
       sta CTRLPF             ; reflect playfield
 
+      ; Disable VDEL
       lda #0
-      sta VDELP0	; we need the VDEL registers
-      sta VDELP1	; so we can do our 4-store trick
+      sta VDELP0
+      sta VDELP1
 
       ; Player 0
       ldx #COL_EMERALD
-      stx COLUP0
+      stx EMERALD_SP_COLOR
 
       ; Player 1
       lda #$86
-      sta COLUP1
+      sta JET_SP_COLOR
       lda #$00
-      sta GRP1
+      sta JET_SP
       lda #55 
       sta SpriteEndOriginal
       lda #55
@@ -143,22 +158,22 @@ BeginFrame
       ; Positioning
       sta WSYNC
       SLEEP 40
-      sta RESP0	; position 1st player
+      sta EMERALD_SP_RESET	; position 1st player
       sta WSYNC
 
       ; Misc
       lda #00
-      sta ENAM0
+      sta EMERALD_MI_ENABLE
       lda SpriteEndOriginal
       sta SpriteEnd
 
       ; Move missile to starting position and fine-tune position
       ; TODO replace with a macro
       sta WSYNC
-      sleep HMM0_S
-      sta RESM0
-      lda #HMM0_1
-      sta HMM0
+      sleep EMERALD_MI_HMOVE_S
+      sta EMERALD_MI_RESET
+      lda #EMERALD_MI_HMOVE_1
+      sta EMERALD_MI_HMOVE
       sta WSYNC
       sta HMOVE
 
@@ -166,7 +181,7 @@ BeginFrame
       lda XPos
       ldx #0
       jsr SetHorizPos
-      stx GRP1
+      stx JET_SP
 
       TIMER_WAIT
       TIMER_SETUP 192
@@ -208,15 +223,15 @@ BeginFrame.2:
       dcp SpriteEnd
       ldy SpriteEnd
       lda Frame0,Y
-      sta GRP1
+      sta JET_SP
       ENDM
 
 
 
 frame_1_entry:
       ; also pallet_line2 cont.
-      ldx #HMM0_2
-      stx HMM0
+      ldx #EMERALD_MI_HMOVE_2
+      stx EMERALD_MI_HMOVE
 
 frame_1_start:
       sta WSYNC
@@ -232,29 +247,29 @@ frame_1_start:
       ; sleep 10
       ldy SpriteEnd
       lda Frame0,Y
-      sta GRP1
+      sta JET_SP
 
       lda #EMR1
       ldx #EMR2
       ldy #EMR3
-      .byte GEM_00, GRP0
+      .byte GEM_00, EMERALD_SP
 
       ; left border: 29, right border: 64
 
       ; 22
-      sta RESP0
+      sta EMERALD_SP_RESET
       sleep 6
-      .byte GEM_04, GRP0
-      sta RESP0
-      .byte GEM_09, GRP0
+      .byte GEM_04, EMERALD_SP
+      sta EMERALD_SP_RESET
+      .byte GEM_09, EMERALD_SP
       sleep 3
-      .byte GEM_13, GRP0
-      sta RESP0
-      .byte GEM_17, ENAM0
-      .byte GEM_18, GRP0
+      .byte GEM_13, EMERALD_SP
+      sta EMERALD_SP_RESET
+      .byte GEM_17, EMERALD_MI_ENABLE
+      .byte GEM_18, EMERALD_SP
       sta HMCLR ; movable
-      .byte GEM_22, GRP0
-      .byte GEM_08, ENAM0
+      .byte GEM_22, EMERALD_SP
+      .byte GEM_08, EMERALD_MI_ENABLE
 
       ; cycle 64 (start of right border)
       sleep (12-7)
@@ -270,8 +285,8 @@ frame_1_start:
       
 frame_1_remainder:
       lda #0
-      sta ENAM0
-      sta GRP0
+      sta EMERALD_MI_ENABLE
+      sta EMERALD_SP
 
       ; four blank lines
       sta WSYNC
@@ -295,8 +310,8 @@ frame_1_remainder.skip:
 
 frame_2_entry:
       ; also pallet_line2 cont.
-      ldx #HMM0_3
-      stx HMM0
+      ldx #EMERALD_MI_HMOVE_3
+      stx EMERALD_MI_HMOVE
 
 frame_2_start:
       ; Start
@@ -314,29 +329,29 @@ frame_2_start:
 
       ; Enable missile
       ; NOTE: rolls over from STA at end of cycle
-      .byte GEM_08, ENAM0
+      .byte GEM_08, EMERALD_MI_ENABLE
 
       ; sleep 10
       ldy SpriteEnd
       lda Frame0,Y
-      sta GRP1
+      sta JET_SP
 
       lda #T1
       ldx #T2
       ldy #T3
-      .byte GEM_02, GRP0
+      .byte GEM_02, EMERALD_SP
 
       ; cycle 25
-      sta RESP0
+      sta EMERALD_SP_RESET
       sleep 6
-      .byte GEM_06, GRP0
-      sta RESP0
-      .byte GEM_11, GRP0
-      stx ENAM0 ; (disable)
-      .byte GEM_15, GRP0
-      sta RESP0
-      .byte GEM_20, GRP0
-      .byte GEM_24, GRP0
+      .byte GEM_06, EMERALD_SP
+      sta EMERALD_SP_RESET
+      .byte GEM_11, EMERALD_SP
+      stx EMERALD_MI_ENABLE ; (disable)
+      .byte GEM_15, EMERALD_SP
+      sta EMERALD_SP_RESET
+      .byte GEM_20, EMERALD_SP
+      .byte GEM_24, EMERALD_SP
       ; cycle 58
       sta HMCLR ; movable
       sleep 3
@@ -358,8 +373,8 @@ frame_2_start:
       
 frame_2_remainder:
       lda #0
-      sta ENAM0
-      sta GRP0
+      sta EMERALD_MI_ENABLE
+      sta EMERALD_SP
 
       ; four blank lines
       sta WSYNC
@@ -394,9 +409,9 @@ frame_bottom:
       sta PF2
 
       lda #0
-      sta GRP0
-      sta GRP1
-      sta ENAM0
+      sta EMERALD_SP
+      sta JET_SP
+      sta EMERALD_MI_ENABLE
 
       sta WSYNC
       sta WSYNC
@@ -414,7 +429,7 @@ frame_bottom:
 frame_end:
       ; End
       lda #0
-      sta GRP0
+      sta EMERALD_SP
 
       TIMER_WAIT
       TIMER_SETUP 30
@@ -480,8 +495,8 @@ DivideLoop
     asl
     asl
     asl
-    sta RESP1,x    ; fix coarse position
-    sta HMP1,x    ; set fine offset
+    sta JET_SP_RESET,x    ; fix coarse position
+    sta JET_SP_HMOVE,x    ; set fine offset
     rts        ; return to caller
 
 
