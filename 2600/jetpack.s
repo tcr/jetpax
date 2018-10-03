@@ -62,7 +62,7 @@ SET_1_R equ $84 ; STY
 GEM_00 equ SET_1_1
 GEM_02 equ SET_1_1
 GEM_04 equ SET_1_1
-GEM_06 equ SET_1_1
+GEM_06 equ SET_0_0
 GEM_08 equ SET_1_L
 GEM_09 equ SET_1_1
 GEM_11 equ SET_1_1
@@ -83,7 +83,6 @@ COL_EMERALD_2 equ $CE
 ; HMOVE values
 
 EMERALD_MI_HMOVE_S equ 39
-EMERALD_MI_HMOVE_1 equ $20
 EMERALD_MI_HMOVE_2 equ $b0
 EMERALD_MI_HMOVE_3 equ $10
 
@@ -172,10 +171,6 @@ BeginFrame
       sta WSYNC
       sleep EMERALD_MI_HMOVE_S
       sta EMERALD_MI_RESET
-      lda #EMERALD_MI_HMOVE_1
-      sta EMERALD_MI_HMOVE
-      sta WSYNC
-      sta HMOVE
 
       ; Player 1
       lda XPos
@@ -198,6 +193,16 @@ frame_top:
       sta WSYNC
       sta WSYNC
 
+
+
+      MAC jet_spritedata_calc
+      lda #SpriteHeight
+      dcp SpriteEnd
+      ldy SpriteEnd
+      lda Frame0,Y
+      sta JET_SP
+      ENDM
+
 PlayArea:
       ; PF is now the playing area
       lda #%00000000
@@ -217,16 +222,6 @@ BeginFrame.2:
 
 
 
-      MAC jet_spritedata_calc
-      lda #SpriteHeight
-      dcp SpriteEnd
-      ldy SpriteEnd
-      lda Frame0,Y
-      sta JET_SP
-      ENDM
-
-
-
 frame_1_entry:
       ; also pallet_line2 cont.
       ldx #EMERALD_MI_HMOVE_2
@@ -236,6 +231,7 @@ frame_1_start:
       sta WSYNC
       jet_spritedata_calc
       sta WSYNC
+      jet_spritedata_calc
 
 ; Line macro; run twice
       MAC Frame1Line
@@ -319,6 +315,7 @@ frame_2_start:
       sta WSYNC
       jet_spritedata_calc
       sta WSYNC
+      jet_spritedata_calc
 
 ; Line macro; run twice
       MAC Frame2Line
@@ -503,6 +500,7 @@ DivideLoop
       align 256
 
 ; Bitmap data for character "standing" position
+
 Frame0
     .byte #%00000000
     .byte #%01100000
