@@ -182,7 +182,6 @@ YPosStart equ 80
 
       seg Code
 
-
       org $D000
       rorg $F000
 
