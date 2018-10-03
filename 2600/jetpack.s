@@ -23,6 +23,7 @@ LoopCount   byte
 FrameCount   byte
 
 YP1 byte
+SpriteEndOriginal byte
 SpriteEnd byte
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -117,10 +118,13 @@ Start
       stx COLUP0
 
       ; Player 1
-      lda #$12
+      lda #$86
       sta COLUP1
       lda #$00
       sta GRP1
+
+      lda #55 
+      sta SpriteEndOriginal
 
 BeginFrame
       VERTICAL_SYNC
@@ -144,7 +148,7 @@ BeginFrame
       ; Misc
       lda #00
       sta ENAM0
-      lda #10
+      lda SpriteEndOriginal
       sta SpriteEnd
 
       ; Move missile to starting position and fine-tune position
@@ -192,6 +196,16 @@ BeginFrame.2:
 
 
 
+      MAC p1_calc
+      lda #SpriteHeight
+      dcp SpriteEnd
+      ldy SpriteEnd
+      lda Frame0,Y
+      sta GRP1
+      ENDM
+
+
+
 frame_1_entry:
       ; also pallet_line2 cont.
       ldx #HMM0_2
@@ -199,6 +213,7 @@ frame_1_entry:
 
 frame_1_start:
       sta WSYNC
+      p1_calc
       sta WSYNC
 
 ; Line macro; run twice
@@ -217,7 +232,7 @@ frame_1_start:
       ldy #EMR3
       .byte GEM_00, GRP0
 
-      ; left border: 29, riht border: 64
+      ; left border: 29, right border: 64
 
       ; 22
       sta RESP0
@@ -253,20 +268,13 @@ frame_1_remainder:
 
       ; four blank lines
       sta WSYNC
-
-      MAC p1_calc
-      lda #SpriteHeight
-      dcp SpriteEnd
-      ldy SpriteEnd
-      lda Frame0,Y
-      sta GRP1
-      ENDM
-
       p1_calc
-
       sta WSYNC
+      p1_calc
       sta WSYNC
+      p1_calc
       sta WSYNC
+      p1_calc
 
       ; next line, repeat until <0
       dec LoopCount
@@ -284,8 +292,11 @@ frame_2_entry:
       stx HMM0
 
 frame_2_start:
+      ; Start
       lda #02
+
       sta WSYNC
+      p1_calc
       sta WSYNC
 
 ; Line macro; run twice
@@ -345,9 +356,13 @@ frame_2_remainder:
 
       ; four blank lines
       sta WSYNC
+      p1_calc
       sta WSYNC
+      p1_calc
       sta WSYNC
+      p1_calc
       sta WSYNC
+      p1_calc
 
       ; next line, repeat until <0
       dec LoopCount
@@ -393,8 +408,19 @@ frame_end:
       sta GRP0
 
       TIMER_WAIT
-
       TIMER_SETUP 30
+
+
+    ; Read joystick movement and apply to object 0
+MoveJoystick
+    ; Move vertically
+    ; (up and down are actually reversed since ypos starts at bottom)
+    lda #%00010000    ;Up?
+    bit SWCHA
+    bne SkipMoveUp
+    dec SpriteEndOriginal
+SkipMoveUp
+
       TIMER_WAIT
       jmp BeginFrame
 
