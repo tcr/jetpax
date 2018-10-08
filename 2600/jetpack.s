@@ -451,17 +451,17 @@ frame_start:
 	bne frame_jump_2
 frame_jump_1:
       ; copy in the JUMP TABLES address
-      lda <JUMP_TABLES
+      lda >JUMP_TABLES
       sta $1000 + [frame_1_jump - frame_1_start]
-      lda >JUMP_TABLES - 2
+      lda <JUMP_TABLES - 2
       sta $1001 + [frame_1_jump - frame_1_start]
       jmp frame_jump.next
 
 frame_jump_2:
       ; copy in the JUMP TABLES address
-      lda <JUMP_TABLES
+      lda >JUMP_TABLES
       sta $1000 + [frame_2_jump - frame_2_start]
-      lda >JUMP_TABLES - 2
+      lda <JUMP_TABLES - 2
       sta $1001 + [frame_2_jump - frame_2_start]
 
 frame_jump.next:
