@@ -42,7 +42,12 @@ YPos2   byte
 
 GEM_02_TARGET byte
 
+JMP_ADDR byte
+JMP_ADDR_2 byte
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+ROW_COUNT        equ 16
 
 ; Sprites
 
@@ -152,7 +157,7 @@ EMERALD_MI_HMOVE_3 equ $10
 
 ; Sprite details
 
-SpriteHeight    equ 9
+SPRITE_HEIGHT    equ 9
 
 
 EMERALD_SP_COLOR        equ COLUP1
@@ -174,9 +179,14 @@ JET_SP_COLOR            equ COLUP0
 ; at which the sprite actually starts. This is the 0-padding
 ; FRAME_OFFSET equ 53
 
-FLOOR_OFFSET equ 159
-HEIGHT_OFFSET equ 180
-YPosStart equ 80
+; Spriteend is HEIGHT_OFFSET - YPos
+HEIGHT_OFFSET equ 200
+
+; Compared with YPos
+FLOOR_OFFSET equ 50
+
+; YPos definite position 
+YPosStart equ 100
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -270,10 +280,10 @@ Start
       sta YPos
       lda #55
       sta XPos
-    lda #0
-    sta Speed1
-    sta Speed2
-    sta YPos2
+      lda #0
+      sta Speed1
+      sta Speed2
+      sta YPos2
 
 BeginFrame
       VERTICAL_SYNC
@@ -281,7 +291,7 @@ BeginFrame
       TIMER_SETUP 37
 
       ; Scanline counter
-      lda #16
+      lda #ROW_COUNT
       sta LoopCount
 
       ; Frame counter
@@ -289,6 +299,7 @@ BeginFrame
 
 ; Now the work stuff
 
+      ; FRAMESWITCH
       lda #01
       and FrameCount
 	bne CopyFrame2Kernel
@@ -350,7 +361,7 @@ CopyFrameNext:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; start of visible frame
+; Frame border top
 
       ; Start top border
 frame_top:
@@ -375,6 +386,7 @@ PlayArea:
       sta PF2
 
       ; Choose which kernel to use
+      ; FRAMESWITCH
       lda #01
       and FrameCount
 	bne doframe2
@@ -390,34 +402,96 @@ doframe2:
       stx EMERALD_MI_HMOVE
 doframe2after:
 
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; frame start
+
+
+
+
 ; MACRO for calculating next GRPx value
+
       MAC jet_spritedata_calc
-      dec SpriteEnd
+      lda #SPRITE_HEIGHT
+      dcp SpriteEnd
       ldy SpriteEnd
+
+      ; 4c
+      ; This must never be 5 cycles This mean Frame0 + Y must not cross below apage boundary.
       lda Frame0,Y
-      sta JET_SP
+      ; 6c
+      .byte $b0, $01 ;2c / 3c (taken)
+      .byte $2c ; 4c / 0c
+      sta JET_SP ; 0c / 3c
+
       ENDM
+
+
+
+
+      align 8
+
+JUMP_TABLES:
+      .byte $11, $00
+      .byte <frame_start, >frame_start
+
 
 frame_start:
       sta WSYNC
+; [row:1]
       jet_spritedata_calc
+
+      ; Select which jump table address to modify (update)
+      ; FRAMESWITCH
+      lda #01
+      and FrameCount
+	bne frame_jump_2
+frame_jump_1:
+      ; copy in the JUMP TABLES address
+      lda <JUMP_TABLES
+      sta $1000 + [frame_1_jump - frame_1_start]
+      lda >JUMP_TABLES - 2
+      sta $1001 + [frame_1_jump - frame_1_start]
+      jmp frame_jump.next
+
+frame_jump_2:
+      ; copy in the JUMP TABLES address
+      lda <JUMP_TABLES
+      sta $1000 + [frame_2_jump - frame_2_start]
+      lda >JUMP_TABLES - 2
+      sta $1001 + [frame_2_jump - frame_2_start]
+
+frame_jump.next:
+
       sta WSYNC
+; [row:2]
       jet_spritedata_calc
-      sleep 50
+      
+      ; Prepare for the kernel.
+      sleep 44
       dec SpriteEnd
 
-; Jump to copied kernel
+      ; Jump to the copied kernel.
+      ; TODO this has to be EXACT
+; [row:3-4]
       jmp $1100
 
-frame_complete: subroutine
+frame_row_start: subroutine
+; [row:5]
+      ; Cleanup from the kernel.
       lda #0
       sta EMERALD_MI_ENABLE
       sta EMERALD_SP
 
-      ; four blank lines
+
       sta WSYNC
+; [row:6]
       jet_spritedata_calc
 
+      ; FRAMESWITCH
       lda #01
       and FrameCount
 	bne loadframe2
@@ -465,14 +539,17 @@ loadframe2:
       sta GEM_02_TARGET
 
       jmp loadframeafter
-      
+
 loadframeafter:
       sta WSYNC
+; [row:7]
       jet_spritedata_calc
 
       sta WSYNC
+; [row:8]
       jet_spritedata_calc
       sta WSYNC
+; [row:9]
       jet_spritedata_calc
 
       ; next line, repeat until <0
@@ -534,15 +611,22 @@ frame_end:
 ; FRAME 1
 
 ; Emerald line macro
-      MAC Frame1Line
+
+      ; rorg $1100
+
+
+frame_1_start:
+      ; 8c
+      ; little-endian means 0x0
+      lda $1100 + [frame_1_jump - frame_1_start]
+      adc #2
+      sta $1000 + [frame_1_jump - frame_1_start]
 
       ; Start new line + HMOVE
-      sta HMOVE
+      ;sta HMOVE
+      ;sleep 8
 
-      ; sleep 10
-      ldy SpriteEnd
-      lda Frame0,Y
-      sta JET_SP
+      dec SpriteEnd
 
       lda #EMR1
       ldx #EMR2
@@ -565,36 +649,31 @@ frame_end:
       .byte GEM_08, EMERALD_MI_ENABLE
 
       ; cycle 64 (start of right border)
-      sleep (12-5)
-
-      dec SpriteEnd
-      ENDM
-
-frame_1_start:
-      sta WSYNC
-      Frame1Line
-      Frame1Line
-      jmp frame_complete
+      sleep 7
+frame_1_jump:
+      jmp (JUMP_TABLES)
 frame_1_end:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ; FRAME 2
 
-; Emerald line macro
-      MAC Frame2Line
-
-      ; Start new line + HMOVE
-      sta HMOVE
+frame_2_start:
+      ; 8c
+      ; little-endian means 0x0
+      lda $1100 + [frame_2_jump - frame_2_start]
+      adc #2
+      sta $1000 + [frame_2_jump - frame_2_start]
 
       ; Enable missile (using excessive lda instructions)
       lda #02
       .byte GEM_08, EMERALD_MI_ENABLE
 
-      ; sleep 10
-      ldy SpriteEnd
-      lda Frame0,Y
-      sta JET_SP
+      dec SpriteEnd
+      sleep 5
+      ; ldy SpriteEnd
+      ; lda Frame0,Y
+      ; sta JET_SP
 
       ; moved: lda #T1
       ldx #T2
@@ -618,16 +697,9 @@ frame_1_end:
       sleep 3
 
       ; cycle 64 (start of right border)
-      sleep (12-5)
-
-      dec SpriteEnd
-      ENDM
-
-frame_2_start:
-      sta WSYNC
-      Frame2Line
-      Frame2Line
-      jmp frame_complete
+      sleep 7
+frame_2_jump:
+      jmp (JUMP_TABLES)
 frame_2_end:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -635,29 +707,6 @@ frame_2_end:
 ; SUBROUTINE
     ; Read joystick movement and apply to object 0
 MoveJoystick
-    ; Move vertically
-    ; (up and down are actually reversed since ypos starts at bottom)
-;     lda #%00010000    ;Up?
-;     bit SWCHA
-;     bne SkipMoveUp
-;     lda YPos
-;     sbc #FRAME_OFFSET
-;     cmp #14
-;     bcc SkipMoveUp
-;     dec YPos
-; SkipMoveUp
-;     ; Move vertically
-;     ; (up and down are actually reversed since ypos starts at bottom)
-;     lda #%00100000    ;Up?
-;     bit SWCHA
-;     bne SkipMoveDown
-;     lda YPos
-;       sbc #130
-;     cmp #(24 + FRAME_OFFSET)
-;     bcs SkipMoveDown
-;     inc YPos
-; SkipMoveDown
-
     ; Move vertically
     ; (up and down are actually reversed since ypos starts at bottom)
 ;     ldx YPos
@@ -672,8 +721,8 @@ MoveJoystick
     lda Speed1
     adc #00
     sta Speed1
-SkipMoveUp:
 
+SkipMoveUp:
     ldx XPos
 
       ; Only check left/right on odd frames;
@@ -769,265 +818,27 @@ DivideLoop
 ; Bitmap data for character "standing" position
 ; Comical amount of 0's for now to simplify sprite rendering
 
+; Y can be from:
+;     SPRITE_HEIGHT to (8*ROW_COUNT)
+; SpriteEnd: 8..128
+; Frame0 should start at +120 so the Y rollunder of -$120 is OK
+      REPEAT 124
+            .byte 0
+      REPEND
 Frame0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #%00000000
-    .byte #%01100000
-    .byte #%01100000
-    .byte #%01100000
-    .byte #%11000000
-    .byte #%11000000
-    .byte #%11110000
-    .byte #%11000000
-    .byte #%11000000
-    .byte #%00000000
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
+      .byte #%00000000
+      .byte #%01100000
+      .byte #%01100000
+      .byte #%01100000
+      .byte #%11000000
+      .byte #%11000000
+      .byte #%11110000
+      .byte #%11000000
+      .byte #%11000000
+      .byte #%00000000
+      REPEAT 124
+            .byte 0
+      REPEND
 
 
 ; Epilogue
