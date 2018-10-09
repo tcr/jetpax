@@ -367,6 +367,11 @@ CopyFrameNext:
 frame_top:
       lda #COL_BG
       sta COLUPF
+      ; Make the playfield solid.
+      lda #%00111111
+      sta PF1
+      lda #%11111111
+      sta PF2
       sta WSYNC
       sta WSYNC
       sta WSYNC
@@ -401,6 +406,7 @@ doframe2:
       ldx #EMERALD_MI_HMOVE_3
       stx EMERALD_MI_HMOVE
 doframe2after:
+      jmp frame_start
 
 
 
@@ -431,52 +437,41 @@ doframe2after:
 
 
 
-
       align 8
 
 JUMP_TABLES:
-      .byte $11, $00
-      .byte <frame_start, >frame_start
+      .byte $00, $11
+      .byte <frame_row_start, >frame_row_start
 
 
+      ; Start the frame with a WSYNC.
 frame_start:
       sta WSYNC
+
 ; [row:1]
       jet_spritedata_calc
 
-      ; Select which jump table address to modify (update)
-      ; FRAMESWITCH
-      lda #01
-      and FrameCount
-	bne frame_jump_2
-frame_jump_1:
-      ; copy in the JUMP TABLES address
-      lda >JUMP_TABLES
-      sta $1000 + [frame_1_jump - frame_1_start]
-      lda <JUMP_TABLES - 2
-      sta $1001 + [frame_1_jump - frame_1_start]
-      jmp frame_jump.next
-
-frame_jump_2:
-      ; copy in the JUMP TABLES address
-      lda >JUMP_TABLES
-      sta $1000 + [frame_2_jump - frame_2_start]
-      lda <JUMP_TABLES - 2
-      sta $1001 + [frame_2_jump - frame_2_start]
-
-frame_jump.next:
-
+      ; Push jump table to the stack
+      lda #>[frame_row_start - 1]
+      pha
+      lda #<[frame_row_start - 1]
+      pha
+      lda #>[$1100 - 1]
+      pha
+      lda #<[$1100 - 1]
+      pha
       sta WSYNC
+
 ; [row:2]
       jet_spritedata_calc
       
       ; Prepare for the kernel.
-      sleep 44
+      ; TODO this has to be EXACT
+      sleep 48
       dec SpriteEnd
 
-      ; Jump to the copied kernel.
-      ; TODO this has to be EXACT
 ; [row:3-4]
+      ; Jump to the copied kernel.
       jmp $1100
 
 frame_row_start: subroutine
@@ -486,8 +481,8 @@ frame_row_start: subroutine
       sta EMERALD_MI_ENABLE
       sta EMERALD_SP
 
-
       sta WSYNC
+
 ; [row:6]
       jet_spritedata_calc
 
@@ -496,45 +491,36 @@ frame_row_start: subroutine
       and FrameCount
 	bne loadframe2
 loadframe1:
+      ; Emerald byte setting
       lda #SET_1_1
       sta GEM_02_TARGET
-
       lda #SET_1_1
       sta GEM_02_TARGET
-
       lda #SET_1_1
       sta GEM_02_TARGET
-
       lda #SET_1_L
       sta GEM_02_TARGET
-
       lda #SET_1_1
       sta GEM_02_TARGET
-
       lda #SET_1_1
       sta GEM_02_TARGET
 
       jmp loadframeafter
 
 loadframe2:
+      ; Emerald byte setting
       lda #SET_1_1
       sta GEM_02_TARGET
-
       lda #SET_1_1
       sta GEM_02_TARGET
-
       lda #SET_1_R
       sta GEM_02_TARGET
-
       lda #SET_1_1
       sta GEM_02_TARGET
-
       lda #SET_1_1
       sta GEM_02_TARGET
-
       lda #SET_1_1
       sta GEM_02_TARGET
-
       lda #SET_1_1
       sta GEM_02_TARGET
 
@@ -542,34 +528,41 @@ loadframe2:
 
 loadframeafter:
       sta WSYNC
+
 ; [row:7]
       jet_spritedata_calc
-
       sta WSYNC
+
 ; [row:8]
       jet_spritedata_calc
       sta WSYNC
+
 ; [row:9]
       jet_spritedata_calc
 
       ; next line, repeat until <0
+      ; This performs a long jump to frame_start.
       dec LoopCount
-      bmi .skip
+      bmi frame_bottom
       jmp frame_start
-.skip:
 
       ; reset the background for bottom of playfield
 frame_bottom:
+      sta WSYNC
+
+      ; Make the playfield solid.
       lda #%00111111
       sta PF1
       lda #%11111111
       sta PF2
 
+      ; Clear all sprites.
       lda #0
       sta EMERALD_SP
       sta JET_SP
       sta EMERALD_MI_ENABLE
 
+      ; Skip eight lines.
       sta WSYNC
       sta WSYNC
       sta WSYNC
@@ -579,6 +572,7 @@ frame_bottom:
       sta WSYNC
       sta WSYNC
 
+      ; Blank all background colors.
       lda #$00
       sta COLUBK
       sta COLUPF
@@ -615,18 +609,10 @@ frame_end:
       ; rorg $1100
 
 
+      ; Start new line
 frame_1_start:
-      ; 8c
-      ; little-endian means 0x0
-      lda $1100 + [frame_1_jump - frame_1_start]
-      adc #2
-      sta $1000 + [frame_1_jump - frame_1_start]
-
-      ; Start new line + HMOVE
-      ;sta HMOVE
-      ;sleep 8
-
       dec SpriteEnd
+      sleep 8
 
       lda #EMR1
       ldx #EMR2
@@ -649,9 +635,8 @@ frame_1_start:
       .byte GEM_08, EMERALD_MI_ENABLE
 
       ; cycle 64 (start of right border)
-      sleep 7
-frame_1_jump:
-      jmp (JUMP_TABLES)
+      sleep 6
+      rts
 frame_1_end:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -659,18 +644,13 @@ frame_1_end:
 ; FRAME 2
 
 frame_2_start:
-      ; 8c
-      ; little-endian means 0x0
-      lda $1100 + [frame_2_jump - frame_2_start]
-      adc #2
-      sta $1000 + [frame_2_jump - frame_2_start]
 
       ; Enable missile (using excessive lda instructions)
       lda #02
       .byte GEM_08, EMERALD_MI_ENABLE
 
       dec SpriteEnd
-      sleep 5
+      sleep 8
       ; ldy SpriteEnd
       ; lda Frame0,Y
       ; sta JET_SP
@@ -697,9 +677,8 @@ frame_2_start:
       sleep 3
 
       ; cycle 64 (start of right border)
-      sleep 7
-frame_2_jump:
-      jmp (JUMP_TABLES)
+      sleep 6
+      rts
 frame_2_end:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -821,10 +800,7 @@ DivideLoop
 ; Y can be from:
 ;     SPRITE_HEIGHT to (8*ROW_COUNT)
 ; SpriteEnd: 8..128
-; Frame0 should start at +120 so the Y rollunder of -$120 is OK
-      REPEAT 124
-            .byte 0
-      REPEND
+; Frame0 should start at +120 so the Y rollunder of -$120 is OK]
 Frame0
       .byte #%00000000
       .byte #%01100000
@@ -836,9 +812,6 @@ Frame0
       .byte #%11000000
       .byte #%11000000
       .byte #%00000000
-      REPEAT 124
-            .byte 0
-      REPEND
 
 
 ; Epilogue
