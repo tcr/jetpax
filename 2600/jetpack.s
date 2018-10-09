@@ -254,7 +254,7 @@ Start
       lda #THREE_COPIES
       sta EMERALD_COPIES
 
-      lda #$00
+      lda #$02
       sta COLUBK
       lda #%00000001
       sta CTRLPF             ; reflect playfield
@@ -356,6 +356,24 @@ CopyFrameNext:
       ldx #0
       jsr SetHorizPos
 
+
+      ; Choose which hmove value to use
+      ; FRAMESWITCH
+      lda #01
+      and FrameCount
+	bne doframe2
+
+      ; frame 1
+      lda #EMERALD_MI_HMOVE_2
+      sta EMERALD_MI_HMOVE
+      jmp doframe2after
+
+      ; frame 2
+doframe2:
+      lda #EMERALD_MI_HMOVE_3
+      sta EMERALD_MI_HMOVE
+doframe2after:
+
       TIMER_WAIT
       TIMER_SETUP 192
 
@@ -373,7 +391,11 @@ frame_top:
       lda #%11111111
       sta PF2
       sta WSYNC
+
+      sta HMOVE
+      sta HMCLR
       sta WSYNC
+
       sta WSYNC
       sta WSYNC
       sta WSYNC
@@ -389,26 +411,6 @@ PlayArea:
       sta PF1
       lda #%00000000
       sta PF2
-
-      ; Choose which kernel to use
-      ; FRAMESWITCH
-      lda #01
-      and FrameCount
-	bne doframe2
-
-      ; frame 1
-      ldx #EMERALD_MI_HMOVE_2
-      stx EMERALD_MI_HMOVE
-      jmp doframe2after
-
-      ; frame 2
-doframe2:
-      ldx #EMERALD_MI_HMOVE_3
-      stx EMERALD_MI_HMOVE
-doframe2after:
-      jmp frame_start
-
-
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -434,14 +436,6 @@ doframe2after:
       sta JET_SP ; 0c / 3c
 
       ENDM
-
-
-
-      align 8
-
-JUMP_TABLES:
-      .byte $00, $11
-      .byte <frame_row_start, >frame_row_start
 
 
       ; Start the frame with a WSYNC.
@@ -573,8 +567,9 @@ frame_bottom:
       sta WSYNC
 
       ; Blank all background colors.
-      lda #$00
+      lda #$02
       sta COLUBK
+      lda #0
       sta COLUPF
 
 frame_end:
@@ -630,7 +625,7 @@ frame_1_start:
       sta EMERALD_SP_RESET
       .byte GEM_17, EMERALD_MI_ENABLE
       .byte GEM_18, EMERALD_SP
-      sta HMCLR ; movable
+      sleep 3
       .byte GEM_22, EMERALD_SP
       .byte GEM_08, EMERALD_MI_ENABLE
 
@@ -673,8 +668,7 @@ frame_2_start:
       sta EMERALD_SP_RESET
       .byte GEM_20, EMERALD_SP
       .byte GEM_24, EMERALD_SP
-      sta HMCLR ; movable
-      sleep 3
+      sleep 6
 
       ; cycle 64 (start of right border)
       sleep 6
