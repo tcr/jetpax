@@ -280,7 +280,7 @@ Start
       stx EMERALD_SP_COLOR
 
       ; Player 1
-      lda #$98
+      lda #$0f
       sta JET_SP_COLOR
       lda #$00
       sta JET_SP
@@ -516,8 +516,8 @@ CopyFrameNext:
 
       ; Frame skipping for increasing demo index
       lda FrameCount
-      and #%1111
-      cmp #%1111
+      and #%111
+      cmp #%111
       bne .next_next_thing
 
       clc
