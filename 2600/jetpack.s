@@ -49,6 +49,10 @@ JMP_ADDR_2 byte
 
 ROW_COUNT        equ 16
 
+SIGNAL_LINE equ $34
+
+KERNEL_START equ $1100
+
 ; Sprites
 
 ; Nusiz
@@ -183,7 +187,8 @@ JET_SP_COLOR            equ COLUP0
 HEIGHT_OFFSET equ 200
 
 ; Compared with YPos
-FLOOR_OFFSET equ 50
+FLOOR_OFFSET equ 63
+CEILING_OFFSET equ 192
 
 ; YPos definite position 
 YPosStart equ 100
@@ -254,7 +259,7 @@ Start
       lda #THREE_COPIES
       sta EMERALD_COPIES
 
-      lda #$02
+      lda #$00
       sta COLUBK
       lda #%00000001
       sta CTRLPF             ; reflect playfield
@@ -305,27 +310,27 @@ BeginFrame
 	bne CopyFrame2Kernel
 CopyFrame1Kernel:
 
-      ; Copy: FRAME 1
-      ldy #(frame_1_end - frame_1_start)-1
+      ; Copy: KERNEL 1
+      ldy #(kernel_1_end - kernel_1_start)-1
 .copy_loop:
-      lda frame_1_start,Y
+      lda kernel_1_start,Y
       sta $1000,Y
       dey
       bne .copy_loop
-      lda frame_1_start
+      lda kernel_1_start
       sta $1000
       jmp CopyFrameNext
 
 CopyFrame2Kernel:
 
-      ; Copy: FRAME 2
-      ldy #(frame_2_end - frame_2_start)-1
+      ; Copy: KERNEL 2
+      ldy #(kernel_2_end - kernel_2_start)-1
 .copy_loop2:
-      lda frame_2_start,Y
+      lda kernel_2_start,Y
       sta $1000,Y
       dey
       bne .copy_loop2
-      lda frame_2_start
+      lda kernel_2_start
       sta $1000
       jmp CopyFrameNext
 
@@ -376,31 +381,59 @@ doframe2after:
 
       TIMER_WAIT
       TIMER_SETUP 192
+      sta WSYNC ; ???
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ; Frame border top
 
-      ; Start top border
-frame_top:
-      lda #COL_BG
+
+      ; First HMOVE
+      sta HMOVE
+
+      lda #0
       sta COLUPF
+      sta PF1
+      sta PF2
+      lda #SIGNAL_LINE
+      sta COLUBK
+
+      sta WSYNC
+
+      lda #0
+      sta COLUBK
+      sta WSYNC
+
+      ; Start top border
+border_top:
       ; Make the playfield solid.
       lda #%00111111
       sta PF1
       lda #%11111111
       sta PF2
+
+      lda #COL_BG
+      ldy #0
+
+      sta COLUPF
       sta WSYNC
 
-      sta HMOVE
-      sta HMCLR
+      sty COLUPF
+      sta WSYNC
+
+      sta COLUPF
       sta WSYNC
 
       sta WSYNC
+      
       sta WSYNC
+      
+      sty COLUPF
       sta WSYNC
+      
+      sta COLUPF
       sta WSYNC
-      sta WSYNC
+      
       sta WSYNC
 
 PlayArea:
@@ -440,33 +473,45 @@ PlayArea:
 
       ; Start the frame with a WSYNC.
 frame_start:
+      jet_spritedata_calc
       sta WSYNC
 
 ; [row:1]
       jet_spritedata_calc
+
+      lda #0
+      sta COLUPF
 
       ; Push jump table to the stack
       lda #>[frame_row_start - 1]
       pha
       lda #<[frame_row_start - 1]
       pha
+      lda #%1000001
+      pha
       lda #>[$1100 - 1]
       pha
       lda #<[$1100 - 1]
+      pha
+      lda #%1000001
       pha
       sta WSYNC
 
 ; [row:2]
       jet_spritedata_calc
+
+
+      lda #COL_BG
+      sta COLUPF
       
       ; Prepare for the kernel.
       ; TODO this has to be EXACT
-      sleep 48
+      sleep 43
       dec SpriteEnd
 
 ; [row:3-4]
       ; Jump to the copied kernel.
-      jmp $1100
+      jmp KERNEL_START
 
 frame_row_start: subroutine
 ; [row:5]
@@ -474,11 +519,15 @@ frame_row_start: subroutine
       lda #0
       sta EMERALD_MI_ENABLE
       sta EMERALD_SP
+      sta COLUPF
 
       sta WSYNC
 
 ; [row:6]
       jet_spritedata_calc
+
+      lda #COL_BG
+      sta COLUPF
 
       ; FRAMESWITCH
       lda #01
@@ -528,11 +577,6 @@ loadframeafter:
       sta WSYNC
 
 ; [row:8]
-      jet_spritedata_calc
-      sta WSYNC
-
-; [row:9]
-      jet_spritedata_calc
 
       ; next line, repeat until <0
       ; This performs a long jump to frame_start.
@@ -542,7 +586,7 @@ loadframeafter:
 
       ; reset the background for bottom of playfield
 frame_bottom:
-      sta WSYNC
+      ;sta WSYNC
 
       ; Make the playfield solid.
       lda #%00111111
@@ -556,26 +600,42 @@ frame_bottom:
       sta JET_SP
       sta EMERALD_MI_ENABLE
 
-      ; Skip eight lines.
+      lda #COL_BG
+      ldy #0
       sta WSYNC
+
+      sty COLUPF
       sta WSYNC
+
+      sta COLUPF
       sta WSYNC
+
       sta WSYNC
+
       sta WSYNC
+
+      sty COLUPF
       sta WSYNC
+
+      sta COLUPF
       sta WSYNC
       sta WSYNC
 
       ; Blank all background colors.
-      lda #$02
-      sta COLUBK
+frame_end:
       lda #0
       sta COLUPF
-
-frame_end:
-      ; End
-      lda #0
+      sta PF2
+      sta PF1
       sta EMERALD_SP
+
+      ; Guide lines (2x)
+      lda #SIGNAL_LINE
+      sta COLUBK
+      sta WSYNC
+      lda #$00
+      sta COLUBK
+      sta WSYNC
 
       TIMER_WAIT
       TIMER_SETUP 30
@@ -597,17 +657,14 @@ frame_end:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; FRAME 1
+; KERNEL 1
 
-; Emerald line macro
+; Emerald line macro (1, 2, ...)
 
-      ; rorg $1100
-
-
-      ; Start new line
-frame_1_start:
+kernel_1_start:
       dec SpriteEnd
-      sleep 8
+      pla
+      sta.w GRP0
 
       lda #EMR1
       ldx #EMR2
@@ -632,20 +689,23 @@ frame_1_start:
       ; cycle 64 (start of right border)
       sleep 6
       rts
-frame_1_end:
+kernel_1_end:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; FRAME 2
+; KERNEL 2
 
-frame_2_start:
+; Emerald line macro (3, 4, ...)
 
+kernel_2_start:
       ; Enable missile (using excessive lda instructions)
       lda #02
       .byte GEM_08, EMERALD_MI_ENABLE
 
       dec SpriteEnd
-      sleep 8
+      pla
+      sta.w GRP0
+      ; sleep 4
       ; ldy SpriteEnd
       ; lda Frame0,Y
       ; sta JET_SP
@@ -673,7 +733,7 @@ frame_2_start:
       ; cycle 64 (start of right border)
       sleep 6
       rts
-frame_2_end:
+kernel_2_end:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -756,13 +816,25 @@ SpeedCalculation
     cmp #FLOOR_OFFSET
     bcs NewThing2
 
-    ; Reset everything?
+    ; Reset to floor
     lda #FLOOR_OFFSET
     sta YPos
     lda #0
     sta Speed1
     sta Speed2
 NewThing2:
+    
+    cmp #CEILING_OFFSET
+    bcc .next
+
+    ; Reset to ceiling
+    lda #CEILING_OFFSET
+    sta YPos
+    lda #0
+    sta Speed1
+    sta Speed2  
+.next:
+
     rts
 
 
