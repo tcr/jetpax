@@ -444,7 +444,7 @@
      49 U008e
      50 U008e		       00 10	   ROW_COUNT  equ	16
      51 U008e
-     52 U008e		       00 34	   SIGNAL_LINE equ	$34
+     52 U008e		       00 52	   SIGNAL_LINE equ	$52
      53 U008e
      54 U008e		       11 00	   KERNEL_START equ	$1100
      55 U008e
@@ -583,7 +583,7 @@
     188 U008e
     189 U008e							; Compared with YPos
     190 U008e		       00 3f	   FLOOR_OFFSET equ	63
-    191 U008e		       00 c0	   CEILING_OFFSET equ	192
+    191 U008e		       00 bf	   CEILING_OFFSET equ	191
     192 U008e
     193 U008e							; YPos definite position
     194 U008e		       00 64	   YPosStart  equ	100
@@ -726,26 +726,26 @@
     311  f25f				   CopyFrame1Kernel
     312  f25f
     313  f25f							; Copy: KERNEL 1
-    314  f25f		       a0 2c		      ldy	#(kernel_1_end - kernel_1_start)-1
+    314  f25f		       a0 2d		      ldy	#(kernel_1_end - kernel_1_start)-1
     315  f261				   .copy_loop
-    316  f261		       b9 65 f4 	      lda	kernel_1_start,Y
+    316  f261		       b9 7e f4 	      lda	kernel_1_start,Y
     317  f264		       99 00 10 	      sta	$1000,Y
     318  f267		       88		      dey
     319  f268		       d0 f7		      bne	.copy_loop
-    320  f26a		       ad 65 f4 	      lda	kernel_1_start
+    320  f26a		       ad 7e f4 	      lda	kernel_1_start
     321  f26d		       8d 00 10 	      sta	$1000
     322  f270		       4c 87 f2 	      jmp	CopyFrameNext
     323  f273
     324  f273				   CopyFrame2Kernel
     325  f273
     326  f273							; Copy: KERNEL 2
-    327  f273		       a0 2c		      ldy	#(kernel_2_end - kernel_2_start)-1
+    327  f273		       a0 2d		      ldy	#(kernel_2_end - kernel_2_start)-1
     328  f275				   .copy_loop2
-    329  f275		       b9 92 f4 	      lda	kernel_2_start,Y
+    329  f275		       b9 ac f4 	      lda	kernel_2_start,Y
     330  f278		       99 00 10 	      sta	$1000,Y
     331  f27b		       88		      dey
     332  f27c		       d0 f7		      bne	.copy_loop2
-    333  f27e		       ad 92 f4 	      lda	kernel_2_start
+    333  f27e		       ad ac f4 	      lda	kernel_2_start
     334  f281		       8d 00 10 	      sta	$1000
     335  f284		       4c 87 f2 	      jmp	CopyFrameNext
     336  f287
@@ -884,7 +884,7 @@
     359  f2c3							; Player 1
     360  f2c3		       a5 86		      lda	XPos
     361  f2c5		       a2 00		      ldx	#0
-    362  f2c7		       20 2d f5 	      jsr	SetHorizPos
+    362  f2c7		       20 48 f5 	      jsr	SetHorizPos
     363  f2ca
     364  f2ca
     365  f2ca							; Choose which hmove value to use
@@ -927,7 +927,7 @@
     395  f2ed		       85 08		      sta	COLUPF
     396  f2ef		       85 0e		      sta	PF1
     397  f2f1		       85 0f		      sta	PF2
-    398  f2f3		       a9 34		      lda	#SIGNAL_LINE
+    398  f2f3		       a9 52		      lda	#SIGNAL_LINE
     399  f2f5		       85 09		      sta	COLUBK
     400  f2f7
     401  f2f7		       85 02		      sta	WSYNC
@@ -987,380 +987,378 @@
     455  f331
     456  f331							; MACRO for calculating next GRPx value
     457  f331
-    458  f331					      MAC	jet_spritedata_calc
-    459  f331					      lda	#SPRITE_HEIGHT
+    458  f331					      MAC	jet_spritedata_calc_nosta
+    459  f331							; loader
     460  f331					      dcp	SpriteEnd
-    461  f331					      ldy	SpriteEnd
-    462  f331
-    463  f331							; 4c
-    464  f331							; This must never be 5 cycles This mean Frame0 + Y must not cross below apage boundary.
-    465  f331					      lda	Frame0,Y
-    466  f331							; 6c
-    467  f331					      .byte	$b0, $01	;2c / 3c (taken)
-    468  f331					      .byte	$2c	; 4c / 0c
-    469  f331					      sta	JET_SP	; 0c / 3c
+    461  f331
+    462  f331							; 4c
+    463  f331							; This must never be 5 cycles This mean Frame0 + Y must not cross below apage boundary.
+    464  f331							; 6c
+    465  f331					      ldy	#0
+    466  f331					      .byte	$b0, $01	;2c / 3c (taken)
+    467  f331					      .byte	$2c	; 4c / 0c
+    468  f331				   .okok
+    469  f331					      ldy	SpriteEnd
     470  f331
     471  f331					      ENDM
     472  f331
-    473  f331
-    474  f331							; Start the frame with a WSYNC.
-    475  f331				   frame_start
+    473  f331					      MAC	jet_spritedata_calc
+    474  f331							; loader
+    475  f331					      lda	#SPRITE_HEIGHT
+    476  f331					      dcp	SpriteEnd
+    477  f331					      ldy	SpriteEnd
+    478  f331
+    479  f331							; 4c
+    480  f331							; This must never be 5 cycles This mean Frame0 + Y must not cross below apage boundary.
+    481  f331					      lda	Frame0,Y
+    482  f331							; 6c
+    483  f331					      .byte	$b0, $01	;2c / 3c (taken)
+    484  f331					      .byte	$2c	; 4c / 0c
+    485  f331					      sta	JET_SP	; 0c / 3c
+    486  f331
+    487  f331					      ENDM
+    488  f331
+    489  f331
+    490  f331							; Start the frame with a WSYNC.
+    491  f331				   frame_start
       0  f331					      jet_spritedata_calc
-      1  f331		       a9 09		      lda	#SPRITE_HEIGHT
-      2  f333		       c7 85		      dcp	SpriteEnd
-      3  f335		       a4 85		      ldy	SpriteEnd
-      4  f337
+      1  f331
+      2  f331		       a9 09		      lda	#SPRITE_HEIGHT
+      3  f333		       c7 85		      dcp	SpriteEnd
+      4  f335		       a4 85		      ldy	SpriteEnd
       5  f337
       6  f337
-      7  f337		       b9 00 f6 	      lda	Frame0,Y
-      8  f33a
-      9  f33a		       b0 01		      .byte.b	$b0, $01
-     10  f33c		       2c		      .byte.b	$2c
-     11  f33d		       85 1b		      sta	JET_SP
-     12  f33f
-    477  f33f		       85 02		      sta	WSYNC
-    478  f341
-    479  f341							; [row:1]
+      7  f337
+      8  f337		       b9 00 f6 	      lda	Frame0,Y
+      9  f33a
+     10  f33a		       b0 01		      .byte.b	$b0, $01
+     11  f33c		       2c		      .byte.b	$2c
+     12  f33d		       85 1b		      sta	JET_SP
+     13  f33f
+    493  f33f		       85 02		      sta	WSYNC
+    494  f341
+    495  f341							; [row:1]
       0  f341					      jet_spritedata_calc
-      1  f341		       a9 09		      lda	#SPRITE_HEIGHT
-      2  f343		       c7 85		      dcp	SpriteEnd
-      3  f345		       a4 85		      ldy	SpriteEnd
-      4  f347
+      1  f341
+      2  f341		       a9 09		      lda	#SPRITE_HEIGHT
+      3  f343		       c7 85		      dcp	SpriteEnd
+      4  f345		       a4 85		      ldy	SpriteEnd
       5  f347
       6  f347
-      7  f347		       b9 00 f6 	      lda	Frame0,Y
-      8  f34a
-      9  f34a		       b0 01		      .byte.b	$b0, $01
-     10  f34c		       2c		      .byte.b	$2c
-     11  f34d		       85 1b		      sta	JET_SP
-     12  f34f
-    481  f34f
-    482  f34f		       a9 00		      lda	#0
-    483  f351		       85 08		      sta	COLUPF
-    484  f353
-    485  f353							; Push jump table to the stack
-    486  f353		       a9 f3		      lda	#>[frame_row_start - 1]
-    487  f355		       48		      pha
-    488  f356		       a9 93		      lda	#<[frame_row_start - 1]
-    489  f358		       48		      pha
-    490  f359		       a9 41		      lda	#%1000001
-    491  f35b		       48		      pha
-    492  f35c		       a9 10		      lda	#>[$1100 - 1]
-    493  f35e		       48		      pha
-    494  f35f		       a9 ff		      lda	#<[$1100 - 1]
-    495  f361		       48		      pha
-    496  f362		       a9 41		      lda	#%1000001
-    497  f364		       48		      pha
-    498  f365		       85 02		      sta	WSYNC
-    499  f367
-    500  f367							; [row:2]
+      7  f347
+      8  f347		       b9 00 f6 	      lda	Frame0,Y
+      9  f34a
+     10  f34a		       b0 01		      .byte.b	$b0, $01
+     11  f34c		       2c		      .byte.b	$2c
+     12  f34d		       85 1b		      sta	JET_SP
+     13  f34f
+    497  f34f
+    498  f34f		       a9 00		      lda	#0
+    499  f351		       85 08		      sta	COLUPF
+    500  f353
+    501  f353							; Push jump table to the stack
+    502  f353		       a9 f3		      lda	#>[frame_row_start - 1]
+    503  f355		       48		      pha
+    504  f356		       a9 9c		      lda	#<[frame_row_start - 1]
+    505  f358		       48		      pha
+    506  f359		       a9 81		      lda	#%10000001
+    507  f35b		       48		      pha
+    508  f35c		       a9 10		      lda	#>[$1100 - 1]
+    509  f35e		       48		      pha
+    510  f35f		       a9 ff		      lda	#<[$1100 - 1]
+    511  f361		       48		      pha
+    512  f362		       a9 81		      lda	#%10000001
+    513  f364		       48		      pha
+    514  f365
+    515  f365		       85 02		      sta	WSYNC
+    516  f367
+    517  f367							; [row:2]
       0  f367					      jet_spritedata_calc
-      1  f367		       a9 09		      lda	#SPRITE_HEIGHT
-      2  f369		       c7 85		      dcp	SpriteEnd
-      3  f36b		       a4 85		      ldy	SpriteEnd
-      4  f36d
+      1  f367
+      2  f367		       a9 09		      lda	#SPRITE_HEIGHT
+      3  f369		       c7 85		      dcp	SpriteEnd
+      4  f36b		       a4 85		      ldy	SpriteEnd
       5  f36d
       6  f36d
-      7  f36d		       b9 00 f6 	      lda	Frame0,Y
-      8  f370
-      9  f370		       b0 01		      .byte.b	$b0, $01
-     10  f372		       2c		      .byte.b	$2c
-     11  f373		       85 1b		      sta	JET_SP
-     12  f375
-    502  f375
-    503  f375
-    504  f375		       a9 42		      lda	#COL_BG
-    505  f377		       85 08		      sta	COLUPF
-    506  f379
-    507  f379							; Prepare for the kernel.
-    508  f379							; TODO this has to be EXACT
-      0  f379					      sleep	43
-      1  f379				   .CYCLES    SET	43
-      2  f379
-      3  f379				  -	      IF	.CYCLES < 2
-      4  f379				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  f379				  -	      ERR
-      6  f379					      ENDIF
-      7  f379
-      8  f379					      IF	.CYCLES & 1
-      9  f379					      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f379		       04 00		      nop	0
-     11  f37b				  -	      ELSE
-     12  f37b				  -	      bit	VSYNC
-     13  f37b					      ENDIF
-     14  f37b				   .CYCLES    SET	.CYCLES - 3
-     15  f37b					      ENDIF
-     16  f37b
-     17  f37b					      REPEAT	.CYCLES / 2
-     18  f37b		       ea		      nop
-     17  f37b					      REPEND
-     18  f37c		       ea		      nop
-     17  f37c					      REPEND
-     18  f37d		       ea		      nop
-     17  f37d					      REPEND
-     18  f37e		       ea		      nop
-     17  f37e					      REPEND
-     18  f37f		       ea		      nop
-     17  f37f					      REPEND
-     18  f380		       ea		      nop
-     17  f380					      REPEND
-     18  f381		       ea		      nop
-     17  f381					      REPEND
-     18  f382		       ea		      nop
-     17  f382					      REPEND
-     18  f383		       ea		      nop
-     17  f383					      REPEND
-     18  f384		       ea		      nop
-     17  f384					      REPEND
-     18  f385		       ea		      nop
-     17  f385					      REPEND
-     18  f386		       ea		      nop
-     17  f386					      REPEND
-     18  f387		       ea		      nop
-     17  f387					      REPEND
-     18  f388		       ea		      nop
-     17  f388					      REPEND
-     18  f389		       ea		      nop
-     17  f389					      REPEND
-     18  f38a		       ea		      nop
-     17  f38a					      REPEND
-     18  f38b		       ea		      nop
-     17  f38b					      REPEND
-     18  f38c		       ea		      nop
-     17  f38c					      REPEND
-     18  f38d		       ea		      nop
-     17  f38d					      REPEND
-     18  f38e		       ea		      nop
-     19  f38f					      REPEND
-    510  f38f		       c6 85		      dec	SpriteEnd
-    511  f391
-    512  f391							; [row:3-4]
-    513  f391							; Jump to the copied kernel.
-    514  f391		       4c 00 11 	      jmp	KERNEL_START
-    515  f394
-    516  f394				   frame_row_start subroutine
-    517  f394							; [row:5]
-    518  f394							; Cleanup from the kernel.
-    519  f394		       a9 00		      lda	#0
-    520  f396		       85 1e		      sta	EMERALD_MI_ENABLE
-    521  f398		       85 1c		      sta	EMERALD_SP
-    522  f39a		       85 08		      sta	COLUPF
-    523  f39c
-    524  f39c		       85 02		      sta	WSYNC
-    525  f39e
-    526  f39e							; [row:6]
-      0  f39e					      jet_spritedata_calc
-      1  f39e		       a9 09		      lda	#SPRITE_HEIGHT
-      2  f3a0		       c7 85		      dcp	SpriteEnd
-      3  f3a2		       a4 85		      ldy	SpriteEnd
-      4  f3a4
-      5  f3a4
-      6  f3a4
-      7  f3a4		       b9 00 f6 	      lda	Frame0,Y
-      8  f3a7
-      9  f3a7		       b0 01		      .byte.b	$b0, $01
-     10  f3a9		       2c		      .byte.b	$2c
-     11  f3aa		       85 1b		      sta	JET_SP
-     12  f3ac
-    528  f3ac
-    529  f3ac		       a9 42		      lda	#COL_BG
-    530  f3ae		       85 08		      sta	COLUPF
-    531  f3b0
-    532  f3b0							; FRAMESWITCH
-    533  f3b0		       a9 01		      lda	#01
-    534  f3b2		       25 83		      and	FrameCount
-    535  f3b4		       d0 1b		      bne	loadframe2
-    536  f3b6				   loadframe1
-    537  f3b6							; Emerald byte setting
-    538  f3b6		       a9 84		      lda	#SET_1_1
-    539  f3b8		       85 8b		      sta	GEM_02_TARGET
-    540  f3ba		       a9 84		      lda	#SET_1_1
-    541  f3bc		       85 8b		      sta	GEM_02_TARGET
-    542  f3be		       a9 84		      lda	#SET_1_1
-    543  f3c0		       85 8b		      sta	GEM_02_TARGET
-    544  f3c2		       a9 85		      lda	#SET_1_L
-    545  f3c4		       85 8b		      sta	GEM_02_TARGET
-    546  f3c6		       a9 84		      lda	#SET_1_1
-    547  f3c8		       85 8b		      sta	GEM_02_TARGET
-    548  f3ca		       a9 84		      lda	#SET_1_1
-    549  f3cc		       85 8b		      sta	GEM_02_TARGET
-    550  f3ce
-    551  f3ce		       4c f0 f3 	      jmp	loadframeafter
-    552  f3d1
-    553  f3d1				   loadframe2
-    554  f3d1							; Emerald byte setting
-    555  f3d1		       a9 84		      lda	#SET_1_1
-    556  f3d3		       85 8b		      sta	GEM_02_TARGET
-    557  f3d5		       a9 84		      lda	#SET_1_1
-    558  f3d7		       85 8b		      sta	GEM_02_TARGET
-    559  f3d9		       a9 84		      lda	#SET_1_R
-    560  f3db		       85 8b		      sta	GEM_02_TARGET
-    561  f3dd		       a9 84		      lda	#SET_1_1
-    562  f3df		       85 8b		      sta	GEM_02_TARGET
-    563  f3e1		       a9 84		      lda	#SET_1_1
-    564  f3e3		       85 8b		      sta	GEM_02_TARGET
-    565  f3e5		       a9 84		      lda	#SET_1_1
-    566  f3e7		       85 8b		      sta	GEM_02_TARGET
-    567  f3e9		       a9 84		      lda	#SET_1_1
-    568  f3eb		       85 8b		      sta	GEM_02_TARGET
-    569  f3ed
-    570  f3ed		       4c f0 f3 	      jmp	loadframeafter
-    571  f3f0
-    572  f3f0				   loadframeafter
-    573  f3f0		       85 02		      sta	WSYNC
-    574  f3f2
-    575  f3f2							; [row:7]
-      0  f3f2					      jet_spritedata_calc
-      1  f3f2		       a9 09		      lda	#SPRITE_HEIGHT
-      2  f3f4		       c7 85		      dcp	SpriteEnd
-      3  f3f6		       a4 85		      ldy	SpriteEnd
-      4  f3f8
-      5  f3f8
-      6  f3f8
-      7  f3f8		       b9 00 f6 	      lda	Frame0,Y
-      8  f3fb
-      9  f3fb		       b0 01		      .byte.b	$b0, $01
-     10  f3fd		       2c		      .byte.b	$2c
-     11  f3fe		       85 1b		      sta	JET_SP
-     12  f400
-    577  f400		       85 02		      sta	WSYNC
-    578  f402
-    579  f402							; [row:8]
-    580  f402
-    581  f402							; next line, repeat until <0
-    582  f402							; This performs a long jump to frame_start.
-    583  f402		       c6 82		      dec	LoopCount
-    584  f404		       30 03		      bmi	frame_bottom
-    585  f406		       4c 31 f3 	      jmp	frame_start
-    586  f409
-    587  f409							; reset the background for bottom of playfield
-    588  f409				   frame_bottom
-    589  f409							;sta WSYNC
-    590  f409
-    591  f409							; Make the playfield solid.
-    592  f409		       a9 3f		      lda	#%00111111
-    593  f40b		       85 0e		      sta	PF1
-    594  f40d		       a9 ff		      lda	#%11111111
-    595  f40f		       85 0f		      sta	PF2
-    596  f411
-    597  f411							; Clear all sprites.
-    598  f411		       a9 00		      lda	#0
-    599  f413		       85 1c		      sta	EMERALD_SP
-    600  f415		       85 1b		      sta	JET_SP
-    601  f417		       85 1e		      sta	EMERALD_MI_ENABLE
-    602  f419
-    603  f419		       a9 42		      lda	#COL_BG
-    604  f41b		       a0 00		      ldy	#0
-    605  f41d		       85 02		      sta	WSYNC
-    606  f41f
-    607  f41f		       84 08		      sty	COLUPF
-    608  f421		       85 02		      sta	WSYNC
-    609  f423
-    610  f423		       85 08		      sta	COLUPF
-    611  f425		       85 02		      sta	WSYNC
-    612  f427
-    613  f427		       85 02		      sta	WSYNC
-    614  f429
-    615  f429		       85 02		      sta	WSYNC
-    616  f42b
-    617  f42b		       84 08		      sty	COLUPF
-    618  f42d		       85 02		      sta	WSYNC
-    619  f42f
-    620  f42f		       85 08		      sta	COLUPF
-    621  f431		       85 02		      sta	WSYNC
-    622  f433		       85 02		      sta	WSYNC
-    623  f435
-    624  f435							; Blank all background colors.
-    625  f435				   frame_end
-    626  f435		       a9 00		      lda	#0
-    627  f437		       85 08		      sta	COLUPF
-    628  f439		       85 0f		      sta	PF2
-    629  f43b		       85 0e		      sta	PF1
-    630  f43d		       85 1c		      sta	EMERALD_SP
-    631  f43f
-    632  f43f							; Guide lines (2x)
-    633  f43f		       a9 34		      lda	#SIGNAL_LINE
-    634  f441		       85 09		      sta	COLUBK
-    635  f443		       85 02		      sta	WSYNC
-    636  f445		       a9 00		      lda	#$00
-    637  f447		       85 09		      sta	COLUBK
-    638  f449		       85 02		      sta	WSYNC
-    639  f44b
-      0  f44b					      TIMER_WAIT
-      1  f44b				   .waittimer
-      2  f44b		       ad 84 02 	      lda	INTIM
-      3  f44e		       d0 fb		      bne	.waittimer
-      0  f450					      TIMER_SETUP	30
-      1  f450				   .lines     SET	30
-      2  f450		       a9 22		      lda	#(((.lines-1)*76-14)/64)
-      3  f452		       85 02		      sta	WSYNC
-      4  f454		       8d 96 02 	      sta	TIM64T
-    642  f457
-    643  f457		       20 bf f4 	      jsr	MoveJoystick
-    644  f45a		       20 f6 f4 	      jsr	SpeedCalculation
-    645  f45d
-      0  f45d					      TIMER_WAIT
-      1  f45d				   .waittimer
-      2  f45d		       ad 84 02 	      lda	INTIM
-      3  f460		       d0 fb		      bne	.waittimer
-    647  f462		       4c 43 f2 	      jmp	BeginFrame
-    648  f465
-    649  f465
-    650  f465							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    651  f465
-    652  f465							; kernels
-    653  f465
-    654  f465
-    655  f465							; Important cycles for the kernels:
-    656  f465							; left border: 29, right border: 64
-    657  f465
-    658  f465							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    659  f465
-    660  f465							; KERNEL 1
-    661  f465
-    662  f465							; Emerald line macro (1, 2, ...)
-    663  f465
-    664  f465				   kernel_1_start
-    665  f465		       c6 85		      dec	SpriteEnd
-    666  f467		       68		      pla
-    667  f468		       8d 1b 00 	      sta.w	GRP0
-    668  f46b
-    669  f46b		       a9 60		      lda	#EMR1
-    670  f46d		       a2 06		      ldx	#EMR2
-    671  f46f		       a0 66		      ldy	#EMR3
-    672  f471		       84 1c		      .byte.b	GEM_00, EMERALD_SP
-    673  f473
-    674  f473							; 22
-    675  f473		       85 11		      sta	EMERALD_SP_RESET
-      0  f475					      sleep	6
-      1  f475				   .CYCLES    SET	6
-      2  f475
-      3  f475				  -	      IF	.CYCLES < 2
-      4  f475				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  f475				  -	      ERR
-      6  f475					      ENDIF
-      7  f475
-      8  f475				  -	      IF	.CYCLES & 1
-      9  f475				  -	      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f475				  -	      nop	0
-     11  f475				  -	      ELSE
-     12  f475				  -	      bit	VSYNC
-     13  f475				  -	      ENDIF
-     14  f475				  -.CYCLES    SET	.CYCLES - 3
-     15  f475					      ENDIF
-     16  f475
-     17  f475					      REPEAT	.CYCLES / 2
-     18  f475		       ea		      nop
-     17  f475					      REPEND
-     18  f476		       ea		      nop
-     17  f476					      REPEND
-     18  f477		       ea		      nop
-     19  f478					      REPEND
-    677  f478		       84 1c		      .byte.b	GEM_04, EMERALD_SP
-    678  f47a		       85 11		      sta	EMERALD_SP_RESET
-    679  f47c		       84 1c		      .byte.b	GEM_09, EMERALD_SP
-      0  f47e					      sleep	3
-      1  f47e				   .CYCLES    SET	3
+      7  f36d
+      8  f36d		       b9 00 f6 	      lda	Frame0,Y
+      9  f370
+     10  f370		       b0 01		      .byte.b	$b0, $01
+     11  f372		       2c		      .byte.b	$2c
+     12  f373		       85 1b		      sta	JET_SP
+     13  f375
+    519  f375
+    520  f375
+    521  f375		       a9 42		      lda	#COL_BG
+    522  f377		       85 08		      sta	COLUPF
+    523  f379
+    524  f379
+    525  f379		       a9 09		      lda	#SPRITE_HEIGHT
+      0  f37b					      jet_spritedata_calc_nosta
+      1  f37b
+      2  f37b		       c7 85		      dcp	SpriteEnd
+      3  f37d
+      4  f37d
+      5  f37d
+      6  f37d
+      7  f37d		       a0 00		      ldy	#0
+      8  f37f		       b0 01		      .byte.b	$b0, $01
+      9  f381		       2c		      .byte.b	$2c
+     10  f382				   .okok
+     11  f382		       a4 85		      ldy	SpriteEnd
+     12  f384
+    527  f384		       b9 00 f6 	      lda	Frame0,Y
+    528  f387		       85 fa		      sta	$fa
+      0  f389					      jet_spritedata_calc_nosta
+      1  f389
+      2  f389		       c7 85		      dcp	SpriteEnd
+      3  f38b
+      4  f38b
+      5  f38b
+      6  f38b
+      7  f38b		       a0 00		      ldy	#0
+      8  f38d		       b0 01		      .byte.b	$b0, $01
+      9  f38f		       2c		      .byte.b	$2c
+     10  f390				   .okok
+     11  f390		       a4 85		      ldy	SpriteEnd
+     12  f392
+    530  f392		       b9 00 f6 	      lda	Frame0,Y
+    531  f395		       85 fd		      sta	$fd
+    532  f397
+      0  f397					      sleep	6
+      1  f397				   .CYCLES    SET	6
+      2  f397
+      3  f397				  -	      IF	.CYCLES < 2
+      4  f397				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  f397				  -	      ERR
+      6  f397					      ENDIF
+      7  f397
+      8  f397				  -	      IF	.CYCLES & 1
+      9  f397				  -	      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f397				  -	      nop	0
+     11  f397				  -	      ELSE
+     12  f397				  -	      bit	VSYNC
+     13  f397				  -	      ENDIF
+     14  f397				  -.CYCLES    SET	.CYCLES - 3
+     15  f397					      ENDIF
+     16  f397
+     17  f397					      REPEAT	.CYCLES / 2
+     18  f397		       ea		      nop
+     17  f397					      REPEND
+     18  f398		       ea		      nop
+     17  f398					      REPEND
+     18  f399		       ea		      nop
+     19  f39a					      REPEND
+    534  f39a
+    535  f39a							; [row:3-4]
+    536  f39a							; Jump to the copied kernel.
+    537  f39a				   help_me
+    538  f39a		       4c 00 11 	      jmp	KERNEL_START
+    539  f39d
+    540  f39d				   frame_row_start subroutine
+    541  f39d							; [row:5]
+    542  f39d							; Cleanup from the kernel.
+    543  f39d		       a9 00		      lda	#0
+    544  f39f		       85 1e		      sta	EMERALD_MI_ENABLE
+    545  f3a1		       85 1c		      sta	EMERALD_SP
+    546  f3a3		       85 08		      sta	COLUPF
+    547  f3a5
+      0  f3a5					      jet_spritedata_calc
+      1  f3a5
+      2  f3a5		       a9 09		      lda	#SPRITE_HEIGHT
+      3  f3a7		       c7 85		      dcp	SpriteEnd
+      4  f3a9		       a4 85		      ldy	SpriteEnd
+      5  f3ab
+      6  f3ab
+      7  f3ab
+      8  f3ab		       b9 00 f6 	      lda	Frame0,Y
+      9  f3ae
+     10  f3ae		       b0 01		      .byte.b	$b0, $01
+     11  f3b0		       2c		      .byte.b	$2c
+     12  f3b1		       85 1b		      sta	JET_SP
+     13  f3b3
+    549  f3b3
+    550  f3b3		       85 02		      sta	WSYNC
+    551  f3b5
+    552  f3b5							; [row:6]
+      0  f3b5					      jet_spritedata_calc
+      1  f3b5
+      2  f3b5		       a9 09		      lda	#SPRITE_HEIGHT
+      3  f3b7		       c7 85		      dcp	SpriteEnd
+      4  f3b9		       a4 85		      ldy	SpriteEnd
+      5  f3bb
+      6  f3bb
+      7  f3bb
+      8  f3bb		       b9 00 f6 	      lda	Frame0,Y
+      9  f3be
+     10  f3be		       b0 01		      .byte.b	$b0, $01
+     11  f3c0		       2c		      .byte.b	$2c
+     12  f3c1		       85 1b		      sta	JET_SP
+     13  f3c3
+    554  f3c3
+    555  f3c3		       a9 42		      lda	#COL_BG
+    556  f3c5		       85 08		      sta	COLUPF
+    557  f3c7
+    558  f3c7							; FRAMESWITCH
+    559  f3c7		       a9 01		      lda	#01
+    560  f3c9		       25 83		      and	FrameCount
+    561  f3cb		       d0 1b		      bne	loadframe2
+    562  f3cd				   loadframe1
+    563  f3cd							; Emerald byte setting
+    564  f3cd		       a9 84		      lda	#SET_1_1
+    565  f3cf		       85 8b		      sta	GEM_02_TARGET
+    566  f3d1		       a9 84		      lda	#SET_1_1
+    567  f3d3		       85 8b		      sta	GEM_02_TARGET
+    568  f3d5		       a9 84		      lda	#SET_1_1
+    569  f3d7		       85 8b		      sta	GEM_02_TARGET
+    570  f3d9		       a9 85		      lda	#SET_1_L
+    571  f3db		       85 8b		      sta	GEM_02_TARGET
+    572  f3dd		       a9 84		      lda	#SET_1_1
+    573  f3df		       85 8b		      sta	GEM_02_TARGET
+    574  f3e1		       a9 84		      lda	#SET_1_1
+    575  f3e3		       85 8b		      sta	GEM_02_TARGET
+    576  f3e5
+    577  f3e5		       4c 07 f4 	      jmp	loadframeafter
+    578  f3e8
+    579  f3e8				   loadframe2
+    580  f3e8							; Emerald byte setting
+    581  f3e8		       a9 84		      lda	#SET_1_1
+    582  f3ea		       85 8b		      sta	GEM_02_TARGET
+    583  f3ec		       a9 84		      lda	#SET_1_1
+    584  f3ee		       85 8b		      sta	GEM_02_TARGET
+    585  f3f0		       a9 84		      lda	#SET_1_R
+    586  f3f2		       85 8b		      sta	GEM_02_TARGET
+    587  f3f4		       a9 84		      lda	#SET_1_1
+    588  f3f6		       85 8b		      sta	GEM_02_TARGET
+    589  f3f8		       a9 84		      lda	#SET_1_1
+    590  f3fa		       85 8b		      sta	GEM_02_TARGET
+    591  f3fc		       a9 84		      lda	#SET_1_1
+    592  f3fe		       85 8b		      sta	GEM_02_TARGET
+    593  f400		       a9 84		      lda	#SET_1_1
+    594  f402		       85 8b		      sta	GEM_02_TARGET
+    595  f404
+    596  f404		       4c 07 f4 	      jmp	loadframeafter
+    597  f407
+    598  f407				   loadframeafter
+    599  f407		       85 02		      sta	WSYNC
+    600  f409
+    601  f409							; [row:7]
+      0  f409					      jet_spritedata_calc
+      1  f409
+      2  f409		       a9 09		      lda	#SPRITE_HEIGHT
+      3  f40b		       c7 85		      dcp	SpriteEnd
+      4  f40d		       a4 85		      ldy	SpriteEnd
+      5  f40f
+      6  f40f
+      7  f40f
+      8  f40f		       b9 00 f6 	      lda	Frame0,Y
+      9  f412
+     10  f412		       b0 01		      .byte.b	$b0, $01
+     11  f414		       2c		      .byte.b	$2c
+     12  f415		       85 1b		      sta	JET_SP
+     13  f417
+    603  f417		       85 02		      sta	WSYNC
+    604  f419
+    605  f419							; [row:8]
+    606  f419
+    607  f419							; next line, repeat until <0
+    608  f419							; This performs a long jump to frame_start.
+    609  f419		       c6 82		      dec	LoopCount
+    610  f41b		       30 03		      bmi	frame_bottom
+    611  f41d		       4c 31 f3 	      jmp	frame_start
+    612  f420
+    613  f420							; reset the background for bottom of playfield
+    614  f420				   frame_bottom
+    615  f420							;sta WSYNC
+    616  f420
+    617  f420							; Make the playfield solid.
+    618  f420		       a9 3f		      lda	#%00111111
+    619  f422		       85 0e		      sta	PF1
+    620  f424		       a9 ff		      lda	#%11111111
+    621  f426		       85 0f		      sta	PF2
+    622  f428
+    623  f428							; Clear all sprites.
+    624  f428		       a9 00		      lda	#0
+    625  f42a		       85 1c		      sta	EMERALD_SP
+    626  f42c		       85 1b		      sta	JET_SP
+    627  f42e		       85 1e		      sta	EMERALD_MI_ENABLE
+    628  f430
+    629  f430		       a9 42		      lda	#COL_BG
+    630  f432		       a0 00		      ldy	#0
+    631  f434		       85 02		      sta	WSYNC
+    632  f436
+    633  f436		       84 08		      sty	COLUPF
+    634  f438		       85 02		      sta	WSYNC
+    635  f43a
+    636  f43a		       85 08		      sta	COLUPF
+    637  f43c		       85 02		      sta	WSYNC
+    638  f43e
+    639  f43e		       85 02		      sta	WSYNC
+    640  f440
+    641  f440		       85 02		      sta	WSYNC
+    642  f442
+    643  f442		       84 08		      sty	COLUPF
+    644  f444		       85 02		      sta	WSYNC
+    645  f446
+    646  f446		       85 08		      sta	COLUPF
+    647  f448		       85 02		      sta	WSYNC
+    648  f44a		       85 02		      sta	WSYNC
+    649  f44c
+    650  f44c							; Blank all background colors.
+    651  f44c				   frame_end
+    652  f44c		       a9 00		      lda	#0
+    653  f44e		       85 08		      sta	COLUPF
+    654  f450		       85 0f		      sta	PF2
+    655  f452		       85 0e		      sta	PF1
+    656  f454		       85 1c		      sta	EMERALD_SP
+    657  f456		       85 02		      sta	WSYNC
+    658  f458
+    659  f458							; Guide lines (2x)
+    660  f458		       a9 52		      lda	#SIGNAL_LINE
+    661  f45a		       85 09		      sta	COLUBK
+    662  f45c		       85 02		      sta	WSYNC
+    663  f45e		       a9 00		      lda	#$00
+    664  f460		       85 09		      sta	COLUBK
+    665  f462		       85 02		      sta	WSYNC
+    666  f464
+      0  f464					      TIMER_WAIT
+      1  f464				   .waittimer
+      2  f464		       ad 84 02 	      lda	INTIM
+      3  f467		       d0 fb		      bne	.waittimer
+      0  f469					      TIMER_SETUP	30
+      1  f469				   .lines     SET	30
+      2  f469		       a9 22		      lda	#(((.lines-1)*76-14)/64)
+      3  f46b		       85 02		      sta	WSYNC
+      4  f46d		       8d 96 02 	      sta	TIM64T
+    669  f470
+    670  f470		       20 da f4 	      jsr	MoveJoystick
+    671  f473		       20 11 f5 	      jsr	SpeedCalculation
+    672  f476
+      0  f476					      TIMER_WAIT
+      1  f476				   .waittimer
+      2  f476		       ad 84 02 	      lda	INTIM
+      3  f479		       d0 fb		      bne	.waittimer
+    674  f47b		       4c 43 f2 	      jmp	BeginFrame
+    675  f47e
+    676  f47e
+    677  f47e							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    678  f47e
+    679  f47e							; kernels
+    680  f47e
+    681  f47e
+    682  f47e							; Important cycles for the kernels:
+    683  f47e							; left border: 29, right border: 64
+    684  f47e
+    685  f47e							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    686  f47e
+    687  f47e							; KERNEL 1
+    688  f47e
+    689  f47e							; Emerald line macro (1, 2, ...)
+    690  f47e
+    691  f47e				   kernel_1_start
+    692  f47e							;dec SpriteEnd
+      0  f47e					      sleep	5
+      1  f47e				   .CYCLES    SET	5
       2  f47e
       3  f47e				  -	      IF	.CYCLES < 2
       4  f47e				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
@@ -1376,340 +1374,417 @@
      14  f480				   .CYCLES    SET	.CYCLES - 3
      15  f480					      ENDIF
      16  f480
-     17  f480				  -	      REPEAT	.CYCLES / 2
-     18  f480				  -	      nop
-     19  f480					      REPEND
-    681  f480		       84 1c		      .byte.b	GEM_13, EMERALD_SP
-    682  f482		       85 11		      sta	EMERALD_SP_RESET
-    683  f484		       84 1e		      .byte.b	GEM_17, EMERALD_MI_ENABLE
-    684  f486		       84 1c		      .byte.b	GEM_18, EMERALD_SP
-      0  f488					      sleep	3
-      1  f488				   .CYCLES    SET	3
-      2  f488
-      3  f488				  -	      IF	.CYCLES < 2
-      4  f488				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  f488				  -	      ERR
-      6  f488					      ENDIF
-      7  f488
-      8  f488					      IF	.CYCLES & 1
-      9  f488					      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f488		       04 00		      nop	0
-     11  f48a				  -	      ELSE
-     12  f48a				  -	      bit	VSYNC
-     13  f48a					      ENDIF
-     14  f48a				   .CYCLES    SET	.CYCLES - 3
-     15  f48a					      ENDIF
-     16  f48a
-     17  f48a				  -	      REPEAT	.CYCLES / 2
-     18  f48a				  -	      nop
-     19  f48a					      REPEND
-    686  f48a		       84 1c		      .byte.b	GEM_22, EMERALD_SP
-    687  f48c		       85 1e		      .byte.b	GEM_08, EMERALD_MI_ENABLE
-    688  f48e
-    689  f48e							; cycle 64 (start of right border)
-      0  f48e					      sleep	6
-      1  f48e				   .CYCLES    SET	6
-      2  f48e
-      3  f48e				  -	      IF	.CYCLES < 2
-      4  f48e				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  f48e				  -	      ERR
-      6  f48e					      ENDIF
-      7  f48e
-      8  f48e				  -	      IF	.CYCLES & 1
-      9  f48e				  -	      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f48e				  -	      nop	0
-     11  f48e				  -	      ELSE
-     12  f48e				  -	      bit	VSYNC
-     13  f48e				  -	      ENDIF
-     14  f48e				  -.CYCLES    SET	.CYCLES - 3
-     15  f48e					      ENDIF
-     16  f48e
-     17  f48e					      REPEAT	.CYCLES / 2
-     18  f48e		       ea		      nop
-     17  f48e					      REPEND
+     17  f480					      REPEAT	.CYCLES / 2
+     18  f480		       ea		      nop
+     19  f481					      REPEND
+    694  f481		       68		      pla
+    695  f482		       8d 1b 00 	      sta.w	GRP0
+    696  f485
+    697  f485		       a9 60		      lda	#EMR1
+    698  f487		       a2 06		      ldx	#EMR2
+    699  f489		       a0 66		      ldy	#EMR3
+    700  f48b		       84 1c		      .byte.b	GEM_00, EMERALD_SP
+    701  f48d
+    702  f48d							; 22
+    703  f48d		       85 11		      sta	EMERALD_SP_RESET
+      0  f48f					      sleep	6
+      1  f48f				   .CYCLES    SET	6
+      2  f48f
+      3  f48f				  -	      IF	.CYCLES < 2
+      4  f48f				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  f48f				  -	      ERR
+      6  f48f					      ENDIF
+      7  f48f
+      8  f48f				  -	      IF	.CYCLES & 1
+      9  f48f				  -	      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f48f				  -	      nop	0
+     11  f48f				  -	      ELSE
+     12  f48f				  -	      bit	VSYNC
+     13  f48f				  -	      ENDIF
+     14  f48f				  -.CYCLES    SET	.CYCLES - 3
+     15  f48f					      ENDIF
+     16  f48f
+     17  f48f					      REPEAT	.CYCLES / 2
      18  f48f		       ea		      nop
      17  f48f					      REPEND
      18  f490		       ea		      nop
-     19  f491					      REPEND
-    691  f491		       60		      rts
-    692  f492				   kernel_1_end
-    693  f492
-    694  f492							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    695  f492
-    696  f492							; KERNEL 2
-    697  f492
-    698  f492							; Emerald line macro (3, 4, ...)
-    699  f492
-    700  f492				   kernel_2_start
-    701  f492							; Enable missile (using excessive lda instructions)
-    702  f492		       a9 02		      lda	#02
-    703  f494		       85 1e		      .byte.b	GEM_08, EMERALD_MI_ENABLE
-    704  f496
-    705  f496		       c6 85		      dec	SpriteEnd
-    706  f498		       68		      pla
-    707  f499		       8d 1b 00 	      sta.w	GRP0
-    708  f49c							; sleep 4
-    709  f49c							; ldy SpriteEnd
-    710  f49c							; lda Frame0,Y
-    711  f49c							; sta JET_SP
-    712  f49c
-    713  f49c							; moved: lda #T1
-    714  f49c		       a2 0c		      ldx	#T2
-    715  f49e		       a0 cc		      ldy	#T3
-    716  f4a0		       84 1c		      .byte.b	GEM_02, EMERALD_SP
-    717  f4a2
-    718  f4a2							; cycle 25
-    719  f4a2		       85 11		      sta	EMERALD_SP_RESET
-    720  f4a4		       a9 c0		      lda	#T1	; movable
-      0  f4a6					      sleep	4
-      1  f4a6				   .CYCLES    SET	4
-      2  f4a6
-      3  f4a6				  -	      IF	.CYCLES < 2
-      4  f4a6				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  f4a6				  -	      ERR
-      6  f4a6					      ENDIF
-      7  f4a6
-      8  f4a6				  -	      IF	.CYCLES & 1
-      9  f4a6				  -	      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f4a6				  -	      nop	0
-     11  f4a6				  -	      ELSE
-     12  f4a6				  -	      bit	VSYNC
-     13  f4a6				  -	      ENDIF
-     14  f4a6				  -.CYCLES    SET	.CYCLES - 3
-     15  f4a6					      ENDIF
-     16  f4a6
-     17  f4a6					      REPEAT	.CYCLES / 2
-     18  f4a6		       ea		      nop
-     17  f4a6					      REPEND
-     18  f4a7		       ea		      nop
-     19  f4a8					      REPEND
-    722  f4a8		       84 1c		      .byte.b	GEM_06, EMERALD_SP
-    723  f4aa		       85 11		      sta	EMERALD_SP_RESET
-    724  f4ac		       84 1c		      .byte.b	GEM_11, EMERALD_SP
-    725  f4ae							; stx EMERALD_MI_ENABLE ; stx disables it
-      0  f4ae					      sleep	3
-      1  f4ae				   .CYCLES    SET	3
-      2  f4ae
-      3  f4ae				  -	      IF	.CYCLES < 2
-      4  f4ae				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  f4ae				  -	      ERR
-      6  f4ae					      ENDIF
-      7  f4ae
-      8  f4ae					      IF	.CYCLES & 1
-      9  f4ae					      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f4ae		       04 00		      nop	0
-     11  f4b0				  -	      ELSE
-     12  f4b0				  -	      bit	VSYNC
-     13  f4b0					      ENDIF
-     14  f4b0				   .CYCLES    SET	.CYCLES - 3
-     15  f4b0					      ENDIF
-     16  f4b0
-     17  f4b0				  -	      REPEAT	.CYCLES / 2
-     18  f4b0				  -	      nop
-     19  f4b0					      REPEND
-    727  f4b0		       84 1c		      .byte.b	GEM_15, EMERALD_SP
-    728  f4b2		       85 11		      sta	EMERALD_SP_RESET
-    729  f4b4		       84 1c		      .byte.b	GEM_20, EMERALD_SP
-    730  f4b6		       84 1c		      .byte.b	GEM_24, EMERALD_SP
-      0  f4b8					      sleep	6
-      1  f4b8				   .CYCLES    SET	6
-      2  f4b8
-      3  f4b8				  -	      IF	.CYCLES < 2
-      4  f4b8				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  f4b8				  -	      ERR
-      6  f4b8					      ENDIF
-      7  f4b8
-      8  f4b8				  -	      IF	.CYCLES & 1
-      9  f4b8				  -	      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f4b8				  -	      nop	0
-     11  f4b8				  -	      ELSE
-     12  f4b8				  -	      bit	VSYNC
-     13  f4b8				  -	      ENDIF
-     14  f4b8				  -.CYCLES    SET	.CYCLES - 3
-     15  f4b8					      ENDIF
-     16  f4b8
-     17  f4b8					      REPEAT	.CYCLES / 2
-     18  f4b8		       ea		      nop
-     17  f4b8					      REPEND
-     18  f4b9		       ea		      nop
-     17  f4b9					      REPEND
-     18  f4ba		       ea		      nop
-     19  f4bb					      REPEND
-    732  f4bb
-    733  f4bb							; cycle 64 (start of right border)
-      0  f4bb					      sleep	6
-      1  f4bb				   .CYCLES    SET	6
-      2  f4bb
-      3  f4bb				  -	      IF	.CYCLES < 2
-      4  f4bb				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  f4bb				  -	      ERR
-      6  f4bb					      ENDIF
-      7  f4bb
-      8  f4bb				  -	      IF	.CYCLES & 1
-      9  f4bb				  -	      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f4bb				  -	      nop	0
-     11  f4bb				  -	      ELSE
-     12  f4bb				  -	      bit	VSYNC
-     13  f4bb				  -	      ENDIF
-     14  f4bb				  -.CYCLES    SET	.CYCLES - 3
-     15  f4bb					      ENDIF
-     16  f4bb
-     17  f4bb					      REPEAT	.CYCLES / 2
-     18  f4bb		       ea		      nop
-     17  f4bb					      REPEND
-     18  f4bc		       ea		      nop
-     17  f4bc					      REPEND
-     18  f4bd		       ea		      nop
-     19  f4be					      REPEND
-    735  f4be		       60		      rts
-    736  f4bf				   kernel_2_end
-    737  f4bf
-    738  f4bf							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    739  f4bf
-    740  f4bf							; SUBROUTINE
-    741  f4bf							; Read joystick movement and apply to object 0
-    742  f4bf				   MoveJoystick
-    743  f4bf							; Move vertically
-    744  f4bf							; (up and down are actually reversed since ypos starts at bottom)
-    745  f4bf							;     ldx YPos
-    746  f4bf		       a9 10		      lda	#%00010000	;Up?
-    747  f4c1		       2c 80 02 	      bit	SWCHA
-    748  f4c4		       d0 0d		      bne	SkipMoveUp
-    749  f4c6
-    750  f4c6		       18		      clc
-    751  f4c7		       a5 88		      lda	Speed2
-    752  f4c9		       69 0c		      adc	#12
-    753  f4cb		       85 88		      sta	Speed2
-    754  f4cd		       a5 87		      lda	Speed1
-    755  f4cf		       69 00		      adc	#00
-    756  f4d1		       85 87		      sta	Speed1
-    757  f4d3
-    758  f4d3				   SkipMoveUp
-    759  f4d3		       a6 86		      ldx	XPos
-    760  f4d5
-    761  f4d5							; Only check left/right on odd frames;
-    762  f4d5							; TODO make this just a fractional speed
-    763  f4d5							; rather than dropping frames
-    764  f4d5		       a9 01		      lda	#01
-    765  f4d7		       25 83		      and	FrameCount
-    766  f4d9		       d0 18		      bne	SkipMoveRight
-    767  f4db
-    768  f4db
-    769  f4db							; Move horizontally
-    770  f4db		       a9 40		      lda	#%01000000	;Left?
-    771  f4dd		       2c 80 02 	      bit	SWCHA
-    772  f4e0		       d0 05		      bne	SkipMoveLeft
-    773  f4e2		       e0 1d		      cpx	#29
-    774  f4e4		       90 01		      bcc	SkipMoveLeft
-    775  f4e6		       ca		      dex
-    776  f4e7
-    777  f4e7							; Reflect
-    778  f4e7							;     lda #$ff
-    779  f4e7							;     sta REFP0
-    780  f4e7				   SkipMoveLeft
-    781  f4e7		       a9 80		      lda	#%10000000	;Right?
-    782  f4e9		       2c 80 02 	      bit	SWCHA
-    783  f4ec		       d0 05		      bne	SkipMoveRight
-    784  f4ee		       e0 80		      cpx	#128
-    785  f4f0		       b0 01		      bcs	SkipMoveRight
-    786  f4f2		       e8		      inx
-    787  f4f3
-    788  f4f3							; Reflect
-    789  f4f3							;     lda #$0
-    790  f4f3							;     sta REFP0
-    791  f4f3				   SkipMoveRight
-    792  f4f3		       86 86		      stx	XPos
-    793  f4f5		       60		      rts
-    794  f4f6
-    795  f4f6
-    796  f4f6							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+     17  f490					      REPEND
+     18  f491		       ea		      nop
+     19  f492					      REPEND
+    705  f492		       84 1c		      .byte.b	GEM_04, EMERALD_SP
+    706  f494		       85 11		      sta	EMERALD_SP_RESET
+    707  f496		       84 1c		      .byte.b	GEM_09, EMERALD_SP
+      0  f498					      sleep	3
+      1  f498				   .CYCLES    SET	3
+      2  f498
+      3  f498				  -	      IF	.CYCLES < 2
+      4  f498				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  f498				  -	      ERR
+      6  f498					      ENDIF
+      7  f498
+      8  f498					      IF	.CYCLES & 1
+      9  f498					      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f498		       04 00		      nop	0
+     11  f49a				  -	      ELSE
+     12  f49a				  -	      bit	VSYNC
+     13  f49a					      ENDIF
+     14  f49a				   .CYCLES    SET	.CYCLES - 3
+     15  f49a					      ENDIF
+     16  f49a
+     17  f49a				  -	      REPEAT	.CYCLES / 2
+     18  f49a				  -	      nop
+     19  f49a					      REPEND
+    709  f49a		       84 1c		      .byte.b	GEM_13, EMERALD_SP
+    710  f49c		       85 11		      sta	EMERALD_SP_RESET
+    711  f49e		       84 1e		      .byte.b	GEM_17, EMERALD_MI_ENABLE
+    712  f4a0		       84 1c		      .byte.b	GEM_18, EMERALD_SP
+      0  f4a2					      sleep	3
+      1  f4a2				   .CYCLES    SET	3
+      2  f4a2
+      3  f4a2				  -	      IF	.CYCLES < 2
+      4  f4a2				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  f4a2				  -	      ERR
+      6  f4a2					      ENDIF
+      7  f4a2
+      8  f4a2					      IF	.CYCLES & 1
+      9  f4a2					      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f4a2		       04 00		      nop	0
+     11  f4a4				  -	      ELSE
+     12  f4a4				  -	      bit	VSYNC
+     13  f4a4					      ENDIF
+     14  f4a4				   .CYCLES    SET	.CYCLES - 3
+     15  f4a4					      ENDIF
+     16  f4a4
+     17  f4a4				  -	      REPEAT	.CYCLES / 2
+     18  f4a4				  -	      nop
+     19  f4a4					      REPEND
+    714  f4a4		       84 1c		      .byte.b	GEM_22, EMERALD_SP
+    715  f4a6		       85 1e		      .byte.b	GEM_08, EMERALD_MI_ENABLE
+    716  f4a8
+    717  f4a8							; cycle 64 (start of right border)
+      0  f4a8					      sleep	6
+      1  f4a8				   .CYCLES    SET	6
+      2  f4a8
+      3  f4a8				  -	      IF	.CYCLES < 2
+      4  f4a8				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  f4a8				  -	      ERR
+      6  f4a8					      ENDIF
+      7  f4a8
+      8  f4a8				  -	      IF	.CYCLES & 1
+      9  f4a8				  -	      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f4a8				  -	      nop	0
+     11  f4a8				  -	      ELSE
+     12  f4a8				  -	      bit	VSYNC
+     13  f4a8				  -	      ENDIF
+     14  f4a8				  -.CYCLES    SET	.CYCLES - 3
+     15  f4a8					      ENDIF
+     16  f4a8
+     17  f4a8					      REPEAT	.CYCLES / 2
+     18  f4a8		       ea		      nop
+     17  f4a8					      REPEND
+     18  f4a9		       ea		      nop
+     17  f4a9					      REPEND
+     18  f4aa		       ea		      nop
+     19  f4ab					      REPEND
+    719  f4ab		       60		      rts
+    720  f4ac				   kernel_1_end
+    721  f4ac
+    722  f4ac							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    723  f4ac
+    724  f4ac							; KERNEL 2
+    725  f4ac
+    726  f4ac							; Emerald line macro (3, 4, ...)
+    727  f4ac
+    728  f4ac				   kernel_2_start
+    729  f4ac							; Enable missile (using excessive lda instructions)
+    730  f4ac		       a9 02		      lda	#02
+    731  f4ae		       85 1e		      .byte.b	GEM_08, EMERALD_MI_ENABLE
+    732  f4b0
+    733  f4b0							;dec SpriteEnd
+      0  f4b0					      sleep	5
+      1  f4b0				   .CYCLES    SET	5
+      2  f4b0
+      3  f4b0				  -	      IF	.CYCLES < 2
+      4  f4b0				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  f4b0				  -	      ERR
+      6  f4b0					      ENDIF
+      7  f4b0
+      8  f4b0					      IF	.CYCLES & 1
+      9  f4b0					      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f4b0		       04 00		      nop	0
+     11  f4b2				  -	      ELSE
+     12  f4b2				  -	      bit	VSYNC
+     13  f4b2					      ENDIF
+     14  f4b2				   .CYCLES    SET	.CYCLES - 3
+     15  f4b2					      ENDIF
+     16  f4b2
+     17  f4b2					      REPEAT	.CYCLES / 2
+     18  f4b2		       ea		      nop
+     19  f4b3					      REPEND
+    735  f4b3		       68		      pla
+    736  f4b4		       8d 1b 00 	      sta.w	GRP0
+    737  f4b7							; sleep 4
+    738  f4b7							; ldy SpriteEnd
+    739  f4b7							; lda Frame0,Y
+    740  f4b7							; sta JET_SP
+    741  f4b7
+    742  f4b7							; moved: lda #T1
+    743  f4b7		       a2 0c		      ldx	#T2
+    744  f4b9		       a0 cc		      ldy	#T3
+    745  f4bb		       84 1c		      .byte.b	GEM_02, EMERALD_SP
+    746  f4bd
+    747  f4bd							; cycle 25
+    748  f4bd		       85 11		      sta	EMERALD_SP_RESET
+    749  f4bf		       a9 c0		      lda	#T1	; movable
+      0  f4c1					      sleep	4
+      1  f4c1				   .CYCLES    SET	4
+      2  f4c1
+      3  f4c1				  -	      IF	.CYCLES < 2
+      4  f4c1				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  f4c1				  -	      ERR
+      6  f4c1					      ENDIF
+      7  f4c1
+      8  f4c1				  -	      IF	.CYCLES & 1
+      9  f4c1				  -	      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f4c1				  -	      nop	0
+     11  f4c1				  -	      ELSE
+     12  f4c1				  -	      bit	VSYNC
+     13  f4c1				  -	      ENDIF
+     14  f4c1				  -.CYCLES    SET	.CYCLES - 3
+     15  f4c1					      ENDIF
+     16  f4c1
+     17  f4c1					      REPEAT	.CYCLES / 2
+     18  f4c1		       ea		      nop
+     17  f4c1					      REPEND
+     18  f4c2		       ea		      nop
+     19  f4c3					      REPEND
+    751  f4c3		       84 1c		      .byte.b	GEM_06, EMERALD_SP
+    752  f4c5		       85 11		      sta	EMERALD_SP_RESET
+    753  f4c7		       84 1c		      .byte.b	GEM_11, EMERALD_SP
+    754  f4c9							; stx EMERALD_MI_ENABLE ; stx disables it
+      0  f4c9					      sleep	3
+      1  f4c9				   .CYCLES    SET	3
+      2  f4c9
+      3  f4c9				  -	      IF	.CYCLES < 2
+      4  f4c9				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  f4c9				  -	      ERR
+      6  f4c9					      ENDIF
+      7  f4c9
+      8  f4c9					      IF	.CYCLES & 1
+      9  f4c9					      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f4c9		       04 00		      nop	0
+     11  f4cb				  -	      ELSE
+     12  f4cb				  -	      bit	VSYNC
+     13  f4cb					      ENDIF
+     14  f4cb				   .CYCLES    SET	.CYCLES - 3
+     15  f4cb					      ENDIF
+     16  f4cb
+     17  f4cb				  -	      REPEAT	.CYCLES / 2
+     18  f4cb				  -	      nop
+     19  f4cb					      REPEND
+    756  f4cb		       84 1c		      .byte.b	GEM_15, EMERALD_SP
+    757  f4cd		       85 11		      sta	EMERALD_SP_RESET
+    758  f4cf		       84 1c		      .byte.b	GEM_20, EMERALD_SP
+    759  f4d1		       84 1c		      .byte.b	GEM_24, EMERALD_SP
+      0  f4d3					      sleep	6
+      1  f4d3				   .CYCLES    SET	6
+      2  f4d3
+      3  f4d3				  -	      IF	.CYCLES < 2
+      4  f4d3				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  f4d3				  -	      ERR
+      6  f4d3					      ENDIF
+      7  f4d3
+      8  f4d3				  -	      IF	.CYCLES & 1
+      9  f4d3				  -	      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f4d3				  -	      nop	0
+     11  f4d3				  -	      ELSE
+     12  f4d3				  -	      bit	VSYNC
+     13  f4d3				  -	      ENDIF
+     14  f4d3				  -.CYCLES    SET	.CYCLES - 3
+     15  f4d3					      ENDIF
+     16  f4d3
+     17  f4d3					      REPEAT	.CYCLES / 2
+     18  f4d3		       ea		      nop
+     17  f4d3					      REPEND
+     18  f4d4		       ea		      nop
+     17  f4d4					      REPEND
+     18  f4d5		       ea		      nop
+     19  f4d6					      REPEND
+    761  f4d6
+    762  f4d6							; cycle 64 (start of right border)
+      0  f4d6					      sleep	6
+      1  f4d6				   .CYCLES    SET	6
+      2  f4d6
+      3  f4d6				  -	      IF	.CYCLES < 2
+      4  f4d6				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  f4d6				  -	      ERR
+      6  f4d6					      ENDIF
+      7  f4d6
+      8  f4d6				  -	      IF	.CYCLES & 1
+      9  f4d6				  -	      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f4d6				  -	      nop	0
+     11  f4d6				  -	      ELSE
+     12  f4d6				  -	      bit	VSYNC
+     13  f4d6				  -	      ENDIF
+     14  f4d6				  -.CYCLES    SET	.CYCLES - 3
+     15  f4d6					      ENDIF
+     16  f4d6
+     17  f4d6					      REPEAT	.CYCLES / 2
+     18  f4d6		       ea		      nop
+     17  f4d6					      REPEND
+     18  f4d7		       ea		      nop
+     17  f4d7					      REPEND
+     18  f4d8		       ea		      nop
+     19  f4d9					      REPEND
+    764  f4d9		       60		      rts
+    765  f4da				   kernel_2_end
+    766  f4da
+    767  f4da							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    768  f4da
+    769  f4da							; SUBROUTINE
+    770  f4da							; Read joystick movement and apply to object 0
+    771  f4da				   MoveJoystick
+    772  f4da							; Move vertically
+    773  f4da							; (up and down are actually reversed since ypos starts at bottom)
+    774  f4da							;     ldx YPos
+    775  f4da		       a9 10		      lda	#%00010000	;Up?
+    776  f4dc		       2c 80 02 	      bit	SWCHA
+    777  f4df		       d0 0d		      bne	SkipMoveUp
+    778  f4e1
+    779  f4e1		       18		      clc
+    780  f4e2		       a5 88		      lda	Speed2
+    781  f4e4		       69 0c		      adc	#12
+    782  f4e6		       85 88		      sta	Speed2
+    783  f4e8		       a5 87		      lda	Speed1
+    784  f4ea		       69 00		      adc	#00
+    785  f4ec		       85 87		      sta	Speed1
+    786  f4ee
+    787  f4ee				   SkipMoveUp
+    788  f4ee		       a6 86		      ldx	XPos
+    789  f4f0
+    790  f4f0							; Only check left/right on odd frames;
+    791  f4f0							; TODO make this just a fractional speed
+    792  f4f0							; rather than dropping frames
+    793  f4f0		       a9 01		      lda	#01
+    794  f4f2		       25 83		      and	FrameCount
+    795  f4f4		       d0 18		      bne	SkipMoveRight
+    796  f4f6
     797  f4f6
-    798  f4f6
-    799  f4f6				   SpeedCalculation
-    800  f4f6		       38		      sec
-    801  f4f7		       a5 88		      lda	Speed2
-    802  f4f9		       e9 07		      sbc	#7
-    803  f4fb		       85 88		      sta	Speed2
-    804  f4fd		       a5 87		      lda	Speed1
-    805  f4ff		       e9 00		      sbc	#0
-    806  f501		       85 87		      sta	Speed1
-    807  f503
-    808  f503		       18		      clc
-    809  f504		       a5 8a		      lda	YPos2
-    810  f506		       65 88		      adc	Speed2
-    811  f508		       85 8a		      sta	YPos2
-    812  f50a		       a5 89		      lda	YPos
-    813  f50c		       65 87		      adc	Speed1
-    814  f50e		       85 89		      sta	YPos
-    815  f510
-    816  f510		       c9 3f		      cmp	#FLOOR_OFFSET
-    817  f512		       b0 0a		      bcs	NewThing2
-    818  f514
-    819  f514							; Reset to floor
-    820  f514		       a9 3f		      lda	#FLOOR_OFFSET
-    821  f516		       85 89		      sta	YPos
-    822  f518		       a9 00		      lda	#0
-    823  f51a		       85 87		      sta	Speed1
-    824  f51c		       85 88		      sta	Speed2
-    825  f51e				   NewThing2
-    826  f51e
-    827  f51e		       c9 c0		      cmp	#CEILING_OFFSET
-    828  f520		       90 0a		      bcc	.next
-    829  f522
-    830  f522							; Reset to ceiling
-    831  f522		       a9 c0		      lda	#CEILING_OFFSET
-    832  f524		       85 89		      sta	YPos
-    833  f526		       a9 00		      lda	#0
-    834  f528		       85 87		      sta	Speed1
-    835  f52a		       85 88		      sta	Speed2
-    836  f52c				   .next
-    837  f52c
-    838  f52c		       60		      rts
-    839  f52d
-    840  f52d
-    841  f52d
-    842  f52d							; Subroutine
-    843  f52d				   SetHorizPos
-    844  f52d		       85 02		      sta	WSYNC	; start a new line
-    845  f52f		       24 00		      bit	0	; waste 3 cycles
-    846  f531		       38		      sec		; set carry flag
-    847  f532				   DivideLoop
-    848  f532		       e9 0f		      sbc	#15	; subtract 15
-    849  f534		       b0 fc		      bcs	DivideLoop	; branch until negative
-    850  f536		       49 07		      eor	#7	; calculate fine offset
-    851  f538		       0a		      asl
-    852  f539		       0a		      asl
-    853  f53a		       0a		      asl
-    854  f53b		       0a		      asl
-    855  f53c		       95 10		      sta	JET_SP_RESET,x	; fix coarse position
-    856  f53e		       95 20		      sta	JET_SP_HMOVE,x	; set fine offset
-    857  f540		       60		      rts		; return to caller
-    858  f541
-    859  f541
-    860  f541
-    861  f600		       00 00 00 00*	      align	256
-    862  f600
-    863  f600							; Bitmap data for character "standing" position
-    864  f600							; Comical amount of 0's for now to simplify sprite rendering
-    865  f600
-    866  f600							; Y can be from:
-    867  f600							;     SPRITE_HEIGHT to (8*ROW_COUNT)
-    868  f600							; SpriteEnd: 8..128
-    869  f600							; Frame0 should start at +120 so the Y rollunder of -$120 is OK]
-    870  f600				   Frame0
-    871  f600		       00		      .byte.b	#%00000000
-    872  f601		       60		      .byte.b	#%01100000
-    873  f602		       60		      .byte.b	#%01100000
-    874  f603		       60		      .byte.b	#%01100000
-    875  f604		       c0		      .byte.b	#%11000000
-    876  f605		       c0		      .byte.b	#%11000000
-    877  f606		       f0		      .byte.b	#%11110000
-    878  f607		       c0		      .byte.b	#%11000000
-    879  f608		       c0		      .byte.b	#%11000000
-    880  f609		       00		      .byte.b	#%00000000
-    881  f60a
-    882  f60a
-    883  f60a							; Epilogue
-    884  fffc					      org	$fffc
-    885  fffc		       00 f2		      .word.w	Start
-    886  fffe		       00 f2		      .word.w	Start
+    798  f4f6							; Move horizontally
+    799  f4f6		       a9 40		      lda	#%01000000	;Left?
+    800  f4f8		       2c 80 02 	      bit	SWCHA
+    801  f4fb		       d0 05		      bne	SkipMoveLeft
+    802  f4fd		       e0 1d		      cpx	#29
+    803  f4ff		       90 01		      bcc	SkipMoveLeft
+    804  f501		       ca		      dex
+    805  f502
+    806  f502							; Reflect
+    807  f502							;     lda #$ff
+    808  f502							;     sta REFP0
+    809  f502				   SkipMoveLeft
+    810  f502		       a9 80		      lda	#%10000000	;Right?
+    811  f504		       2c 80 02 	      bit	SWCHA
+    812  f507		       d0 05		      bne	SkipMoveRight
+    813  f509		       e0 80		      cpx	#128
+    814  f50b		       b0 01		      bcs	SkipMoveRight
+    815  f50d		       e8		      inx
+    816  f50e
+    817  f50e							; Reflect
+    818  f50e							;     lda #$0
+    819  f50e							;     sta REFP0
+    820  f50e				   SkipMoveRight
+    821  f50e		       86 86		      stx	XPos
+    822  f510		       60		      rts
+    823  f511
+    824  f511
+    825  f511							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    826  f511
+    827  f511
+    828  f511				   SpeedCalculation
+    829  f511		       38		      sec
+    830  f512		       a5 88		      lda	Speed2
+    831  f514		       e9 07		      sbc	#7
+    832  f516		       85 88		      sta	Speed2
+    833  f518		       a5 87		      lda	Speed1
+    834  f51a		       e9 00		      sbc	#0
+    835  f51c		       85 87		      sta	Speed1
+    836  f51e
+    837  f51e		       18		      clc
+    838  f51f		       a5 8a		      lda	YPos2
+    839  f521		       65 88		      adc	Speed2
+    840  f523		       85 8a		      sta	YPos2
+    841  f525		       a5 89		      lda	YPos
+    842  f527		       65 87		      adc	Speed1
+    843  f529		       85 89		      sta	YPos
+    844  f52b
+    845  f52b		       c9 3f		      cmp	#FLOOR_OFFSET
+    846  f52d		       b0 0a		      bcs	NewThing2
+    847  f52f
+    848  f52f							; Reset to floor
+    849  f52f		       a9 3f		      lda	#FLOOR_OFFSET
+    850  f531		       85 89		      sta	YPos
+    851  f533		       a9 00		      lda	#0
+    852  f535		       85 87		      sta	Speed1
+    853  f537		       85 88		      sta	Speed2
+    854  f539				   NewThing2
+    855  f539
+    856  f539		       c9 bf		      cmp	#CEILING_OFFSET
+    857  f53b		       90 0a		      bcc	.next
+    858  f53d
+    859  f53d							; Reset to ceiling
+    860  f53d		       a9 bf		      lda	#CEILING_OFFSET
+    861  f53f		       85 89		      sta	YPos
+    862  f541		       a9 00		      lda	#0
+    863  f543		       85 87		      sta	Speed1
+    864  f545		       85 88		      sta	Speed2
+    865  f547				   .next
+    866  f547
+    867  f547		       60		      rts
+    868  f548
+    869  f548
+    870  f548
+    871  f548							; Subroutine
+    872  f548				   SetHorizPos
+    873  f548		       85 02		      sta	WSYNC	; start a new line
+    874  f54a		       24 00		      bit	0	; waste 3 cycles
+    875  f54c		       38		      sec		; set carry flag
+    876  f54d				   DivideLoop
+    877  f54d		       e9 0f		      sbc	#15	; subtract 15
+    878  f54f		       b0 fc		      bcs	DivideLoop	; branch until negative
+    879  f551		       49 07		      eor	#7	; calculate fine offset
+    880  f553		       0a		      asl
+    881  f554		       0a		      asl
+    882  f555		       0a		      asl
+    883  f556		       0a		      asl
+    884  f557		       95 10		      sta	JET_SP_RESET,x	; fix coarse position
+    885  f559		       95 20		      sta	JET_SP_HMOVE,x	; set fine offset
+    886  f55b		       60		      rts		; return to caller
+    887  f55c
+    888  f55c
+    889  f55c
+    890  f600		       00 00 00 00*	      align	256
+    891  f600
+    892  f600							; Bitmap data for character "standing" position
+    893  f600							; Comical amount of 0's for now to simplify sprite rendering
+    894  f600
+    895  f600							; Y can be from:
+    896  f600							;     SPRITE_HEIGHT to (8*ROW_COUNT)
+    897  f600							; SpriteEnd: 8..128
+    898  f600							; Frame0 should start at +120 so the Y rollunder of -$120 is OK]
+    899  f600				   Frame0
+    900  f600		       00		      .byte.b	#%00000000
+    901  f601		       60		      .byte.b	#%01100000
+    902  f602		       60		      .byte.b	#%01100000
+    903  f603		       60		      .byte.b	#%01100000
+    904  f604		       c0		      .byte.b	#%11000000
+    905  f605		       c0		      .byte.b	#%11000000
+    906  f606		       f0		      .byte.b	#%11110000
+    907  f607		       c0		      .byte.b	#%11000000
+    908  f608		       c0		      .byte.b	#%11000000
+    909  f609		       00		      .byte.b	#%00000000
+    910  f60a
+    911  f60a
+    912  f60a							; Epilogue
+    913  fffc					      org	$fffc
+    914  fffc		       00 f2		      .word.w	Start
+    915  fffe		       00 f2		      .word.w	Start

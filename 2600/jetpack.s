@@ -49,7 +49,7 @@ JMP_ADDR_2 byte
 
 ROW_COUNT        equ 16
 
-SIGNAL_LINE equ $34
+SIGNAL_LINE equ $52
 
 KERNEL_START equ $1100
 
@@ -188,7 +188,7 @@ HEIGHT_OFFSET equ 200
 
 ; Compared with YPos
 FLOOR_OFFSET equ 63
-CEILING_OFFSET equ 192
+CEILING_OFFSET equ 191
 
 ; YPos definite position 
 YPosStart equ 100
@@ -455,7 +455,23 @@ PlayArea:
 
 ; MACRO for calculating next GRPx value
 
+      MAC jet_spritedata_calc_nosta
+      ; loader
+      dcp SpriteEnd
+
+      ; 4c
+      ; This must never be 5 cycles This mean Frame0 + Y must not cross below apage boundary.
+      ; 6c
+      ldy #0
+      .byte $b0, $01 ;2c / 3c (taken)
+      .byte $2c ; 4c / 0c
+.okok
+      ldy SpriteEnd
+
+      ENDM
+
       MAC jet_spritedata_calc
+      ; loader
       lda #SPRITE_HEIGHT
       dcp SpriteEnd
       ldy SpriteEnd
@@ -487,14 +503,15 @@ frame_start:
       pha
       lda #<[frame_row_start - 1]
       pha
-      lda #%1000001
+      lda #%10000001
       pha
       lda #>[$1100 - 1]
       pha
       lda #<[$1100 - 1]
       pha
-      lda #%1000001
+      lda #%10000001
       pha
+
       sta WSYNC
 
 ; [row:2]
@@ -504,13 +521,20 @@ frame_start:
       lda #COL_BG
       sta COLUPF
       
-      ; Prepare for the kernel.
-      ; TODO this has to be EXACT
-      sleep 43
-      dec SpriteEnd
+
+      lda #SPRITE_HEIGHT
+      jet_spritedata_calc_nosta
+      lda Frame0,Y
+      sta $fa
+      jet_spritedata_calc_nosta
+      lda Frame0,Y
+      sta $fd
+
+      sleep 6
 
 ; [row:3-4]
       ; Jump to the copied kernel.
+help_me:
       jmp KERNEL_START
 
 frame_row_start: subroutine
@@ -520,6 +544,8 @@ frame_row_start: subroutine
       sta EMERALD_MI_ENABLE
       sta EMERALD_SP
       sta COLUPF
+
+      jet_spritedata_calc
 
       sta WSYNC
 
@@ -628,6 +654,7 @@ frame_end:
       sta PF2
       sta PF1
       sta EMERALD_SP
+      sta WSYNC
 
       ; Guide lines (2x)
       lda #SIGNAL_LINE
@@ -662,7 +689,8 @@ frame_end:
 ; Emerald line macro (1, 2, ...)
 
 kernel_1_start:
-      dec SpriteEnd
+      ;dec SpriteEnd
+      sleep 5
       pla
       sta.w GRP0
 
@@ -702,7 +730,8 @@ kernel_2_start:
       lda #02
       .byte GEM_08, EMERALD_MI_ENABLE
 
-      dec SpriteEnd
+      ;dec SpriteEnd
+      sleep 5
       pla
       sta.w GRP0
       ; sleep 4
