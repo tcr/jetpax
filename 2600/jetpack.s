@@ -81,7 +81,7 @@ SET_0_1 equ $86 ; STX
 SET_1_1 equ $84 ; STY
 
 SET_0_L equ $86 ; STX
-SET_1_L equ $85 ; STY
+SET_1_L equ $85 ; STA
 
 SET_0_R equ $85 ; STA
 SET_1_R equ $84 ; STY
@@ -369,6 +369,8 @@ storage_02:
       .byte SET_0_0
 storage_06:
       .byte SET_0_0
+storage_08:
+      .byte SET_0_L
 storage_11:
       .byte SET_1_1
 storage_15:
@@ -416,12 +418,12 @@ map_full:
       .byte SET_0_1
       .byte SET_1_0
       .byte SET_1_1
-map_missle_r:
-      .byte SET_0_R
-      .byte SET_1_R
 map_missle_l:
       .byte SET_0_L
       .byte SET_1_L
+map_missle_r:
+      .byte SET_0_R
+      .byte SET_1_R
 
 
 copy_frame:
@@ -459,7 +461,7 @@ CopyFrame1Kernel:
       ldx ROW_DEMO_INDEX
       lda map_emeralds+1,X
       EMERALDS_TWO storage_09
-      EMERALDS_ONE Temp, map_missle_l ; ???
+      EMERALDS_ONE_SKIP
       EMERALDS_TWO_SKIP
       EMERALDS_TWO storage_04
 
@@ -498,7 +500,7 @@ CopyFrame2Kernel:
       ldx ROW_DEMO_INDEX
       lda map_emeralds+1,X
       EMERALDS_TWO_SKIP
-      EMERALDS_ONE_SKIP
+      EMERALDS_ONE storage_08, map_missle_l
       EMERALDS_TWO storage_06
       EMERALDS_TWO_SKIP
 
@@ -660,7 +662,6 @@ PlayArea:
       ldy #0
       .byte $b0, $01 ;2c / 3c (taken)
       .byte $2c ; 4c / 0c
-.okok
       ldy SpriteEnd
 
       ENDM
@@ -682,8 +683,9 @@ PlayArea:
       ENDM
 
 
-      ; Start the frame with a WSYNC.
-frame_start:
+      ; Start the row with a WSYNC.
+row_start:
+      ; ~15c 
       jet_spritedata_calc
       sta WSYNC
 
@@ -694,9 +696,9 @@ frame_start:
       sta COLUPF
 
       ; Push jump table to the stack
-      lda #>[frame_row_start - 1]
+      lda #>[row_after_kernel - 1]
       pha
-      lda #<[frame_row_start - 1]
+      lda #<[row_after_kernel - 1]
       pha
       lda #%10000001
       pha
@@ -729,10 +731,10 @@ frame_start:
 
 ; [row:3-4]
       ; Jump to the copied kernel.
-help_me:
+kernel_launch:
       jmp KERNEL_START
 
-frame_row_start: subroutine
+row_after_kernel:
 ; [row:5]
       ; Cleanup from the kernel.
       lda #0
@@ -801,7 +803,7 @@ loadframe2:
       sta GEM_06_W
       inx
       lda KERNEL_STORAGE_R,X
-      sta GEM_11_W
+      sta GEM_08_W
       inx
 
       sta WSYNC
@@ -810,6 +812,9 @@ loadframe2:
       jet_spritedata_calc
 
       ; Emerald byte setting 2B
+      lda KERNEL_STORAGE_R,X
+      sta GEM_11_W
+      inx
       lda KERNEL_STORAGE_R,X
       sta GEM_15_W
       inx
@@ -828,7 +833,7 @@ row_7_end:
       ; Repeat loop until LoopCount < 0
       dec LoopCount
       bmi frame_bottom
-      jmp frame_start
+      jmp row_start
 
       ; reset the background for bottom of playfield
 frame_bottom:
@@ -911,7 +916,8 @@ frame_end:
 ; Emerald line macro (1, 2, ...)
 
 kernel_1_start:
-      ;dec SpriteEnd
+      ; sleep first make this distinct from
+      ; other kernel for debug scenarios
       sleep 5
       pla
       sta.w GRP0
@@ -924,7 +930,8 @@ kernel_1_start:
 
       ; 22
       sta EMERALD_SP_RESET
-      sleep 6
+      sta EMERALD_MI_ENABLE
+      sleep 3
 .gem_04
       .byte GEM_04, EMERALD_SP
       sta EMERALD_SP_RESET
@@ -962,7 +969,7 @@ GEM_22_W equ [$1000 + .gem_22 - kernel_1_start]
 ; Emerald line macro (3, 4, ...)
 
 kernel_2_start:
-
+      ; don't sleep first to make this distinct from kernel 1
       pla
       sta GRP0
       sleep 4
@@ -971,7 +978,8 @@ kernel_2_start:
       lda #02
       ldx #T2
       ldy #T3
-      sta EMERALD_MI_ENABLE
+.gem_08:
+      .byte GEM_08, EMERALD_MI_ENABLE
       lda #T1 ; movable
 .gem_02:
       .byte GEM_02, EMERALD_SP
@@ -1002,6 +1010,7 @@ kernel_2_end:
 
 GEM_02_W equ [$1000 + .gem_02 - kernel_2_start]
 GEM_06_W equ [$1000 + .gem_06 - kernel_2_start]
+GEM_08_W equ [$1000 + .gem_08 - kernel_2_start]
 GEM_11_W equ [$1000 + .gem_11 - kernel_2_start]
 GEM_15_W equ [$1000 + .gem_15 - kernel_2_start]
 GEM_20_W equ [$1000 + .gem_20 - kernel_2_start]
