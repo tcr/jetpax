@@ -51,7 +51,7 @@ ROW_DEMO_INDEX byte
 
 ROW_COUNT        equ 16
 
-SIGNAL_LINE equ $52
+SIGNAL_LINE equ $02
 
 KERNEL_START      equ $1100
 
@@ -340,7 +340,6 @@ BeginFrame
       sta [.target - storage + KERNEL_STORAGE_W]
       txa
       ror
-      ror
       ENDM
 
       MAC EMERALDS_ONE_SKIP
@@ -381,35 +380,35 @@ storage_24:
 storage_end:
 
       align 8
-map_emeralds:
       ; first bit of byte 2 & 3 are unused for simplicity
-      .byte %1000, %0000000, %0000000, %00000000
-      .byte %0100, %0000000, %0000000, %00000000
-      .byte %0010, %0000000, %0000000, %00000000
-      .byte %0001, %0000000, %0000000, %00000000
-map_emeralds_end:
-      .byte %0000, %1000000, %0000000, %00000000
-      .byte %0000, %0100000, %0000000, %00000000
-      .byte %0000, %0010000, %0000000, %00000000
-      .byte %0000, %0001000, %0000000, %00000000
-      .byte %0000, %0000100, %0000000, %00000000
-      .byte %0000, %0000010, %0000000, %00000000
-      .byte %0000, %0000001, %0000000, %00000000
-      .byte %0000, %0000000, %1000000, %00000000
-      .byte %0000, %0000000, %0100000, %00000000
-      .byte %0000, %0000000, %0010000, %00000000
-      .byte %0000, %0000000, %0001000, %00000000
-      .byte %0000, %0000000, %0000100, %00000000
-      .byte %0000, %0000000, %0000010, %00000000
-      .byte %0000, %0000000, %0000001, %00000000
-      .byte %0000, %0000000, %0000000, %10000000
-      .byte %0000, %0000000, %0000000, %01000000
-      .byte %0000, %0000000, %0000000, %00100000
-      .byte %0000, %0000000, %0000000, %00010000
-      .byte %0000, %0000000, %0000000, %00001000
-      .byte %0000, %0000000, %0000000, %00000100
-      .byte %0000, %0000000, %0000000, %00000010
+map_emeralds:
+      .byte %1110, %0000000, %0000000, %00000000
+      .byte %0111, %0000000, %0000000, %00000000
+      .byte %0011, %1000000, %0000000, %00000000
+      .byte %0001, %1100000, %0000000, %00000000
+      .byte %0000, %1110000, %0000000, %00000000
+      .byte %0000, %0111000, %0000000, %00000000
+      .byte %0000, %0011100, %0000000, %00000000
+      .byte %0000, %0001110, %0000000, %00000000
+      .byte %0000, %0000111, %0000000, %00000000
+      .byte %0000, %0000011, %1000000, %00000000
+      .byte %0000, %0000001, %1100000, %00000000
+      .byte %0000, %0000000, %1110000, %00000000
+      .byte %0000, %0000000, %0111000, %00000000
+      .byte %0000, %0000000, %0011100, %00000000
+      .byte %0000, %0000000, %0001110, %00000000
+      .byte %0000, %0000000, %0000111, %00000000
+      .byte %0000, %0000000, %0000011, %10000000
+      .byte %0000, %0000000, %0000001, %11000000
+      .byte %0000, %0000000, %0000000, %11100000
+      .byte %0000, %0000000, %0000000, %01110000
+      .byte %0000, %0000000, %0000000, %00111000
+      .byte %0000, %0000000, %0000000, %00011100
+      .byte %0000, %0000000, %0000000, %00001110
+      .byte %0000, %0000000, %0000000, %00000111
+      .byte %0000, %0000000, %0000000, %00000011
       .byte %0000, %0000000, %0000000, %00000001
+map_emeralds_end:
 
       align 8
 map_full:
@@ -513,9 +512,10 @@ CopyFrame2Kernel:
 
 CopyFrameNext:
 
+      ; Frame skipping for increasing demo index
       lda FrameCount
-      and #%1111
-      cmp #%1111
+      and #%11
+      cmp #%11
       bne .next_next_thing
 
       clc
@@ -591,7 +591,9 @@ doframe2after:
       lda #SIGNAL_LINE
       sta COLUBK
 
+      REPEAT 6
       sta WSYNC
+      REPEND
 
       lda #0
       sta COLUBK
@@ -766,8 +768,6 @@ loadframe1:
       lda KERNEL_STORAGE_R,X
       sta GEM_09_W
       inx
-      lda KERNEL_STORAGE_R,X
-      sta GEM_13_W
 
       sta WSYNC
 
@@ -775,6 +775,9 @@ loadframe1:
       jet_spritedata_calc
 
       ; Emerald byte setting 1B
+      lda KERNEL_STORAGE_R,X
+      sta GEM_13_W
+      inx
       lda KERNEL_STORAGE_R,X
       sta GEM_17_W
       inx
@@ -790,7 +793,7 @@ loadframe2:
       ; ~30c
 
       ; Emerald byte setting 2A
-      ldx #8
+      ldx #[storage_02 - storage]
       lda KERNEL_STORAGE_R,X
       sta GEM_02_W
       inx
@@ -799,6 +802,7 @@ loadframe2:
       inx
       lda KERNEL_STORAGE_R,X
       sta GEM_11_W
+      inx
 
       sta WSYNC
 
@@ -875,7 +879,9 @@ frame_end:
       ; Guide lines (2x)
       lda #SIGNAL_LINE
       sta COLUBK
+      REPEAT 6
       sta WSYNC
+      REPEND
       lda #$00
       sta COLUBK
       sta WSYNC
@@ -984,9 +990,10 @@ kernel_2_start:
       sta EMERALD_SP_RESET
 .gem_20:
       .byte GEM_20, EMERALD_SP
+      sleep 3
 .gem_24:
       .byte GEM_24, EMERALD_SP
-      sleep 6
+      sleep 3
 
       ; cycle 64 (start of right border)
       sleep 6
