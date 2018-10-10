@@ -45,13 +45,18 @@ GEM_02_TARGET byte
 JMP_ADDR byte
 JMP_ADDR_2 byte
 
+ROW_DEMO_INDEX byte
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ROW_COUNT        equ 16
 
 SIGNAL_LINE equ $52
 
-KERNEL_START equ $1100
+KERNEL_START      equ $1100
+
+KERNEL_STORAGE_W    equ $1040 ; could be max(frame_1_end, frame_2_end)
+KERNEL_STORAGE_R    equ $1140
 
 ; Sprites
 
@@ -187,7 +192,7 @@ JET_SP_COLOR            equ COLUP0
 HEIGHT_OFFSET equ 200
 
 ; Compared with YPos
-FLOOR_OFFSET equ 63
+FLOOR_OFFSET equ 67
 CEILING_OFFSET equ 191
 
 ; YPos definite position 
@@ -290,6 +295,9 @@ Start
       sta Speed2
       sta YPos2
 
+      lda #0
+      sta ROW_DEMO_INDEX
+
 BeginFrame
       VERTICAL_SYNC
 
@@ -303,40 +311,225 @@ BeginFrame
       inc FrameCount
 
 ; Now the work stuff
+      jmp copy_frame
 
+      MAC EMERALDS_TWO
+.target  SET {1}
+      tax
+      and #%11
+      tay
+      lda map_full,Y
+      sta [.target - storage + KERNEL_STORAGE_W]
+      txa
+      ror
+      ror
+      ENDM
+
+      MAC EMERALDS_TWO_SKIP
+      ror
+      ror
+      ENDM
+
+      MAC EMERALDS_ONE
+.target  SET {1}
+.source SET {2}
+      tax
+      and #%1
+      tay
+      lda .source,Y
+      sta [.target - storage + KERNEL_STORAGE_W]
+      txa
+      ror
+      ror
+      ENDM
+
+      MAC EMERALDS_ONE_SKIP
+      ror
+      ENDM
+
+      align 8
+storage:
+      ; Emerald byte setting 1A
+storage_00:
+      .byte SET_1_0
+storage_04:
+      .byte SET_0_0
+storage_09:
+      .byte SET_1_1
+storage_13:
+      .byte SET_1_1
+storage_17:
+      .byte SET_1_R
+storage_18:
+      .byte SET_0_0
+storage_22:
+      .byte SET_0_0
+
+      ; Emerald byte setting 2A
+storage_02:
+      .byte SET_0_0
+storage_06:
+      .byte SET_0_0
+storage_11:
+      .byte SET_1_1
+storage_15:
+      .byte SET_1_1
+storage_20:
+      .byte SET_0_0
+storage_24:
+      .byte SET_0_1
+storage_end:
+
+      align 8
+map_emeralds:
+      ; first bit of byte 2 & 3 are unused for simplicity
+      .byte %1000, %0000000, %0000000, %00000000
+      .byte %0100, %0000000, %0000000, %00000000
+      .byte %0010, %0000000, %0000000, %00000000
+      .byte %0001, %0000000, %0000000, %00000000
+      .byte %0000, %1000000, %0000000, %00000000
+      .byte %0000, %0100000, %0000000, %00000000
+      .byte %0000, %0010000, %0000000, %00000000
+      .byte %0000, %0001000, %0000000, %00000000
+      .byte %0000, %0000100, %0000000, %00000000
+      .byte %0000, %0000010, %0000000, %00000000
+      .byte %0000, %0000001, %0000000, %00000000
+      .byte %0000, %0000000, %1000000, %00000000
+      .byte %0000, %0000000, %0100000, %00000000
+      .byte %0000, %0000000, %0010000, %00000000
+      .byte %0000, %0000000, %0001000, %00000000
+      .byte %0000, %0000000, %0000100, %00000000
+      .byte %0000, %0000000, %0000010, %00000000
+      .byte %0000, %0000000, %0000001, %00000000
+      .byte %0000, %0000000, %0000000, %10000000
+      .byte %0000, %0000000, %0000000, %01000000
+      .byte %0000, %0000000, %0000000, %00100000
+      .byte %0000, %0000000, %0000000, %00010000
+      .byte %0000, %0000000, %0000000, %00001000
+      .byte %0000, %0000000, %0000000, %00000100
+      .byte %0000, %0000000, %0000000, %00000010
+      .byte %0000, %0000000, %0000000, %00000001
+map_emeralds_end:
+
+      align 8
+map_full:
+      .byte SET_0_0
+      .byte SET_0_1
+      .byte SET_1_0
+      .byte SET_1_1
+map_missle_r:
+      .byte SET_0_R
+      .byte SET_1_R
+map_missle_l:
+      .byte SET_0_L
+      .byte SET_1_L
+
+
+copy_frame:
       ; FRAMESWITCH
       lda #01
       and FrameCount
-	bne CopyFrame2Kernel
-CopyFrame1Kernel:
+	beq CopyFrame1Kernel
+      jmp CopyFrame2Kernel
 
+CopyFrame1Kernel:
       ; Copy: KERNEL 1
       ldy #(kernel_1_end - kernel_1_start)-1
-.copy_loop:
+.copy_loop_1:
       lda kernel_1_start,Y
       sta $1000,Y
       dey
-      bne .copy_loop
+      bne .copy_loop_1
       lda kernel_1_start
       sta $1000
+
+      ldx ROW_DEMO_INDEX
+      lda map_emeralds+3,X
+      EMERALDS_TWO_SKIP
+      EMERALDS_TWO storage_22
+      EMERALDS_TWO_SKIP
+      EMERALDS_TWO storage_18
+
+      ldx ROW_DEMO_INDEX
+      lda map_emeralds+2,X
+      EMERALDS_ONE storage_17, map_missle_r
+      EMERALDS_TWO_SKIP
+      EMERALDS_TWO storage_13
+      EMERALDS_TWO_SKIP
+
+      ldx ROW_DEMO_INDEX
+      lda map_emeralds+1,X
+      EMERALDS_TWO storage_09
+      EMERALDS_ONE Temp, map_missle_l ; ???
+      EMERALDS_TWO_SKIP
+      EMERALDS_TWO storage_04
+
+      ldx ROW_DEMO_INDEX
+      lda map_emeralds+0,X
+      EMERALDS_TWO_SKIP
+      EMERALDS_TWO storage_00
+
       jmp CopyFrameNext
 
 CopyFrame2Kernel:
-
       ; Copy: KERNEL 2
       ldy #(kernel_2_end - kernel_2_start)-1
-.copy_loop2:
+.copy_loop_2:
       lda kernel_2_start,Y
       sta $1000,Y
       dey
-      bne .copy_loop2
+      bne .copy_loop_2
       lda kernel_2_start
       sta $1000
+
+      ldx ROW_DEMO_INDEX
+      lda map_emeralds+3,X
+      EMERALDS_TWO storage_24
+      EMERALDS_TWO_SKIP
+      EMERALDS_TWO storage_20
+      EMERALDS_TWO_SKIP
+
+      ldx ROW_DEMO_INDEX
+      lda map_emeralds+2,X
+      EMERALDS_ONE_SKIP
+      EMERALDS_TWO storage_15
+      EMERALDS_TWO_SKIP
+      EMERALDS_TWO storage_11
+
+      ldx ROW_DEMO_INDEX
+      lda map_emeralds+1,X
+      EMERALDS_TWO_SKIP
+      EMERALDS_ONE_SKIP
+      EMERALDS_TWO storage_06
+      EMERALDS_TWO_SKIP
+
+      ldx ROW_DEMO_INDEX
+      lda map_emeralds+0,X
+      EMERALDS_TWO storage_02
+      EMERALDS_TWO_SKIP
+
       jmp CopyFrameNext
 
+
 CopyFrameNext:
-      ; Positioning
+
+      lda FrameCount
+      and #%1111
+      cmp #%1111
+      bne .next_next_thing
+
+      clc
+      lda ROW_DEMO_INDEX
+      adc #4
+      cmp #[map_emeralds_end - map_emeralds]
+      bcc .next_thing_local
+      lda #0
+.next_thing_local
+      sta ROW_DEMO_INDEX
+.next_next_thing:
       sta WSYNC
+
+      ; Positioning
       SLEEP 40
       sta EMERALD_SP_RESET	; position 1st player
       sta WSYNC
@@ -557,56 +750,78 @@ frame_row_start: subroutine
       ; FRAMESWITCH
       lda #01
       and FrameCount
-	beq loadframe1
-
-loadframe2:
-      ; Emerald byte setting
-      lda #SET_0_0
-      sta GEM_02_W
-      lda #SET_0_0
-      sta GEM_06_W
-      lda #SET_1_1
-      sta GEM_11_W
-      lda #SET_1_1
-      sta GEM_15_W
-      lda #SET_0_0
-      sta GEM_20_W
-      lda #SET_0_0
-      sta GEM_24_W
-
-      sta WSYNC
-      jmp loadframeafter
-
+	bne loadframe2
 
 loadframe1:
-      ; Emerald byte setting
-      lda #SET_0_0
+      ; ~30c
+
+      ; Emerald byte setting 1A
+      ldx #0
+      lda KERNEL_STORAGE_R,X
       sta GEM_00_W
-      lda #SET_0_0
+      inx
+      lda KERNEL_STORAGE_R,X
       sta GEM_04_W
-      lda #SET_1_1
+      inx
+      lda KERNEL_STORAGE_R,X
       sta GEM_09_W
-      lda #SET_1_1
+      inx
+      lda KERNEL_STORAGE_R,X
       sta GEM_13_W
-      lda #SET_1_R
-      sta GEM_17_W
-      lda #SET_0_0
-      sta GEM_18_W
-      lda #SET_0_0
-      sta GEM_22_W
 
-      ; ELAPSED PAST?
-
-loadframeafter:
+      sta WSYNC
 
 ; [row:7]
       jet_spritedata_calc
+
+      ; Emerald byte setting 1B
+      lda KERNEL_STORAGE_R,X
+      sta GEM_17_W
+      inx
+      lda KERNEL_STORAGE_R,X
+      sta GEM_18_W
+      inx
+      lda KERNEL_STORAGE_R,X
+      sta GEM_22_W
+
+      jmp row_7_end
+
+loadframe2:
+      ; ~30c
+
+      ; Emerald byte setting 2A
+      ldx #8
+      lda KERNEL_STORAGE_R,X
+      sta GEM_02_W
+      inx
+      lda KERNEL_STORAGE_R,X
+      sta GEM_06_W
+      inx
+      lda KERNEL_STORAGE_R,X
+      sta GEM_11_W
+
+      sta WSYNC
+
+; [row:7]
+      jet_spritedata_calc
+
+      ; Emerald byte setting 2B
+      lda KERNEL_STORAGE_R,X
+      sta GEM_15_W
+      inx
+      lda KERNEL_STORAGE_R,X
+      sta GEM_20_W
+      inx
+      lda KERNEL_STORAGE_R,X
+      sta GEM_24_W
+
+      jmp row_7_end
+
+row_7_end:
       sta WSYNC
 
 ; [row:8]
-
-      ; next line, repeat until <0
-      ; This performs a long jump to frame_start.
+      ; Repeat loop until LoopCount < 0
       dec LoopCount
       bmi frame_bottom
       jmp frame_start
