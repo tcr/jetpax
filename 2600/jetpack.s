@@ -551,52 +551,53 @@ frame_row_start: subroutine
 
 ; [row:6]
       jet_spritedata_calc
-
       lda #COL_BG
       sta COLUPF
 
       ; FRAMESWITCH
       lda #01
       and FrameCount
-	bne loadframe2
-loadframe1:
-      ; Emerald byte setting
-      lda #SET_1_1
-      sta GEM_02_TARGET
-      lda #SET_1_1
-      sta GEM_02_TARGET
-      lda #SET_1_1
-      sta GEM_02_TARGET
-      lda #SET_1_L
-      sta GEM_02_TARGET
-      lda #SET_1_1
-      sta GEM_02_TARGET
-      lda #SET_1_1
-      sta GEM_02_TARGET
-
-      jmp loadframeafter
+	beq loadframe1
 
 loadframe2:
       ; Emerald byte setting
+      lda #SET_0_0
+      sta GEM_02_W
+      lda #SET_0_0
+      sta GEM_06_W
       lda #SET_1_1
-      sta GEM_02_TARGET
+      sta GEM_11_W
       lda #SET_1_1
-      sta GEM_02_TARGET
-      lda #SET_1_R
-      sta GEM_02_TARGET
-      lda #SET_1_1
-      sta GEM_02_TARGET
-      lda #SET_1_1
-      sta GEM_02_TARGET
-      lda #SET_1_1
-      sta GEM_02_TARGET
-      lda #SET_1_1
-      sta GEM_02_TARGET
+      sta GEM_15_W
+      lda #SET_0_0
+      sta GEM_20_W
+      lda #SET_0_0
+      sta GEM_24_W
 
+      sta WSYNC
       jmp loadframeafter
 
+
+loadframe1:
+      ; Emerald byte setting
+      lda #SET_0_0
+      sta GEM_00_W
+      lda #SET_0_0
+      sta GEM_04_W
+      lda #SET_1_1
+      sta GEM_09_W
+      lda #SET_1_1
+      sta GEM_13_W
+      lda #SET_1_R
+      sta GEM_17_W
+      lda #SET_0_0
+      sta GEM_18_W
+      lda #SET_0_0
+      sta GEM_22_W
+
+      ; ELAPSED PAST?
+
 loadframeafter:
-      sta WSYNC
 
 ; [row:7]
       jet_spritedata_calc
@@ -697,27 +698,41 @@ kernel_1_start:
       lda #EMR1
       ldx #EMR2
       ldy #EMR3
+.gem_00
       .byte GEM_00, EMERALD_SP
 
       ; 22
       sta EMERALD_SP_RESET
       sleep 6
+.gem_04
       .byte GEM_04, EMERALD_SP
       sta EMERALD_SP_RESET
+.gem_09
       .byte GEM_09, EMERALD_SP
       sleep 3
+.gem_13
       .byte GEM_13, EMERALD_SP
       sta EMERALD_SP_RESET
+.gem_17
       .byte GEM_17, EMERALD_MI_ENABLE
+.gem_18
       .byte GEM_18, EMERALD_SP
       sleep 3
+.gem_22
       .byte GEM_22, EMERALD_SP
-      .byte GEM_08, EMERALD_MI_ENABLE
 
       ; cycle 64 (start of right border)
-      sleep 6
+      sleep 9
       rts
 kernel_1_end:
+
+GEM_00_W equ [$1000 + .gem_00 - kernel_1_start]
+GEM_04_W equ [$1000 + .gem_04 - kernel_1_start]
+GEM_09_W equ [$1000 + .gem_09 - kernel_1_start]
+GEM_13_W equ [$1000 + .gem_13 - kernel_1_start]
+GEM_17_W equ [$1000 + .gem_17 - kernel_1_start]
+GEM_18_W equ [$1000 + .gem_18 - kernel_1_start]
+GEM_22_W equ [$1000 + .gem_22 - kernel_1_start]
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -726,36 +741,35 @@ kernel_1_end:
 ; Emerald line macro (3, 4, ...)
 
 kernel_2_start:
+
+      pla
+      sta GRP0
+      sleep 4
+
       ; Enable missile (using excessive lda instructions)
       lda #02
-      .byte GEM_08, EMERALD_MI_ENABLE
-
-      ;dec SpriteEnd
-      sleep 5
-      pla
-      sta.w GRP0
-      ; sleep 4
-      ; ldy SpriteEnd
-      ; lda Frame0,Y
-      ; sta JET_SP
-
-      ; moved: lda #T1
       ldx #T2
       ldy #T3
+      sta EMERALD_MI_ENABLE
+      lda #T1 ; movable
+.gem_02:
       .byte GEM_02, EMERALD_SP
 
       ; cycle 25
       sta EMERALD_SP_RESET
-      lda #T1 ; movable
-      sleep 4
+      sleep 6
+.gem_06:
       .byte GEM_06, EMERALD_SP
       sta EMERALD_SP_RESET
+.gem_11:
       .byte GEM_11, EMERALD_SP
-      ; stx EMERALD_MI_ENABLE ; stx disables it
-      sleep 3
+      stx EMERALD_MI_ENABLE
+.gem_15:
       .byte GEM_15, EMERALD_SP
       sta EMERALD_SP_RESET
+.gem_20:
       .byte GEM_20, EMERALD_SP
+.gem_24:
       .byte GEM_24, EMERALD_SP
       sleep 6
 
@@ -763,6 +777,13 @@ kernel_2_start:
       sleep 6
       rts
 kernel_2_end:
+
+GEM_02_W equ [$1000 + .gem_02 - kernel_2_start]
+GEM_06_W equ [$1000 + .gem_06 - kernel_2_start]
+GEM_11_W equ [$1000 + .gem_11 - kernel_2_start]
+GEM_15_W equ [$1000 + .gem_15 - kernel_2_start]
+GEM_20_W equ [$1000 + .gem_20 - kernel_2_start]
+GEM_24_W equ [$1000 + .gem_24 - kernel_2_start]
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -861,7 +882,7 @@ NewThing2:
     sta YPos
     lda #0
     sta Speed1
-    sta Speed2  
+    sta Speed2
 .next:
 
     rts
