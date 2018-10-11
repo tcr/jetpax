@@ -848,13 +848,13 @@
     433  f2e9
     434  f2e9				   CopyFrame1Kernel
     435  f2e9							; Copy: KERNEL 1
-    436  f2e9		       a0 2e		      ldy	#(kernel_1_end - kernel_1_start)-1
+    436  f2e9		       a0 2d		      ldy	#(kernel_1_end - kernel_1_start)-1
     437  f2eb				   .copy_loop_1
-    438  f2eb		       b9 5a f6 	      lda	kernel_1_start,Y
+    438  f2eb		       b9 5b f6 	      lda	kernel_1_start,Y
     439  f2ee		       99 00 10 	      sta	$1000,Y
     440  f2f1		       88		      dey
     441  f2f2		       d0 f7		      bne	.copy_loop_1
-    442  f2f4		       ad 5a f6 	      lda	kernel_1_start
+    442  f2f4		       ad 5b f6 	      lda	kernel_1_start
     443  f2f7		       8d 00 10 	      sta	$1000
     444  f2fa
     445  f2fa		       a6 8e		      ldx	ROW_DEMO_INDEX
@@ -1540,13 +1540,13 @@
     760  f560							; Emerald byte setting 1A
     761  f560		       a2 00		      ldx	#0
     762  f562		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
-    763  f565		       8d 0d 10 	      sta	GEM_00_W
+    763  f565		       8d 0c 10 	      sta	GEM_00_W
     764  f568		       e8		      inx
     765  f569		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
-    766  f56c		       8d 15 10 	      sta	GEM_04_W
+    766  f56c		       8d 14 10 	      sta	GEM_04_W
     767  f56f		       e8		      inx
     768  f570		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
-    769  f573		       8d 19 10 	      sta	GEM_09_W
+    769  f573		       8d 18 10 	      sta	GEM_09_W
     770  f576		       e8		      inx
     771  f577
     772  f577		       85 02		      sta	WSYNC
@@ -1569,18 +1569,18 @@
     776  f587
     777  f587							; Emerald byte setting 1B
     778  f587		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
-    779  f58a		       8d 1d 10 	      sta	GEM_13_W
+    779  f58a		       8d 1c 10 	      sta	GEM_13_W
     780  f58d		       e8		      inx
     781  f58e		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
-    782  f591		       8d 21 10 	      sta	GEM_17_W
+    782  f591		       8d 20 10 	      sta	GEM_17_W
     783  f594		       e8		      inx
     784  f595		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
-    785  f598		       8d 23 10 	      sta	GEM_18_W
+    785  f598		       8d 22 10 	      sta	GEM_18_W
     786  f59b		       e8		      inx
     787  f59c		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
-    788  f59f		       8d 27 10 	      sta	GEM_22_W
+    788  f59f		       8d 26 10 	      sta	GEM_22_W
     789  f5a2
-    790  f5a2		       4c e9 f5 	      jmp	row_7_end
+    790  f5a2		       4c ea f5 	      jmp	row_7_end
     791  f5a5
     792  f5a5				   loadframe2
     793  f5a5							; ~30c
@@ -1620,150 +1620,154 @@
     814  f5cf		       8d 1a 10 	      sta	GEM_11_W
     815  f5d2		       e8		      inx
     816  f5d3		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
-    817  f5d6		       85 80		      sta	Temp
-    818  f5d8		       e8		      inx
-    819  f5d9		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
-    820  f5dc		       8d 22 10 	      sta	GEM_20_W
-    821  f5df		       e8		      inx
-    822  f5e0		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
-    823  f5e3		       8d 26 10 	      sta	GEM_24_W
-    824  f5e6
-    825  f5e6		       4c e9 f5 	      jmp	row_7_end
-    826  f5e9
-    827  f5e9				   row_7_end
-    828  f5e9		       85 02		      sta	WSYNC
-    829  f5eb
-    830  f5eb							; [row:8]
-    831  f5eb							; Repeat loop until LoopCount < 0
-    832  f5eb		       c6 82		      dec	LoopCount
-    833  f5ed		       30 03		      bmi	frame_bottom
-    834  f5ef		       4c c4 f4 	      jmp	row_start
-    835  f5f2
-    836  f5f2							; reset the background for bottom of playfield
-    837  f5f2				   frame_bottom
-    838  f5f2							;sta WSYNC
-    839  f5f2
-    840  f5f2							; Make the playfield solid.
-    841  f5f2		       a9 3f		      lda	#%00111111
-    842  f5f4		       85 0e		      sta	PF1
-    843  f5f6		       a9 ff		      lda	#%11111111
-    844  f5f8		       85 0f		      sta	PF2
-    845  f5fa
-    846  f5fa							; Clear all sprites.
-    847  f5fa		       a9 00		      lda	#0
-    848  f5fc		       85 1c		      sta	EMERALD_SP
-    849  f5fe		       85 1b		      sta	JET_SP
-    850  f600		       85 1e		      sta	EMERALD_MI_ENABLE
-    851  f602
-    852  f602		       a9 42		      lda	#COL_BG
-    853  f604		       a0 00		      ldy	#0
-    854  f606		       85 02		      sta	WSYNC
-    855  f608
-    856  f608		       84 08		      sty	COLUPF
-    857  f60a		       85 02		      sta	WSYNC
-    858  f60c
-    859  f60c		       85 08		      sta	COLUPF
-    860  f60e		       85 02		      sta	WSYNC
-    861  f610
-    862  f610		       85 02		      sta	WSYNC
-    863  f612
-    864  f612		       85 02		      sta	WSYNC
-    865  f614
-    866  f614		       84 08		      sty	COLUPF
-    867  f616		       85 02		      sta	WSYNC
-    868  f618
-    869  f618		       85 08		      sta	COLUPF
-    870  f61a		       85 02		      sta	WSYNC
-    871  f61c		       85 02		      sta	WSYNC
-    872  f61e
-    873  f61e							; Blank all background colors.
-    874  f61e				   frame_end
-    875  f61e		       a9 00		      lda	#0
-    876  f620		       85 08		      sta	COLUPF
-    877  f622		       85 0f		      sta	PF2
-    878  f624		       85 0e		      sta	PF1
-    879  f626		       85 1c		      sta	EMERALD_SP
-    880  f628		       85 02		      sta	WSYNC
-    881  f62a
-    882  f62a							; Guide lines (2x)
-    883  f62a		       a9 02		      lda	#SIGNAL_LINE
-    884  f62c		       85 09		      sta	COLUBK
-    885  f62e					      REPEAT	6
-    886  f62e		       85 02		      sta	WSYNC
-    885  f62e					      REPEND
-    886  f630		       85 02		      sta	WSYNC
-    885  f630					      REPEND
-    886  f632		       85 02		      sta	WSYNC
-    885  f632					      REPEND
-    886  f634		       85 02		      sta	WSYNC
-    885  f634					      REPEND
-    886  f636		       85 02		      sta	WSYNC
-    885  f636					      REPEND
-    886  f638		       85 02		      sta	WSYNC
-    887  f63a					      REPEND
-    888  f63a		       a9 00		      lda	#$00
-    889  f63c		       85 09		      sta	COLUBK
-    890  f63e		       85 02		      sta	WSYNC
-    891  f640
-      0  f640					      TIMER_WAIT
-      1  f640				   .waittimer
-      2  f640		       ad 84 02 	      lda	INTIM
-      3  f643		       d0 fb		      bne	.waittimer
-      0  f645					      TIMER_SETUP	30
-      1  f645				   .lines     SET	30
-      2  f645		       a9 22		      lda	#(((.lines-1)*76-14)/64)
-      3  f647		       85 02		      sta	WSYNC
-      4  f649		       8d 96 02 	      sta	TIM64T
-    894  f64c
-    895  f64c		       20 b7 f6 	      jsr	MoveJoystick
-    896  f64f		       20 ee f6 	      jsr	SpeedCalculation
-    897  f652
-      0  f652					      TIMER_WAIT
-      1  f652				   .waittimer
-      2  f652		       ad 84 02 	      lda	INTIM
-      3  f655		       d0 fb		      bne	.waittimer
-    899  f657		       4c 47 f2 	      jmp	BeginFrame
-    900  f65a
-    901  f65a
-    902  f65a							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    903  f65a
-    904  f65a							; kernels
-    905  f65a
-    906  f65a
-    907  f65a							; Important cycles for the kernels:
-    908  f65a							; left border: 29, right border: 64
-    909  f65a
-    910  f65a							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    911  f65a
-    912  f65a							; KERNEL 1
-    913  f65a
-    914  f65a							; Emerald line macro (1, 2, ...)
-    915  f65a
-    916  f65a				   kernel_1_start
-    917  f65a							; sleep first make this distinct from
-    918  f65a							; other kernel for debug scenarios
-      0  f65a					      sleep	5
-      1  f65a				   .CYCLES    SET	5
-      2  f65a
-      3  f65a				  -	      IF	.CYCLES < 2
-      4  f65a				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  f65a				  -	      ERR
-      6  f65a					      ENDIF
-      7  f65a
-      8  f65a					      IF	.CYCLES & 1
-      9  f65a					      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f65a		       04 00		      nop	0
-     11  f65c				  -	      ELSE
-     12  f65c				  -	      bit	VSYNC
-     13  f65c					      ENDIF
-     14  f65c				   .CYCLES    SET	.CYCLES - 3
-     15  f65c					      ENDIF
-     16  f65c
-     17  f65c					      REPEAT	.CYCLES / 2
+    817  f5d6		       8d 1e 10 	      sta	GEM_15_W
+    818  f5d9		       e8		      inx
+    819  f5da		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
+    820  f5dd		       8d 22 10 	      sta	GEM_20_W
+    821  f5e0		       e8		      inx
+    822  f5e1		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
+    823  f5e4		       8d 26 10 	      sta	GEM_24_W
+    824  f5e7
+    825  f5e7		       4c ea f5 	      jmp	row_7_end
+    826  f5ea
+    827  f5ea				   row_7_end
+    828  f5ea		       85 02		      sta	WSYNC
+    829  f5ec
+    830  f5ec							; [row:8]
+    831  f5ec							; Repeat loop until LoopCount < 0
+    832  f5ec		       c6 82		      dec	LoopCount
+    833  f5ee		       30 03		      bmi	frame_bottom
+    834  f5f0		       4c c4 f4 	      jmp	row_start
+    835  f5f3
+    836  f5f3							; reset the background for bottom of playfield
+    837  f5f3				   frame_bottom
+    838  f5f3							;sta WSYNC
+    839  f5f3
+    840  f5f3							; Make the playfield solid.
+    841  f5f3		       a9 3f		      lda	#%00111111
+    842  f5f5		       85 0e		      sta	PF1
+    843  f5f7		       a9 ff		      lda	#%11111111
+    844  f5f9		       85 0f		      sta	PF2
+    845  f5fb
+    846  f5fb							; Clear all sprites.
+    847  f5fb		       a9 00		      lda	#0
+    848  f5fd		       85 1c		      sta	EMERALD_SP
+    849  f5ff		       85 1b		      sta	JET_SP
+    850  f601		       85 1e		      sta	EMERALD_MI_ENABLE
+    851  f603
+    852  f603		       a9 42		      lda	#COL_BG
+    853  f605		       a0 00		      ldy	#0
+    854  f607		       85 02		      sta	WSYNC
+    855  f609
+    856  f609		       84 08		      sty	COLUPF
+    857  f60b		       85 02		      sta	WSYNC
+    858  f60d
+    859  f60d		       85 08		      sta	COLUPF
+    860  f60f		       85 02		      sta	WSYNC
+    861  f611
+    862  f611		       85 02		      sta	WSYNC
+    863  f613
+    864  f613		       85 02		      sta	WSYNC
+    865  f615
+    866  f615		       84 08		      sty	COLUPF
+    867  f617		       85 02		      sta	WSYNC
+    868  f619
+    869  f619		       85 08		      sta	COLUPF
+    870  f61b		       85 02		      sta	WSYNC
+    871  f61d		       85 02		      sta	WSYNC
+    872  f61f
+    873  f61f							; Blank all background colors.
+    874  f61f				   frame_end
+    875  f61f		       a9 00		      lda	#0
+    876  f621		       85 08		      sta	COLUPF
+    877  f623		       85 0f		      sta	PF2
+    878  f625		       85 0e		      sta	PF1
+    879  f627		       85 1c		      sta	EMERALD_SP
+    880  f629		       85 02		      sta	WSYNC
+    881  f62b
+    882  f62b							; Guide lines (2x)
+    883  f62b		       a9 02		      lda	#SIGNAL_LINE
+    884  f62d		       85 09		      sta	COLUBK
+    885  f62f					      REPEAT	6
+    886  f62f		       85 02		      sta	WSYNC
+    885  f62f					      REPEND
+    886  f631		       85 02		      sta	WSYNC
+    885  f631					      REPEND
+    886  f633		       85 02		      sta	WSYNC
+    885  f633					      REPEND
+    886  f635		       85 02		      sta	WSYNC
+    885  f635					      REPEND
+    886  f637		       85 02		      sta	WSYNC
+    885  f637					      REPEND
+    886  f639		       85 02		      sta	WSYNC
+    887  f63b					      REPEND
+    888  f63b		       a9 00		      lda	#$00
+    889  f63d		       85 09		      sta	COLUBK
+    890  f63f		       85 02		      sta	WSYNC
+    891  f641
+      0  f641					      TIMER_WAIT
+      1  f641				   .waittimer
+      2  f641		       ad 84 02 	      lda	INTIM
+      3  f644		       d0 fb		      bne	.waittimer
+      0  f646					      TIMER_SETUP	30
+      1  f646				   .lines     SET	30
+      2  f646		       a9 22		      lda	#(((.lines-1)*76-14)/64)
+      3  f648		       85 02		      sta	WSYNC
+      4  f64a		       8d 96 02 	      sta	TIM64T
+    894  f64d
+    895  f64d		       20 b7 f6 	      jsr	MoveJoystick
+    896  f650		       20 ee f6 	      jsr	SpeedCalculation
+    897  f653
+      0  f653					      TIMER_WAIT
+      1  f653				   .waittimer
+      2  f653		       ad 84 02 	      lda	INTIM
+      3  f656		       d0 fb		      bne	.waittimer
+    899  f658		       4c 47 f2 	      jmp	BeginFrame
+    900  f65b
+    901  f65b
+    902  f65b							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    903  f65b
+    904  f65b							; kernels
+    905  f65b
+    906  f65b
+    907  f65b							; Important cycles for the kernels:
+    908  f65b							; left border: 29, right border: 64
+    909  f65b
+    910  f65b							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    911  f65b
+    912  f65b							; KERNEL 1
+    913  f65b
+    914  f65b							; Emerald line macro (1, 2, ...)
+    915  f65b
+    916  f65b				   kernel_1_start
+    917  f65b							; sleep first make this distinct from
+    918  f65b							; other kernel for debug scenarios
+      0  f65b					      sleep	6
+      1  f65b				   .CYCLES    SET	6
+      2  f65b
+      3  f65b				  -	      IF	.CYCLES < 2
+      4  f65b				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  f65b				  -	      ERR
+      6  f65b					      ENDIF
+      7  f65b
+      8  f65b				  -	      IF	.CYCLES & 1
+      9  f65b				  -	      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f65b				  -	      nop	0
+     11  f65b				  -	      ELSE
+     12  f65b				  -	      bit	VSYNC
+     13  f65b				  -	      ENDIF
+     14  f65b				  -.CYCLES    SET	.CYCLES - 3
+     15  f65b					      ENDIF
+     16  f65b
+     17  f65b					      REPEAT	.CYCLES / 2
+     18  f65b		       ea		      nop
+     17  f65b					      REPEND
      18  f65c		       ea		      nop
-     19  f65d					      REPEND
-    920  f65d		       68		      pla
-    921  f65e		       8d 1b 00 	      sta.w	GRP0
+     17  f65c					      REPEND
+     18  f65d		       ea		      nop
+     19  f65e					      REPEND
+    920  f65e		       68		      pla
+    921  f65f		       85 1b		      sta	GRP0
     922  f661
     923  f661		       a9 60		      lda	#EMR1
     924  f663		       a2 06		      ldx	#EMR2
@@ -1878,13 +1882,13 @@
     953  f688		       60		      rts
     954  f689				   kernel_1_end
     955  f689
-    956  f689		       10 0d	   GEM_00_W   equ	[$1000 + .gem_00 - kernel_1_start]
-    957  f689		       10 15	   GEM_04_W   equ	[$1000 + .gem_04 - kernel_1_start]
-    958  f689		       10 19	   GEM_09_W   equ	[$1000 + .gem_09 - kernel_1_start]
-    959  f689		       10 1d	   GEM_13_W   equ	[$1000 + .gem_13 - kernel_1_start]
-    960  f689		       10 21	   GEM_17_W   equ	[$1000 + .gem_17 - kernel_1_start]
-    961  f689		       10 23	   GEM_18_W   equ	[$1000 + .gem_18 - kernel_1_start]
-    962  f689		       10 27	   GEM_22_W   equ	[$1000 + .gem_22 - kernel_1_start]
+    956  f689		       10 0c	   GEM_00_W   equ	[$1000 + .gem_00 - kernel_1_start]
+    957  f689		       10 14	   GEM_04_W   equ	[$1000 + .gem_04 - kernel_1_start]
+    958  f689		       10 18	   GEM_09_W   equ	[$1000 + .gem_09 - kernel_1_start]
+    959  f689		       10 1c	   GEM_13_W   equ	[$1000 + .gem_13 - kernel_1_start]
+    960  f689		       10 20	   GEM_17_W   equ	[$1000 + .gem_17 - kernel_1_start]
+    961  f689		       10 22	   GEM_18_W   equ	[$1000 + .gem_18 - kernel_1_start]
+    962  f689		       10 26	   GEM_22_W   equ	[$1000 + .gem_22 - kernel_1_start]
     963  f689
     964  f689							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     965  f689
@@ -1960,15 +1964,14 @@
     991  f6a1		       85 11		      sta	EMERALD_SP_RESET
     992  f6a3				   .gem_11
     993  f6a3		       84 1c		      .byte.b	GEM_11, EMERALD_SP
-    994  f6a5							; stx EMERALD_MI_ENABLE
-    995  f6a5		       85 0f		      sta	PF2
-    996  f6a7				   .gem_15
-    997  f6a7		       84 1c		      .byte.b	GEM_15, EMERALD_SP
-    998  f6a9							; 49c midway
-    999  f6a9		       85 11		      sta	EMERALD_SP_RESET
-   1000  f6ab							; PF1
-   1001  f6ab				   .gem_20
-   1002  f6ab		       84 1c		      .byte.b	GEM_20, EMERALD_SP
+    994  f6a5		       86 1e		      stx	EMERALD_MI_ENABLE
+    995  f6a7				   .gem_15
+    996  f6a7		       84 1c		      .byte.b	GEM_15, EMERALD_SP
+    997  f6a9							; 49c midway
+    998  f6a9		       85 11		      sta	EMERALD_SP_RESET
+    999  f6ab							; PF2
+   1000  f6ab				   .gem_20
+   1001  f6ab		       84 1c		      .byte.b	GEM_20, EMERALD_SP
       0  f6ad					      sleep	3
       1  f6ad				   .CYCLES    SET	3
       2  f6ad
@@ -1989,8 +1992,8 @@
      17  f6af				  -	      REPEAT	.CYCLES / 2
      18  f6af				  -	      nop
      19  f6af					      REPEND
-   1004  f6af				   .gem_24
-   1005  f6af		       84 1c		      .byte.b	GEM_24, EMERALD_SP
+   1003  f6af				   .gem_24
+   1004  f6af		       84 1c		      .byte.b	GEM_24, EMERALD_SP
       0  f6b1					      sleep	3
       1  f6b1				   .CYCLES    SET	3
       2  f6b1
@@ -2011,8 +2014,8 @@
      17  f6b3				  -	      REPEAT	.CYCLES / 2
      18  f6b3				  -	      nop
      19  f6b3					      REPEND
-   1007  f6b3
-   1008  f6b3							; cycle 64 (start of right border)
+   1006  f6b3
+   1007  f6b3							; cycle 64 (start of right border)
       0  f6b3					      sleep	6
       1  f6b3				   .CYCLES    SET	6
       2  f6b3
@@ -2037,163 +2040,163 @@
      17  f6b4					      REPEND
      18  f6b5		       ea		      nop
      19  f6b6					      REPEND
-   1010  f6b6		       60		      rts
-   1011  f6b7				   kernel_2_end
-   1012  f6b7
-   1013  f6b7		       10 0f	   GEM_02_W   equ	[$1000 + .gem_02 - kernel_2_start]
-   1014  f6b7		       10 16	   GEM_06_W   equ	[$1000 + .gem_06 - kernel_2_start]
-   1015  f6b7		       10 0b	   GEM_08_W   equ	[$1000 + .gem_08 - kernel_2_start]
-   1016  f6b7		       10 1a	   GEM_11_W   equ	[$1000 + .gem_11 - kernel_2_start]
-   1017  f6b7		       10 1e	   GEM_15_W   equ	[$1000 + .gem_15 - kernel_2_start]
-   1018  f6b7		       10 22	   GEM_20_W   equ	[$1000 + .gem_20 - kernel_2_start]
-   1019  f6b7		       10 26	   GEM_24_W   equ	[$1000 + .gem_24 - kernel_2_start]
-   1020  f6b7
-   1021  f6b7							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-   1022  f6b7
-   1023  f6b7							; SUBROUTINE
-   1024  f6b7							; Read joystick movement and apply to object 0
-   1025  f6b7				   MoveJoystick
-   1026  f6b7							; Move vertically
-   1027  f6b7							; (up and down are actually reversed since ypos starts at bottom)
-   1028  f6b7							;     ldx YPos
-   1029  f6b7		       a9 10		      lda	#%00010000	;Up?
-   1030  f6b9		       2c 80 02 	      bit	SWCHA
-   1031  f6bc		       d0 0d		      bne	SkipMoveUp
-   1032  f6be
-   1033  f6be		       18		      clc
-   1034  f6bf		       a5 88		      lda	Speed2
-   1035  f6c1		       69 0c		      adc	#12
-   1036  f6c3		       85 88		      sta	Speed2
-   1037  f6c5		       a5 87		      lda	Speed1
-   1038  f6c7		       69 00		      adc	#00
-   1039  f6c9		       85 87		      sta	Speed1
-   1040  f6cb
-   1041  f6cb				   SkipMoveUp
-   1042  f6cb		       a6 86		      ldx	XPos
-   1043  f6cd
-   1044  f6cd							; Only check left/right on odd frames;
-   1045  f6cd							; TODO make this just a fractional speed
-   1046  f6cd							; rather than dropping frames
-   1047  f6cd		       a9 01		      lda	#01
-   1048  f6cf		       25 83		      and	FrameCount
-   1049  f6d1		       d0 18		      bne	SkipMoveRight
+   1009  f6b6		       60		      rts
+   1010  f6b7				   kernel_2_end
+   1011  f6b7
+   1012  f6b7		       10 0f	   GEM_02_W   equ	[$1000 + .gem_02 - kernel_2_start]
+   1013  f6b7		       10 16	   GEM_06_W   equ	[$1000 + .gem_06 - kernel_2_start]
+   1014  f6b7		       10 0b	   GEM_08_W   equ	[$1000 + .gem_08 - kernel_2_start]
+   1015  f6b7		       10 1a	   GEM_11_W   equ	[$1000 + .gem_11 - kernel_2_start]
+   1016  f6b7		       10 1e	   GEM_15_W   equ	[$1000 + .gem_15 - kernel_2_start]
+   1017  f6b7		       10 22	   GEM_20_W   equ	[$1000 + .gem_20 - kernel_2_start]
+   1018  f6b7		       10 26	   GEM_24_W   equ	[$1000 + .gem_24 - kernel_2_start]
+   1019  f6b7
+   1020  f6b7							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   1021  f6b7
+   1022  f6b7							; SUBROUTINE
+   1023  f6b7							; Read joystick movement and apply to object 0
+   1024  f6b7				   MoveJoystick
+   1025  f6b7							; Move vertically
+   1026  f6b7							; (up and down are actually reversed since ypos starts at bottom)
+   1027  f6b7							;     ldx YPos
+   1028  f6b7		       a9 10		      lda	#%00010000	;Up?
+   1029  f6b9		       2c 80 02 	      bit	SWCHA
+   1030  f6bc		       d0 0d		      bne	SkipMoveUp
+   1031  f6be
+   1032  f6be		       18		      clc
+   1033  f6bf		       a5 88		      lda	Speed2
+   1034  f6c1		       69 0c		      adc	#12
+   1035  f6c3		       85 88		      sta	Speed2
+   1036  f6c5		       a5 87		      lda	Speed1
+   1037  f6c7		       69 00		      adc	#00
+   1038  f6c9		       85 87		      sta	Speed1
+   1039  f6cb
+   1040  f6cb				   SkipMoveUp
+   1041  f6cb		       a6 86		      ldx	XPos
+   1042  f6cd
+   1043  f6cd							; Only check left/right on odd frames;
+   1044  f6cd							; TODO make this just a fractional speed
+   1045  f6cd							; rather than dropping frames
+   1046  f6cd		       a9 01		      lda	#01
+   1047  f6cf		       25 83		      and	FrameCount
+   1048  f6d1		       d0 18		      bne	SkipMoveRight
+   1049  f6d3
    1050  f6d3
-   1051  f6d3
-   1052  f6d3							; Move horizontally
-   1053  f6d3		       a9 40		      lda	#%01000000	;Left?
-   1054  f6d5		       2c 80 02 	      bit	SWCHA
-   1055  f6d8		       d0 05		      bne	SkipMoveLeft
-   1056  f6da		       e0 1d		      cpx	#29
-   1057  f6dc		       90 01		      bcc	SkipMoveLeft
-   1058  f6de		       ca		      dex
-   1059  f6df
-   1060  f6df							; Reflect
-   1061  f6df							;     lda #$ff
-   1062  f6df							;     sta REFP0
-   1063  f6df				   SkipMoveLeft
-   1064  f6df		       a9 80		      lda	#%10000000	;Right?
-   1065  f6e1		       2c 80 02 	      bit	SWCHA
-   1066  f6e4		       d0 05		      bne	SkipMoveRight
-   1067  f6e6		       e0 80		      cpx	#128
-   1068  f6e8		       b0 01		      bcs	SkipMoveRight
-   1069  f6ea		       e8		      inx
-   1070  f6eb
-   1071  f6eb							; Reflect
-   1072  f6eb							;     lda #$0
-   1073  f6eb							;     sta REFP0
-   1074  f6eb				   SkipMoveRight
-   1075  f6eb		       86 86		      stx	XPos
-   1076  f6ed		       60		      rts
+   1051  f6d3							; Move horizontally
+   1052  f6d3		       a9 40		      lda	#%01000000	;Left?
+   1053  f6d5		       2c 80 02 	      bit	SWCHA
+   1054  f6d8		       d0 05		      bne	SkipMoveLeft
+   1055  f6da		       e0 1d		      cpx	#29
+   1056  f6dc		       90 01		      bcc	SkipMoveLeft
+   1057  f6de		       ca		      dex
+   1058  f6df
+   1059  f6df							; Reflect
+   1060  f6df							;     lda #$ff
+   1061  f6df							;     sta REFP0
+   1062  f6df				   SkipMoveLeft
+   1063  f6df		       a9 80		      lda	#%10000000	;Right?
+   1064  f6e1		       2c 80 02 	      bit	SWCHA
+   1065  f6e4		       d0 05		      bne	SkipMoveRight
+   1066  f6e6		       e0 80		      cpx	#128
+   1067  f6e8		       b0 01		      bcs	SkipMoveRight
+   1068  f6ea		       e8		      inx
+   1069  f6eb
+   1070  f6eb							; Reflect
+   1071  f6eb							;     lda #$0
+   1072  f6eb							;     sta REFP0
+   1073  f6eb				   SkipMoveRight
+   1074  f6eb		       86 86		      stx	XPos
+   1075  f6ed		       60		      rts
+   1076  f6ee
    1077  f6ee
-   1078  f6ee
-   1079  f6ee							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   1078  f6ee							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   1079  f6ee
    1080  f6ee
-   1081  f6ee
-   1082  f6ee				   SpeedCalculation
-   1083  f6ee		       38		      sec
-   1084  f6ef		       a5 88		      lda	Speed2
-   1085  f6f1		       e9 07		      sbc	#7
-   1086  f6f3		       85 88		      sta	Speed2
-   1087  f6f5		       a5 87		      lda	Speed1
-   1088  f6f7		       e9 00		      sbc	#0
-   1089  f6f9		       85 87		      sta	Speed1
-   1090  f6fb
-   1091  f6fb		       18		      clc
-   1092  f6fc		       a5 8a		      lda	YPos2
-   1093  f6fe		       65 88		      adc	Speed2
-   1094  f700		       85 8a		      sta	YPos2
-   1095  f702		       a5 89		      lda	YPos
-   1096  f704		       65 87		      adc	Speed1
-   1097  f706		       85 89		      sta	YPos
-   1098  f708
-   1099  f708		       c9 43		      cmp	#FLOOR_OFFSET
-   1100  f70a		       b0 0a		      bcs	NewThing2
-   1101  f70c
-   1102  f70c							; Reset to floor
-   1103  f70c		       a9 43		      lda	#FLOOR_OFFSET
-   1104  f70e		       85 89		      sta	YPos
-   1105  f710		       a9 00		      lda	#0
-   1106  f712		       85 87		      sta	Speed1
-   1107  f714		       85 88		      sta	Speed2
-   1108  f716				   NewThing2
-   1109  f716
-   1110  f716		       c9 bf		      cmp	#CEILING_OFFSET
-   1111  f718		       90 0a		      bcc	.next
-   1112  f71a
-   1113  f71a							; Reset to ceiling
-   1114  f71a		       a9 bf		      lda	#CEILING_OFFSET
-   1115  f71c		       85 89		      sta	YPos
-   1116  f71e		       a9 00		      lda	#0
-   1117  f720		       85 87		      sta	Speed1
-   1118  f722		       85 88		      sta	Speed2
-   1119  f724				   .next
-   1120  f724
-   1121  f724		       60		      rts
+   1081  f6ee				   SpeedCalculation
+   1082  f6ee		       38		      sec
+   1083  f6ef		       a5 88		      lda	Speed2
+   1084  f6f1		       e9 07		      sbc	#7
+   1085  f6f3		       85 88		      sta	Speed2
+   1086  f6f5		       a5 87		      lda	Speed1
+   1087  f6f7		       e9 00		      sbc	#0
+   1088  f6f9		       85 87		      sta	Speed1
+   1089  f6fb
+   1090  f6fb		       18		      clc
+   1091  f6fc		       a5 8a		      lda	YPos2
+   1092  f6fe		       65 88		      adc	Speed2
+   1093  f700		       85 8a		      sta	YPos2
+   1094  f702		       a5 89		      lda	YPos
+   1095  f704		       65 87		      adc	Speed1
+   1096  f706		       85 89		      sta	YPos
+   1097  f708
+   1098  f708		       c9 43		      cmp	#FLOOR_OFFSET
+   1099  f70a		       b0 0a		      bcs	NewThing2
+   1100  f70c
+   1101  f70c							; Reset to floor
+   1102  f70c		       a9 43		      lda	#FLOOR_OFFSET
+   1103  f70e		       85 89		      sta	YPos
+   1104  f710		       a9 00		      lda	#0
+   1105  f712		       85 87		      sta	Speed1
+   1106  f714		       85 88		      sta	Speed2
+   1107  f716				   NewThing2
+   1108  f716
+   1109  f716		       c9 bf		      cmp	#CEILING_OFFSET
+   1110  f718		       90 0a		      bcc	.next
+   1111  f71a
+   1112  f71a							; Reset to ceiling
+   1113  f71a		       a9 bf		      lda	#CEILING_OFFSET
+   1114  f71c		       85 89		      sta	YPos
+   1115  f71e		       a9 00		      lda	#0
+   1116  f720		       85 87		      sta	Speed1
+   1117  f722		       85 88		      sta	Speed2
+   1118  f724				   .next
+   1119  f724
+   1120  f724		       60		      rts
+   1121  f725
    1122  f725
    1123  f725
-   1124  f725
-   1125  f725							; Subroutine
-   1126  f725				   SetHorizPos
-   1127  f725		       85 02		      sta	WSYNC	; start a new line
-   1128  f727		       24 00		      bit	0	; waste 3 cycles
-   1129  f729		       38		      sec		; set carry flag
-   1130  f72a				   DivideLoop
-   1131  f72a		       e9 0f		      sbc	#15	; subtract 15
-   1132  f72c		       b0 fc		      bcs	DivideLoop	; branch until negative
-   1133  f72e		       49 07		      eor	#7	; calculate fine offset
-   1134  f730		       0a		      asl
-   1135  f731		       0a		      asl
-   1136  f732		       0a		      asl
-   1137  f733		       0a		      asl
-   1138  f734		       95 10		      sta	JET_SP_RESET,x	; fix coarse position
-   1139  f736		       95 20		      sta	JET_SP_HMOVE,x	; set fine offset
-   1140  f738		       60		      rts		; return to caller
+   1124  f725							; Subroutine
+   1125  f725				   SetHorizPos
+   1126  f725		       85 02		      sta	WSYNC	; start a new line
+   1127  f727		       24 00		      bit	0	; waste 3 cycles
+   1128  f729		       38		      sec		; set carry flag
+   1129  f72a				   DivideLoop
+   1130  f72a		       e9 0f		      sbc	#15	; subtract 15
+   1131  f72c		       b0 fc		      bcs	DivideLoop	; branch until negative
+   1132  f72e		       49 07		      eor	#7	; calculate fine offset
+   1133  f730		       0a		      asl
+   1134  f731		       0a		      asl
+   1135  f732		       0a		      asl
+   1136  f733		       0a		      asl
+   1137  f734		       95 10		      sta	JET_SP_RESET,x	; fix coarse position
+   1138  f736		       95 20		      sta	JET_SP_HMOVE,x	; set fine offset
+   1139  f738		       60		      rts		; return to caller
+   1140  f739
    1141  f739
    1142  f739
-   1143  f739
-   1144  f800		       00 00 00 00*	      align	256
-   1145  f800
-   1146  f800							; Bitmap data for character "standing" position
-   1147  f800							; Comical amount of 0's for now to simplify sprite rendering
-   1148  f800
-   1149  f800							; Y can be from:
-   1150  f800							;     SPRITE_HEIGHT to (8*ROW_COUNT)
-   1151  f800							; SpriteEnd: 8..128
-   1152  f800							; Frame0 should start at +120 so the Y rollunder of -$120 is OK]
-   1153  f800				   Frame0
-   1154  f800		       00		      .byte.b	#%00000000
-   1155  f801		       60		      .byte.b	#%01100000
-   1156  f802		       60		      .byte.b	#%01100000
-   1157  f803		       60		      .byte.b	#%01100000
-   1158  f804		       c0		      .byte.b	#%11000000
-   1159  f805		       c0		      .byte.b	#%11000000
-   1160  f806		       f0		      .byte.b	#%11110000
-   1161  f807		       c0		      .byte.b	#%11000000
-   1162  f808		       c0		      .byte.b	#%11000000
-   1163  f809		       00		      .byte.b	#%00000000
+   1143  f800		       00 00 00 00*	      align	256
+   1144  f800
+   1145  f800							; Bitmap data for character "standing" position
+   1146  f800							; Comical amount of 0's for now to simplify sprite rendering
+   1147  f800
+   1148  f800							; Y can be from:
+   1149  f800							;     SPRITE_HEIGHT to (8*ROW_COUNT)
+   1150  f800							; SpriteEnd: 8..128
+   1151  f800							; Frame0 should start at +120 so the Y rollunder of -$120 is OK]
+   1152  f800				   Frame0
+   1153  f800		       00		      .byte.b	#%00000000
+   1154  f801		       60		      .byte.b	#%01100000
+   1155  f802		       60		      .byte.b	#%01100000
+   1156  f803		       60		      .byte.b	#%01100000
+   1157  f804		       c0		      .byte.b	#%11000000
+   1158  f805		       c0		      .byte.b	#%11000000
+   1159  f806		       f0		      .byte.b	#%11110000
+   1160  f807		       c0		      .byte.b	#%11000000
+   1161  f808		       c0		      .byte.b	#%11000000
+   1162  f809		       00		      .byte.b	#%00000000
+   1163  f80a
    1164  f80a
-   1165  f80a
-   1166  f80a							; Epilogue
-   1167  fffc					      org	$fffc
-   1168  fffc		       00 f2		      .word.w	Start
-   1169  fffe		       00 f2		      .word.w	Start
+   1165  f80a							; Epilogue
+   1166  fffc					      org	$fffc
+   1167  fffc		       00 f2		      .word.w	Start
+   1168  fffe		       00 f2		      .word.w	Start

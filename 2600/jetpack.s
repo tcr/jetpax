@@ -916,9 +916,9 @@ frame_end:
 kernel_1_start:
       ; sleep first make this distinct from
       ; other kernel for debug scenarios
-      sleep 5
+      sleep 6
       pla
-      sta.w GRP0
+      sta GRP0
 
       lda #EMR1
       ldx #EMR2
