@@ -315,12 +315,10 @@ BeginFrame
 
       MAC EMERALDS_TWO
 .target  SET {1}
-      tax
-      and #%11
-      tay
-      lda map_full,Y
-      sta [.target - storage + KERNEL_STORAGE_W]
-      txa
+      ldx #%11
+      .byte $CB, $0 ; axs
+      ldy map_full,X
+      sty [.target - storage + KERNEL_STORAGE_W]
       ror
       ror
       ENDM
@@ -942,6 +940,7 @@ kernel_1_start:
       .byte GEM_13, EMERALD_SP
       sta EMERALD_SP_RESET
 .gem_17
+      ; 49c (midway)
       .byte GEM_17, EMERALD_MI_ENABLE
 .gem_18
       .byte GEM_18, EMERALD_SP
@@ -995,7 +994,9 @@ kernel_2_start:
       stx EMERALD_MI_ENABLE
 .gem_15:
       .byte GEM_15, EMERALD_SP
+      ; 49c midway
       sta EMERALD_SP_RESET
+      ; PF2
 .gem_20:
       .byte GEM_20, EMERALD_SP
       sleep 3

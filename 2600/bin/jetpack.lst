@@ -730,393 +730,391 @@
     315  f260
     316  f260					      MAC	emeralds_two
     317  f260				   .target    SET	{1}
-    318  f260					      tax
-    319  f260					      and	#%11
-    320  f260					      tay
-    321  f260					      lda	map_full,Y
-    322  f260					      sta	[.target - storage + KERNEL_STORAGE_W]
-    323  f260					      txa
-    324  f260					      ror
-    325  f260					      ror
-    326  f260					      ENDM
-    327  f260
-    328  f260					      MAC	emeralds_two_skip
-    329  f260					      ror
-    330  f260					      ror
-    331  f260					      ENDM
-    332  f260
-    333  f260					      MAC	emeralds_one
-    334  f260				   .target    SET	{1}
-    335  f260				   .source    SET	{2}
-    336  f260					      tax
-    337  f260					      and	#%1
-    338  f260					      tay
-    339  f260					      lda	.source,Y
-    340  f260					      sta	[.target - storage + KERNEL_STORAGE_W]
-    341  f260					      txa
-    342  f260					      ror
-    343  f260					      ENDM
-    344  f260
-    345  f260					      MAC	emeralds_one_skip
-    346  f260					      ror
-    347  f260					      ENDM
-    348  f260
-    349  f260					      align	8
-    350  f260				   storage
-    351  f260							; Emerald byte setting 1A
-    352  f260				   storage_00
-    353  f260		       85		      .byte.b	SET_1_0
-    354  f261				   storage_04
-    355  f261		       87		      .byte.b	SET_0_0
-    356  f262				   storage_09
-    357  f262		       84		      .byte.b	SET_1_1
-    358  f263				   storage_13
-    359  f263		       84		      .byte.b	SET_1_1
-    360  f264				   storage_17
-    361  f264		       84		      .byte.b	SET_1_R
-    362  f265				   storage_18
-    363  f265		       87		      .byte.b	SET_0_0
-    364  f266				   storage_22
-    365  f266		       87		      .byte.b	SET_0_0
-    366  f267
-    367  f267							; Emerald byte setting 2A
-    368  f267				   storage_02
-    369  f267		       87		      .byte.b	SET_0_0
-    370  f268				   storage_06
-    371  f268		       87		      .byte.b	SET_0_0
-    372  f269				   storage_08
-    373  f269		       86		      .byte.b	SET_0_L
-    374  f26a				   storage_11
-    375  f26a		       84		      .byte.b	SET_1_1
-    376  f26b				   storage_15
-    377  f26b		       84		      .byte.b	SET_1_1
-    378  f26c				   storage_20
-    379  f26c		       87		      .byte.b	SET_0_0
-    380  f26d				   storage_24
-    381  f26d		       86		      .byte.b	SET_0_1
-    382  f26e				   storage_end
-    383  f26e
-    384  f270		       00 00		      align	8
-    385  f270							; first bit of byte 2 & 3 are unused for simplicity
-    386  f270				   map_emeralds
-    387  f270		       0a 00 00 00	      .byte.b	%1010, %0000000, %0000000, %00000000
-    388  f274		       05 00 00 00	      .byte.b	%0101, %0000000, %0000000, %00000000
-    389  f278		       02 40 00 00	      .byte.b	%0010, %1000000, %0000000, %00000000
-    390  f27c		       01 20 00 00	      .byte.b	%0001, %0100000, %0000000, %00000000
-    391  f280		       00 50 00 00	      .byte.b	%0000, %1010000, %0000000, %00000000
-    392  f284		       00 28 00 00	      .byte.b	%0000, %0101000, %0000000, %00000000
-    393  f288		       00 14 00 00	      .byte.b	%0000, %0010100, %0000000, %00000000
-    394  f28c		       00 0a 00 00	      .byte.b	%0000, %0001010, %0000000, %00000000
-    395  f290		       00 05 00 00	      .byte.b	%0000, %0000101, %0000000, %00000000
-    396  f294		       00 02 40 00	      .byte.b	%0000, %0000010, %1000000, %00000000
-    397  f298		       00 01 20 00	      .byte.b	%0000, %0000001, %0100000, %00000000
-    398  f29c		       00 00 50 00	      .byte.b	%0000, %0000000, %1010000, %00000000
-    399  f2a0		       00 00 28 00	      .byte.b	%0000, %0000000, %0101000, %00000000
-    400  f2a4		       00 00 14 00	      .byte.b	%0000, %0000000, %0010100, %00000000
-    401  f2a8		       00 00 0a 00	      .byte.b	%0000, %0000000, %0001010, %00000000
-    402  f2ac		       00 00 05 00	      .byte.b	%0000, %0000000, %0000101, %00000000
-    403  f2b0		       00 00 02 80	      .byte.b	%0000, %0000000, %0000010, %10000000
-    404  f2b4		       00 00 01 40	      .byte.b	%0000, %0000000, %0000001, %01000000
-    405  f2b8		       00 00 00 a0	      .byte.b	%0000, %0000000, %0000000, %10100000
-    406  f2bc		       00 00 00 50	      .byte.b	%0000, %0000000, %0000000, %01010000
-    407  f2c0		       00 00 00 28	      .byte.b	%0000, %0000000, %0000000, %00101000
-    408  f2c4		       00 00 00 14	      .byte.b	%0000, %0000000, %0000000, %00010100
-    409  f2c8		       00 00 00 0a	      .byte.b	%0000, %0000000, %0000000, %00001010
-    410  f2cc		       00 00 00 05	      .byte.b	%0000, %0000000, %0000000, %00000101
-    411  f2d0		       08 00 00 02	      .byte.b	%1000, %0000000, %0000000, %00000010
-    412  f2d4		       04 00 00 01	      .byte.b	%0100, %0000000, %0000000, %00000001
-    413  f2d8				   map_emeralds_end
-    414  f2d8
-    415  f2d8					      align	8
-    416  f2d8				   map_full
-    417  f2d8		       87		      .byte.b	SET_0_0
-    418  f2d9		       86		      .byte.b	SET_0_1
-    419  f2da		       85		      .byte.b	SET_1_0
-    420  f2db		       84		      .byte.b	SET_1_1
-    421  f2dc				   map_missle_l
-    422  f2dc		       86		      .byte.b	SET_0_L
-    423  f2dd		       85		      .byte.b	SET_1_L
-    424  f2de				   map_missle_r
-    425  f2de		       85		      .byte.b	SET_0_R
-    426  f2df		       84		      .byte.b	SET_1_R
-    427  f2e0
-    428  f2e0
-    429  f2e0				   copy_frame
-    430  f2e0							; FRAMESWITCH
-    431  f2e0		       a9 01		      lda	#01
-    432  f2e2		       25 83		      and	FrameCount
-    433  f2e4		       f0 03		      beq	CopyFrame1Kernel
-    434  f2e6		       4c 78 f3 	      jmp	CopyFrame2Kernel
-    435  f2e9
-    436  f2e9				   CopyFrame1Kernel
-    437  f2e9							; Copy: KERNEL 1
-    438  f2e9		       a0 2e		      ldy	#(kernel_1_end - kernel_1_start)-1
-    439  f2eb				   .copy_loop_1
-    440  f2eb		       b9 67 f6 	      lda	kernel_1_start,Y
-    441  f2ee		       99 00 10 	      sta	$1000,Y
-    442  f2f1		       88		      dey
-    443  f2f2		       d0 f7		      bne	.copy_loop_1
-    444  f2f4		       ad 67 f6 	      lda	kernel_1_start
-    445  f2f7		       8d 00 10 	      sta	$1000
-    446  f2fa
-    447  f2fa		       a6 8e		      ldx	ROW_DEMO_INDEX
-    448  f2fc		       bd 73 f2 	      lda	map_emeralds+3,X
+    318  f260					      ldx	#%11
+    319  f260					      .byte	$CB, $0	; axs
+    320  f260					      ldy	map_full,X
+    321  f260					      sty	[.target - storage + KERNEL_STORAGE_W]
+    322  f260					      ror
+    323  f260					      ror
+    324  f260					      ENDM
+    325  f260
+    326  f260					      MAC	emeralds_two_skip
+    327  f260					      ror
+    328  f260					      ror
+    329  f260					      ENDM
+    330  f260
+    331  f260					      MAC	emeralds_one
+    332  f260				   .target    SET	{1}
+    333  f260				   .source    SET	{2}
+    334  f260					      tax
+    335  f260					      and	#%1
+    336  f260					      tay
+    337  f260					      lda	.source,Y
+    338  f260					      sta	[.target - storage + KERNEL_STORAGE_W]
+    339  f260					      txa
+    340  f260					      ror
+    341  f260					      ENDM
+    342  f260
+    343  f260					      MAC	emeralds_one_skip
+    344  f260					      ror
+    345  f260					      ENDM
+    346  f260
+    347  f260					      align	8
+    348  f260				   storage
+    349  f260							; Emerald byte setting 1A
+    350  f260				   storage_00
+    351  f260		       85		      .byte.b	SET_1_0
+    352  f261				   storage_04
+    353  f261		       87		      .byte.b	SET_0_0
+    354  f262				   storage_09
+    355  f262		       84		      .byte.b	SET_1_1
+    356  f263				   storage_13
+    357  f263		       84		      .byte.b	SET_1_1
+    358  f264				   storage_17
+    359  f264		       84		      .byte.b	SET_1_R
+    360  f265				   storage_18
+    361  f265		       87		      .byte.b	SET_0_0
+    362  f266				   storage_22
+    363  f266		       87		      .byte.b	SET_0_0
+    364  f267
+    365  f267							; Emerald byte setting 2A
+    366  f267				   storage_02
+    367  f267		       87		      .byte.b	SET_0_0
+    368  f268				   storage_06
+    369  f268		       87		      .byte.b	SET_0_0
+    370  f269				   storage_08
+    371  f269		       86		      .byte.b	SET_0_L
+    372  f26a				   storage_11
+    373  f26a		       84		      .byte.b	SET_1_1
+    374  f26b				   storage_15
+    375  f26b		       84		      .byte.b	SET_1_1
+    376  f26c				   storage_20
+    377  f26c		       87		      .byte.b	SET_0_0
+    378  f26d				   storage_24
+    379  f26d		       86		      .byte.b	SET_0_1
+    380  f26e				   storage_end
+    381  f26e
+    382  f270		       00 00		      align	8
+    383  f270							; first bit of byte 2 & 3 are unused for simplicity
+    384  f270				   map_emeralds
+    385  f270		       0a 00 00 00	      .byte.b	%1010, %0000000, %0000000, %00000000
+    386  f274		       05 00 00 00	      .byte.b	%0101, %0000000, %0000000, %00000000
+    387  f278		       02 40 00 00	      .byte.b	%0010, %1000000, %0000000, %00000000
+    388  f27c		       01 20 00 00	      .byte.b	%0001, %0100000, %0000000, %00000000
+    389  f280		       00 50 00 00	      .byte.b	%0000, %1010000, %0000000, %00000000
+    390  f284		       00 28 00 00	      .byte.b	%0000, %0101000, %0000000, %00000000
+    391  f288		       00 14 00 00	      .byte.b	%0000, %0010100, %0000000, %00000000
+    392  f28c		       00 0a 00 00	      .byte.b	%0000, %0001010, %0000000, %00000000
+    393  f290		       00 05 00 00	      .byte.b	%0000, %0000101, %0000000, %00000000
+    394  f294		       00 02 40 00	      .byte.b	%0000, %0000010, %1000000, %00000000
+    395  f298		       00 01 20 00	      .byte.b	%0000, %0000001, %0100000, %00000000
+    396  f29c		       00 00 50 00	      .byte.b	%0000, %0000000, %1010000, %00000000
+    397  f2a0		       00 00 28 00	      .byte.b	%0000, %0000000, %0101000, %00000000
+    398  f2a4		       00 00 14 00	      .byte.b	%0000, %0000000, %0010100, %00000000
+    399  f2a8		       00 00 0a 00	      .byte.b	%0000, %0000000, %0001010, %00000000
+    400  f2ac		       00 00 05 00	      .byte.b	%0000, %0000000, %0000101, %00000000
+    401  f2b0		       00 00 02 80	      .byte.b	%0000, %0000000, %0000010, %10000000
+    402  f2b4		       00 00 01 40	      .byte.b	%0000, %0000000, %0000001, %01000000
+    403  f2b8		       00 00 00 a0	      .byte.b	%0000, %0000000, %0000000, %10100000
+    404  f2bc		       00 00 00 50	      .byte.b	%0000, %0000000, %0000000, %01010000
+    405  f2c0		       00 00 00 28	      .byte.b	%0000, %0000000, %0000000, %00101000
+    406  f2c4		       00 00 00 14	      .byte.b	%0000, %0000000, %0000000, %00010100
+    407  f2c8		       00 00 00 0a	      .byte.b	%0000, %0000000, %0000000, %00001010
+    408  f2cc		       00 00 00 05	      .byte.b	%0000, %0000000, %0000000, %00000101
+    409  f2d0		       08 00 00 02	      .byte.b	%1000, %0000000, %0000000, %00000010
+    410  f2d4		       04 00 00 01	      .byte.b	%0100, %0000000, %0000000, %00000001
+    411  f2d8				   map_emeralds_end
+    412  f2d8
+    413  f2d8					      align	8
+    414  f2d8				   map_full
+    415  f2d8		       87		      .byte.b	SET_0_0
+    416  f2d9		       86		      .byte.b	SET_0_1
+    417  f2da		       85		      .byte.b	SET_1_0
+    418  f2db		       84		      .byte.b	SET_1_1
+    419  f2dc				   map_missle_l
+    420  f2dc		       86		      .byte.b	SET_0_L
+    421  f2dd		       85		      .byte.b	SET_1_L
+    422  f2de				   map_missle_r
+    423  f2de		       85		      .byte.b	SET_0_R
+    424  f2df		       84		      .byte.b	SET_1_R
+    425  f2e0
+    426  f2e0
+    427  f2e0				   copy_frame
+    428  f2e0							; FRAMESWITCH
+    429  f2e0		       a9 01		      lda	#01
+    430  f2e2		       25 83		      and	FrameCount
+    431  f2e4		       f0 03		      beq	CopyFrame1Kernel
+    432  f2e6		       4c 72 f3 	      jmp	CopyFrame2Kernel
+    433  f2e9
+    434  f2e9				   CopyFrame1Kernel
+    435  f2e9							; Copy: KERNEL 1
+    436  f2e9		       a0 2e		      ldy	#(kernel_1_end - kernel_1_start)-1
+    437  f2eb				   .copy_loop_1
+    438  f2eb		       b9 5a f6 	      lda	kernel_1_start,Y
+    439  f2ee		       99 00 10 	      sta	$1000,Y
+    440  f2f1		       88		      dey
+    441  f2f2		       d0 f7		      bne	.copy_loop_1
+    442  f2f4		       ad 5a f6 	      lda	kernel_1_start
+    443  f2f7		       8d 00 10 	      sta	$1000
+    444  f2fa
+    445  f2fa		       a6 8e		      ldx	ROW_DEMO_INDEX
+    446  f2fc		       bd 73 f2 	      lda	map_emeralds+3,X
       0  f2ff					      EMERALDS_TWO_SKIP
       1  f2ff		       6a		      ror
       2  f300		       6a		      ror
       0  f301					      EMERALDS_TWO	storage_22
       1  f301				   .target    SET	storage_22
-      2  f301		       aa		      tax
-      3  f302		       29 03		      and	#%11
-      4  f304		       a8		      tay
-      5  f305		       b9 d8 f2 	      lda	map_full,Y
-      6  f308		       8d 46 10 	      sta	[.target - storage + KERNEL_STORAGE_W]
-      7  f30b		       8a		      txa
-      8  f30c		       6a		      ror
-      9  f30d		       6a		      ror
-      0  f30e					      EMERALDS_TWO_SKIP
-      1  f30e		       6a		      ror
-      2  f30f		       6a		      ror
-      0  f310					      EMERALDS_TWO	storage_18
-      1  f310				   .target    SET	storage_18
-      2  f310		       aa		      tax
-      3  f311		       29 03		      and	#%11
-      4  f313		       a8		      tay
-      5  f314		       b9 d8 f2 	      lda	map_full,Y
-      6  f317		       8d 45 10 	      sta	[.target - storage + KERNEL_STORAGE_W]
-      7  f31a		       8a		      txa
-      8  f31b		       6a		      ror
-      9  f31c		       6a		      ror
-    453  f31d
-    454  f31d		       a6 8e		      ldx	ROW_DEMO_INDEX
-    455  f31f		       bd 72 f2 	      lda	map_emeralds+2,X
-      0  f322					      EMERALDS_ONE	storage_17, map_missle_r
-      1  f322				   .target    SET	storage_17
-      2  f322				   .source    SET	map_missle_r
-      3  f322		       aa		      tax
-      4  f323		       29 01		      and	#%1
-      5  f325		       a8		      tay
-      6  f326		       b9 de f2 	      lda	.source,Y
-      7  f329		       8d 44 10 	      sta	[.target - storage + KERNEL_STORAGE_W]
-      8  f32c		       8a		      txa
-      9  f32d		       6a		      ror
-      0  f32e					      EMERALDS_TWO_SKIP
-      1  f32e		       6a		      ror
-      2  f32f		       6a		      ror
-      0  f330					      EMERALDS_TWO	storage_13
-      1  f330				   .target    SET	storage_13
-      2  f330		       aa		      tax
-      3  f331		       29 03		      and	#%11
-      4  f333		       a8		      tay
-      5  f334		       b9 d8 f2 	      lda	map_full,Y
-      6  f337		       8d 43 10 	      sta	[.target - storage + KERNEL_STORAGE_W]
-      7  f33a		       8a		      txa
-      8  f33b		       6a		      ror
-      9  f33c		       6a		      ror
-      0  f33d					      EMERALDS_TWO_SKIP
-      1  f33d		       6a		      ror
-      2  f33e		       6a		      ror
-    460  f33f
-    461  f33f		       a6 8e		      ldx	ROW_DEMO_INDEX
-    462  f341		       bd 71 f2 	      lda	map_emeralds+1,X
-      0  f344					      EMERALDS_TWO	storage_09
-      1  f344				   .target    SET	storage_09
-      2  f344		       aa		      tax
-      3  f345		       29 03		      and	#%11
-      4  f347		       a8		      tay
-      5  f348		       b9 d8 f2 	      lda	map_full,Y
-      6  f34b		       8d 42 10 	      sta	[.target - storage + KERNEL_STORAGE_W]
-      7  f34e		       8a		      txa
-      8  f34f		       6a		      ror
-      9  f350		       6a		      ror
-      0  f351					      EMERALDS_ONE_SKIP
-      1  f351		       6a		      ror
-      0  f352					      EMERALDS_TWO_SKIP
-      1  f352		       6a		      ror
-      2  f353		       6a		      ror
-      0  f354					      EMERALDS_TWO	storage_04
-      1  f354				   .target    SET	storage_04
-      2  f354		       aa		      tax
-      3  f355		       29 03		      and	#%11
-      4  f357		       a8		      tay
-      5  f358		       b9 d8 f2 	      lda	map_full,Y
-      6  f35b		       8d 41 10 	      sta	[.target - storage + KERNEL_STORAGE_W]
-      7  f35e		       8a		      txa
-      8  f35f		       6a		      ror
-      9  f360		       6a		      ror
-    467  f361
-    468  f361		       a6 8e		      ldx	ROW_DEMO_INDEX
-    469  f363		       bd 70 f2 	      lda	map_emeralds+0,X
-      0  f366					      EMERALDS_TWO_SKIP
-      1  f366		       6a		      ror
-      2  f367		       6a		      ror
-      0  f368					      EMERALDS_TWO	storage_00
-      1  f368				   .target    SET	storage_00
-      2  f368		       aa		      tax
-      3  f369		       29 03		      and	#%11
-      4  f36b		       a8		      tay
-      5  f36c		       b9 d8 f2 	      lda	map_full,Y
-      6  f36f		       8d 40 10 	      sta	[.target - storage + KERNEL_STORAGE_W]
-      7  f372		       8a		      txa
-      8  f373		       6a		      ror
-      9  f374		       6a		      ror
-    472  f375
-    473  f375		       4c 07 f4 	      jmp	CopyFrameNext
-    474  f378
-    475  f378				   CopyFrame2Kernel
-    476  f378							; Copy: KERNEL 2
-    477  f378		       a0 2d		      ldy	#(kernel_2_end - kernel_2_start)-1
-    478  f37a				   .copy_loop_2
-    479  f37a		       b9 96 f6 	      lda	kernel_2_start,Y
-    480  f37d		       99 00 10 	      sta	$1000,Y
-    481  f380		       88		      dey
-    482  f381		       d0 f7		      bne	.copy_loop_2
-    483  f383		       ad 96 f6 	      lda	kernel_2_start
-    484  f386		       8d 00 10 	      sta	$1000
-    485  f389
-    486  f389		       a6 8e		      ldx	ROW_DEMO_INDEX
-    487  f38b		       bd 73 f2 	      lda	map_emeralds+3,X
-      0  f38e					      EMERALDS_TWO	storage_24
-      1  f38e				   .target    SET	storage_24
-      2  f38e		       aa		      tax
-      3  f38f		       29 03		      and	#%11
-      4  f391		       a8		      tay
-      5  f392		       b9 d8 f2 	      lda	map_full,Y
-      6  f395		       8d 4d 10 	      sta	[.target - storage + KERNEL_STORAGE_W]
-      7  f398		       8a		      txa
-      8  f399		       6a		      ror
-      9  f39a		       6a		      ror
-      0  f39b					      EMERALDS_TWO_SKIP
-      1  f39b		       6a		      ror
-      2  f39c		       6a		      ror
-      0  f39d					      EMERALDS_TWO	storage_20
-      1  f39d				   .target    SET	storage_20
-      2  f39d		       aa		      tax
-      3  f39e		       29 03		      and	#%11
-      4  f3a0		       a8		      tay
-      5  f3a1		       b9 d8 f2 	      lda	map_full,Y
-      6  f3a4		       8d 4c 10 	      sta	[.target - storage + KERNEL_STORAGE_W]
-      7  f3a7		       8a		      txa
-      8  f3a8		       6a		      ror
-      9  f3a9		       6a		      ror
-      0  f3aa					      EMERALDS_TWO_SKIP
-      1  f3aa		       6a		      ror
-      2  f3ab		       6a		      ror
-    492  f3ac
-    493  f3ac		       a6 8e		      ldx	ROW_DEMO_INDEX
-    494  f3ae		       bd 72 f2 	      lda	map_emeralds+2,X
-      0  f3b1					      EMERALDS_ONE_SKIP
-      1  f3b1		       6a		      ror
-      0  f3b2					      EMERALDS_TWO	storage_15
-      1  f3b2				   .target    SET	storage_15
-      2  f3b2		       aa		      tax
-      3  f3b3		       29 03		      and	#%11
-      4  f3b5		       a8		      tay
-      5  f3b6		       b9 d8 f2 	      lda	map_full,Y
-      6  f3b9		       8d 4b 10 	      sta	[.target - storage + KERNEL_STORAGE_W]
-      7  f3bc		       8a		      txa
-      8  f3bd		       6a		      ror
-      9  f3be		       6a		      ror
-      0  f3bf					      EMERALDS_TWO_SKIP
-      1  f3bf		       6a		      ror
-      2  f3c0		       6a		      ror
-      0  f3c1					      EMERALDS_TWO	storage_11
-      1  f3c1				   .target    SET	storage_11
-      2  f3c1		       aa		      tax
-      3  f3c2		       29 03		      and	#%11
-      4  f3c4		       a8		      tay
-      5  f3c5		       b9 d8 f2 	      lda	map_full,Y
-      6  f3c8		       8d 4a 10 	      sta	[.target - storage + KERNEL_STORAGE_W]
-      7  f3cb		       8a		      txa
-      8  f3cc		       6a		      ror
-      9  f3cd		       6a		      ror
-    499  f3ce
-    500  f3ce		       a6 8e		      ldx	ROW_DEMO_INDEX
-    501  f3d0		       bd 71 f2 	      lda	map_emeralds+1,X
-      0  f3d3					      EMERALDS_TWO_SKIP
-      1  f3d3		       6a		      ror
-      2  f3d4		       6a		      ror
-      0  f3d5					      EMERALDS_ONE	storage_08, map_missle_l
-      1  f3d5				   .target    SET	storage_08
-      2  f3d5				   .source    SET	map_missle_l
-      3  f3d5		       aa		      tax
-      4  f3d6		       29 01		      and	#%1
-      5  f3d8		       a8		      tay
-      6  f3d9		       b9 dc f2 	      lda	.source,Y
-      7  f3dc		       8d 49 10 	      sta	[.target - storage + KERNEL_STORAGE_W]
-      8  f3df		       8a		      txa
-      9  f3e0		       6a		      ror
-      0  f3e1					      EMERALDS_TWO	storage_06
-      1  f3e1				   .target    SET	storage_06
-      2  f3e1		       aa		      tax
-      3  f3e2		       29 03		      and	#%11
-      4  f3e4		       a8		      tay
-      5  f3e5		       b9 d8 f2 	      lda	map_full,Y
-      6  f3e8		       8d 48 10 	      sta	[.target - storage + KERNEL_STORAGE_W]
-      7  f3eb		       8a		      txa
-      8  f3ec		       6a		      ror
-      9  f3ed		       6a		      ror
-      0  f3ee					      EMERALDS_TWO_SKIP
-      1  f3ee		       6a		      ror
-      2  f3ef		       6a		      ror
-    506  f3f0
-    507  f3f0		       a6 8e		      ldx	ROW_DEMO_INDEX
-    508  f3f2		       bd 70 f2 	      lda	map_emeralds+0,X
-      0  f3f5					      EMERALDS_TWO	storage_02
-      1  f3f5				   .target    SET	storage_02
-      2  f3f5		       aa		      tax
-      3  f3f6		       29 03		      and	#%11
-      4  f3f8		       a8		      tay
-      5  f3f9		       b9 d8 f2 	      lda	map_full,Y
-      6  f3fc		       8d 47 10 	      sta	[.target - storage + KERNEL_STORAGE_W]
-      7  f3ff		       8a		      txa
-      8  f400		       6a		      ror
-      9  f401		       6a		      ror
-      0  f402					      EMERALDS_TWO_SKIP
-      1  f402		       6a		      ror
-      2  f403		       6a		      ror
-    511  f404
-    512  f404		       4c 07 f4 	      jmp	CopyFrameNext
-    513  f407
-    514  f407
-    515  f407				   CopyFrameNext
-    516  f407
-    517  f407							; Frame skipping for increasing demo index
-    518  f407		       a5 83		      lda	FrameCount
-    519  f409		       29 07		      and	#%111
-    520  f40b		       c9 07		      cmp	#%111
-    521  f40d		       d0 0d		      bne	.next_next_thing
-    522  f40f
-    523  f40f		       18		      clc
-    524  f410		       a5 8e		      lda	ROW_DEMO_INDEX
-    525  f412		       69 04		      adc	#4
-    526  f414		       c9 68		      cmp	#[map_emeralds_end - map_emeralds]
-    527  f416		       90 02		      bcc	.next_thing_local
-    528  f418		       a9 00		      lda	#0
-    529  f41a				   .next_thing_local
-    530  f41a		       85 8e		      sta	ROW_DEMO_INDEX
-    531  f41c				   .next_next_thing
-    532  f41c		       85 02		      sta	WSYNC
-    533  f41e
-    534  f41e							; Positioning
-      0  f41e					      SLEEP	40
-      1  f41e				   .CYCLES    SET	40
-      2  f41e
-      3  f41e				  -	      IF	.CYCLES < 2
-      4  f41e				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  f41e				  -	      ERR
-      6  f41e					      ENDIF
-      7  f41e
-      8  f41e				  -	      IF	.CYCLES & 1
-      9  f41e				  -	      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f41e				  -	      nop	0
-     11  f41e				  -	      ELSE
-     12  f41e				  -	      bit	VSYNC
-     13  f41e				  -	      ENDIF
-     14  f41e				  -.CYCLES    SET	.CYCLES - 3
-     15  f41e					      ENDIF
-     16  f41e
-     17  f41e					      REPEAT	.CYCLES / 2
+      2  f301		       a2 03		      ldx	#%11
+      3  f303		       cb 00		      .byte.b	$CB, $0
+      4  f305		       bc d8 f2 	      ldy	map_full,X
+      5  f308		       8c 46 10 	      sty	[.target - storage + KERNEL_STORAGE_W]
+      6  f30b		       6a		      ror
+      7  f30c		       6a		      ror
+      0  f30d					      EMERALDS_TWO_SKIP
+      1  f30d		       6a		      ror
+      2  f30e		       6a		      ror
+      0  f30f					      EMERALDS_TWO	storage_18
+      1  f30f				   .target    SET	storage_18
+      2  f30f		       a2 03		      ldx	#%11
+      3  f311		       cb 00		      .byte.b	$CB, $0
+      4  f313		       bc d8 f2 	      ldy	map_full,X
+      5  f316		       8c 45 10 	      sty	[.target - storage + KERNEL_STORAGE_W]
+      6  f319		       6a		      ror
+      7  f31a		       6a		      ror
+    451  f31b
+    452  f31b		       a6 8e		      ldx	ROW_DEMO_INDEX
+    453  f31d		       bd 72 f2 	      lda	map_emeralds+2,X
+      0  f320					      EMERALDS_ONE	storage_17, map_missle_r
+      1  f320				   .target    SET	storage_17
+      2  f320				   .source    SET	map_missle_r
+      3  f320		       aa		      tax
+      4  f321		       29 01		      and	#%1
+      5  f323		       a8		      tay
+      6  f324		       b9 de f2 	      lda	.source,Y
+      7  f327		       8d 44 10 	      sta	[.target - storage + KERNEL_STORAGE_W]
+      8  f32a		       8a		      txa
+      9  f32b		       6a		      ror
+      0  f32c					      EMERALDS_TWO_SKIP
+      1  f32c		       6a		      ror
+      2  f32d		       6a		      ror
+      0  f32e					      EMERALDS_TWO	storage_13
+      1  f32e				   .target    SET	storage_13
+      2  f32e		       a2 03		      ldx	#%11
+      3  f330		       cb 00		      .byte.b	$CB, $0
+      4  f332		       bc d8 f2 	      ldy	map_full,X
+      5  f335		       8c 43 10 	      sty	[.target - storage + KERNEL_STORAGE_W]
+      6  f338		       6a		      ror
+      7  f339		       6a		      ror
+      0  f33a					      EMERALDS_TWO_SKIP
+      1  f33a		       6a		      ror
+      2  f33b		       6a		      ror
+    458  f33c
+    459  f33c		       a6 8e		      ldx	ROW_DEMO_INDEX
+    460  f33e		       bd 71 f2 	      lda	map_emeralds+1,X
+      0  f341					      EMERALDS_TWO	storage_09
+      1  f341				   .target    SET	storage_09
+      2  f341		       a2 03		      ldx	#%11
+      3  f343		       cb 00		      .byte.b	$CB, $0
+      4  f345		       bc d8 f2 	      ldy	map_full,X
+      5  f348		       8c 42 10 	      sty	[.target - storage + KERNEL_STORAGE_W]
+      6  f34b		       6a		      ror
+      7  f34c		       6a		      ror
+      0  f34d					      EMERALDS_ONE_SKIP
+      1  f34d		       6a		      ror
+      0  f34e					      EMERALDS_TWO_SKIP
+      1  f34e		       6a		      ror
+      2  f34f		       6a		      ror
+      0  f350					      EMERALDS_TWO	storage_04
+      1  f350				   .target    SET	storage_04
+      2  f350		       a2 03		      ldx	#%11
+      3  f352		       cb 00		      .byte.b	$CB, $0
+      4  f354		       bc d8 f2 	      ldy	map_full,X
+      5  f357		       8c 41 10 	      sty	[.target - storage + KERNEL_STORAGE_W]
+      6  f35a		       6a		      ror
+      7  f35b		       6a		      ror
+    465  f35c
+    466  f35c		       a6 8e		      ldx	ROW_DEMO_INDEX
+    467  f35e		       bd 70 f2 	      lda	map_emeralds+0,X
+      0  f361					      EMERALDS_TWO_SKIP
+      1  f361		       6a		      ror
+      2  f362		       6a		      ror
+      0  f363					      EMERALDS_TWO	storage_00
+      1  f363				   .target    SET	storage_00
+      2  f363		       a2 03		      ldx	#%11
+      3  f365		       cb 00		      .byte.b	$CB, $0
+      4  f367		       bc d8 f2 	      ldy	map_full,X
+      5  f36a		       8c 40 10 	      sty	[.target - storage + KERNEL_STORAGE_W]
+      6  f36d		       6a		      ror
+      7  f36e		       6a		      ror
+    470  f36f
+    471  f36f		       4c fb f3 	      jmp	CopyFrameNext
+    472  f372
+    473  f372				   CopyFrame2Kernel
+    474  f372							; Copy: KERNEL 2
+    475  f372		       a0 2d		      ldy	#(kernel_2_end - kernel_2_start)-1
+    476  f374				   .copy_loop_2
+    477  f374		       b9 89 f6 	      lda	kernel_2_start,Y
+    478  f377		       99 00 10 	      sta	$1000,Y
+    479  f37a		       88		      dey
+    480  f37b		       d0 f7		      bne	.copy_loop_2
+    481  f37d		       ad 89 f6 	      lda	kernel_2_start
+    482  f380		       8d 00 10 	      sta	$1000
+    483  f383
+    484  f383		       a6 8e		      ldx	ROW_DEMO_INDEX
+    485  f385		       bd 73 f2 	      lda	map_emeralds+3,X
+      0  f388					      EMERALDS_TWO	storage_24
+      1  f388				   .target    SET	storage_24
+      2  f388		       a2 03		      ldx	#%11
+      3  f38a		       cb 00		      .byte.b	$CB, $0
+      4  f38c		       bc d8 f2 	      ldy	map_full,X
+      5  f38f		       8c 4d 10 	      sty	[.target - storage + KERNEL_STORAGE_W]
+      6  f392		       6a		      ror
+      7  f393		       6a		      ror
+      0  f394					      EMERALDS_TWO_SKIP
+      1  f394		       6a		      ror
+      2  f395		       6a		      ror
+      0  f396					      EMERALDS_TWO	storage_20
+      1  f396				   .target    SET	storage_20
+      2  f396		       a2 03		      ldx	#%11
+      3  f398		       cb 00		      .byte.b	$CB, $0
+      4  f39a		       bc d8 f2 	      ldy	map_full,X
+      5  f39d		       8c 4c 10 	      sty	[.target - storage + KERNEL_STORAGE_W]
+      6  f3a0		       6a		      ror
+      7  f3a1		       6a		      ror
+      0  f3a2					      EMERALDS_TWO_SKIP
+      1  f3a2		       6a		      ror
+      2  f3a3		       6a		      ror
+    490  f3a4
+    491  f3a4		       a6 8e		      ldx	ROW_DEMO_INDEX
+    492  f3a6		       bd 72 f2 	      lda	map_emeralds+2,X
+      0  f3a9					      EMERALDS_ONE_SKIP
+      1  f3a9		       6a		      ror
+      0  f3aa					      EMERALDS_TWO	storage_15
+      1  f3aa				   .target    SET	storage_15
+      2  f3aa		       a2 03		      ldx	#%11
+      3  f3ac		       cb 00		      .byte.b	$CB, $0
+      4  f3ae		       bc d8 f2 	      ldy	map_full,X
+      5  f3b1		       8c 4b 10 	      sty	[.target - storage + KERNEL_STORAGE_W]
+      6  f3b4		       6a		      ror
+      7  f3b5		       6a		      ror
+      0  f3b6					      EMERALDS_TWO_SKIP
+      1  f3b6		       6a		      ror
+      2  f3b7		       6a		      ror
+      0  f3b8					      EMERALDS_TWO	storage_11
+      1  f3b8				   .target    SET	storage_11
+      2  f3b8		       a2 03		      ldx	#%11
+      3  f3ba		       cb 00		      .byte.b	$CB, $0
+      4  f3bc		       bc d8 f2 	      ldy	map_full,X
+      5  f3bf		       8c 4a 10 	      sty	[.target - storage + KERNEL_STORAGE_W]
+      6  f3c2		       6a		      ror
+      7  f3c3		       6a		      ror
+    497  f3c4
+    498  f3c4		       a6 8e		      ldx	ROW_DEMO_INDEX
+    499  f3c6		       bd 71 f2 	      lda	map_emeralds+1,X
+      0  f3c9					      EMERALDS_TWO_SKIP
+      1  f3c9		       6a		      ror
+      2  f3ca		       6a		      ror
+      0  f3cb					      EMERALDS_ONE	storage_08, map_missle_l
+      1  f3cb				   .target    SET	storage_08
+      2  f3cb				   .source    SET	map_missle_l
+      3  f3cb		       aa		      tax
+      4  f3cc		       29 01		      and	#%1
+      5  f3ce		       a8		      tay
+      6  f3cf		       b9 dc f2 	      lda	.source,Y
+      7  f3d2		       8d 49 10 	      sta	[.target - storage + KERNEL_STORAGE_W]
+      8  f3d5		       8a		      txa
+      9  f3d6		       6a		      ror
+      0  f3d7					      EMERALDS_TWO	storage_06
+      1  f3d7				   .target    SET	storage_06
+      2  f3d7		       a2 03		      ldx	#%11
+      3  f3d9		       cb 00		      .byte.b	$CB, $0
+      4  f3db		       bc d8 f2 	      ldy	map_full,X
+      5  f3de		       8c 48 10 	      sty	[.target - storage + KERNEL_STORAGE_W]
+      6  f3e1		       6a		      ror
+      7  f3e2		       6a		      ror
+      0  f3e3					      EMERALDS_TWO_SKIP
+      1  f3e3		       6a		      ror
+      2  f3e4		       6a		      ror
+    504  f3e5
+    505  f3e5		       a6 8e		      ldx	ROW_DEMO_INDEX
+    506  f3e7		       bd 70 f2 	      lda	map_emeralds+0,X
+      0  f3ea					      EMERALDS_TWO	storage_02
+      1  f3ea				   .target    SET	storage_02
+      2  f3ea		       a2 03		      ldx	#%11
+      3  f3ec		       cb 00		      .byte.b	$CB, $0
+      4  f3ee		       bc d8 f2 	      ldy	map_full,X
+      5  f3f1		       8c 47 10 	      sty	[.target - storage + KERNEL_STORAGE_W]
+      6  f3f4		       6a		      ror
+      7  f3f5		       6a		      ror
+      0  f3f6					      EMERALDS_TWO_SKIP
+      1  f3f6		       6a		      ror
+      2  f3f7		       6a		      ror
+    509  f3f8
+    510  f3f8		       4c fb f3 	      jmp	CopyFrameNext
+    511  f3fb
+    512  f3fb
+    513  f3fb				   CopyFrameNext
+    514  f3fb
+    515  f3fb							; Frame skipping for increasing demo index
+    516  f3fb		       a5 83		      lda	FrameCount
+    517  f3fd		       29 07		      and	#%111
+    518  f3ff		       c9 07		      cmp	#%111
+    519  f401		       d0 0d		      bne	.next_next_thing
+    520  f403
+    521  f403		       18		      clc
+    522  f404		       a5 8e		      lda	ROW_DEMO_INDEX
+    523  f406		       69 04		      adc	#4
+    524  f408		       c9 68		      cmp	#[map_emeralds_end - map_emeralds]
+    525  f40a		       90 02		      bcc	.next_thing_local
+    526  f40c		       a9 00		      lda	#0
+    527  f40e				   .next_thing_local
+    528  f40e		       85 8e		      sta	ROW_DEMO_INDEX
+    529  f410				   .next_next_thing
+    530  f410		       85 02		      sta	WSYNC
+    531  f412
+    532  f412							; Positioning
+      0  f412					      SLEEP	40
+      1  f412				   .CYCLES    SET	40
+      2  f412
+      3  f412				  -	      IF	.CYCLES < 2
+      4  f412				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  f412				  -	      ERR
+      6  f412					      ENDIF
+      7  f412
+      8  f412				  -	      IF	.CYCLES & 1
+      9  f412				  -	      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f412				  -	      nop	0
+     11  f412				  -	      ELSE
+     12  f412				  -	      bit	VSYNC
+     13  f412				  -	      ENDIF
+     14  f412				  -.CYCLES    SET	.CYCLES - 3
+     15  f412					      ENDIF
+     16  f412
+     17  f412					      REPEAT	.CYCLES / 2
+     18  f412		       ea		      nop
+     17  f412					      REPEND
+     18  f413		       ea		      nop
+     17  f413					      REPEND
+     18  f414		       ea		      nop
+     17  f414					      REPEND
+     18  f415		       ea		      nop
+     17  f415					      REPEND
+     18  f416		       ea		      nop
+     17  f416					      REPEND
+     18  f417		       ea		      nop
+     17  f417					      REPEND
+     18  f418		       ea		      nop
+     17  f418					      REPEND
+     18  f419		       ea		      nop
+     17  f419					      REPEND
+     18  f41a		       ea		      nop
+     17  f41a					      REPEND
+     18  f41b		       ea		      nop
+     17  f41b					      REPEND
+     18  f41c		       ea		      nop
+     17  f41c					      REPEND
+     18  f41d		       ea		      nop
+     17  f41d					      REPEND
      18  f41e		       ea		      nop
      17  f41e					      REPEND
      18  f41f		       ea		      nop
@@ -1132,64 +1130,64 @@
      18  f424		       ea		      nop
      17  f424					      REPEND
      18  f425		       ea		      nop
-     17  f425					      REPEND
-     18  f426		       ea		      nop
-     17  f426					      REPEND
-     18  f427		       ea		      nop
-     17  f427					      REPEND
-     18  f428		       ea		      nop
-     17  f428					      REPEND
-     18  f429		       ea		      nop
-     17  f429					      REPEND
-     18  f42a		       ea		      nop
-     17  f42a					      REPEND
-     18  f42b		       ea		      nop
-     17  f42b					      REPEND
-     18  f42c		       ea		      nop
-     17  f42c					      REPEND
-     18  f42d		       ea		      nop
-     17  f42d					      REPEND
-     18  f42e		       ea		      nop
-     17  f42e					      REPEND
-     18  f42f		       ea		      nop
-     17  f42f					      REPEND
-     18  f430		       ea		      nop
-     17  f430					      REPEND
-     18  f431		       ea		      nop
-     19  f432					      REPEND
-    536  f432		       85 11		      sta	EMERALD_SP_RESET	; position 1st player
-    537  f434		       85 02		      sta	WSYNC
-    538  f436
-    539  f436							; Misc
-    540  f436		       a9 00		      lda	#00
-    541  f438		       85 1e		      sta	EMERALD_MI_ENABLE
-    542  f43a
-    543  f43a							; Assign dervied SpriteEnd value
-    544  f43a		       a9 c8		      lda	#HEIGHT_OFFSET
-    545  f43c		       e5 89		      sbc	YPos
-    546  f43e		       85 85		      sta	SpriteEnd
-    547  f440
-    548  f440							; Move missile to starting position and fine-tune position
-    549  f440							; TODO replace with an HMOVE macro
-    550  f440		       85 02		      sta	WSYNC
-      0  f442					      sleep	EMERALD_MI_HMOVE_S
-      1  f442				   .CYCLES    SET	EMERALD_MI_HMOVE_S
-      2  f442
-      3  f442				  -	      IF	.CYCLES < 2
-      4  f442				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  f442				  -	      ERR
-      6  f442					      ENDIF
-      7  f442
-      8  f442					      IF	.CYCLES & 1
-      9  f442					      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f442		       04 00		      nop	0
-     11  f444				  -	      ELSE
-     12  f444				  -	      bit	VSYNC
-     13  f444					      ENDIF
-     14  f444				   .CYCLES    SET	.CYCLES - 3
-     15  f444					      ENDIF
-     16  f444
-     17  f444					      REPEAT	.CYCLES / 2
+     19  f426					      REPEND
+    534  f426		       85 11		      sta	EMERALD_SP_RESET	; position 1st player
+    535  f428		       85 02		      sta	WSYNC
+    536  f42a
+    537  f42a							; Misc
+    538  f42a		       a9 00		      lda	#00
+    539  f42c		       85 1e		      sta	EMERALD_MI_ENABLE
+    540  f42e
+    541  f42e							; Assign dervied SpriteEnd value
+    542  f42e		       a9 c8		      lda	#HEIGHT_OFFSET
+    543  f430		       e5 89		      sbc	YPos
+    544  f432		       85 85		      sta	SpriteEnd
+    545  f434
+    546  f434							; Move missile to starting position and fine-tune position
+    547  f434							; TODO replace with an HMOVE macro
+    548  f434		       85 02		      sta	WSYNC
+      0  f436					      sleep	EMERALD_MI_HMOVE_S
+      1  f436				   .CYCLES    SET	EMERALD_MI_HMOVE_S
+      2  f436
+      3  f436				  -	      IF	.CYCLES < 2
+      4  f436				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  f436				  -	      ERR
+      6  f436					      ENDIF
+      7  f436
+      8  f436					      IF	.CYCLES & 1
+      9  f436					      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f436		       04 00		      nop	0
+     11  f438				  -	      ELSE
+     12  f438				  -	      bit	VSYNC
+     13  f438					      ENDIF
+     14  f438				   .CYCLES    SET	.CYCLES - 3
+     15  f438					      ENDIF
+     16  f438
+     17  f438					      REPEAT	.CYCLES / 2
+     18  f438		       ea		      nop
+     17  f438					      REPEND
+     18  f439		       ea		      nop
+     17  f439					      REPEND
+     18  f43a		       ea		      nop
+     17  f43a					      REPEND
+     18  f43b		       ea		      nop
+     17  f43b					      REPEND
+     18  f43c		       ea		      nop
+     17  f43c					      REPEND
+     18  f43d		       ea		      nop
+     17  f43d					      REPEND
+     18  f43e		       ea		      nop
+     17  f43e					      REPEND
+     18  f43f		       ea		      nop
+     17  f43f					      REPEND
+     18  f440		       ea		      nop
+     17  f440					      REPEND
+     18  f441		       ea		      nop
+     17  f441					      REPEND
+     18  f442		       ea		      nop
+     17  f442					      REPEND
+     18  f443		       ea		      nop
+     17  f443					      REPEND
      18  f444		       ea		      nop
      17  f444					      REPEND
      18  f445		       ea		      nop
@@ -1201,1021 +1199,1001 @@
      18  f448		       ea		      nop
      17  f448					      REPEND
      18  f449		       ea		      nop
-     17  f449					      REPEND
-     18  f44a		       ea		      nop
-     17  f44a					      REPEND
-     18  f44b		       ea		      nop
-     17  f44b					      REPEND
-     18  f44c		       ea		      nop
-     17  f44c					      REPEND
-     18  f44d		       ea		      nop
-     17  f44d					      REPEND
-     18  f44e		       ea		      nop
-     17  f44e					      REPEND
-     18  f44f		       ea		      nop
-     17  f44f					      REPEND
-     18  f450		       ea		      nop
-     17  f450					      REPEND
-     18  f451		       ea		      nop
-     17  f451					      REPEND
-     18  f452		       ea		      nop
-     17  f452					      REPEND
-     18  f453		       ea		      nop
-     17  f453					      REPEND
-     18  f454		       ea		      nop
-     17  f454					      REPEND
-     18  f455		       ea		      nop
-     19  f456					      REPEND
-    552  f456		       85 13		      sta	EMERALD_MI_RESET
-    553  f458
-    554  f458							; Player 1
-    555  f458		       a5 86		      lda	XPos
-    556  f45a		       a2 00		      ldx	#0
-    557  f45c		       20 32 f7 	      jsr	SetHorizPos
-    558  f45f
-    559  f45f
-    560  f45f							; Choose which hmove value to use
-    561  f45f							; FRAMESWITCH
-    562  f45f		       a9 01		      lda	#01
-    563  f461		       25 83		      and	FrameCount
-    564  f463		       d0 07		      bne	doframe2
-    565  f465
-    566  f465							; frame 1
-    567  f465		       a9 d0		      lda	#EMERALD_MI_HMOVE_2
-    568  f467		       85 23		      sta	EMERALD_MI_HMOVE
-    569  f469		       4c 70 f4 	      jmp	doframe2after
-    570  f46c
-    571  f46c							; frame 2
-    572  f46c				   doframe2
-    573  f46c		       a9 10		      lda	#EMERALD_MI_HMOVE_3
-    574  f46e		       85 23		      sta	EMERALD_MI_HMOVE
-    575  f470				   doframe2after
-    576  f470
-      0  f470					      TIMER_WAIT
-      1  f470				   .waittimer
-      2  f470		       ad 84 02 	      lda	INTIM
-      3  f473		       d0 fb		      bne	.waittimer
-      0  f475					      TIMER_SETUP	192
-      1  f475				   .lines     SET	192
-      2  f475		       a9 e2		      lda	#(((.lines-1)*76-14)/64)
-      3  f477		       85 02		      sta	WSYNC
-      4  f479		       8d 96 02 	      sta	TIM64T
-    579  f47c		       85 02		      sta	WSYNC	; ???
-    580  f47e
-    581  f47e							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    582  f47e
-    583  f47e							; Frame border top
-    584  f47e
-    585  f47e
-    586  f47e							; First HMOVE
-    587  f47e		       85 2a		      sta	HMOVE
-    588  f480
-    589  f480		       a9 00		      lda	#0
-    590  f482		       85 08		      sta	COLUPF
-    591  f484		       85 0e		      sta	PF1
-    592  f486		       85 0f		      sta	PF2
-    593  f488		       a9 02		      lda	#SIGNAL_LINE
-    594  f48a		       85 09		      sta	COLUBK
-    595  f48c
-    596  f48c					      REPEAT	6
-    597  f48c		       85 02		      sta	WSYNC
+     19  f44a					      REPEND
+    550  f44a		       85 13		      sta	EMERALD_MI_RESET
+    551  f44c
+    552  f44c							; Player 1
+    553  f44c		       a5 86		      lda	XPos
+    554  f44e		       a2 00		      ldx	#0
+    555  f450		       20 25 f7 	      jsr	SetHorizPos
+    556  f453
+    557  f453
+    558  f453							; Choose which hmove value to use
+    559  f453							; FRAMESWITCH
+    560  f453		       a9 01		      lda	#01
+    561  f455		       25 83		      and	FrameCount
+    562  f457		       d0 07		      bne	doframe2
+    563  f459
+    564  f459							; frame 1
+    565  f459		       a9 d0		      lda	#EMERALD_MI_HMOVE_2
+    566  f45b		       85 23		      sta	EMERALD_MI_HMOVE
+    567  f45d		       4c 64 f4 	      jmp	doframe2after
+    568  f460
+    569  f460							; frame 2
+    570  f460				   doframe2
+    571  f460		       a9 10		      lda	#EMERALD_MI_HMOVE_3
+    572  f462		       85 23		      sta	EMERALD_MI_HMOVE
+    573  f464				   doframe2after
+    574  f464
+      0  f464					      TIMER_WAIT
+      1  f464				   .waittimer
+      2  f464		       ad 84 02 	      lda	INTIM
+      3  f467		       d0 fb		      bne	.waittimer
+      0  f469					      TIMER_SETUP	192
+      1  f469				   .lines     SET	192
+      2  f469		       a9 e2		      lda	#(((.lines-1)*76-14)/64)
+      3  f46b		       85 02		      sta	WSYNC
+      4  f46d		       8d 96 02 	      sta	TIM64T
+    577  f470		       85 02		      sta	WSYNC	; ???
+    578  f472
+    579  f472							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    580  f472
+    581  f472							; Frame border top
+    582  f472
+    583  f472
+    584  f472							; First HMOVE
+    585  f472		       85 2a		      sta	HMOVE
+    586  f474
+    587  f474		       a9 00		      lda	#0
+    588  f476		       85 08		      sta	COLUPF
+    589  f478		       85 0e		      sta	PF1
+    590  f47a		       85 0f		      sta	PF2
+    591  f47c		       a9 02		      lda	#SIGNAL_LINE
+    592  f47e		       85 09		      sta	COLUBK
+    593  f480
+    594  f480					      REPEAT	6
+    595  f480		       85 02		      sta	WSYNC
+    594  f480					      REPEND
+    595  f482		       85 02		      sta	WSYNC
+    594  f482					      REPEND
+    595  f484		       85 02		      sta	WSYNC
+    594  f484					      REPEND
+    595  f486		       85 02		      sta	WSYNC
+    594  f486					      REPEND
+    595  f488		       85 02		      sta	WSYNC
+    594  f488					      REPEND
+    595  f48a		       85 02		      sta	WSYNC
     596  f48c					      REPEND
-    597  f48e		       85 02		      sta	WSYNC
-    596  f48e					      REPEND
-    597  f490		       85 02		      sta	WSYNC
-    596  f490					      REPEND
-    597  f492		       85 02		      sta	WSYNC
-    596  f492					      REPEND
-    597  f494		       85 02		      sta	WSYNC
-    596  f494					      REPEND
-    597  f496		       85 02		      sta	WSYNC
-    598  f498					      REPEND
-    599  f498
-    600  f498		       a9 00		      lda	#0
-    601  f49a		       85 09		      sta	COLUBK
-    602  f49c		       85 02		      sta	WSYNC
-    603  f49e
-    604  f49e							; Start top border
-    605  f49e				   border_top
-    606  f49e							; Make the playfield solid.
-    607  f49e		       a9 3f		      lda	#%00111111
-    608  f4a0		       85 0e		      sta	PF1
-    609  f4a2		       a9 ff		      lda	#%11111111
-    610  f4a4		       85 0f		      sta	PF2
-    611  f4a6
-    612  f4a6		       a9 42		      lda	#COL_BG
-    613  f4a8		       a0 00		      ldy	#0
-    614  f4aa
-    615  f4aa		       85 08		      sta	COLUPF
-    616  f4ac		       85 02		      sta	WSYNC
-    617  f4ae
-    618  f4ae		       84 08		      sty	COLUPF
-    619  f4b0		       85 02		      sta	WSYNC
-    620  f4b2
-    621  f4b2		       85 08		      sta	COLUPF
-    622  f4b4		       85 02		      sta	WSYNC
-    623  f4b6
-    624  f4b6		       85 02		      sta	WSYNC
-    625  f4b8
-    626  f4b8		       85 02		      sta	WSYNC
-    627  f4ba
-    628  f4ba		       84 08		      sty	COLUPF
-    629  f4bc		       85 02		      sta	WSYNC
-    630  f4be
-    631  f4be		       85 08		      sta	COLUPF
-    632  f4c0		       85 02		      sta	WSYNC
-    633  f4c2
-    634  f4c2		       85 02		      sta	WSYNC
-    635  f4c4
-    636  f4c4				   PlayArea
-    637  f4c4							; PF is now the playing area
-    638  f4c4		       a9 00		      lda	#%00000000
-    639  f4c6		       85 0d		      sta	PF0
-    640  f4c8		       a9 20		      lda	#%00100000
-    641  f4ca		       85 0e		      sta	PF1
-    642  f4cc		       a9 00		      lda	#%00000000
-    643  f4ce		       85 0f		      sta	PF2
-    644  f4d0
-    645  f4d0
-    646  f4d0							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    647  f4d0
-    648  f4d0							; frame start
-    649  f4d0
-    650  f4d0
-    651  f4d0
-    652  f4d0
-    653  f4d0							; MACRO for calculating next GRPx value
-    654  f4d0
-    655  f4d0					      MAC	jet_spritedata_calc_nosta
-    656  f4d0							; loader
-    657  f4d0					      dcp	SpriteEnd
-    658  f4d0
-    659  f4d0							; 4c
-    660  f4d0							; This must never be 5 cycles This mean Frame0 + Y must not cross below apage boundary.
-    661  f4d0							; 6c
-    662  f4d0					      ldy	#0
-    663  f4d0					      .byte	$b0, $01	;2c / 3c (taken)
-    664  f4d0					      .byte	$2c	; 4c / 0c
-    665  f4d0					      ldy	SpriteEnd
-    666  f4d0
-    667  f4d0					      ENDM
-    668  f4d0
-    669  f4d0					      MAC	jet_spritedata_calc
-    670  f4d0							; loader
-    671  f4d0					      lda	#SPRITE_HEIGHT
-    672  f4d0					      dcp	SpriteEnd
-    673  f4d0					      ldy	SpriteEnd
-    674  f4d0
-    675  f4d0							; 4c
-    676  f4d0							; This must never be 5 cycles This mean Frame0 + Y must not cross below apage boundary.
-    677  f4d0					      lda	Frame0,Y
-    678  f4d0							; 6c
-    679  f4d0					      .byte	$b0, $01	;2c / 3c (taken)
-    680  f4d0					      .byte	$2c	; 4c / 0c
-    681  f4d0					      sta	JET_SP	; 0c / 3c
-    682  f4d0
-    683  f4d0					      ENDM
-    684  f4d0
-    685  f4d0
-    686  f4d0							; Start the row with a WSYNC.
-    687  f4d0				   row_start
-    688  f4d0							; ~15c
-      0  f4d0					      jet_spritedata_calc
-      1  f4d0
-      2  f4d0		       a9 09		      lda	#SPRITE_HEIGHT
-      3  f4d2		       c7 85		      dcp	SpriteEnd
-      4  f4d4		       a4 85		      ldy	SpriteEnd
-      5  f4d6
-      6  f4d6
-      7  f4d6
-      8  f4d6		       b9 00 f8 	      lda	Frame0,Y
-      9  f4d9
-     10  f4d9		       b0 01		      .byte.b	$b0, $01
-     11  f4db		       2c		      .byte.b	$2c
-     12  f4dc		       85 1b		      sta	JET_SP
-     13  f4de
-    690  f4de		       85 02		      sta	WSYNC
-    691  f4e0
-    692  f4e0							; [row:1]
-      0  f4e0					      jet_spritedata_calc
-      1  f4e0
-      2  f4e0		       a9 09		      lda	#SPRITE_HEIGHT
-      3  f4e2		       c7 85		      dcp	SpriteEnd
-      4  f4e4		       a4 85		      ldy	SpriteEnd
-      5  f4e6
-      6  f4e6
-      7  f4e6
-      8  f4e6		       b9 00 f8 	      lda	Frame0,Y
-      9  f4e9
-     10  f4e9		       b0 01		      .byte.b	$b0, $01
-     11  f4eb		       2c		      .byte.b	$2c
-     12  f4ec		       85 1b		      sta	JET_SP
-     13  f4ee
-    694  f4ee
-    695  f4ee		       a9 00		      lda	#0
-    696  f4f0		       85 08		      sta	COLUPF
-    697  f4f2
-    698  f4f2							; Push jump table to the stack
-    699  f4f2		       a9 f5		      lda	#>[row_after_kernel - 1]
-    700  f4f4		       48		      pha
-    701  f4f5		       a9 3b		      lda	#<[row_after_kernel - 1]
-    702  f4f7		       48		      pha
-    703  f4f8		       a9 81		      lda	#%10000001
-    704  f4fa		       48		      pha
-    705  f4fb		       a9 10		      lda	#>[$1100 - 1]
-    706  f4fd		       48		      pha
-    707  f4fe		       a9 ff		      lda	#<[$1100 - 1]
-    708  f500		       48		      pha
-    709  f501		       a9 81		      lda	#%10000001
-    710  f503		       48		      pha
-    711  f504
-    712  f504		       85 02		      sta	WSYNC
-    713  f506
-    714  f506							; [row:2]
-      0  f506					      jet_spritedata_calc
-      1  f506
-      2  f506		       a9 09		      lda	#SPRITE_HEIGHT
-      3  f508		       c7 85		      dcp	SpriteEnd
-      4  f50a		       a4 85		      ldy	SpriteEnd
-      5  f50c
-      6  f50c
-      7  f50c
-      8  f50c		       b9 00 f8 	      lda	Frame0,Y
-      9  f50f
-     10  f50f		       b0 01		      .byte.b	$b0, $01
-     11  f511		       2c		      .byte.b	$2c
-     12  f512		       85 1b		      sta	JET_SP
-     13  f514
-    716  f514
-    717  f514
-    718  f514		       a9 42		      lda	#COL_BG
-    719  f516		       85 08		      sta	COLUPF
-    720  f518
-    721  f518
-    722  f518		       a9 09		      lda	#SPRITE_HEIGHT
-      0  f51a					      jet_spritedata_calc_nosta
-      1  f51a
-      2  f51a		       c7 85		      dcp	SpriteEnd
-      3  f51c
-      4  f51c
-      5  f51c
-      6  f51c
-      7  f51c		       a0 00		      ldy	#0
-      8  f51e		       b0 01		      .byte.b	$b0, $01
-      9  f520		       2c		      .byte.b	$2c
-     10  f521		       a4 85		      ldy	SpriteEnd
-     11  f523
-    724  f523		       b9 00 f8 	      lda	Frame0,Y
-    725  f526		       85 fa		      sta	$fa
-      0  f528					      jet_spritedata_calc_nosta
-      1  f528
-      2  f528		       c7 85		      dcp	SpriteEnd
-      3  f52a
-      4  f52a
-      5  f52a
-      6  f52a
-      7  f52a		       a0 00		      ldy	#0
-      8  f52c		       b0 01		      .byte.b	$b0, $01
-      9  f52e		       2c		      .byte.b	$2c
-     10  f52f		       a4 85		      ldy	SpriteEnd
-     11  f531
-    727  f531		       b9 00 f8 	      lda	Frame0,Y
-    728  f534		       85 fd		      sta	$fd
-    729  f536
-      0  f536					      sleep	6
-      1  f536				   .CYCLES    SET	6
-      2  f536
-      3  f536				  -	      IF	.CYCLES < 2
-      4  f536				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  f536				  -	      ERR
-      6  f536					      ENDIF
-      7  f536
-      8  f536				  -	      IF	.CYCLES & 1
-      9  f536				  -	      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f536				  -	      nop	0
-     11  f536				  -	      ELSE
-     12  f536				  -	      bit	VSYNC
-     13  f536				  -	      ENDIF
-     14  f536				  -.CYCLES    SET	.CYCLES - 3
-     15  f536					      ENDIF
-     16  f536
-     17  f536					      REPEAT	.CYCLES / 2
-     18  f536		       ea		      nop
-     17  f536					      REPEND
-     18  f537		       ea		      nop
-     17  f537					      REPEND
-     18  f538		       ea		      nop
-     19  f539					      REPEND
-    731  f539
-    732  f539							; [row:3-4]
-    733  f539							; Jump to the copied kernel.
-    734  f539				   kernel_launch
-    735  f539		       4c 00 11 	      jmp	KERNEL_START
-    736  f53c
-    737  f53c				   row_after_kernel
-    738  f53c							; [row:5]
-    739  f53c							; Cleanup from the kernel.
-    740  f53c		       a9 00		      lda	#0
-    741  f53e		       85 1e		      sta	EMERALD_MI_ENABLE
-    742  f540		       85 1c		      sta	EMERALD_SP
-    743  f542		       85 08		      sta	COLUPF
-    744  f544
-      0  f544					      jet_spritedata_calc
-      1  f544
-      2  f544		       a9 09		      lda	#SPRITE_HEIGHT
-      3  f546		       c7 85		      dcp	SpriteEnd
-      4  f548		       a4 85		      ldy	SpriteEnd
-      5  f54a
-      6  f54a
-      7  f54a
-      8  f54a		       b9 00 f8 	      lda	Frame0,Y
-      9  f54d
-     10  f54d		       b0 01		      .byte.b	$b0, $01
-     11  f54f		       2c		      .byte.b	$2c
-     12  f550		       85 1b		      sta	JET_SP
-     13  f552
-    746  f552
-    747  f552		       85 02		      sta	WSYNC
-    748  f554
-    749  f554							; [row:6]
-      0  f554					      jet_spritedata_calc
-      1  f554
-      2  f554		       a9 09		      lda	#SPRITE_HEIGHT
-      3  f556		       c7 85		      dcp	SpriteEnd
-      4  f558		       a4 85		      ldy	SpriteEnd
-      5  f55a
-      6  f55a
-      7  f55a
-      8  f55a		       b9 00 f8 	      lda	Frame0,Y
-      9  f55d
-     10  f55d		       b0 01		      .byte.b	$b0, $01
-     11  f55f		       2c		      .byte.b	$2c
-     12  f560		       85 1b		      sta	JET_SP
-     13  f562
-    751  f562		       a9 42		      lda	#COL_BG
-    752  f564		       85 08		      sta	COLUPF
-    753  f566
-    754  f566							; FRAMESWITCH
-    755  f566		       a9 01		      lda	#01
-    756  f568		       25 83		      and	FrameCount
-    757  f56a		       d0 45		      bne	loadframe2
-    758  f56c
-    759  f56c				   loadframe1
-    760  f56c							; ~30c
-    761  f56c
-    762  f56c							; Emerald byte setting 1A
-    763  f56c		       a2 00		      ldx	#0
-    764  f56e		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
-    765  f571		       8d 0d 10 	      sta	GEM_00_W
-    766  f574		       e8		      inx
-    767  f575		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
-    768  f578		       8d 15 10 	      sta	GEM_04_W
-    769  f57b		       e8		      inx
-    770  f57c		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
-    771  f57f		       8d 19 10 	      sta	GEM_09_W
-    772  f582		       e8		      inx
-    773  f583
-    774  f583		       85 02		      sta	WSYNC
-    775  f585
-    776  f585							; [row:7]
-      0  f585					      jet_spritedata_calc
-      1  f585
-      2  f585		       a9 09		      lda	#SPRITE_HEIGHT
-      3  f587		       c7 85		      dcp	SpriteEnd
-      4  f589		       a4 85		      ldy	SpriteEnd
-      5  f58b
-      6  f58b
-      7  f58b
-      8  f58b		       b9 00 f8 	      lda	Frame0,Y
-      9  f58e
-     10  f58e		       b0 01		      .byte.b	$b0, $01
-     11  f590		       2c		      .byte.b	$2c
-     12  f591		       85 1b		      sta	JET_SP
-     13  f593
-    778  f593
-    779  f593							; Emerald byte setting 1B
-    780  f593		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
-    781  f596		       8d 1d 10 	      sta	GEM_13_W
-    782  f599		       e8		      inx
-    783  f59a		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
-    784  f59d		       8d 21 10 	      sta	GEM_17_W
-    785  f5a0		       e8		      inx
-    786  f5a1		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
-    787  f5a4		       8d 23 10 	      sta	GEM_18_W
-    788  f5a7		       e8		      inx
-    789  f5a8		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
-    790  f5ab		       8d 27 10 	      sta	GEM_22_W
-    791  f5ae
-    792  f5ae		       4c f6 f5 	      jmp	row_7_end
-    793  f5b1
-    794  f5b1				   loadframe2
-    795  f5b1							; ~30c
-    796  f5b1
-    797  f5b1							; Emerald byte setting 2A
-    798  f5b1		       a2 07		      ldx	#[storage_02 - storage]
-    799  f5b3		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
-    800  f5b6		       8d 0f 10 	      sta	GEM_02_W
-    801  f5b9		       e8		      inx
-    802  f5ba		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
-    803  f5bd		       8d 16 10 	      sta	GEM_06_W
-    804  f5c0		       e8		      inx
-    805  f5c1		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
-    806  f5c4		       8d 0b 10 	      sta	GEM_08_W
-    807  f5c7		       e8		      inx
-    808  f5c8
-    809  f5c8		       85 02		      sta	WSYNC
-    810  f5ca
-    811  f5ca							; [row:7]
-      0  f5ca					      jet_spritedata_calc
-      1  f5ca
-      2  f5ca		       a9 09		      lda	#SPRITE_HEIGHT
-      3  f5cc		       c7 85		      dcp	SpriteEnd
-      4  f5ce		       a4 85		      ldy	SpriteEnd
-      5  f5d0
-      6  f5d0
-      7  f5d0
-      8  f5d0		       b9 00 f8 	      lda	Frame0,Y
-      9  f5d3
-     10  f5d3		       b0 01		      .byte.b	$b0, $01
-     11  f5d5		       2c		      .byte.b	$2c
-     12  f5d6		       85 1b		      sta	JET_SP
-     13  f5d8
-    813  f5d8
-    814  f5d8							; Emerald byte setting 2B
-    815  f5d8		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
-    816  f5db		       8d 1a 10 	      sta	GEM_11_W
-    817  f5de		       e8		      inx
-    818  f5df		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
-    819  f5e2		       8d 1e 10 	      sta	GEM_15_W
-    820  f5e5		       e8		      inx
-    821  f5e6		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
-    822  f5e9		       8d 22 10 	      sta	GEM_20_W
-    823  f5ec		       e8		      inx
-    824  f5ed		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
-    825  f5f0		       8d 26 10 	      sta	GEM_24_W
-    826  f5f3
-    827  f5f3		       4c f6 f5 	      jmp	row_7_end
-    828  f5f6
-    829  f5f6				   row_7_end
-    830  f5f6		       85 02		      sta	WSYNC
-    831  f5f8
-    832  f5f8							; [row:8]
-    833  f5f8							; Repeat loop until LoopCount < 0
-    834  f5f8		       c6 82		      dec	LoopCount
-    835  f5fa		       30 03		      bmi	frame_bottom
-    836  f5fc		       4c d0 f4 	      jmp	row_start
-    837  f5ff
-    838  f5ff							; reset the background for bottom of playfield
-    839  f5ff				   frame_bottom
-    840  f5ff							;sta WSYNC
-    841  f5ff
-    842  f5ff							; Make the playfield solid.
-    843  f5ff		       a9 3f		      lda	#%00111111
-    844  f601		       85 0e		      sta	PF1
-    845  f603		       a9 ff		      lda	#%11111111
-    846  f605		       85 0f		      sta	PF2
-    847  f607
-    848  f607							; Clear all sprites.
-    849  f607		       a9 00		      lda	#0
-    850  f609		       85 1c		      sta	EMERALD_SP
-    851  f60b		       85 1b		      sta	JET_SP
-    852  f60d		       85 1e		      sta	EMERALD_MI_ENABLE
-    853  f60f
-    854  f60f		       a9 42		      lda	#COL_BG
-    855  f611		       a0 00		      ldy	#0
-    856  f613		       85 02		      sta	WSYNC
-    857  f615
-    858  f615		       84 08		      sty	COLUPF
-    859  f617		       85 02		      sta	WSYNC
-    860  f619
-    861  f619		       85 08		      sta	COLUPF
-    862  f61b		       85 02		      sta	WSYNC
-    863  f61d
-    864  f61d		       85 02		      sta	WSYNC
-    865  f61f
-    866  f61f		       85 02		      sta	WSYNC
-    867  f621
-    868  f621		       84 08		      sty	COLUPF
-    869  f623		       85 02		      sta	WSYNC
-    870  f625
-    871  f625		       85 08		      sta	COLUPF
-    872  f627		       85 02		      sta	WSYNC
-    873  f629		       85 02		      sta	WSYNC
-    874  f62b
-    875  f62b							; Blank all background colors.
-    876  f62b				   frame_end
-    877  f62b		       a9 00		      lda	#0
-    878  f62d		       85 08		      sta	COLUPF
-    879  f62f		       85 0f		      sta	PF2
-    880  f631		       85 0e		      sta	PF1
-    881  f633		       85 1c		      sta	EMERALD_SP
-    882  f635		       85 02		      sta	WSYNC
-    883  f637
-    884  f637							; Guide lines (2x)
-    885  f637		       a9 02		      lda	#SIGNAL_LINE
-    886  f639		       85 09		      sta	COLUBK
-    887  f63b					      REPEAT	6
-    888  f63b		       85 02		      sta	WSYNC
-    887  f63b					      REPEND
-    888  f63d		       85 02		      sta	WSYNC
-    887  f63d					      REPEND
-    888  f63f		       85 02		      sta	WSYNC
-    887  f63f					      REPEND
-    888  f641		       85 02		      sta	WSYNC
-    887  f641					      REPEND
-    888  f643		       85 02		      sta	WSYNC
-    887  f643					      REPEND
-    888  f645		       85 02		      sta	WSYNC
-    889  f647					      REPEND
-    890  f647		       a9 00		      lda	#$00
-    891  f649		       85 09		      sta	COLUBK
-    892  f64b		       85 02		      sta	WSYNC
-    893  f64d
-      0  f64d					      TIMER_WAIT
-      1  f64d				   .waittimer
-      2  f64d		       ad 84 02 	      lda	INTIM
-      3  f650		       d0 fb		      bne	.waittimer
-      0  f652					      TIMER_SETUP	30
-      1  f652				   .lines     SET	30
-      2  f652		       a9 22		      lda	#(((.lines-1)*76-14)/64)
-      3  f654		       85 02		      sta	WSYNC
-      4  f656		       8d 96 02 	      sta	TIM64T
-    896  f659
-    897  f659		       20 c4 f6 	      jsr	MoveJoystick
-    898  f65c		       20 fb f6 	      jsr	SpeedCalculation
-    899  f65f
-      0  f65f					      TIMER_WAIT
-      1  f65f				   .waittimer
-      2  f65f		       ad 84 02 	      lda	INTIM
-      3  f662		       d0 fb		      bne	.waittimer
-    901  f664		       4c 47 f2 	      jmp	BeginFrame
-    902  f667
-    903  f667
-    904  f667							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    905  f667
-    906  f667							; kernels
-    907  f667
-    908  f667
-    909  f667							; Important cycles for the kernels:
-    910  f667							; left border: 29, right border: 64
-    911  f667
-    912  f667							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    913  f667
-    914  f667							; KERNEL 1
-    915  f667
-    916  f667							; Emerald line macro (1, 2, ...)
-    917  f667
-    918  f667				   kernel_1_start
-    919  f667							; sleep first make this distinct from
-    920  f667							; other kernel for debug scenarios
-      0  f667					      sleep	5
-      1  f667				   .CYCLES    SET	5
-      2  f667
-      3  f667				  -	      IF	.CYCLES < 2
-      4  f667				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  f667				  -	      ERR
-      6  f667					      ENDIF
-      7  f667
-      8  f667					      IF	.CYCLES & 1
-      9  f667					      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f667		       04 00		      nop	0
-     11  f669				  -	      ELSE
-     12  f669				  -	      bit	VSYNC
-     13  f669					      ENDIF
-     14  f669				   .CYCLES    SET	.CYCLES - 3
-     15  f669					      ENDIF
-     16  f669
-     17  f669					      REPEAT	.CYCLES / 2
-     18  f669		       ea		      nop
-     19  f66a					      REPEND
-    922  f66a		       68		      pla
-    923  f66b		       8d 1b 00 	      sta.w	GRP0
-    924  f66e
-    925  f66e		       a9 60		      lda	#EMR1
-    926  f670		       a2 06		      ldx	#EMR2
-    927  f672		       a0 66		      ldy	#EMR3
-    928  f674				   .gem_00
-    929  f674		       84 1c		      .byte.b	GEM_00, EMERALD_SP
-    930  f676
-    931  f676							; 22
-    932  f676		       85 11		      sta	EMERALD_SP_RESET
-    933  f678		       85 1e		      sta	EMERALD_MI_ENABLE
-      0  f67a					      sleep	3
-      1  f67a				   .CYCLES    SET	3
-      2  f67a
-      3  f67a				  -	      IF	.CYCLES < 2
-      4  f67a				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  f67a				  -	      ERR
-      6  f67a					      ENDIF
-      7  f67a
-      8  f67a					      IF	.CYCLES & 1
-      9  f67a					      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f67a		       04 00		      nop	0
-     11  f67c				  -	      ELSE
-     12  f67c				  -	      bit	VSYNC
-     13  f67c					      ENDIF
-     14  f67c				   .CYCLES    SET	.CYCLES - 3
-     15  f67c					      ENDIF
-     16  f67c
-     17  f67c				  -	      REPEAT	.CYCLES / 2
-     18  f67c				  -	      nop
-     19  f67c					      REPEND
-    935  f67c				   .gem_04
-    936  f67c		       84 1c		      .byte.b	GEM_04, EMERALD_SP
-    937  f67e		       85 11		      sta	EMERALD_SP_RESET
-    938  f680				   .gem_09
-    939  f680		       84 1c		      .byte.b	GEM_09, EMERALD_SP
-      0  f682					      sleep	3
-      1  f682				   .CYCLES    SET	3
-      2  f682
-      3  f682				  -	      IF	.CYCLES < 2
-      4  f682				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  f682				  -	      ERR
-      6  f682					      ENDIF
-      7  f682
-      8  f682					      IF	.CYCLES & 1
-      9  f682					      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f682		       04 00		      nop	0
-     11  f684				  -	      ELSE
-     12  f684				  -	      bit	VSYNC
-     13  f684					      ENDIF
-     14  f684				   .CYCLES    SET	.CYCLES - 3
-     15  f684					      ENDIF
-     16  f684
-     17  f684				  -	      REPEAT	.CYCLES / 2
-     18  f684				  -	      nop
-     19  f684					      REPEND
-    941  f684				   .gem_13
-    942  f684		       84 1c		      .byte.b	GEM_13, EMERALD_SP
-    943  f686		       85 11		      sta	EMERALD_SP_RESET
-    944  f688				   .gem_17
-    945  f688		       84 1e		      .byte.b	GEM_17, EMERALD_MI_ENABLE
-    946  f68a				   .gem_18
-    947  f68a		       84 1c		      .byte.b	GEM_18, EMERALD_SP
-      0  f68c					      sleep	3
-      1  f68c				   .CYCLES    SET	3
+    597  f48c
+    598  f48c		       a9 00		      lda	#0
+    599  f48e		       85 09		      sta	COLUBK
+    600  f490		       85 02		      sta	WSYNC
+    601  f492
+    602  f492							; Start top border
+    603  f492				   border_top
+    604  f492							; Make the playfield solid.
+    605  f492		       a9 3f		      lda	#%00111111
+    606  f494		       85 0e		      sta	PF1
+    607  f496		       a9 ff		      lda	#%11111111
+    608  f498		       85 0f		      sta	PF2
+    609  f49a
+    610  f49a		       a9 42		      lda	#COL_BG
+    611  f49c		       a0 00		      ldy	#0
+    612  f49e
+    613  f49e		       85 08		      sta	COLUPF
+    614  f4a0		       85 02		      sta	WSYNC
+    615  f4a2
+    616  f4a2		       84 08		      sty	COLUPF
+    617  f4a4		       85 02		      sta	WSYNC
+    618  f4a6
+    619  f4a6		       85 08		      sta	COLUPF
+    620  f4a8		       85 02		      sta	WSYNC
+    621  f4aa
+    622  f4aa		       85 02		      sta	WSYNC
+    623  f4ac
+    624  f4ac		       85 02		      sta	WSYNC
+    625  f4ae
+    626  f4ae		       84 08		      sty	COLUPF
+    627  f4b0		       85 02		      sta	WSYNC
+    628  f4b2
+    629  f4b2		       85 08		      sta	COLUPF
+    630  f4b4		       85 02		      sta	WSYNC
+    631  f4b6
+    632  f4b6		       85 02		      sta	WSYNC
+    633  f4b8
+    634  f4b8				   PlayArea
+    635  f4b8							; PF is now the playing area
+    636  f4b8		       a9 00		      lda	#%00000000
+    637  f4ba		       85 0d		      sta	PF0
+    638  f4bc		       a9 20		      lda	#%00100000
+    639  f4be		       85 0e		      sta	PF1
+    640  f4c0		       a9 00		      lda	#%00000000
+    641  f4c2		       85 0f		      sta	PF2
+    642  f4c4
+    643  f4c4
+    644  f4c4							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    645  f4c4
+    646  f4c4							; frame start
+    647  f4c4
+    648  f4c4
+    649  f4c4
+    650  f4c4
+    651  f4c4							; MACRO for calculating next GRPx value
+    652  f4c4
+    653  f4c4					      MAC	jet_spritedata_calc_nosta
+    654  f4c4							; loader
+    655  f4c4					      dcp	SpriteEnd
+    656  f4c4
+    657  f4c4							; 4c
+    658  f4c4							; This must never be 5 cycles This mean Frame0 + Y must not cross below apage boundary.
+    659  f4c4							; 6c
+    660  f4c4					      ldy	#0
+    661  f4c4					      .byte	$b0, $01	;2c / 3c (taken)
+    662  f4c4					      .byte	$2c	; 4c / 0c
+    663  f4c4					      ldy	SpriteEnd
+    664  f4c4
+    665  f4c4					      ENDM
+    666  f4c4
+    667  f4c4					      MAC	jet_spritedata_calc
+    668  f4c4							; loader
+    669  f4c4					      lda	#SPRITE_HEIGHT
+    670  f4c4					      dcp	SpriteEnd
+    671  f4c4					      ldy	SpriteEnd
+    672  f4c4
+    673  f4c4							; 4c
+    674  f4c4							; This must never be 5 cycles This mean Frame0 + Y must not cross below apage boundary.
+    675  f4c4					      lda	Frame0,Y
+    676  f4c4							; 6c
+    677  f4c4					      .byte	$b0, $01	;2c / 3c (taken)
+    678  f4c4					      .byte	$2c	; 4c / 0c
+    679  f4c4					      sta	JET_SP	; 0c / 3c
+    680  f4c4
+    681  f4c4					      ENDM
+    682  f4c4
+    683  f4c4
+    684  f4c4							; Start the row with a WSYNC.
+    685  f4c4				   row_start
+    686  f4c4							; ~15c
+      0  f4c4					      jet_spritedata_calc
+      1  f4c4
+      2  f4c4		       a9 09		      lda	#SPRITE_HEIGHT
+      3  f4c6		       c7 85		      dcp	SpriteEnd
+      4  f4c8		       a4 85		      ldy	SpriteEnd
+      5  f4ca
+      6  f4ca
+      7  f4ca
+      8  f4ca		       b9 00 f8 	      lda	Frame0,Y
+      9  f4cd
+     10  f4cd		       b0 01		      .byte.b	$b0, $01
+     11  f4cf		       2c		      .byte.b	$2c
+     12  f4d0		       85 1b		      sta	JET_SP
+     13  f4d2
+    688  f4d2		       85 02		      sta	WSYNC
+    689  f4d4
+    690  f4d4							; [row:1]
+      0  f4d4					      jet_spritedata_calc
+      1  f4d4
+      2  f4d4		       a9 09		      lda	#SPRITE_HEIGHT
+      3  f4d6		       c7 85		      dcp	SpriteEnd
+      4  f4d8		       a4 85		      ldy	SpriteEnd
+      5  f4da
+      6  f4da
+      7  f4da
+      8  f4da		       b9 00 f8 	      lda	Frame0,Y
+      9  f4dd
+     10  f4dd		       b0 01		      .byte.b	$b0, $01
+     11  f4df		       2c		      .byte.b	$2c
+     12  f4e0		       85 1b		      sta	JET_SP
+     13  f4e2
+    692  f4e2
+    693  f4e2		       a9 00		      lda	#0
+    694  f4e4		       85 08		      sta	COLUPF
+    695  f4e6
+    696  f4e6							; Push jump table to the stack
+    697  f4e6		       a9 f5		      lda	#>[row_after_kernel - 1]
+    698  f4e8		       48		      pha
+    699  f4e9		       a9 2f		      lda	#<[row_after_kernel - 1]
+    700  f4eb		       48		      pha
+    701  f4ec		       a9 81		      lda	#%10000001
+    702  f4ee		       48		      pha
+    703  f4ef		       a9 10		      lda	#>[$1100 - 1]
+    704  f4f1		       48		      pha
+    705  f4f2		       a9 ff		      lda	#<[$1100 - 1]
+    706  f4f4		       48		      pha
+    707  f4f5		       a9 81		      lda	#%10000001
+    708  f4f7		       48		      pha
+    709  f4f8
+    710  f4f8		       85 02		      sta	WSYNC
+    711  f4fa
+    712  f4fa							; [row:2]
+      0  f4fa					      jet_spritedata_calc
+      1  f4fa
+      2  f4fa		       a9 09		      lda	#SPRITE_HEIGHT
+      3  f4fc		       c7 85		      dcp	SpriteEnd
+      4  f4fe		       a4 85		      ldy	SpriteEnd
+      5  f500
+      6  f500
+      7  f500
+      8  f500		       b9 00 f8 	      lda	Frame0,Y
+      9  f503
+     10  f503		       b0 01		      .byte.b	$b0, $01
+     11  f505		       2c		      .byte.b	$2c
+     12  f506		       85 1b		      sta	JET_SP
+     13  f508
+    714  f508
+    715  f508
+    716  f508		       a9 42		      lda	#COL_BG
+    717  f50a		       85 08		      sta	COLUPF
+    718  f50c
+    719  f50c
+    720  f50c		       a9 09		      lda	#SPRITE_HEIGHT
+      0  f50e					      jet_spritedata_calc_nosta
+      1  f50e
+      2  f50e		       c7 85		      dcp	SpriteEnd
+      3  f510
+      4  f510
+      5  f510
+      6  f510
+      7  f510		       a0 00		      ldy	#0
+      8  f512		       b0 01		      .byte.b	$b0, $01
+      9  f514		       2c		      .byte.b	$2c
+     10  f515		       a4 85		      ldy	SpriteEnd
+     11  f517
+    722  f517		       b9 00 f8 	      lda	Frame0,Y
+    723  f51a		       85 fa		      sta	$fa
+      0  f51c					      jet_spritedata_calc_nosta
+      1  f51c
+      2  f51c		       c7 85		      dcp	SpriteEnd
+      3  f51e
+      4  f51e
+      5  f51e
+      6  f51e
+      7  f51e		       a0 00		      ldy	#0
+      8  f520		       b0 01		      .byte.b	$b0, $01
+      9  f522		       2c		      .byte.b	$2c
+     10  f523		       a4 85		      ldy	SpriteEnd
+     11  f525
+    725  f525		       b9 00 f8 	      lda	Frame0,Y
+    726  f528		       85 fd		      sta	$fd
+    727  f52a
+      0  f52a					      sleep	6
+      1  f52a				   .CYCLES    SET	6
+      2  f52a
+      3  f52a				  -	      IF	.CYCLES < 2
+      4  f52a				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  f52a				  -	      ERR
+      6  f52a					      ENDIF
+      7  f52a
+      8  f52a				  -	      IF	.CYCLES & 1
+      9  f52a				  -	      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f52a				  -	      nop	0
+     11  f52a				  -	      ELSE
+     12  f52a				  -	      bit	VSYNC
+     13  f52a				  -	      ENDIF
+     14  f52a				  -.CYCLES    SET	.CYCLES - 3
+     15  f52a					      ENDIF
+     16  f52a
+     17  f52a					      REPEAT	.CYCLES / 2
+     18  f52a		       ea		      nop
+     17  f52a					      REPEND
+     18  f52b		       ea		      nop
+     17  f52b					      REPEND
+     18  f52c		       ea		      nop
+     19  f52d					      REPEND
+    729  f52d
+    730  f52d							; [row:3-4]
+    731  f52d							; Jump to the copied kernel.
+    732  f52d				   kernel_launch
+    733  f52d		       4c 00 11 	      jmp	KERNEL_START
+    734  f530
+    735  f530				   row_after_kernel
+    736  f530							; [row:5]
+    737  f530							; Cleanup from the kernel.
+    738  f530		       a9 00		      lda	#0
+    739  f532		       85 1e		      sta	EMERALD_MI_ENABLE
+    740  f534		       85 1c		      sta	EMERALD_SP
+    741  f536		       85 08		      sta	COLUPF
+    742  f538
+      0  f538					      jet_spritedata_calc
+      1  f538
+      2  f538		       a9 09		      lda	#SPRITE_HEIGHT
+      3  f53a		       c7 85		      dcp	SpriteEnd
+      4  f53c		       a4 85		      ldy	SpriteEnd
+      5  f53e
+      6  f53e
+      7  f53e
+      8  f53e		       b9 00 f8 	      lda	Frame0,Y
+      9  f541
+     10  f541		       b0 01		      .byte.b	$b0, $01
+     11  f543		       2c		      .byte.b	$2c
+     12  f544		       85 1b		      sta	JET_SP
+     13  f546
+    744  f546
+    745  f546		       85 02		      sta	WSYNC
+    746  f548
+    747  f548							; [row:6]
+      0  f548					      jet_spritedata_calc
+      1  f548
+      2  f548		       a9 09		      lda	#SPRITE_HEIGHT
+      3  f54a		       c7 85		      dcp	SpriteEnd
+      4  f54c		       a4 85		      ldy	SpriteEnd
+      5  f54e
+      6  f54e
+      7  f54e
+      8  f54e		       b9 00 f8 	      lda	Frame0,Y
+      9  f551
+     10  f551		       b0 01		      .byte.b	$b0, $01
+     11  f553		       2c		      .byte.b	$2c
+     12  f554		       85 1b		      sta	JET_SP
+     13  f556
+    749  f556		       a9 42		      lda	#COL_BG
+    750  f558		       85 08		      sta	COLUPF
+    751  f55a
+    752  f55a							; FRAMESWITCH
+    753  f55a		       a9 01		      lda	#01
+    754  f55c		       25 83		      and	FrameCount
+    755  f55e		       d0 45		      bne	loadframe2
+    756  f560
+    757  f560				   loadframe1
+    758  f560							; ~30c
+    759  f560
+    760  f560							; Emerald byte setting 1A
+    761  f560		       a2 00		      ldx	#0
+    762  f562		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
+    763  f565		       8d 0d 10 	      sta	GEM_00_W
+    764  f568		       e8		      inx
+    765  f569		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
+    766  f56c		       8d 15 10 	      sta	GEM_04_W
+    767  f56f		       e8		      inx
+    768  f570		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
+    769  f573		       8d 19 10 	      sta	GEM_09_W
+    770  f576		       e8		      inx
+    771  f577
+    772  f577		       85 02		      sta	WSYNC
+    773  f579
+    774  f579							; [row:7]
+      0  f579					      jet_spritedata_calc
+      1  f579
+      2  f579		       a9 09		      lda	#SPRITE_HEIGHT
+      3  f57b		       c7 85		      dcp	SpriteEnd
+      4  f57d		       a4 85		      ldy	SpriteEnd
+      5  f57f
+      6  f57f
+      7  f57f
+      8  f57f		       b9 00 f8 	      lda	Frame0,Y
+      9  f582
+     10  f582		       b0 01		      .byte.b	$b0, $01
+     11  f584		       2c		      .byte.b	$2c
+     12  f585		       85 1b		      sta	JET_SP
+     13  f587
+    776  f587
+    777  f587							; Emerald byte setting 1B
+    778  f587		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
+    779  f58a		       8d 1d 10 	      sta	GEM_13_W
+    780  f58d		       e8		      inx
+    781  f58e		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
+    782  f591		       8d 21 10 	      sta	GEM_17_W
+    783  f594		       e8		      inx
+    784  f595		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
+    785  f598		       8d 23 10 	      sta	GEM_18_W
+    786  f59b		       e8		      inx
+    787  f59c		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
+    788  f59f		       8d 27 10 	      sta	GEM_22_W
+    789  f5a2
+    790  f5a2		       4c e9 f5 	      jmp	row_7_end
+    791  f5a5
+    792  f5a5				   loadframe2
+    793  f5a5							; ~30c
+    794  f5a5
+    795  f5a5							; Emerald byte setting 2A
+    796  f5a5		       a2 07		      ldx	#[storage_02 - storage]
+    797  f5a7		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
+    798  f5aa		       8d 0f 10 	      sta	GEM_02_W
+    799  f5ad		       e8		      inx
+    800  f5ae		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
+    801  f5b1		       8d 16 10 	      sta	GEM_06_W
+    802  f5b4		       e8		      inx
+    803  f5b5		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
+    804  f5b8		       8d 0b 10 	      sta	GEM_08_W
+    805  f5bb		       e8		      inx
+    806  f5bc
+    807  f5bc		       85 02		      sta	WSYNC
+    808  f5be
+    809  f5be							; [row:7]
+      0  f5be					      jet_spritedata_calc
+      1  f5be
+      2  f5be		       a9 09		      lda	#SPRITE_HEIGHT
+      3  f5c0		       c7 85		      dcp	SpriteEnd
+      4  f5c2		       a4 85		      ldy	SpriteEnd
+      5  f5c4
+      6  f5c4
+      7  f5c4
+      8  f5c4		       b9 00 f8 	      lda	Frame0,Y
+      9  f5c7
+     10  f5c7		       b0 01		      .byte.b	$b0, $01
+     11  f5c9		       2c		      .byte.b	$2c
+     12  f5ca		       85 1b		      sta	JET_SP
+     13  f5cc
+    811  f5cc
+    812  f5cc							; Emerald byte setting 2B
+    813  f5cc		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
+    814  f5cf		       8d 1a 10 	      sta	GEM_11_W
+    815  f5d2		       e8		      inx
+    816  f5d3		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
+    817  f5d6		       85 80		      sta	Temp
+    818  f5d8		       e8		      inx
+    819  f5d9		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
+    820  f5dc		       8d 22 10 	      sta	GEM_20_W
+    821  f5df		       e8		      inx
+    822  f5e0		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
+    823  f5e3		       8d 26 10 	      sta	GEM_24_W
+    824  f5e6
+    825  f5e6		       4c e9 f5 	      jmp	row_7_end
+    826  f5e9
+    827  f5e9				   row_7_end
+    828  f5e9		       85 02		      sta	WSYNC
+    829  f5eb
+    830  f5eb							; [row:8]
+    831  f5eb							; Repeat loop until LoopCount < 0
+    832  f5eb		       c6 82		      dec	LoopCount
+    833  f5ed		       30 03		      bmi	frame_bottom
+    834  f5ef		       4c c4 f4 	      jmp	row_start
+    835  f5f2
+    836  f5f2							; reset the background for bottom of playfield
+    837  f5f2				   frame_bottom
+    838  f5f2							;sta WSYNC
+    839  f5f2
+    840  f5f2							; Make the playfield solid.
+    841  f5f2		       a9 3f		      lda	#%00111111
+    842  f5f4		       85 0e		      sta	PF1
+    843  f5f6		       a9 ff		      lda	#%11111111
+    844  f5f8		       85 0f		      sta	PF2
+    845  f5fa
+    846  f5fa							; Clear all sprites.
+    847  f5fa		       a9 00		      lda	#0
+    848  f5fc		       85 1c		      sta	EMERALD_SP
+    849  f5fe		       85 1b		      sta	JET_SP
+    850  f600		       85 1e		      sta	EMERALD_MI_ENABLE
+    851  f602
+    852  f602		       a9 42		      lda	#COL_BG
+    853  f604		       a0 00		      ldy	#0
+    854  f606		       85 02		      sta	WSYNC
+    855  f608
+    856  f608		       84 08		      sty	COLUPF
+    857  f60a		       85 02		      sta	WSYNC
+    858  f60c
+    859  f60c		       85 08		      sta	COLUPF
+    860  f60e		       85 02		      sta	WSYNC
+    861  f610
+    862  f610		       85 02		      sta	WSYNC
+    863  f612
+    864  f612		       85 02		      sta	WSYNC
+    865  f614
+    866  f614		       84 08		      sty	COLUPF
+    867  f616		       85 02		      sta	WSYNC
+    868  f618
+    869  f618		       85 08		      sta	COLUPF
+    870  f61a		       85 02		      sta	WSYNC
+    871  f61c		       85 02		      sta	WSYNC
+    872  f61e
+    873  f61e							; Blank all background colors.
+    874  f61e				   frame_end
+    875  f61e		       a9 00		      lda	#0
+    876  f620		       85 08		      sta	COLUPF
+    877  f622		       85 0f		      sta	PF2
+    878  f624		       85 0e		      sta	PF1
+    879  f626		       85 1c		      sta	EMERALD_SP
+    880  f628		       85 02		      sta	WSYNC
+    881  f62a
+    882  f62a							; Guide lines (2x)
+    883  f62a		       a9 02		      lda	#SIGNAL_LINE
+    884  f62c		       85 09		      sta	COLUBK
+    885  f62e					      REPEAT	6
+    886  f62e		       85 02		      sta	WSYNC
+    885  f62e					      REPEND
+    886  f630		       85 02		      sta	WSYNC
+    885  f630					      REPEND
+    886  f632		       85 02		      sta	WSYNC
+    885  f632					      REPEND
+    886  f634		       85 02		      sta	WSYNC
+    885  f634					      REPEND
+    886  f636		       85 02		      sta	WSYNC
+    885  f636					      REPEND
+    886  f638		       85 02		      sta	WSYNC
+    887  f63a					      REPEND
+    888  f63a		       a9 00		      lda	#$00
+    889  f63c		       85 09		      sta	COLUBK
+    890  f63e		       85 02		      sta	WSYNC
+    891  f640
+      0  f640					      TIMER_WAIT
+      1  f640				   .waittimer
+      2  f640		       ad 84 02 	      lda	INTIM
+      3  f643		       d0 fb		      bne	.waittimer
+      0  f645					      TIMER_SETUP	30
+      1  f645				   .lines     SET	30
+      2  f645		       a9 22		      lda	#(((.lines-1)*76-14)/64)
+      3  f647		       85 02		      sta	WSYNC
+      4  f649		       8d 96 02 	      sta	TIM64T
+    894  f64c
+    895  f64c		       20 b7 f6 	      jsr	MoveJoystick
+    896  f64f		       20 ee f6 	      jsr	SpeedCalculation
+    897  f652
+      0  f652					      TIMER_WAIT
+      1  f652				   .waittimer
+      2  f652		       ad 84 02 	      lda	INTIM
+      3  f655		       d0 fb		      bne	.waittimer
+    899  f657		       4c 47 f2 	      jmp	BeginFrame
+    900  f65a
+    901  f65a
+    902  f65a							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    903  f65a
+    904  f65a							; kernels
+    905  f65a
+    906  f65a
+    907  f65a							; Important cycles for the kernels:
+    908  f65a							; left border: 29, right border: 64
+    909  f65a
+    910  f65a							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    911  f65a
+    912  f65a							; KERNEL 1
+    913  f65a
+    914  f65a							; Emerald line macro (1, 2, ...)
+    915  f65a
+    916  f65a				   kernel_1_start
+    917  f65a							; sleep first make this distinct from
+    918  f65a							; other kernel for debug scenarios
+      0  f65a					      sleep	5
+      1  f65a				   .CYCLES    SET	5
+      2  f65a
+      3  f65a				  -	      IF	.CYCLES < 2
+      4  f65a				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  f65a				  -	      ERR
+      6  f65a					      ENDIF
+      7  f65a
+      8  f65a					      IF	.CYCLES & 1
+      9  f65a					      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f65a		       04 00		      nop	0
+     11  f65c				  -	      ELSE
+     12  f65c				  -	      bit	VSYNC
+     13  f65c					      ENDIF
+     14  f65c				   .CYCLES    SET	.CYCLES - 3
+     15  f65c					      ENDIF
+     16  f65c
+     17  f65c					      REPEAT	.CYCLES / 2
+     18  f65c		       ea		      nop
+     19  f65d					      REPEND
+    920  f65d		       68		      pla
+    921  f65e		       8d 1b 00 	      sta.w	GRP0
+    922  f661
+    923  f661		       a9 60		      lda	#EMR1
+    924  f663		       a2 06		      ldx	#EMR2
+    925  f665		       a0 66		      ldy	#EMR3
+    926  f667				   .gem_00
+    927  f667		       84 1c		      .byte.b	GEM_00, EMERALD_SP
+    928  f669
+    929  f669							; 22
+    930  f669		       85 11		      sta	EMERALD_SP_RESET
+    931  f66b		       85 1e		      sta	EMERALD_MI_ENABLE
+      0  f66d					      sleep	3
+      1  f66d				   .CYCLES    SET	3
+      2  f66d
+      3  f66d				  -	      IF	.CYCLES < 2
+      4  f66d				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  f66d				  -	      ERR
+      6  f66d					      ENDIF
+      7  f66d
+      8  f66d					      IF	.CYCLES & 1
+      9  f66d					      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f66d		       04 00		      nop	0
+     11  f66f				  -	      ELSE
+     12  f66f				  -	      bit	VSYNC
+     13  f66f					      ENDIF
+     14  f66f				   .CYCLES    SET	.CYCLES - 3
+     15  f66f					      ENDIF
+     16  f66f
+     17  f66f				  -	      REPEAT	.CYCLES / 2
+     18  f66f				  -	      nop
+     19  f66f					      REPEND
+    933  f66f				   .gem_04
+    934  f66f		       84 1c		      .byte.b	GEM_04, EMERALD_SP
+    935  f671		       85 11		      sta	EMERALD_SP_RESET
+    936  f673				   .gem_09
+    937  f673		       84 1c		      .byte.b	GEM_09, EMERALD_SP
+      0  f675					      sleep	3
+      1  f675				   .CYCLES    SET	3
+      2  f675
+      3  f675				  -	      IF	.CYCLES < 2
+      4  f675				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  f675				  -	      ERR
+      6  f675					      ENDIF
+      7  f675
+      8  f675					      IF	.CYCLES & 1
+      9  f675					      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f675		       04 00		      nop	0
+     11  f677				  -	      ELSE
+     12  f677				  -	      bit	VSYNC
+     13  f677					      ENDIF
+     14  f677				   .CYCLES    SET	.CYCLES - 3
+     15  f677					      ENDIF
+     16  f677
+     17  f677				  -	      REPEAT	.CYCLES / 2
+     18  f677				  -	      nop
+     19  f677					      REPEND
+    939  f677				   .gem_13
+    940  f677		       84 1c		      .byte.b	GEM_13, EMERALD_SP
+    941  f679		       85 11		      sta	EMERALD_SP_RESET
+    942  f67b				   .gem_17
+    943  f67b							; 49c (midway)
+    944  f67b		       84 1e		      .byte.b	GEM_17, EMERALD_MI_ENABLE
+    945  f67d				   .gem_18
+    946  f67d		       84 1c		      .byte.b	GEM_18, EMERALD_SP
+      0  f67f					      sleep	3
+      1  f67f				   .CYCLES    SET	3
+      2  f67f
+      3  f67f				  -	      IF	.CYCLES < 2
+      4  f67f				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  f67f				  -	      ERR
+      6  f67f					      ENDIF
+      7  f67f
+      8  f67f					      IF	.CYCLES & 1
+      9  f67f					      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f67f		       04 00		      nop	0
+     11  f681				  -	      ELSE
+     12  f681				  -	      bit	VSYNC
+     13  f681					      ENDIF
+     14  f681				   .CYCLES    SET	.CYCLES - 3
+     15  f681					      ENDIF
+     16  f681
+     17  f681				  -	      REPEAT	.CYCLES / 2
+     18  f681				  -	      nop
+     19  f681					      REPEND
+    948  f681				   .gem_22
+    949  f681		       84 1c		      .byte.b	GEM_22, EMERALD_SP
+    950  f683
+    951  f683							; cycle 64 (start of right border)
+      0  f683					      sleep	9
+      1  f683				   .CYCLES    SET	9
+      2  f683
+      3  f683				  -	      IF	.CYCLES < 2
+      4  f683				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  f683				  -	      ERR
+      6  f683					      ENDIF
+      7  f683
+      8  f683					      IF	.CYCLES & 1
+      9  f683					      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f683		       04 00		      nop	0
+     11  f685				  -	      ELSE
+     12  f685				  -	      bit	VSYNC
+     13  f685					      ENDIF
+     14  f685				   .CYCLES    SET	.CYCLES - 3
+     15  f685					      ENDIF
+     16  f685
+     17  f685					      REPEAT	.CYCLES / 2
+     18  f685		       ea		      nop
+     17  f685					      REPEND
+     18  f686		       ea		      nop
+     17  f686					      REPEND
+     18  f687		       ea		      nop
+     19  f688					      REPEND
+    953  f688		       60		      rts
+    954  f689				   kernel_1_end
+    955  f689
+    956  f689		       10 0d	   GEM_00_W   equ	[$1000 + .gem_00 - kernel_1_start]
+    957  f689		       10 15	   GEM_04_W   equ	[$1000 + .gem_04 - kernel_1_start]
+    958  f689		       10 19	   GEM_09_W   equ	[$1000 + .gem_09 - kernel_1_start]
+    959  f689		       10 1d	   GEM_13_W   equ	[$1000 + .gem_13 - kernel_1_start]
+    960  f689		       10 21	   GEM_17_W   equ	[$1000 + .gem_17 - kernel_1_start]
+    961  f689		       10 23	   GEM_18_W   equ	[$1000 + .gem_18 - kernel_1_start]
+    962  f689		       10 27	   GEM_22_W   equ	[$1000 + .gem_22 - kernel_1_start]
+    963  f689
+    964  f689							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    965  f689
+    966  f689							; KERNEL 2
+    967  f689
+    968  f689							; Emerald line macro (3, 4, ...)
+    969  f689
+    970  f689				   kernel_2_start
+    971  f689							; don't sleep first to make this distinct from kernel 1
+    972  f689		       68		      pla
+    973  f68a		       85 1b		      sta	GRP0
+      0  f68c					      sleep	4
+      1  f68c				   .CYCLES    SET	4
       2  f68c
       3  f68c				  -	      IF	.CYCLES < 2
       4  f68c				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
       5  f68c				  -	      ERR
       6  f68c					      ENDIF
       7  f68c
-      8  f68c					      IF	.CYCLES & 1
-      9  f68c					      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f68c		       04 00		      nop	0
-     11  f68e				  -	      ELSE
-     12  f68e				  -	      bit	VSYNC
-     13  f68e					      ENDIF
-     14  f68e				   .CYCLES    SET	.CYCLES - 3
-     15  f68e					      ENDIF
-     16  f68e
-     17  f68e				  -	      REPEAT	.CYCLES / 2
-     18  f68e				  -	      nop
+      8  f68c				  -	      IF	.CYCLES & 1
+      9  f68c				  -	      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f68c				  -	      nop	0
+     11  f68c				  -	      ELSE
+     12  f68c				  -	      bit	VSYNC
+     13  f68c				  -	      ENDIF
+     14  f68c				  -.CYCLES    SET	.CYCLES - 3
+     15  f68c					      ENDIF
+     16  f68c
+     17  f68c					      REPEAT	.CYCLES / 2
+     18  f68c		       ea		      nop
+     17  f68c					      REPEND
+     18  f68d		       ea		      nop
      19  f68e					      REPEND
-    949  f68e				   .gem_22
-    950  f68e		       84 1c		      .byte.b	GEM_22, EMERALD_SP
-    951  f690
-    952  f690							; cycle 64 (start of right border)
-      0  f690					      sleep	9
-      1  f690				   .CYCLES    SET	9
-      2  f690
-      3  f690				  -	      IF	.CYCLES < 2
-      4  f690				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  f690				  -	      ERR
-      6  f690					      ENDIF
-      7  f690
-      8  f690					      IF	.CYCLES & 1
-      9  f690					      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f690		       04 00		      nop	0
-     11  f692				  -	      ELSE
-     12  f692				  -	      bit	VSYNC
-     13  f692					      ENDIF
-     14  f692				   .CYCLES    SET	.CYCLES - 3
-     15  f692					      ENDIF
-     16  f692
-     17  f692					      REPEAT	.CYCLES / 2
-     18  f692		       ea		      nop
-     17  f692					      REPEND
-     18  f693		       ea		      nop
-     17  f693					      REPEND
-     18  f694		       ea		      nop
-     19  f695					      REPEND
-    954  f695		       60		      rts
-    955  f696				   kernel_1_end
-    956  f696
-    957  f696		       10 0d	   GEM_00_W   equ	[$1000 + .gem_00 - kernel_1_start]
-    958  f696		       10 15	   GEM_04_W   equ	[$1000 + .gem_04 - kernel_1_start]
-    959  f696		       10 19	   GEM_09_W   equ	[$1000 + .gem_09 - kernel_1_start]
-    960  f696		       10 1d	   GEM_13_W   equ	[$1000 + .gem_13 - kernel_1_start]
-    961  f696		       10 21	   GEM_17_W   equ	[$1000 + .gem_17 - kernel_1_start]
-    962  f696		       10 23	   GEM_18_W   equ	[$1000 + .gem_18 - kernel_1_start]
-    963  f696		       10 27	   GEM_22_W   equ	[$1000 + .gem_22 - kernel_1_start]
-    964  f696
-    965  f696							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    966  f696
-    967  f696							; KERNEL 2
-    968  f696
-    969  f696							; Emerald line macro (3, 4, ...)
-    970  f696
-    971  f696				   kernel_2_start
-    972  f696							; don't sleep first to make this distinct from kernel 1
-    973  f696		       68		      pla
-    974  f697		       85 1b		      sta	GRP0
-      0  f699					      sleep	4
-      1  f699				   .CYCLES    SET	4
-      2  f699
-      3  f699				  -	      IF	.CYCLES < 2
-      4  f699				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  f699				  -	      ERR
-      6  f699					      ENDIF
-      7  f699
-      8  f699				  -	      IF	.CYCLES & 1
-      9  f699				  -	      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f699				  -	      nop	0
-     11  f699				  -	      ELSE
-     12  f699				  -	      bit	VSYNC
-     13  f699				  -	      ENDIF
-     14  f699				  -.CYCLES    SET	.CYCLES - 3
-     15  f699					      ENDIF
-     16  f699
-     17  f699					      REPEAT	.CYCLES / 2
-     18  f699		       ea		      nop
-     17  f699					      REPEND
-     18  f69a		       ea		      nop
-     19  f69b					      REPEND
-    976  f69b
-    977  f69b							; Enable missile (using excessive lda instructions)
-    978  f69b		       a9 02		      lda	#02
-    979  f69d		       a2 0c		      ldx	#T2
-    980  f69f		       a0 cc		      ldy	#T3
-    981  f6a1				   .gem_08
-    982  f6a1		       85 1e		      .byte.b	GEM_08, EMERALD_MI_ENABLE
-    983  f6a3		       a9 c0		      lda	#T1	; movable
-    984  f6a5				   .gem_02
-    985  f6a5		       84 1c		      .byte.b	GEM_02, EMERALD_SP
-    986  f6a7
-    987  f6a7							; cycle 25
-    988  f6a7		       85 11		      sta	EMERALD_SP_RESET
-      0  f6a9					      sleep	6
-      1  f6a9				   .CYCLES    SET	6
-      2  f6a9
-      3  f6a9				  -	      IF	.CYCLES < 2
-      4  f6a9				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  f6a9				  -	      ERR
-      6  f6a9					      ENDIF
-      7  f6a9
-      8  f6a9				  -	      IF	.CYCLES & 1
-      9  f6a9				  -	      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f6a9				  -	      nop	0
-     11  f6a9				  -	      ELSE
-     12  f6a9				  -	      bit	VSYNC
-     13  f6a9				  -	      ENDIF
-     14  f6a9				  -.CYCLES    SET	.CYCLES - 3
-     15  f6a9					      ENDIF
-     16  f6a9
-     17  f6a9					      REPEAT	.CYCLES / 2
-     18  f6a9		       ea		      nop
-     17  f6a9					      REPEND
-     18  f6aa		       ea		      nop
-     17  f6aa					      REPEND
-     18  f6ab		       ea		      nop
-     19  f6ac					      REPEND
-    990  f6ac				   .gem_06
-    991  f6ac		       84 1c		      .byte.b	GEM_06, EMERALD_SP
-    992  f6ae		       85 11		      sta	EMERALD_SP_RESET
-    993  f6b0				   .gem_11
-    994  f6b0		       84 1c		      .byte.b	GEM_11, EMERALD_SP
-    995  f6b2		       86 1e		      stx	EMERALD_MI_ENABLE
-    996  f6b4				   .gem_15
-    997  f6b4		       84 1c		      .byte.b	GEM_15, EMERALD_SP
-    998  f6b6		       85 11		      sta	EMERALD_SP_RESET
-    999  f6b8				   .gem_20
-   1000  f6b8		       84 1c		      .byte.b	GEM_20, EMERALD_SP
-      0  f6ba					      sleep	3
-      1  f6ba				   .CYCLES    SET	3
-      2  f6ba
-      3  f6ba				  -	      IF	.CYCLES < 2
-      4  f6ba				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  f6ba				  -	      ERR
-      6  f6ba					      ENDIF
-      7  f6ba
-      8  f6ba					      IF	.CYCLES & 1
-      9  f6ba					      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f6ba		       04 00		      nop	0
-     11  f6bc				  -	      ELSE
-     12  f6bc				  -	      bit	VSYNC
-     13  f6bc					      ENDIF
-     14  f6bc				   .CYCLES    SET	.CYCLES - 3
-     15  f6bc					      ENDIF
-     16  f6bc
-     17  f6bc				  -	      REPEAT	.CYCLES / 2
-     18  f6bc				  -	      nop
-     19  f6bc					      REPEND
-   1002  f6bc				   .gem_24
-   1003  f6bc		       84 1c		      .byte.b	GEM_24, EMERALD_SP
-      0  f6be					      sleep	3
-      1  f6be				   .CYCLES    SET	3
-      2  f6be
-      3  f6be				  -	      IF	.CYCLES < 2
-      4  f6be				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  f6be				  -	      ERR
-      6  f6be					      ENDIF
-      7  f6be
-      8  f6be					      IF	.CYCLES & 1
-      9  f6be					      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f6be		       04 00		      nop	0
-     11  f6c0				  -	      ELSE
-     12  f6c0				  -	      bit	VSYNC
-     13  f6c0					      ENDIF
-     14  f6c0				   .CYCLES    SET	.CYCLES - 3
-     15  f6c0					      ENDIF
-     16  f6c0
-     17  f6c0				  -	      REPEAT	.CYCLES / 2
-     18  f6c0				  -	      nop
-     19  f6c0					      REPEND
-   1005  f6c0
-   1006  f6c0							; cycle 64 (start of right border)
-      0  f6c0					      sleep	6
-      1  f6c0				   .CYCLES    SET	6
-      2  f6c0
-      3  f6c0				  -	      IF	.CYCLES < 2
-      4  f6c0				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  f6c0				  -	      ERR
-      6  f6c0					      ENDIF
-      7  f6c0
-      8  f6c0				  -	      IF	.CYCLES & 1
-      9  f6c0				  -	      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f6c0				  -	      nop	0
-     11  f6c0				  -	      ELSE
-     12  f6c0				  -	      bit	VSYNC
-     13  f6c0				  -	      ENDIF
-     14  f6c0				  -.CYCLES    SET	.CYCLES - 3
-     15  f6c0					      ENDIF
-     16  f6c0
-     17  f6c0					      REPEAT	.CYCLES / 2
-     18  f6c0		       ea		      nop
-     17  f6c0					      REPEND
-     18  f6c1		       ea		      nop
-     17  f6c1					      REPEND
-     18  f6c2		       ea		      nop
-     19  f6c3					      REPEND
-   1008  f6c3		       60		      rts
-   1009  f6c4				   kernel_2_end
-   1010  f6c4
-   1011  f6c4		       10 0f	   GEM_02_W   equ	[$1000 + .gem_02 - kernel_2_start]
-   1012  f6c4		       10 16	   GEM_06_W   equ	[$1000 + .gem_06 - kernel_2_start]
-   1013  f6c4		       10 0b	   GEM_08_W   equ	[$1000 + .gem_08 - kernel_2_start]
-   1014  f6c4		       10 1a	   GEM_11_W   equ	[$1000 + .gem_11 - kernel_2_start]
-   1015  f6c4		       10 1e	   GEM_15_W   equ	[$1000 + .gem_15 - kernel_2_start]
-   1016  f6c4		       10 22	   GEM_20_W   equ	[$1000 + .gem_20 - kernel_2_start]
-   1017  f6c4		       10 26	   GEM_24_W   equ	[$1000 + .gem_24 - kernel_2_start]
-   1018  f6c4
-   1019  f6c4							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-   1020  f6c4
-   1021  f6c4							; SUBROUTINE
-   1022  f6c4							; Read joystick movement and apply to object 0
-   1023  f6c4				   MoveJoystick
-   1024  f6c4							; Move vertically
-   1025  f6c4							; (up and down are actually reversed since ypos starts at bottom)
-   1026  f6c4							;     ldx YPos
-   1027  f6c4		       a9 10		      lda	#%00010000	;Up?
-   1028  f6c6		       2c 80 02 	      bit	SWCHA
-   1029  f6c9		       d0 0d		      bne	SkipMoveUp
-   1030  f6cb
-   1031  f6cb		       18		      clc
-   1032  f6cc		       a5 88		      lda	Speed2
-   1033  f6ce		       69 0c		      adc	#12
-   1034  f6d0		       85 88		      sta	Speed2
-   1035  f6d2		       a5 87		      lda	Speed1
-   1036  f6d4		       69 00		      adc	#00
-   1037  f6d6		       85 87		      sta	Speed1
-   1038  f6d8
-   1039  f6d8				   SkipMoveUp
-   1040  f6d8		       a6 86		      ldx	XPos
-   1041  f6da
-   1042  f6da							; Only check left/right on odd frames;
-   1043  f6da							; TODO make this just a fractional speed
-   1044  f6da							; rather than dropping frames
-   1045  f6da		       a9 01		      lda	#01
-   1046  f6dc		       25 83		      and	FrameCount
-   1047  f6de		       d0 18		      bne	SkipMoveRight
-   1048  f6e0
-   1049  f6e0
-   1050  f6e0							; Move horizontally
-   1051  f6e0		       a9 40		      lda	#%01000000	;Left?
-   1052  f6e2		       2c 80 02 	      bit	SWCHA
-   1053  f6e5		       d0 05		      bne	SkipMoveLeft
-   1054  f6e7		       e0 1d		      cpx	#29
-   1055  f6e9		       90 01		      bcc	SkipMoveLeft
-   1056  f6eb		       ca		      dex
-   1057  f6ec
-   1058  f6ec							; Reflect
-   1059  f6ec							;     lda #$ff
-   1060  f6ec							;     sta REFP0
-   1061  f6ec				   SkipMoveLeft
-   1062  f6ec		       a9 80		      lda	#%10000000	;Right?
-   1063  f6ee		       2c 80 02 	      bit	SWCHA
-   1064  f6f1		       d0 05		      bne	SkipMoveRight
-   1065  f6f3		       e0 80		      cpx	#128
-   1066  f6f5		       b0 01		      bcs	SkipMoveRight
-   1067  f6f7		       e8		      inx
-   1068  f6f8
-   1069  f6f8							; Reflect
-   1070  f6f8							;     lda #$0
-   1071  f6f8							;     sta REFP0
-   1072  f6f8				   SkipMoveRight
-   1073  f6f8		       86 86		      stx	XPos
-   1074  f6fa		       60		      rts
-   1075  f6fb
-   1076  f6fb
-   1077  f6fb							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-   1078  f6fb
-   1079  f6fb
-   1080  f6fb				   SpeedCalculation
-   1081  f6fb		       38		      sec
-   1082  f6fc		       a5 88		      lda	Speed2
-   1083  f6fe		       e9 07		      sbc	#7
-   1084  f700		       85 88		      sta	Speed2
-   1085  f702		       a5 87		      lda	Speed1
-   1086  f704		       e9 00		      sbc	#0
-   1087  f706		       85 87		      sta	Speed1
-   1088  f708
-   1089  f708		       18		      clc
-   1090  f709		       a5 8a		      lda	YPos2
-   1091  f70b		       65 88		      adc	Speed2
-   1092  f70d		       85 8a		      sta	YPos2
-   1093  f70f		       a5 89		      lda	YPos
-   1094  f711		       65 87		      adc	Speed1
-   1095  f713		       85 89		      sta	YPos
-   1096  f715
-   1097  f715		       c9 43		      cmp	#FLOOR_OFFSET
-   1098  f717		       b0 0a		      bcs	NewThing2
-   1099  f719
-   1100  f719							; Reset to floor
-   1101  f719		       a9 43		      lda	#FLOOR_OFFSET
-   1102  f71b		       85 89		      sta	YPos
-   1103  f71d		       a9 00		      lda	#0
-   1104  f71f		       85 87		      sta	Speed1
-   1105  f721		       85 88		      sta	Speed2
-   1106  f723				   NewThing2
-   1107  f723
-   1108  f723		       c9 bf		      cmp	#CEILING_OFFSET
-   1109  f725		       90 0a		      bcc	.next
-   1110  f727
-   1111  f727							; Reset to ceiling
-   1112  f727		       a9 bf		      lda	#CEILING_OFFSET
-   1113  f729		       85 89		      sta	YPos
-   1114  f72b		       a9 00		      lda	#0
-   1115  f72d		       85 87		      sta	Speed1
-   1116  f72f		       85 88		      sta	Speed2
-   1117  f731				   .next
-   1118  f731
-   1119  f731		       60		      rts
-   1120  f732
-   1121  f732
-   1122  f732
-   1123  f732							; Subroutine
-   1124  f732				   SetHorizPos
-   1125  f732		       85 02		      sta	WSYNC	; start a new line
-   1126  f734		       24 00		      bit	0	; waste 3 cycles
-   1127  f736		       38		      sec		; set carry flag
-   1128  f737				   DivideLoop
-   1129  f737		       e9 0f		      sbc	#15	; subtract 15
-   1130  f739		       b0 fc		      bcs	DivideLoop	; branch until negative
-   1131  f73b		       49 07		      eor	#7	; calculate fine offset
-   1132  f73d		       0a		      asl
-   1133  f73e		       0a		      asl
-   1134  f73f		       0a		      asl
-   1135  f740		       0a		      asl
-   1136  f741		       95 10		      sta	JET_SP_RESET,x	; fix coarse position
-   1137  f743		       95 20		      sta	JET_SP_HMOVE,x	; set fine offset
-   1138  f745		       60		      rts		; return to caller
-   1139  f746
-   1140  f746
-   1141  f746
-   1142  f800		       00 00 00 00*	      align	256
-   1143  f800
-   1144  f800							; Bitmap data for character "standing" position
-   1145  f800							; Comical amount of 0's for now to simplify sprite rendering
-   1146  f800
-   1147  f800							; Y can be from:
-   1148  f800							;     SPRITE_HEIGHT to (8*ROW_COUNT)
-   1149  f800							; SpriteEnd: 8..128
-   1150  f800							; Frame0 should start at +120 so the Y rollunder of -$120 is OK]
-   1151  f800				   Frame0
-   1152  f800		       00		      .byte.b	#%00000000
-   1153  f801		       60		      .byte.b	#%01100000
-   1154  f802		       60		      .byte.b	#%01100000
-   1155  f803		       60		      .byte.b	#%01100000
-   1156  f804		       c0		      .byte.b	#%11000000
-   1157  f805		       c0		      .byte.b	#%11000000
-   1158  f806		       f0		      .byte.b	#%11110000
-   1159  f807		       c0		      .byte.b	#%11000000
-   1160  f808		       c0		      .byte.b	#%11000000
-   1161  f809		       00		      .byte.b	#%00000000
-   1162  f80a
-   1163  f80a
-   1164  f80a							; Epilogue
-   1165  fffc					      org	$fffc
-   1166  fffc		       00 f2		      .word.w	Start
-   1167  fffe		       00 f2		      .word.w	Start
+    975  f68e
+    976  f68e							; Enable missile (using excessive lda instructions)
+    977  f68e		       a9 02		      lda	#02
+    978  f690		       a2 0c		      ldx	#T2
+    979  f692		       a0 cc		      ldy	#T3
+    980  f694				   .gem_08
+    981  f694		       85 1e		      .byte.b	GEM_08, EMERALD_MI_ENABLE
+    982  f696		       a9 c0		      lda	#T1	; movable
+    983  f698				   .gem_02
+    984  f698		       84 1c		      .byte.b	GEM_02, EMERALD_SP
+    985  f69a
+    986  f69a							; cycle 25
+    987  f69a		       85 11		      sta	EMERALD_SP_RESET
+      0  f69c					      sleep	6
+      1  f69c				   .CYCLES    SET	6
+      2  f69c
+      3  f69c				  -	      IF	.CYCLES < 2
+      4  f69c				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  f69c				  -	      ERR
+      6  f69c					      ENDIF
+      7  f69c
+      8  f69c				  -	      IF	.CYCLES & 1
+      9  f69c				  -	      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f69c				  -	      nop	0
+     11  f69c				  -	      ELSE
+     12  f69c				  -	      bit	VSYNC
+     13  f69c				  -	      ENDIF
+     14  f69c				  -.CYCLES    SET	.CYCLES - 3
+     15  f69c					      ENDIF
+     16  f69c
+     17  f69c					      REPEAT	.CYCLES / 2
+     18  f69c		       ea		      nop
+     17  f69c					      REPEND
+     18  f69d		       ea		      nop
+     17  f69d					      REPEND
+     18  f69e		       ea		      nop
+     19  f69f					      REPEND
+    989  f69f				   .gem_06
+    990  f69f		       84 1c		      .byte.b	GEM_06, EMERALD_SP
+    991  f6a1		       85 11		      sta	EMERALD_SP_RESET
+    992  f6a3				   .gem_11
+    993  f6a3		       84 1c		      .byte.b	GEM_11, EMERALD_SP
+    994  f6a5							; stx EMERALD_MI_ENABLE
+    995  f6a5		       85 0f		      sta	PF2
+    996  f6a7				   .gem_15
+    997  f6a7		       84 1c		      .byte.b	GEM_15, EMERALD_SP
+    998  f6a9							; 49c midway
+    999  f6a9		       85 11		      sta	EMERALD_SP_RESET
+   1000  f6ab							; PF1
+   1001  f6ab				   .gem_20
+   1002  f6ab		       84 1c		      .byte.b	GEM_20, EMERALD_SP
+      0  f6ad					      sleep	3
+      1  f6ad				   .CYCLES    SET	3
+      2  f6ad
+      3  f6ad				  -	      IF	.CYCLES < 2
+      4  f6ad				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  f6ad				  -	      ERR
+      6  f6ad					      ENDIF
+      7  f6ad
+      8  f6ad					      IF	.CYCLES & 1
+      9  f6ad					      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f6ad		       04 00		      nop	0
+     11  f6af				  -	      ELSE
+     12  f6af				  -	      bit	VSYNC
+     13  f6af					      ENDIF
+     14  f6af				   .CYCLES    SET	.CYCLES - 3
+     15  f6af					      ENDIF
+     16  f6af
+     17  f6af				  -	      REPEAT	.CYCLES / 2
+     18  f6af				  -	      nop
+     19  f6af					      REPEND
+   1004  f6af				   .gem_24
+   1005  f6af		       84 1c		      .byte.b	GEM_24, EMERALD_SP
+      0  f6b1					      sleep	3
+      1  f6b1				   .CYCLES    SET	3
+      2  f6b1
+      3  f6b1				  -	      IF	.CYCLES < 2
+      4  f6b1				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  f6b1				  -	      ERR
+      6  f6b1					      ENDIF
+      7  f6b1
+      8  f6b1					      IF	.CYCLES & 1
+      9  f6b1					      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f6b1		       04 00		      nop	0
+     11  f6b3				  -	      ELSE
+     12  f6b3				  -	      bit	VSYNC
+     13  f6b3					      ENDIF
+     14  f6b3				   .CYCLES    SET	.CYCLES - 3
+     15  f6b3					      ENDIF
+     16  f6b3
+     17  f6b3				  -	      REPEAT	.CYCLES / 2
+     18  f6b3				  -	      nop
+     19  f6b3					      REPEND
+   1007  f6b3
+   1008  f6b3							; cycle 64 (start of right border)
+      0  f6b3					      sleep	6
+      1  f6b3				   .CYCLES    SET	6
+      2  f6b3
+      3  f6b3				  -	      IF	.CYCLES < 2
+      4  f6b3				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  f6b3				  -	      ERR
+      6  f6b3					      ENDIF
+      7  f6b3
+      8  f6b3				  -	      IF	.CYCLES & 1
+      9  f6b3				  -	      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f6b3				  -	      nop	0
+     11  f6b3				  -	      ELSE
+     12  f6b3				  -	      bit	VSYNC
+     13  f6b3				  -	      ENDIF
+     14  f6b3				  -.CYCLES    SET	.CYCLES - 3
+     15  f6b3					      ENDIF
+     16  f6b3
+     17  f6b3					      REPEAT	.CYCLES / 2
+     18  f6b3		       ea		      nop
+     17  f6b3					      REPEND
+     18  f6b4		       ea		      nop
+     17  f6b4					      REPEND
+     18  f6b5		       ea		      nop
+     19  f6b6					      REPEND
+   1010  f6b6		       60		      rts
+   1011  f6b7				   kernel_2_end
+   1012  f6b7
+   1013  f6b7		       10 0f	   GEM_02_W   equ	[$1000 + .gem_02 - kernel_2_start]
+   1014  f6b7		       10 16	   GEM_06_W   equ	[$1000 + .gem_06 - kernel_2_start]
+   1015  f6b7		       10 0b	   GEM_08_W   equ	[$1000 + .gem_08 - kernel_2_start]
+   1016  f6b7		       10 1a	   GEM_11_W   equ	[$1000 + .gem_11 - kernel_2_start]
+   1017  f6b7		       10 1e	   GEM_15_W   equ	[$1000 + .gem_15 - kernel_2_start]
+   1018  f6b7		       10 22	   GEM_20_W   equ	[$1000 + .gem_20 - kernel_2_start]
+   1019  f6b7		       10 26	   GEM_24_W   equ	[$1000 + .gem_24 - kernel_2_start]
+   1020  f6b7
+   1021  f6b7							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   1022  f6b7
+   1023  f6b7							; SUBROUTINE
+   1024  f6b7							; Read joystick movement and apply to object 0
+   1025  f6b7				   MoveJoystick
+   1026  f6b7							; Move vertically
+   1027  f6b7							; (up and down are actually reversed since ypos starts at bottom)
+   1028  f6b7							;     ldx YPos
+   1029  f6b7		       a9 10		      lda	#%00010000	;Up?
+   1030  f6b9		       2c 80 02 	      bit	SWCHA
+   1031  f6bc		       d0 0d		      bne	SkipMoveUp
+   1032  f6be
+   1033  f6be		       18		      clc
+   1034  f6bf		       a5 88		      lda	Speed2
+   1035  f6c1		       69 0c		      adc	#12
+   1036  f6c3		       85 88		      sta	Speed2
+   1037  f6c5		       a5 87		      lda	Speed1
+   1038  f6c7		       69 00		      adc	#00
+   1039  f6c9		       85 87		      sta	Speed1
+   1040  f6cb
+   1041  f6cb				   SkipMoveUp
+   1042  f6cb		       a6 86		      ldx	XPos
+   1043  f6cd
+   1044  f6cd							; Only check left/right on odd frames;
+   1045  f6cd							; TODO make this just a fractional speed
+   1046  f6cd							; rather than dropping frames
+   1047  f6cd		       a9 01		      lda	#01
+   1048  f6cf		       25 83		      and	FrameCount
+   1049  f6d1		       d0 18		      bne	SkipMoveRight
+   1050  f6d3
+   1051  f6d3
+   1052  f6d3							; Move horizontally
+   1053  f6d3		       a9 40		      lda	#%01000000	;Left?
+   1054  f6d5		       2c 80 02 	      bit	SWCHA
+   1055  f6d8		       d0 05		      bne	SkipMoveLeft
+   1056  f6da		       e0 1d		      cpx	#29
+   1057  f6dc		       90 01		      bcc	SkipMoveLeft
+   1058  f6de		       ca		      dex
+   1059  f6df
+   1060  f6df							; Reflect
+   1061  f6df							;     lda #$ff
+   1062  f6df							;     sta REFP0
+   1063  f6df				   SkipMoveLeft
+   1064  f6df		       a9 80		      lda	#%10000000	;Right?
+   1065  f6e1		       2c 80 02 	      bit	SWCHA
+   1066  f6e4		       d0 05		      bne	SkipMoveRight
+   1067  f6e6		       e0 80		      cpx	#128
+   1068  f6e8		       b0 01		      bcs	SkipMoveRight
+   1069  f6ea		       e8		      inx
+   1070  f6eb
+   1071  f6eb							; Reflect
+   1072  f6eb							;     lda #$0
+   1073  f6eb							;     sta REFP0
+   1074  f6eb				   SkipMoveRight
+   1075  f6eb		       86 86		      stx	XPos
+   1076  f6ed		       60		      rts
+   1077  f6ee
+   1078  f6ee
+   1079  f6ee							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   1080  f6ee
+   1081  f6ee
+   1082  f6ee				   SpeedCalculation
+   1083  f6ee		       38		      sec
+   1084  f6ef		       a5 88		      lda	Speed2
+   1085  f6f1		       e9 07		      sbc	#7
+   1086  f6f3		       85 88		      sta	Speed2
+   1087  f6f5		       a5 87		      lda	Speed1
+   1088  f6f7		       e9 00		      sbc	#0
+   1089  f6f9		       85 87		      sta	Speed1
+   1090  f6fb
+   1091  f6fb		       18		      clc
+   1092  f6fc		       a5 8a		      lda	YPos2
+   1093  f6fe		       65 88		      adc	Speed2
+   1094  f700		       85 8a		      sta	YPos2
+   1095  f702		       a5 89		      lda	YPos
+   1096  f704		       65 87		      adc	Speed1
+   1097  f706		       85 89		      sta	YPos
+   1098  f708
+   1099  f708		       c9 43		      cmp	#FLOOR_OFFSET
+   1100  f70a		       b0 0a		      bcs	NewThing2
+   1101  f70c
+   1102  f70c							; Reset to floor
+   1103  f70c		       a9 43		      lda	#FLOOR_OFFSET
+   1104  f70e		       85 89		      sta	YPos
+   1105  f710		       a9 00		      lda	#0
+   1106  f712		       85 87		      sta	Speed1
+   1107  f714		       85 88		      sta	Speed2
+   1108  f716				   NewThing2
+   1109  f716
+   1110  f716		       c9 bf		      cmp	#CEILING_OFFSET
+   1111  f718		       90 0a		      bcc	.next
+   1112  f71a
+   1113  f71a							; Reset to ceiling
+   1114  f71a		       a9 bf		      lda	#CEILING_OFFSET
+   1115  f71c		       85 89		      sta	YPos
+   1116  f71e		       a9 00		      lda	#0
+   1117  f720		       85 87		      sta	Speed1
+   1118  f722		       85 88		      sta	Speed2
+   1119  f724				   .next
+   1120  f724
+   1121  f724		       60		      rts
+   1122  f725
+   1123  f725
+   1124  f725
+   1125  f725							; Subroutine
+   1126  f725				   SetHorizPos
+   1127  f725		       85 02		      sta	WSYNC	; start a new line
+   1128  f727		       24 00		      bit	0	; waste 3 cycles
+   1129  f729		       38		      sec		; set carry flag
+   1130  f72a				   DivideLoop
+   1131  f72a		       e9 0f		      sbc	#15	; subtract 15
+   1132  f72c		       b0 fc		      bcs	DivideLoop	; branch until negative
+   1133  f72e		       49 07		      eor	#7	; calculate fine offset
+   1134  f730		       0a		      asl
+   1135  f731		       0a		      asl
+   1136  f732		       0a		      asl
+   1137  f733		       0a		      asl
+   1138  f734		       95 10		      sta	JET_SP_RESET,x	; fix coarse position
+   1139  f736		       95 20		      sta	JET_SP_HMOVE,x	; set fine offset
+   1140  f738		       60		      rts		; return to caller
+   1141  f739
+   1142  f739
+   1143  f739
+   1144  f800		       00 00 00 00*	      align	256
+   1145  f800
+   1146  f800							; Bitmap data for character "standing" position
+   1147  f800							; Comical amount of 0's for now to simplify sprite rendering
+   1148  f800
+   1149  f800							; Y can be from:
+   1150  f800							;     SPRITE_HEIGHT to (8*ROW_COUNT)
+   1151  f800							; SpriteEnd: 8..128
+   1152  f800							; Frame0 should start at +120 so the Y rollunder of -$120 is OK]
+   1153  f800				   Frame0
+   1154  f800		       00		      .byte.b	#%00000000
+   1155  f801		       60		      .byte.b	#%01100000
+   1156  f802		       60		      .byte.b	#%01100000
+   1157  f803		       60		      .byte.b	#%01100000
+   1158  f804		       c0		      .byte.b	#%11000000
+   1159  f805		       c0		      .byte.b	#%11000000
+   1160  f806		       f0		      .byte.b	#%11110000
+   1161  f807		       c0		      .byte.b	#%11000000
+   1162  f808		       c0		      .byte.b	#%11000000
+   1163  f809		       00		      .byte.b	#%00000000
+   1164  f80a
+   1165  f80a
+   1166  f80a							; Epilogue
+   1167  fffc					      org	$fffc
+   1168  fffc		       00 f2		      .word.w	Start
+   1169  fffe		       00 f2		      .word.w	Start
