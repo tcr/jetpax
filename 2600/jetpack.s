@@ -344,9 +344,24 @@ BeginFrame
       ror
       ENDM
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; Gems are displayed in alternating kernels. This chart shows
+; which kernel is responsible for which dot, with missiles denoted.
+;
+;       1 = kernel 1, 2 = kernel 2
+;       S: sprite, M: missile
+;
+;  1: |SS   SS   |SS   S S  M SS   SS  |
+;  2: |  SS   SS M  S S   SS|   SS   SS|
+;     |1122 1122 2112 21 1221 1122 1122|
+;     0^        8^        17^       25^
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
       align 8
 storage:
-      ; Emerald byte setting 1A
+      ; Gem defaults kernel 1
 storage_00:
       .byte SET_1_0
 storage_04:
@@ -362,7 +377,7 @@ storage_18:
 storage_22:
       .byte SET_0_0
 
-      ; Emerald byte setting 2A
+      ; Gem defaults kernel 2
 storage_02:
       .byte SET_0_0
 storage_06:
@@ -837,7 +852,7 @@ row_7_end:
 frame_bottom:
       ;sta WSYNC
 
-      ; Make the playfield solid.
+      ; Form the bottom of the level frame.
       lda #%00111111
       sta PF1
       lda #%11111111
