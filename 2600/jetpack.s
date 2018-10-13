@@ -261,7 +261,7 @@ Start
       sta FrameCount
 
       ; P0 has three copies
-      lda #THREE_COPIES
+      lda #%00010011
       sta EMERALD_COPIES
 
       lda #$00
@@ -397,6 +397,8 @@ storage_end:
       align 8
       ; first bit of byte 2 & 3 are unused for simplicity
 map_emeralds:
+      .byte %0000, %000001, %0000100, %00000000
+map_emeralds_end:
       .byte %1010, %0000000, %0000000, %00000000
       .byte %0101, %0000000, %0000000, %00000000
       .byte %0010, %1000000, %0000000, %00000000
@@ -423,7 +425,6 @@ map_emeralds:
       .byte %0000, %0000000, %0000000, %00000101
       .byte %1000, %0000000, %0000000, %00000010
       .byte %0100, %0000000, %0000000, %00000001
-map_emeralds_end:
 
       align 8
 map_full:
@@ -773,16 +774,16 @@ loadframe1:
       ; ~30c
 
       ; Emerald byte setting 1A
-      ldx #0
-      lda KERNEL_STORAGE_R,X
-      sta GEM_00_W
-      inx
-      lda KERNEL_STORAGE_R,X
-      sta GEM_04_W
-      inx
-      lda KERNEL_STORAGE_R,X
-      sta GEM_09_W
-      inx
+      ; ldx #0
+      ; lda KERNEL_STORAGE_R,X
+      ; sta GEM_00_W
+      ; inx
+      ; lda KERNEL_STORAGE_R,X
+      ; sta GEM_04_W
+      ; inx
+      ; lda KERNEL_STORAGE_R,X
+      ; sta GEM_09_W
+      ; inx
 
       sta WSYNC
 
@@ -790,17 +791,17 @@ loadframe1:
       jet_spritedata_calc
 
       ; Emerald byte setting 1B
-      lda KERNEL_STORAGE_R,X
-      sta GEM_13_W
-      inx
-      lda KERNEL_STORAGE_R,X
-      sta GEM_17_W
-      inx
-      lda KERNEL_STORAGE_R,X
-      sta GEM_18_W
-      inx
-      lda KERNEL_STORAGE_R,X
-      sta GEM_22_W
+      ; lda KERNEL_STORAGE_R,X
+      ; sta GEM_13_W
+      ; inx
+      ; lda KERNEL_STORAGE_R,X
+      ; sta GEM_17_W
+      ; inx
+      ; lda KERNEL_STORAGE_R,X
+      ; sta GEM_18_W
+      ; inx
+      ; lda KERNEL_STORAGE_R,X
+      ; sta GEM_22_W
 
       jmp row_7_end
 
@@ -808,16 +809,16 @@ loadframe2:
       ; ~30c
 
       ; Emerald byte setting 2A
-      ldx #[storage_02 - storage]
-      lda KERNEL_STORAGE_R,X
-      sta GEM_02_W
-      inx
-      lda KERNEL_STORAGE_R,X
-      sta GEM_06_W
-      inx
-      lda KERNEL_STORAGE_R,X
-      sta GEM_08_W
-      inx
+      ; ldx #[storage_02 - storage]
+      ; lda KERNEL_STORAGE_R,X
+      ; sta GEM_02_W
+      ; inx
+      ; lda KERNEL_STORAGE_R,X
+      ; sta GEM_06_W
+      ; inx
+      ; lda KERNEL_STORAGE_R,X
+      ; sta GEM_08_W
+      ; inx
 
       sta WSYNC
 
@@ -825,17 +826,17 @@ loadframe2:
       jet_spritedata_calc
 
       ; Emerald byte setting 2B
-      lda KERNEL_STORAGE_R,X
-      sta GEM_11_W
-      inx
-      lda KERNEL_STORAGE_R,X
-      sta GEM_15_W
-      inx
-      lda KERNEL_STORAGE_R,X
-      sta GEM_20_W
-      inx
-      lda KERNEL_STORAGE_R,X
-      sta GEM_24_W
+      ; lda KERNEL_STORAGE_R,X
+      ; sta GEM_11_W
+      ; inx
+      ; lda KERNEL_STORAGE_R,X
+      ; sta GEM_15_W
+      ; inx
+      ; lda KERNEL_STORAGE_R,X
+      ; sta GEM_20_W
+      ; inx
+      ; lda KERNEL_STORAGE_R,X
+      ; sta GEM_24_W
 
       jmp row_7_end
 
@@ -939,31 +940,53 @@ kernel_1_start:
       ldx #EMR2
       ldy #EMR3
 .gem_00
-      .byte GEM_00, EMERALD_SP
+      .byte GEM_00, EMERALD_SP ; moveable?
 
-      ; 22
-      sta EMERALD_SP_RESET
-      sta EMERALD_MI_ENABLE
+      ; Critical: 22c (start of precise timing)
+      sta EMERALD_SP_RESET ; trivial
+      sta EMERALD_MI_ENABLE ; trivial ; Is this timing-critical??
       sleep 3
+
+      ; TODO bonus VDEL sprite
 .gem_04
       .byte GEM_04, EMERALD_SP
-      sta EMERALD_SP_RESET
+
+      ; idk 1
+      sta EMERALD_SP_RESET ; trivial
 .gem_09
       .byte GEM_09, EMERALD_SP
+
+       ; PF1 load??
       sleep 3
+
+      ; end triplet; idk
 .gem_13
       .byte GEM_13, EMERALD_SP
-      sta EMERALD_SP_RESET
+
+      ; idk 3
+      sta EMERALD_SP_RESET ; trivial
 .gem_17
+
+      ; missle idk
       ; 49c (midway)
-      .byte GEM_17, EMERALD_MI_ENABLE
+      .byte GEM_17, EMERALD_MI_ENABLE ; could htis ever possibly be
+      ; moved out of the kernel, and if so, huge wins
+      ; (makes next sprite a freebie too, then just dealing with 3)
+      ; unique sprite values!!
+      ; or at least the write of the particular OPCODE out of hte krernel ?
+      ; even extreme measures...! PHP with Z register!!! muahaha
+      ; dunno how to deal with the opcode length change though?
+
+      ; middle triplet
 .gem_18
       .byte GEM_18, EMERALD_SP
+
+      ; end triplet; freebie
       sleep 3
 .gem_22
       .byte GEM_22, EMERALD_SP
+      ; Critical End: 64c (cycle follows start of right border)
 
-      ; cycle 64 (start of right border)
       sleep 9
       rts
 kernel_1_end:
@@ -993,34 +1016,57 @@ kernel_2_start:
       ldx #T2
       ldy #T3
 .gem_08:
-      .byte GEM_08, EMERALD_MI_ENABLE
-      lda #T1 ; movable
+      .byte GEM_08, EMERALD_MI_ENABLE ; movable
+      lda #T1 ; movable?
 .gem_02:
-      .byte GEM_02, EMERALD_SP
+      ; load the first sprite
+      .byte GEM_02, EMERALD_SP ; movable
 
-      ; cycle 25
-      sta EMERALD_SP_RESET
+      ; TODO preload the second sprite and 
+      ; have that write GEM_06
+
+      ; Critical: 25c (start of precise timing)
+      sta EMERALD_SP_RESET ; trivial
+
+      ; already set middle triplet
+      ;ldx #%00010010
+      ;stx.w NUSIZ1
       sleep 6
+
+      ; end triplet; bonus VDEL write
 .gem_06:
       .byte GEM_06, EMERALD_SP
-      sta EMERALD_SP_RESET
+
+      ; middle triplet; write or change nusiz
+      sta EMERALD_SP_RESET ; trivial
 .gem_11:
       .byte GEM_11, EMERALD_SP
+
+      ; disable missle
       stx EMERALD_MI_ENABLE
+      ; ^ could this be moved, and then free the timing slot
+      ; then can do the setting of PF1 value(!)
+
+      ; end triplet; write or reset
 .gem_15:
       .byte GEM_15, EMERALD_SP
       ; 49c midway
-      sta EMERALD_SP_RESET
+      sta EMERALD_SP_RESET ; spare
       ; PF2
+
+      ; middle triplet; write or change nusiz
 .gem_20:
       .byte GEM_20, EMERALD_SP
-      sleep 3
+      sleep 3 ; spare
+
+      ; end triplet; freebie
 .gem_24:
       .byte GEM_24, EMERALD_SP
-      sleep 3
+      ; Critical End: 61c (after gem 24 write)
 
-      ; cycle 64 (start of right border)
-      sleep 6
+      ; ldx #%0001001
+      ; stx.w NUSIZ1
+      sleep 9
       rts
 kernel_2_end:
 
