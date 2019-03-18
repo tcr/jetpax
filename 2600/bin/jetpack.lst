@@ -1,24 +1,10 @@
 ------- FILE main.s LEVEL 1 PASS 2
-      1  10000 ????						; http://8bitworkshop.com/?platform=vcs&file=examples%2Fbigsprite
-      2  10000 ????						;
-      3  10000 ????						; TODO 03-19:
-      4  10000 ????						; - Investigate RAM PLUS (FA) method and test write kernel into it
-      5  10000 ????						; - Remove missile as way to render extra dots, switch to something else
-      6  10000 ????						; - Proof of concept missile as way to render Jetpack Man
-      7  10000 ????						; RAM+ is similar but the writing happens from adresses $1000 to $10FF (256 bytes) and the reading is from $1100 to $11FF (the next 256 bytes).
-      8  10000 ????						; 12K
-      9  10000 ????						;
-     10  10000 ????						; TODO 10-03:
-     11  10000 ????						; - Need to make each of the two-line kernels into a loop...
-     12  10000 ????						; - So that the rewriting code can call and overwrite the line easily
-     13  10000 ????						; - Then need POC of reading from a fixed buffer of code and copying into
-     14  10000 ????						;   the kernel those bytes, then a way to generate the bytes to stuff in the
-     15  10000 ????						;   kernel, then have per-line mutations!!
-     16  10000 ????
-     17  10000 ????				       processor	6502
-     18  10000 ????
+      1  fffe					      processor	6502
+      2  10000 ????
 ------- FILE jetpax.h LEVEL 2 PASS 2
       0  10000 ????				       include	"jetpax.h"
+      1  10000 ????						; Common imports
+      2  10000 ????
 ------- FILE vcs.h LEVEL 3 PASS 2
       0  10000 ????				       include	"vcs.h"
       1  10000 ????						; VCS.H
@@ -417,9 +403,8 @@
      25  10000 ????
 ------- FILE jetpax.h
 ------- FILE main.s
-     20  10000 ????
-------- FILE vars.s LEVEL 2 PASS 2
-      0  10000 ????				       include	"vars.s"
+------- FILE vars.h LEVEL 2 PASS 2
+      0  10000 ????				       include	"vars.h"
       1 U008f ????				      seg.u	Variables
       2 U0080					      org	$80
       3 U0080
@@ -599,10 +584,13 @@
     177 U008f							; YPos definite position
     178 U008f		       00 64	   YPosStart  equ	100
 ------- FILE main.s
+      5 U008f
 ------- FILE banks.s LEVEL 2 PASS 2
       0 U008f					      include	"banks.s"
 ------- FILE jetpax.h LEVEL 3 PASS 2
       0 U008f					      include	"jetpax.h"
+      1 U008f							; Common imports
+      2 U008f
 ------- FILE vcs.h LEVEL 4 PASS 2
       0 U008f					      include	"vcs.h"
       1 U008f							; VCS.H
@@ -1006,6 +994,8 @@
       0  10000 ????				       include	"code.s"
 ------- FILE jetpax.h LEVEL 3 PASS 2
       0  10000 ????				       include	"jetpax.h"
+      1  10000 ????						; Common imports
+      2  10000 ????
 ------- FILE vcs.h LEVEL 4 PASS 2
       0  10000 ????				       include	"vcs.h"
       1  10000 ????						; VCS.H
@@ -2562,6 +2552,8 @@
       0  f663					      include	"kernel_gem.s"
 ------- FILE jetpax.h LEVEL 3 PASS 2
       0  f663					      include	"jetpax.h"
+      1  f663							; Common imports
+      2  f663
 ------- FILE vcs.h LEVEL 4 PASS 2
       0  f663					      include	"vcs.h"
       1  f663							; VCS.H
@@ -2961,44 +2953,41 @@
 ------- FILE jetpax.h
 ------- FILE kernel_gem.s
       2  10000 ????
-      3  10000 ????						;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-      4  10000 ????						;
-      5  10000 ????						; Gem kernels
-      6  10000 ????						;
-      7  10000 ????						;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+      3  10000 ????						;
+      4  10000 ????						; Gem Kernels
+      5  10000 ????						;
+      6  10000 ????						; Gems are displayed in alternating kernels. This chart shows
+      7  10000 ????						; which kernel is responsible for which gem, with missiles denoted.
       8  10000 ????						;
-      9  10000 ????						; Gems are displayed in alternating kernels. This chart shows
-     10  10000 ????						; which kernel is responsible for which gem, with missiles denoted.
-     11  10000 ????						;
-     12  10000 ????						;  1: |SS  SS	 SS  |SS  MSS  SS  |	    kernel 1 (S = Sprite, M = missile)
-     13  10000 ????						;  2: |  SS  SSM  SS|	SS   SS  SS|	    kernel 2
-     14  10000 ????						;  =  |1122112221122|1122111221122|	    kernel #
-     15  10000 ????						;  #  0^      8^	17^	25^	    gem index
-     16  10000 ????						;  C 29^			  64^	    scanline cycle
-     17  10000 ????						;
-     18  10000 ????						; (The middle bar indicates where the pattern reverses.)
-     19  10000 ????						;
-     20  10000 ????						; Because we can repeat a sprite multiple times, and reset the sprite
-     21  10000 ????						; occurance mid-line, we can render close to half of the 26 gems a line
-     22  10000 ????						; requires with a single sprite. By alternating sprites each frame with an...
-     23  10000 ????						; acceptable amount of flicker (15Hz) we can render almost all the gems on each
-     24  10000 ????						; line, except for two. These are instead rendered by the missile, which
-     25  10000 ????						; corresponds to the sprite and must have the same color and repeat pattern.
+      9  10000 ????						;  1: |SS  SS	 SS  |SS  MSS  SS  |	    kernel 1 (S = Sprite, M = missile)
+     10  10000 ????						;  2: |  SS  SSM  SS|	SS   SS  SS|	    kernel 2
+     11  10000 ????						;  =  |1122112221122|1122111221122|	    kernel #
+     12  10000 ????						;  #  0^      8^	17^	25^	    gem index
+     13  10000 ????						;  C 29^	      ^ 	 ~64^	    scanline cycle
+     14  10000 ????						;
+     15  10000 ????						; (The middle bar indicates where the pattern reverses.)
+     16  10000 ????						;
+     17  10000 ????						; Because we can repeat a sprite multiple times, and reset the sprite
+     18  10000 ????						; occurance mid-line, we can render close to half of the 26 gems a line
+     19  10000 ????						; requires with a single sprite. By alternating sprites each frame with an...
+     20  10000 ????						; acceptable amount of flicker (15Hz) we can render almost all the gems on each
+     21  10000 ????						; line, except for two. These are instead rendered by the missile, which
+     22  10000 ????						; corresponds to the sprite and must have the same color and repeat pattern.
+     23  10000 ????						;
+     24  10000 ????						; TODO there is a better writeup of how to get the last few sprites on the line
+     25  10000 ????						; with missles?
      26  10000 ????						;
-     27  10000 ????						; TODO there is a better writeup of how to get the last few sprites on the line
-     28  10000 ????						; with missles?
-     29  10000 ????						;
-     30  10000 ????						;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-     31  10000 ????
-     32  10000 ????						; KERNEL 1
-     33  10000 ????
-     34  10000 ????						; Emerald line macro (1, 2, ...)
-     35  10000 ????
-     36  f800					      org	$f800
-     37  f800
-     38  f800				   kernel_1_start
-     39  f800							; sleep first make this distinct from
-     40  f800							; other kernel for debug scenarios
+     27  10000 ????						;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+     28  10000 ????
+     29  10000 ????						; KERNEL 1
+     30  10000 ????
+     31  10000 ????						; Emerald line macro (1, 2, ...)
+     32  10000 ????
+     33  f800					      org	$f800
+     34  f800
+     35  f800				   kernel_1_start
+     36  f800							; sleep first make this distinct from
+     37  f800							; other kernel for debug scenarios
       0  f800					      sleep	6
       1  f800				   .CYCLES    SET	6
       2  f800
@@ -3023,21 +3012,21 @@
      17  f801					      REPEND
      18  f802		       ea		      nop
      19  f803					      REPEND
-     42  f803		       68		      pla
-     43  f804		       85 1b		      sta	GRP0
-     44  f806
-     45  f806		       a9 60		      lda	#EMR1
-     46  f808		       a2 06		      ldx	#EMR2
-     47  f80a		       a0 66		      ldy	#EMR3
-     48  f80c				   .gem_00
-     49  f80c		       84 1c		      .byte.b	GEM_00, EMERALD_SP	; moveable?
-     50  f80e
-     51  f80e							; Critical: 22c (start of precise timing)
-     52  f80e							; (A)
-     53  f80e		       85 11		      sta	EMERALD_SP_RESET	; trivial
-     54  f810							; (B)
-     55  f810		       85 1e		      sta	EMERALD_MI_ENABLE	; trivial ; Is this timing-critical??
-     56  f812							; (C)
+     39  f803		       68		      pla
+     40  f804		       85 1b		      sta	GRP0
+     41  f806
+     42  f806		       a9 60		      lda	#EMR1
+     43  f808		       a2 06		      ldx	#EMR2
+     44  f80a		       a0 66		      ldy	#EMR3
+     45  f80c				   .gem_00
+     46  f80c		       84 1c		      .byte.b	GEM_00, EMERALD_SP	; moveable?
+     47  f80e
+     48  f80e							; Critical: 22c (start of precise timing)
+     49  f80e							; (A)
+     50  f80e		       85 11		      sta	EMERALD_SP_RESET	; trivial
+     51  f810							; (B)
+     52  f810		       85 1e		      sta	EMERALD_MI_ENABLE	; trivial ; Is this timing-critical??
+     53  f812							; (C)
       0  f812					      sleep	3
       1  f812				   .CYCLES    SET	3
       2  f812
@@ -3058,21 +3047,21 @@
      17  f814				  -	      REPEAT	.CYCLES / 2
      18  f814				  -	      nop
      19  f814					      REPEND
-     58  f814
-     59  f814							; TODO bonus VDEL sprite
-     60  f814				   .gem_04
-     61  f814							; (D) far
-     62  f814		       84 1c		      .byte.b	GEM_04, EMERALD_SP
-     63  f816
-     64  f816							; middle triplet; first kernel 1???
-     65  f816							; (A)
-     66  f816		       85 11		      sta	EMERALD_SP_RESET	; trivial
-     67  f818				   .gem_09
-     68  f818							; (B)
-     69  f818		       84 1c		      .byte.b	GEM_09, EMERALD_SP
-     70  f81a
-     71  f81a							; TODO PF1 load
-     72  f81a							; (C)
+     55  f814
+     56  f814							; TODO bonus VDEL sprite
+     57  f814				   .gem_04
+     58  f814							; (D) far
+     59  f814		       84 1c		      .byte.b	GEM_04, EMERALD_SP
+     60  f816
+     61  f816							; middle triplet; first kernel 1???
+     62  f816							; (A)
+     63  f816		       85 11		      sta	EMERALD_SP_RESET	; trivial
+     64  f818				   .gem_09
+     65  f818							; (B)
+     66  f818		       84 1c		      .byte.b	GEM_09, EMERALD_SP
+     67  f81a
+     68  f81a							; TODO PF1 load
+     69  f81a							; (C)
       0  f81a					      sleep	3
       1  f81a				   .CYCLES    SET	3
       2  f81a
@@ -3093,31 +3082,31 @@
      17  f81c				  -	      REPEAT	.CYCLES / 2
      18  f81c				  -	      nop
      19  f81c					      REPEND
-     74  f81c
-     75  f81c							; end triplet; second kernel 1???
-     76  f81c				   .gem_13
-     77  f81c							; (D) for far ?
-     78  f81c		       84 1c		      .byte.b	GEM_13, EMERALD_SP
-     79  f81e
-     80  f81e							; reset (A)
-     81  f81e		       85 11		      sta	EMERALD_SP_RESET	; trivial
-     82  f820				   .gem_17
-     83  f820
-     84  f820							; spare; missle writes
-     85  f820							; 49c (B)
-     86  f820		       84 1e		      .byte.b	GEM_17, EMERALD_MI_ENABLE	; could htis ever possibly be
-     87  f822							; moved out of the kernel, and if so, huge wins
-     88  f822							; (makes next sprite a freebie too, then just dealing with 3)
-     89  f822							; unique sprite values!!
-     90  f822							; or at least the write of the particular OPCODE out of hte krernel ?
-     91  f822							; even extreme measures...! PHP with Z register!!! muahaha
-     92  f822							; dunno how to deal with the opcode length change though?
-     93  f822
-     94  f822							; middle triplet; third kernel 1??? (C)
-     95  f822				   .gem_18
-     96  f822		       84 1c		      .byte.b	GEM_18, EMERALD_SP
-     97  f824
-     98  f824							; end triplet; free (D)
+     71  f81c
+     72  f81c							; end triplet; second kernel 1???
+     73  f81c				   .gem_13
+     74  f81c							; (D) for far ?
+     75  f81c		       84 1c		      .byte.b	GEM_13, EMERALD_SP
+     76  f81e
+     77  f81e							; reset (A)
+     78  f81e		       85 11		      sta	EMERALD_SP_RESET	; trivial
+     79  f820				   .gem_17
+     80  f820
+     81  f820							; spare; missle writes
+     82  f820							; 49c (B)
+     83  f820		       84 1e		      .byte.b	GEM_17, EMERALD_MI_ENABLE	; could htis ever possibly be
+     84  f822							; moved out of the kernel, and if so, huge wins
+     85  f822							; (makes next sprite a freebie too, then just dealing with 3)
+     86  f822							; unique sprite values!!
+     87  f822							; or at least the write of the particular OPCODE out of hte krernel ?
+     88  f822							; even extreme measures...! PHP with Z register!!! muahaha
+     89  f822							; dunno how to deal with the opcode length change though?
+     90  f822
+     91  f822							; middle triplet; third kernel 1??? (C)
+     92  f822				   .gem_18
+     93  f822		       84 1c		      .byte.b	GEM_18, EMERALD_SP
+     94  f824
+     95  f824							; end triplet; free (D)
       0  f824					      sleep	3
       1  f824				   .CYCLES    SET	3
       2  f824
@@ -3138,11 +3127,11 @@
      17  f826				  -	      REPEAT	.CYCLES / 2
      18  f826				  -	      nop
      19  f826					      REPEND
-    100  f826				   .gem_22
-    101  f826							; (E) past far ????
-    102  f826		       84 1c		      .byte.b	GEM_22, EMERALD_SP
-    103  f828							; Critical End: 64c (cycle follows start of right border)
-    104  f828
+     97  f826				   .gem_22
+     98  f826							; (E) past far ????
+     99  f826		       84 1c		      .byte.b	GEM_22, EMERALD_SP
+    100  f828							; Critical End: 64c (cycle follows start of right border)
+    101  f828
       0  f828					      sleep	9
       1  f828				   .CYCLES    SET	9
       2  f828
@@ -3167,27 +3156,27 @@
      17  f82b					      REPEND
      18  f82c		       ea		      nop
      19  f82d					      REPEND
-    106  f82d		       60		      rts
-    107  f82e				   kernel_1_end
-    108  f82e
-    109  f82e		       10 0c	   GEM_00_W   equ	[$1000 + .gem_00 - kernel_1_start]
-    110  f82e		       10 14	   GEM_04_W   equ	[$1000 + .gem_04 - kernel_1_start]
-    111  f82e		       10 18	   GEM_09_W   equ	[$1000 + .gem_09 - kernel_1_start]
-    112  f82e		       10 1c	   GEM_13_W   equ	[$1000 + .gem_13 - kernel_1_start]
-    113  f82e		       10 20	   GEM_17_W   equ	[$1000 + .gem_17 - kernel_1_start]
-    114  f82e		       10 22	   GEM_18_W   equ	[$1000 + .gem_18 - kernel_1_start]
-    115  f82e		       10 26	   GEM_22_W   equ	[$1000 + .gem_22 - kernel_1_start]
-    116  f82e
-    117  f82e							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    118  f82e
-    119  f82e							; KERNEL 2
-    120  f82e
-    121  f82e							; Emerald line macro (3, 4, ...)
-    122  f82e
-    123  f82e				   kernel_2_start
-    124  f82e							; don't sleep first to make this distinct from kernel 1
-    125  f82e		       68		      pla
-    126  f82f		       85 1b		      sta	GRP0
+    103  f82d		       60		      rts
+    104  f82e				   kernel_1_end
+    105  f82e
+    106  f82e		       10 0c	   GEM_00_W   equ	[$1000 + .gem_00 - kernel_1_start]
+    107  f82e		       10 14	   GEM_04_W   equ	[$1000 + .gem_04 - kernel_1_start]
+    108  f82e		       10 18	   GEM_09_W   equ	[$1000 + .gem_09 - kernel_1_start]
+    109  f82e		       10 1c	   GEM_13_W   equ	[$1000 + .gem_13 - kernel_1_start]
+    110  f82e		       10 20	   GEM_17_W   equ	[$1000 + .gem_17 - kernel_1_start]
+    111  f82e		       10 22	   GEM_18_W   equ	[$1000 + .gem_18 - kernel_1_start]
+    112  f82e		       10 26	   GEM_22_W   equ	[$1000 + .gem_22 - kernel_1_start]
+    113  f82e
+    114  f82e							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    115  f82e
+    116  f82e							; KERNEL 2
+    117  f82e
+    118  f82e							; Emerald line macro (3, 4, ...)
+    119  f82e
+    120  f82e				   kernel_2_start
+    121  f82e							; don't sleep first to make this distinct from kernel 1
+    122  f82e		       68		      pla
+    123  f82f		       85 1b		      sta	GRP0
       0  f831					      sleep	4
       1  f831				   .CYCLES    SET	4
       2  f831
@@ -3210,27 +3199,27 @@
      17  f831					      REPEND
      18  f832		       ea		      nop
      19  f833					      REPEND
-    128  f833
-    129  f833							; Enable missile (using excessive lda instructions)
-    130  f833		       a9 02		      lda	#02
-    131  f835		       a2 0c		      ldx	#T2
-    132  f837		       a0 cc		      ldy	#T3
-    133  f839				   .gem_08
-    134  f839		       85 1e		      .byte.b	GEM_08, EMERALD_MI_ENABLE	; movable
-    135  f83b		       a9 c0		      lda	#T1	; movable?
-    136  f83d				   .gem_02
-    137  f83d							; load the first sprite
-    138  f83d		       84 1c		      .byte.b	GEM_02, EMERALD_SP	; movable
+    125  f833
+    126  f833							; Enable missile (using excessive lda instructions)
+    127  f833		       a9 02		      lda	#02
+    128  f835		       a2 0c		      ldx	#T2
+    129  f837		       a0 cc		      ldy	#T3
+    130  f839				   .gem_08
+    131  f839		       85 1e		      .byte.b	GEM_08, EMERALD_MI_ENABLE	; movable
+    132  f83b		       a9 c0		      lda	#T1	; movable?
+    133  f83d				   .gem_02
+    134  f83d							; load the first sprite
+    135  f83d		       84 1c		      .byte.b	GEM_02, EMERALD_SP	; movable
+    136  f83f
+    137  f83f							; TODO preload the second sprite and
+    138  f83f							; have that write GEM_06
     139  f83f
-    140  f83f							; TODO preload the second sprite and
-    141  f83f							; have that write GEM_06
-    142  f83f
-    143  f83f							; Critical: 25c (start of precise timing)
-    144  f83f		       85 11		      sta	EMERALD_SP_RESET	; trivial
-    145  f841
-    146  f841							; already set middle triplet
-    147  f841							;ldx #%00010010
-    148  f841							;stx.w NUSIZ1
+    140  f83f							; Critical: 25c (start of precise timing)
+    141  f83f		       85 11		      sta	EMERALD_SP_RESET	; trivial
+    142  f841
+    143  f841							; already set middle triplet
+    144  f841							;ldx #%00010010
+    145  f841							;stx.w NUSIZ1
       0  f841					      sleep	6
       1  f841				   .CYCLES    SET	6
       2  f841
@@ -3255,32 +3244,32 @@
      17  f842					      REPEND
      18  f843		       ea		      nop
      19  f844					      REPEND
-    150  f844
-    151  f844							; end triplet; bonus VDEL write
-    152  f844				   .gem_06
-    153  f844		       84 1c		      .byte.b	GEM_06, EMERALD_SP
-    154  f846
-    155  f846							; middle triplet; write or change nusiz
-    156  f846		       85 11		      sta	EMERALD_SP_RESET	; trivial
-    157  f848				   .gem_11
-    158  f848		       84 1c		      .byte.b	GEM_11, EMERALD_SP
-    159  f84a
-    160  f84a							; disable missle
-    161  f84a		       86 1e		      stx	EMERALD_MI_ENABLE
-    162  f84c							; sleep 3
-    163  f84c							; ^ could this be moved, and then free the timing slot
-    164  f84c							; then can do the setting of PF1 value(!)
-    165  f84c
-    166  f84c							; end triplet; write or reset
-    167  f84c				   .gem_15
-    168  f84c		       84 1c		      .byte.b	GEM_15, EMERALD_SP
-    169  f84e							; 49c midway
-    170  f84e		       85 11		      sta	EMERALD_SP_RESET	; spare
-    171  f850							; PF2
-    172  f850
-    173  f850							; middle triplet; write or change nusiz
-    174  f850				   .gem_20
-    175  f850		       84 1c		      .byte.b	GEM_20, EMERALD_SP
+    147  f844
+    148  f844							; end triplet; bonus VDEL write
+    149  f844				   .gem_06
+    150  f844		       84 1c		      .byte.b	GEM_06, EMERALD_SP
+    151  f846
+    152  f846							; middle triplet; write or change nusiz
+    153  f846		       85 11		      sta	EMERALD_SP_RESET	; trivial
+    154  f848				   .gem_11
+    155  f848		       84 1c		      .byte.b	GEM_11, EMERALD_SP
+    156  f84a
+    157  f84a							; disable missle
+    158  f84a		       86 1e		      stx	EMERALD_MI_ENABLE
+    159  f84c							; sleep 3
+    160  f84c							; ^ could this be moved, and then free the timing slot
+    161  f84c							; then can do the setting of PF1 value(!)
+    162  f84c
+    163  f84c							; end triplet; write or reset
+    164  f84c				   .gem_15
+    165  f84c		       84 1c		      .byte.b	GEM_15, EMERALD_SP
+    166  f84e							; 49c midway
+    167  f84e		       85 11		      sta	EMERALD_SP_RESET	; spare
+    168  f850							; PF2
+    169  f850
+    170  f850							; middle triplet; write or change nusiz
+    171  f850				   .gem_20
+    172  f850		       84 1c		      .byte.b	GEM_20, EMERALD_SP
       0  f852					      sleep	3	; spare
       1  f852				   .CYCLES    SET	3
       2  f852
@@ -3301,14 +3290,14 @@
      17  f854				  -	      REPEAT	.CYCLES / 2
      18  f854				  -	      nop
      19  f854					      REPEND
-    177  f854
-    178  f854							; end triplet; free
-    179  f854				   .gem_24
-    180  f854		       84 1c		      .byte.b	GEM_24, EMERALD_SP
-    181  f856							; Critical End: 61c (just before gem 24 render)
-    182  f856
-    183  f856							; ldx #%0001001
-    184  f856							; stx.w NUSIZ1
+    174  f854
+    175  f854							; end triplet; free
+    176  f854				   .gem_24
+    177  f854		       84 1c		      .byte.b	GEM_24, EMERALD_SP
+    178  f856							; Critical End: 61c (just before gem 24 render)
+    179  f856
+    180  f856							; ldx #%0001001
+    181  f856							; stx.w NUSIZ1
       0  f856					      sleep	9
       1  f856				   .CYCLES    SET	9
       2  f856
@@ -3333,21 +3322,23 @@
      17  f859					      REPEND
      18  f85a		       ea		      nop
      19  f85b					      REPEND
-    186  f85b		       60		      rts
-    187  f85c				   kernel_2_end
-    188  f85c
-    189  f85c		       10 0f	   GEM_02_W   equ	[$1000 + .gem_02 - kernel_2_start]
-    190  f85c		       10 16	   GEM_06_W   equ	[$1000 + .gem_06 - kernel_2_start]
-    191  f85c		       10 0b	   GEM_08_W   equ	[$1000 + .gem_08 - kernel_2_start]
-    192  f85c		       10 1a	   GEM_11_W   equ	[$1000 + .gem_11 - kernel_2_start]
-    193  f85c		       10 1e	   GEM_15_W   equ	[$1000 + .gem_15 - kernel_2_start]
-    194  f85c		       10 22	   GEM_20_W   equ	[$1000 + .gem_20 - kernel_2_start]
-    195  f85c		       10 26	   GEM_24_W   equ	[$1000 + .gem_24 - kernel_2_start]
+    183  f85b		       60		      rts
+    184  f85c				   kernel_2_end
+    185  f85c
+    186  f85c		       10 0f	   GEM_02_W   equ	[$1000 + .gem_02 - kernel_2_start]
+    187  f85c		       10 16	   GEM_06_W   equ	[$1000 + .gem_06 - kernel_2_start]
+    188  f85c		       10 0b	   GEM_08_W   equ	[$1000 + .gem_08 - kernel_2_start]
+    189  f85c		       10 1a	   GEM_11_W   equ	[$1000 + .gem_11 - kernel_2_start]
+    190  f85c		       10 1e	   GEM_15_W   equ	[$1000 + .gem_15 - kernel_2_start]
+    191  f85c		       10 22	   GEM_20_W   equ	[$1000 + .gem_20 - kernel_2_start]
+    192  f85c		       10 26	   GEM_24_W   equ	[$1000 + .gem_24 - kernel_2_start]
 ------- FILE main.s
 ------- FILE input.s LEVEL 2 PASS 2
       0  f85c					      include	"input.s"
 ------- FILE jetpax.h LEVEL 3 PASS 2
       0  f85c					      include	"jetpax.h"
+      1  f85c							; Common imports
+      2  f85c
 ------- FILE vcs.h LEVEL 4 PASS 2
       0  f85c					      include	"vcs.h"
       1  f85c							; VCS.H
@@ -3866,30 +3857,30 @@
     119  f8db		       95 20		      sta	JET_SP_HMOVE,x	; set fine offset
     120  f8dd		       60		      rts		; return to caller
 ------- FILE main.s
+     10  f8de
+     11  f900		       00 00 00 00*	      align	256
 ------- FILE sprites.s LEVEL 2 PASS 2
-      0  f8de					      include	"sprites.s"
-      1  f900		       00 00 00 00*	      align	256
-      2  f900
-      3  f900							; Bitmap data for character "standing" position
-      4  f900							; Comical amount of 0's for now to simplify sprite rendering
-      5  f900
-      6  f900							; Y can be from:
-      7  f900							;     SPRITE_HEIGHT to (8*ROW_COUNT)
-      8  f900							; SpriteEnd: 8..128
-      9  f900							; Frame0 should start at +120 so the Y rollunder of -$120 is OK]
-     10  f900				   Frame0
-     11  f900		       00		      .byte.b	#%00000000
-     12  f901		       60		      .byte.b	#%01100000
-     13  f902		       60		      .byte.b	#%01100000
-     14  f903		       60		      .byte.b	#%01100000
-     15  f904		       c0		      .byte.b	#%11000000
-     16  f905		       c0		      .byte.b	#%11000000
-     17  f906		       f0		      .byte.b	#%11110000
-     18  f907		       c0		      .byte.b	#%11000000
-     19  f908		       c0		      .byte.b	#%11000000
-     20  f909		       00		      .byte.b	#%00000000
+      0  f900					      include	"sprites.s"
+      1  f900							; Bitmap data for character "standing" position
+      2  f900							; Comical amount of 0's for now to simplify sprite rendering
+      3  f900
+      4  f900							; Y can be from:
+      5  f900							;     SPRITE_HEIGHT to (8*ROW_COUNT)
+      6  f900							; SpriteEnd: 8..128
+      7  f900							; Frame0 should start at +120 so the Y rollunder of -$120 is OK]
+      8  f900				   Frame0
+      9  f900		       00		      .byte.b	#%00000000
+     10  f901		       60		      .byte.b	#%01100000
+     11  f902		       60		      .byte.b	#%01100000
+     12  f903		       60		      .byte.b	#%01100000
+     13  f904		       c0		      .byte.b	#%11000000
+     14  f905		       c0		      .byte.b	#%11000000
+     15  f906		       f0		      .byte.b	#%11110000
+     16  f907		       c0		      .byte.b	#%11000000
+     17  f908		       c0		      .byte.b	#%11000000
+     18  f909		       00		      .byte.b	#%00000000
 ------- FILE main.s
-     27  f90a
-     28  fffc					      org	$fffc
-     29  fffc		       00 f2		      .word.w	Start
-     30  fffe		       00 f2		      .word.w	Start
+     13  f90a
+     14  fffc					      org	$fffc
+     15  fffc		       00 f2		      .word.w	Start
+     16  fffe		       00 f2		      .word.w	Start
