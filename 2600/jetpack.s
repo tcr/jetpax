@@ -955,32 +955,40 @@ kernel_1_start:
       .byte GEM_00, EMERALD_SP ; moveable?
 
 ; Critical: 22c (start of precise timing)
+      ; (A)
       sta EMERALD_SP_RESET ; trivial
+      ; (B)
       sta EMERALD_MI_ENABLE ; trivial ; Is this timing-critical??
+      ; (C)
       sleep 3
 
       ; TODO bonus VDEL sprite
 .gem_04
+      ; (D) far
       .byte GEM_04, EMERALD_SP
 
       ; middle triplet; first kernel 1???
+      ; (A)
       sta EMERALD_SP_RESET ; trivial
 .gem_09
+      ; (B)
       .byte GEM_09, EMERALD_SP
 
        ; TODO PF1 load
+       ; (C)
       sleep 3
 
       ; end triplet; second kernel 1???
 .gem_13
+      ; (D) for far ?
       .byte GEM_13, EMERALD_SP
 
-      ; reset
+      ; reset (A)
       sta EMERALD_SP_RESET ; trivial
 .gem_17
 
       ; spare; missle writes
-      ; 49c
+      ; 49c (B)
       .byte GEM_17, EMERALD_MI_ENABLE ; could htis ever possibly be
       ; moved out of the kernel, and if so, huge wins
       ; (makes next sprite a freebie too, then just dealing with 3)
@@ -989,13 +997,14 @@ kernel_1_start:
       ; even extreme measures...! PHP with Z register!!! muahaha
       ; dunno how to deal with the opcode length change though?
 
-      ; middle triplet; third kernel 1???
+      ; middle triplet; third kernel 1??? (C)
 .gem_18
       .byte GEM_18, EMERALD_SP
 
-      ; end triplet; free
+      ; end triplet; free (D)
       sleep 3
 .gem_22
+      ; (E) past far ????
       .byte GEM_22, EMERALD_SP
 ; Critical End: 64c (cycle follows start of right border)
 
