@@ -580,92 +580,58 @@
     177 U008f							; YPos definite position
     178 U008f		       00 64	   YPosStart  equ	100
 ------- FILE main.s
-------- FILE sprites.h LEVEL 2 PASS 2
-      0 U008f					      include	"sprites.h"
-      1 U008f							; Macros for calculating sprite values (GRPx).
-      2 U008f
-      3 U008f					      MAC	jet_spritedata_calc_nosta
-      4 U008f							; loader
-      5 U008f					      dcp	SpriteEnd
-      6 U008f
-      7 U008f							; 4c
-      8 U008f							; This must never be 5 cycles This mean Frame0 + Y must not cross below apage boundary.
-      9 U008f							; 6c
-     10 U008f					      ldy	#0
-     11 U008f					      .byte	$b0, $01	;2c / 3c (taken)
-     12 U008f					      .byte	$2c	; 4c / 0c
-     13 U008f					      ldy	SpriteEnd
-     14 U008f
-     15 U008f					      ENDM
-     16 U008f
-     17 U008f					      MAC	jet_spritedata_calc
-     18 U008f							; loader
-     19 U008f					      lda	#SPRITE_HEIGHT
-     20 U008f					      dcp	SpriteEnd
-     21 U008f					      ldy	SpriteEnd
-     22 U008f
-     23 U008f							; 4c
-     24 U008f							; This must never be 5 cycles This mean Frame0 + Y must not cross below apage boundary.
-     25 U008f					      lda	Frame0,Y
-     26 U008f							; 6c
-     27 U008f					      .byte	$b0, $01	;2c / 3c (taken)
-     28 U008f					      .byte	$2c	; 4c / 0c
-     29 U008f					      sta	JET_SP	; 0c / 3c
-     30 U008f
-     31 U008f					      ENDM
-------- FILE main.s
-      9 U008f
-     10 U008f							; Bank 1
-     11  e000 ????				      seg	CodeBank1
-     12  d000					      org	$D000
-     13  d000					      rorg	$F000
-     14  d000		       00	   BANK1      byte.b
-     15  d200					      org	$d200
-     16  d200					      rorg	$d200
-     17  d200				   Bank1Start
-     18  d200		       ad fa ff 	      lda	$fffa
-     19  d203		       ea		      nop
-     20  d204		       ea		      nop
-     21  d205		       ea		      nop
-     22  d206
-     23  dffc					      org	$dffc
-     24  dffc					      rorg	$fffc
-     25  dffc		       00 d2		      .word.w	Bank1Start
-     26  dffe		       00 d2		      .word.w	Bank1Start
-     27  e000
-     28  e000							; Bank 2
-     29  f000 ????				      seg	CodeBank2
-     30  e000					      org	$E000
-     31  e000					      rorg	$F000
-     32  e000		       00	   BANK2      byte.b
-     33  e200					      org	$e200
-     34  e200					      rorg	$f200
-     35  e200				   Bank2Start
-     36  e200		       ad fa ff 	      lda	$fffa
-     37  e203		       ea		      nop
-     38  e204		       ea		      nop
-     39  e205		       ea		      nop
-     40  e206
-     41  effc					      org	$effc
-     42  effc					      rorg	$fffc
-     43  effc		       00 f2		      .word.w	Bank2Start
-     44  effe		       00 f2		      .word.w	Bank2Start
-     45  f000
-     46  f000							; Bank 3
-     47  10000 ????				       seg	CodeBank3
-     48  f000					      org	$F000
-     49  f000					      rorg	$F000
-     50  f000		       00	   BANK3      byte.b
-     51  f200					      org	$f200
-     52  f200					      rorg	$f200
-     53  f200				   Bank3Start
-     54  f200		       ad fa ff 	      lda	$fffa
-     55  f203		       ea		      nop
-     56  f204		       ea		      nop
-     57  f205		       ea		      nop
-     58  f206		       4c 09 f2 	      jmp	Start
-     59  f209
-     60  f209							; Bank 3 source code
+      8 U008f
+      9 U008f							; Bank 1
+     10  e000 ????				      seg	CodeBank1
+     11  d000					      org	$D000
+     12  d000					      rorg	$F000
+     13  d000		       00	   BANK1      byte.b
+     14  d200					      org	$d200
+     15  d200					      rorg	$d200
+     16  d200				   Bank1Start
+     17  d200		       ad fa ff 	      lda	$fffa
+     18  d203		       ea		      nop
+     19  d204		       ea		      nop
+     20  d205		       ea		      nop
+     21  d206
+     22  dffc					      org	$dffc
+     23  dffc					      rorg	$fffc
+     24  dffc		       00 d2		      .word.w	Bank1Start
+     25  dffe		       00 d2		      .word.w	Bank1Start
+     26  e000
+     27  e000							; Bank 2
+     28  f000 ????				      seg	CodeBank2
+     29  e000					      org	$E000
+     30  e000					      rorg	$F000
+     31  e000		       00	   BANK2      byte.b
+     32  e200					      org	$e200
+     33  e200					      rorg	$f200
+     34  e200				   Bank2Start
+     35  e200		       ad fa ff 	      lda	$fffa
+     36  e203		       ea		      nop
+     37  e204		       ea		      nop
+     38  e205		       ea		      nop
+     39  e206
+     40  effc					      org	$effc
+     41  effc					      rorg	$fffc
+     42  effc		       00 f2		      .word.w	Bank2Start
+     43  effe		       00 f2		      .word.w	Bank2Start
+     44  f000
+     45  f000							; Bank 3
+     46  10000 ????				       seg	CodeBank3
+     47  f000					      org	$F000
+     48  f000					      rorg	$F000
+     49  f000		       00	   BANK3      byte.b
+     50  f200					      org	$f200
+     51  f200					      rorg	$f200
+     52  f200				   Bank3Start
+     53  f200		       ad fa ff 	      lda	$fffa
+     54  f203		       ea		      nop
+     55  f204		       ea		      nop
+     56  f205		       ea		      nop
+     57  f206		       4c 09 f2 	      jmp	Start
+     58  f209
+     59  f209							; Bank 3 source code
 ------- FILE init.s LEVEL 2 PASS 2
       0  f209					      include	"init.s"
       1  f209							; Game Initialization after power on or reset
@@ -1386,92 +1352,119 @@
 ------- FILE main.s
 ------- FILE kernel.s LEVEL 2 PASS 2
       0  f4be					      include	"kernel.s"
-      1  f4be							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-      2  f4be							;
-      3  f4be							; Visible Kernel
-      4  f4be							;
-      5  f4be
-      6  f4be				   Kernel     subroutine
-      7  f4be		       85 02		      sta	WSYNC	; ??? Is this needed?
-      8  f4c0
-      9  f4c0							; First HMOVE
-     10  f4c0		       85 2a		      sta	HMOVE
-     11  f4c2
-     12  f4c2							; Frame border top
-     13  f4c2		       a9 00		      lda	#0
-     14  f4c4		       85 08		      sta	COLUPF
-     15  f4c6		       85 0e		      sta	PF1
-     16  f4c8		       85 0f		      sta	PF2
-     17  f4ca		       a9 02		      lda	#SIGNAL_LINE
-     18  f4cc		       85 09		      sta	COLUBK
-     19  f4ce
-     20  f4ce					      REPEAT	6
-     21  f4ce		       85 02		      sta	WSYNC
-     20  f4ce					      REPEND
-     21  f4d0		       85 02		      sta	WSYNC
-     20  f4d0					      REPEND
-     21  f4d2		       85 02		      sta	WSYNC
-     20  f4d2					      REPEND
-     21  f4d4		       85 02		      sta	WSYNC
-     20  f4d4					      REPEND
-     21  f4d6		       85 02		      sta	WSYNC
-     20  f4d6					      REPEND
-     21  f4d8		       85 02		      sta	WSYNC
-     22  f4da					      REPEND
-     23  f4da
-     24  f4da		       a9 00		      lda	#0
-     25  f4dc		       85 09		      sta	COLUBK
-     26  f4de		       85 02		      sta	WSYNC
-     27  f4e0
-     28  f4e0							; Start top border
-     29  f4e0				   border_top
-     30  f4e0							; Make the playfield solid.
-     31  f4e0		       a9 3f		      lda	#%00111111
-     32  f4e2		       85 0e		      sta	PF1
-     33  f4e4		       a9 ff		      lda	#%11111111
-     34  f4e6		       85 0f		      sta	PF2
-     35  f4e8
-     36  f4e8		       a9 42		      lda	#COL_BG
-     37  f4ea		       a0 00		      ldy	#0
-     38  f4ec
-     39  f4ec		       85 08		      sta	COLUPF
-     40  f4ee		       85 02		      sta	WSYNC
-     41  f4f0
-     42  f4f0		       84 08		      sty	COLUPF
-     43  f4f2		       85 02		      sta	WSYNC
-     44  f4f4
-     45  f4f4		       85 08		      sta	COLUPF
-     46  f4f6		       85 02		      sta	WSYNC
-     47  f4f8
-     48  f4f8		       85 02		      sta	WSYNC
-     49  f4fa
-     50  f4fa		       85 02		      sta	WSYNC
-     51  f4fc
-     52  f4fc		       84 08		      sty	COLUPF
-     53  f4fe		       85 02		      sta	WSYNC
-     54  f500
-     55  f500		       85 08		      sta	COLUPF
-     56  f502		       85 02		      sta	WSYNC
-     57  f504
-     58  f504		       85 02		      sta	WSYNC
-     59  f506
-     60  f506				   PlayArea
-     61  f506							; PF is now the playing area
-     62  f506		       a9 00		      lda	#%00000000
-     63  f508		       85 0d		      sta	PF0
-     64  f50a		       a9 20		      lda	#%00100000
-     65  f50c		       85 0e		      sta	PF1
-     66  f50e		       a9 00		      lda	#%00000000
-     67  f510		       85 0f		      sta	PF2
-     68  f512
-     69  f512
-     70  f512							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-     71  f512
-     72  f512							; Frame Start
-     73  f512
-     74  f512							; Start the row with a WSYNC.
-     75  f512				   row_start
-     76  f512							; ~15c
+      1  f4be							; Visible Kernel
+      2  f4be
+      3  f4be							; Macros for calculating sprite values (GRPx).
+      4  f4be
+      5  f4be					      mac	jet_spritedata_calc_nosta
+      6  f4be							; loader
+      7  f4be					      dcp	SpriteEnd
+      8  f4be
+      9  f4be							; 4c
+     10  f4be							; This must never be 5 cycles This mean Frame0 + Y must not cross below apage boundary.
+     11  f4be							; 6c
+     12  f4be					      ldy	#0
+     13  f4be					      .byte	$b0, $01	;2c / 3c (taken)
+     14  f4be					      .byte	$2c	; 4c / 0c
+     15  f4be					      ldy	SpriteEnd
+     16  f4be					      endm
+     17  f4be
+     18  f4be					      mac	jet_spritedata_calc
+     19  f4be							; loader
+     20  f4be					      lda	#SPRITE_HEIGHT
+     21  f4be					      dcp	SpriteEnd
+     22  f4be					      ldy	SpriteEnd
+     23  f4be
+     24  f4be							; 4c
+     25  f4be							; This must never be 5 cycles This mean Frame0 + Y must not cross below apage boundary.
+     26  f4be					      lda	Frame0,Y
+     27  f4be							; 6c
+     28  f4be					      .byte	$b0, $01	;2c / 3c (taken)
+     29  f4be					      .byte	$2c	; 4c / 0c
+     30  f4be					      sta	JET_SP	; 0c / 3c
+     31  f4be					      endm
+     32  f4be
+     33  f4be				   Kernel     subroutine
+     34  f4be		       85 02		      sta	WSYNC	; ??? Is this needed?
+     35  f4c0
+     36  f4c0							; First HMOVE
+     37  f4c0		       85 2a		      sta	HMOVE
+     38  f4c2
+     39  f4c2							; Frame border top
+     40  f4c2		       a9 00		      lda	#0
+     41  f4c4		       85 08		      sta	COLUPF
+     42  f4c6		       85 0e		      sta	PF1
+     43  f4c8		       85 0f		      sta	PF2
+     44  f4ca		       a9 02		      lda	#SIGNAL_LINE
+     45  f4cc		       85 09		      sta	COLUBK
+     46  f4ce
+     47  f4ce					      REPEAT	6
+     48  f4ce		       85 02		      sta	WSYNC
+     47  f4ce					      REPEND
+     48  f4d0		       85 02		      sta	WSYNC
+     47  f4d0					      REPEND
+     48  f4d2		       85 02		      sta	WSYNC
+     47  f4d2					      REPEND
+     48  f4d4		       85 02		      sta	WSYNC
+     47  f4d4					      REPEND
+     48  f4d6		       85 02		      sta	WSYNC
+     47  f4d6					      REPEND
+     48  f4d8		       85 02		      sta	WSYNC
+     49  f4da					      REPEND
+     50  f4da
+     51  f4da		       a9 00		      lda	#0
+     52  f4dc		       85 09		      sta	COLUBK
+     53  f4de		       85 02		      sta	WSYNC
+     54  f4e0
+     55  f4e0							; Start top border
+     56  f4e0				   border_top
+     57  f4e0							; Make the playfield solid.
+     58  f4e0		       a9 3f		      lda	#%00111111
+     59  f4e2		       85 0e		      sta	PF1
+     60  f4e4		       a9 ff		      lda	#%11111111
+     61  f4e6		       85 0f		      sta	PF2
+     62  f4e8
+     63  f4e8		       a9 42		      lda	#COL_BG
+     64  f4ea		       a0 00		      ldy	#0
+     65  f4ec
+     66  f4ec		       85 08		      sta	COLUPF
+     67  f4ee		       85 02		      sta	WSYNC
+     68  f4f0
+     69  f4f0		       84 08		      sty	COLUPF
+     70  f4f2		       85 02		      sta	WSYNC
+     71  f4f4
+     72  f4f4		       85 08		      sta	COLUPF
+     73  f4f6		       85 02		      sta	WSYNC
+     74  f4f8
+     75  f4f8		       85 02		      sta	WSYNC
+     76  f4fa
+     77  f4fa		       85 02		      sta	WSYNC
+     78  f4fc
+     79  f4fc		       84 08		      sty	COLUPF
+     80  f4fe		       85 02		      sta	WSYNC
+     81  f500
+     82  f500		       85 08		      sta	COLUPF
+     83  f502		       85 02		      sta	WSYNC
+     84  f504
+     85  f504		       85 02		      sta	WSYNC
+     86  f506
+     87  f506				   PlayArea
+     88  f506							; PF is now the playing area
+     89  f506		       a9 00		      lda	#%00000000
+     90  f508		       85 0d		      sta	PF0
+     91  f50a		       a9 20		      lda	#%00100000
+     92  f50c		       85 0e		      sta	PF1
+     93  f50e		       a9 00		      lda	#%00000000
+     94  f510		       85 0f		      sta	PF2
+     95  f512
+     96  f512
+     97  f512							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+     98  f512
+     99  f512							; Frame Start
+    100  f512
+    101  f512							; Start the row with a WSYNC.
+    102  f512				   row_start
+    103  f512							; ~15c
       0  f512					      jet_spritedata_calc
       1  f512
       2  f512		       a9 09		      lda	#SPRITE_HEIGHT
@@ -1485,10 +1478,9 @@
      10  f51b		       b0 01		      .byte.b	$b0, $01
      11  f51d		       2c		      .byte.b	$2c
      12  f51e		       85 1b		      sta	JET_SP
-     13  f520
-     78  f520		       85 02		      sta	WSYNC
-     79  f522
-     80  f522							; [row:1]
+    105  f520		       85 02		      sta	WSYNC
+    106  f522
+    107  f522							; [row:1]
       0  f522					      jet_spritedata_calc
       1  f522
       2  f522		       a9 09		      lda	#SPRITE_HEIGHT
@@ -1502,28 +1494,27 @@
      10  f52b		       b0 01		      .byte.b	$b0, $01
      11  f52d		       2c		      .byte.b	$2c
      12  f52e		       85 1b		      sta	JET_SP
-     13  f530
-     82  f530
-     83  f530		       a9 00		      lda	#0
-     84  f532		       85 08		      sta	COLUPF
-     85  f534
-     86  f534							; Push jump table to the stack
-     87  f534		       a9 f5		      lda	#>[row_after_kernel - 1]
-     88  f536		       48		      pha
-     89  f537		       a9 7d		      lda	#<[row_after_kernel - 1]
-     90  f539		       48		      pha
-     91  f53a		       a9 81		      lda	#%10000001
-     92  f53c		       48		      pha
-     93  f53d		       a9 10		      lda	#>[$1100 - 1]
-     94  f53f		       48		      pha
-     95  f540		       a9 ff		      lda	#<[$1100 - 1]
-     96  f542		       48		      pha
-     97  f543		       a9 81		      lda	#%10000001
-     98  f545		       48		      pha
-     99  f546
-    100  f546		       85 02		      sta	WSYNC
-    101  f548
-    102  f548							; [row:2]
+    109  f530
+    110  f530		       a9 00		      lda	#0
+    111  f532		       85 08		      sta	COLUPF
+    112  f534
+    113  f534							; Push jump table to the stack
+    114  f534		       a9 f5		      lda	#>[row_after_kernel - 1]
+    115  f536		       48		      pha
+    116  f537		       a9 7d		      lda	#<[row_after_kernel - 1]
+    117  f539		       48		      pha
+    118  f53a		       a9 81		      lda	#%10000001
+    119  f53c		       48		      pha
+    120  f53d		       a9 10		      lda	#>[$1100 - 1]
+    121  f53f		       48		      pha
+    122  f540		       a9 ff		      lda	#<[$1100 - 1]
+    123  f542		       48		      pha
+    124  f543		       a9 81		      lda	#%10000001
+    125  f545		       48		      pha
+    126  f546
+    127  f546		       85 02		      sta	WSYNC
+    128  f548
+    129  f548							; [row:2]
       0  f548					      jet_spritedata_calc
       1  f548
       2  f548		       a9 09		      lda	#SPRITE_HEIGHT
@@ -1537,14 +1528,13 @@
      10  f551		       b0 01		      .byte.b	$b0, $01
      11  f553		       2c		      .byte.b	$2c
      12  f554		       85 1b		      sta	JET_SP
-     13  f556
-    104  f556
-    105  f556
-    106  f556		       a9 42		      lda	#COL_BG
-    107  f558		       85 08		      sta	COLUPF
-    108  f55a
-    109  f55a
-    110  f55a		       a9 09		      lda	#SPRITE_HEIGHT
+    131  f556
+    132  f556
+    133  f556		       a9 42		      lda	#COL_BG
+    134  f558		       85 08		      sta	COLUPF
+    135  f55a
+    136  f55a
+    137  f55a		       a9 09		      lda	#SPRITE_HEIGHT
       0  f55c					      jet_spritedata_calc_nosta
       1  f55c
       2  f55c		       c7 85		      dcp	SpriteEnd
@@ -1556,9 +1546,8 @@
       8  f560		       b0 01		      .byte.b	$b0, $01
       9  f562		       2c		      .byte.b	$2c
      10  f563		       a4 85		      ldy	SpriteEnd
-     11  f565
-    112  f565		       b9 00 f8 	      lda	Frame0,Y
-    113  f568		       85 fa		      sta	$fa
+    139  f565		       b9 00 f8 	      lda	Frame0,Y
+    140  f568		       85 fa		      sta	$fa
       0  f56a					      jet_spritedata_calc_nosta
       1  f56a
       2  f56a		       c7 85		      dcp	SpriteEnd
@@ -1570,10 +1559,9 @@
       8  f56e		       b0 01		      .byte.b	$b0, $01
       9  f570		       2c		      .byte.b	$2c
      10  f571		       a4 85		      ldy	SpriteEnd
-     11  f573
-    115  f573		       b9 00 f8 	      lda	Frame0,Y
-    116  f576		       85 fd		      sta	$fd
-    117  f578
+    142  f573		       b9 00 f8 	      lda	Frame0,Y
+    143  f576		       85 fd		      sta	$fd
+    144  f578
       0  f578					      sleep	6
       1  f578				   .CYCLES    SET	6
       2  f578
@@ -1598,20 +1586,20 @@
      17  f579					      REPEND
      18  f57a		       ea		      nop
      19  f57b					      REPEND
-    119  f57b
-    120  f57b							; [row:3-4]
-    121  f57b							; Jump to the copied kernel.
-    122  f57b				   kernel_launch
-    123  f57b		       4c 00 11 	      jmp	KERNEL_START
-    124  f57e
-    125  f57e				   row_after_kernel
-    126  f57e							; [row:5]
-    127  f57e							; Cleanup from the kernel.
-    128  f57e		       a9 00		      lda	#0
-    129  f580		       85 1e		      sta	EMERALD_MI_ENABLE
-    130  f582		       85 1c		      sta	EMERALD_SP
-    131  f584		       85 08		      sta	COLUPF
-    132  f586
+    146  f57b
+    147  f57b							; [row:3-4]
+    148  f57b							; Jump to the copied kernel.
+    149  f57b				   kernel_launch
+    150  f57b		       4c 00 11 	      jmp	KERNEL_START
+    151  f57e
+    152  f57e				   row_after_kernel
+    153  f57e							; [row:5]
+    154  f57e							; Cleanup from the kernel.
+    155  f57e		       a9 00		      lda	#0
+    156  f580		       85 1e		      sta	EMERALD_MI_ENABLE
+    157  f582		       85 1c		      sta	EMERALD_SP
+    158  f584		       85 08		      sta	COLUPF
+    159  f586
       0  f586					      jet_spritedata_calc
       1  f586
       2  f586		       a9 09		      lda	#SPRITE_HEIGHT
@@ -1625,11 +1613,10 @@
      10  f58f		       b0 01		      .byte.b	$b0, $01
      11  f591		       2c		      .byte.b	$2c
      12  f592		       85 1b		      sta	JET_SP
-     13  f594
-    134  f594
-    135  f594		       85 02		      sta	WSYNC
-    136  f596
-    137  f596							; [row:6]
+    161  f594
+    162  f594		       85 02		      sta	WSYNC
+    163  f596
+    164  f596							; [row:6]
       0  f596					      jet_spritedata_calc
       1  f596
       2  f596		       a9 09		      lda	#SPRITE_HEIGHT
@@ -1643,33 +1630,32 @@
      10  f59f		       b0 01		      .byte.b	$b0, $01
      11  f5a1		       2c		      .byte.b	$2c
      12  f5a2		       85 1b		      sta	JET_SP
-     13  f5a4
-    139  f5a4		       a9 42		      lda	#COL_BG
-    140  f5a6		       85 08		      sta	COLUPF
-    141  f5a8
-    142  f5a8							; FRAMESWITCH
-    143  f5a8		       a9 01		      lda	#01
-    144  f5aa		       25 83		      and	FrameCount
-    145  f5ac		       d0 45		      bne	loadframe2
-    146  f5ae
-    147  f5ae				   loadframe1
-    148  f5ae							; ~30c
-    149  f5ae
-    150  f5ae							; Emerald byte setting 1A
-    151  f5ae		       a2 00		      ldx	#0
-    152  f5b0		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
-    153  f5b3		       8d 0c f0 	      sta	GEM_00_W
-    154  f5b6		       e8		      inx
-    155  f5b7		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
-    156  f5ba		       8d 14 f0 	      sta	GEM_04_W
-    157  f5bd		       e8		      inx
-    158  f5be		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
-    159  f5c1		       8d 18 f0 	      sta	GEM_09_W
-    160  f5c4		       e8		      inx
-    161  f5c5
-    162  f5c5		       85 02		      sta	WSYNC
-    163  f5c7
-    164  f5c7							; [row:7]
+    166  f5a4		       a9 42		      lda	#COL_BG
+    167  f5a6		       85 08		      sta	COLUPF
+    168  f5a8
+    169  f5a8							; FRAMESWITCH
+    170  f5a8		       a9 01		      lda	#01
+    171  f5aa		       25 83		      and	FrameCount
+    172  f5ac		       d0 45		      bne	loadframe2
+    173  f5ae
+    174  f5ae				   loadframe1
+    175  f5ae							; ~30c
+    176  f5ae
+    177  f5ae							; Emerald byte setting 1A
+    178  f5ae		       a2 00		      ldx	#0
+    179  f5b0		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
+    180  f5b3		       8d 0c f0 	      sta	GEM_00_W
+    181  f5b6		       e8		      inx
+    182  f5b7		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
+    183  f5ba		       8d 14 f0 	      sta	GEM_04_W
+    184  f5bd		       e8		      inx
+    185  f5be		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
+    186  f5c1		       8d 18 f0 	      sta	GEM_09_W
+    187  f5c4		       e8		      inx
+    188  f5c5
+    189  f5c5		       85 02		      sta	WSYNC
+    190  f5c7
+    191  f5c7							; [row:7]
       0  f5c7					      jet_spritedata_calc
       1  f5c7
       2  f5c7		       a9 09		      lda	#SPRITE_HEIGHT
@@ -1683,41 +1669,40 @@
      10  f5d0		       b0 01		      .byte.b	$b0, $01
      11  f5d2		       2c		      .byte.b	$2c
      12  f5d3		       85 1b		      sta	JET_SP
-     13  f5d5
-    166  f5d5
-    167  f5d5							; Emerald byte setting 1B
-    168  f5d5		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
-    169  f5d8		       8d 1c f0 	      sta	GEM_13_W
-    170  f5db		       e8		      inx
-    171  f5dc		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
-    172  f5df		       8d 20 f0 	      sta	GEM_17_W
-    173  f5e2		       e8		      inx
-    174  f5e3		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
-    175  f5e6		       8d 22 f0 	      sta	GEM_18_W
-    176  f5e9		       e8		      inx
-    177  f5ea		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
-    178  f5ed		       8d 26 f0 	      sta	GEM_22_W
-    179  f5f0
-    180  f5f0		       4c 38 f6 	      jmp	row_7_end
-    181  f5f3
-    182  f5f3				   loadframe2
-    183  f5f3							; ~30c
-    184  f5f3
-    185  f5f3							; Emerald byte setting 2A
-    186  f5f3		       a2 07		      ldx	#[storage_02 - storage]
-    187  f5f5		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
-    188  f5f8		       8d 0f f0 	      sta	GEM_02_W
-    189  f5fb		       e8		      inx
-    190  f5fc		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
-    191  f5ff		       8d 16 f0 	      sta	GEM_06_W
-    192  f602		       e8		      inx
-    193  f603		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
-    194  f606		       8d 0b f0 	      sta	GEM_08_W
-    195  f609		       e8		      inx
-    196  f60a
-    197  f60a		       85 02		      sta	WSYNC
-    198  f60c
-    199  f60c							; [row:7]
+    193  f5d5
+    194  f5d5							; Emerald byte setting 1B
+    195  f5d5		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
+    196  f5d8		       8d 1c f0 	      sta	GEM_13_W
+    197  f5db		       e8		      inx
+    198  f5dc		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
+    199  f5df		       8d 20 f0 	      sta	GEM_17_W
+    200  f5e2		       e8		      inx
+    201  f5e3		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
+    202  f5e6		       8d 22 f0 	      sta	GEM_18_W
+    203  f5e9		       e8		      inx
+    204  f5ea		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
+    205  f5ed		       8d 26 f0 	      sta	GEM_22_W
+    206  f5f0
+    207  f5f0		       4c 38 f6 	      jmp	row_7_end
+    208  f5f3
+    209  f5f3				   loadframe2
+    210  f5f3							; ~30c
+    211  f5f3
+    212  f5f3							; Emerald byte setting 2A
+    213  f5f3		       a2 07		      ldx	#[storage_02 - storage]
+    214  f5f5		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
+    215  f5f8		       8d 0f f0 	      sta	GEM_02_W
+    216  f5fb		       e8		      inx
+    217  f5fc		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
+    218  f5ff		       8d 16 f0 	      sta	GEM_06_W
+    219  f602		       e8		      inx
+    220  f603		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
+    221  f606		       8d 0b f0 	      sta	GEM_08_W
+    222  f609		       e8		      inx
+    223  f60a
+    224  f60a		       85 02		      sta	WSYNC
+    225  f60c
+    226  f60c							; [row:7]
       0  f60c					      jet_spritedata_calc
       1  f60c
       2  f60c		       a9 09		      lda	#SPRITE_HEIGHT
@@ -1731,69 +1716,68 @@
      10  f615		       b0 01		      .byte.b	$b0, $01
      11  f617		       2c		      .byte.b	$2c
      12  f618		       85 1b		      sta	JET_SP
-     13  f61a
-    201  f61a
-    202  f61a							; Emerald byte setting 2B
-    203  f61a		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
-    204  f61d		       8d 1a f0 	      sta	GEM_11_W
-    205  f620		       e8		      inx
-    206  f621		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
-    207  f624		       8d 1e f0 	      sta	GEM_15_W
-    208  f627		       e8		      inx
-    209  f628		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
-    210  f62b		       8d 22 f0 	      sta	GEM_20_W
-    211  f62e		       e8		      inx
-    212  f62f		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
-    213  f632		       8d 26 f0 	      sta	GEM_24_W
-    214  f635
-    215  f635		       4c 38 f6 	      jmp	row_7_end
-    216  f638
-    217  f638				   row_7_end
-    218  f638		       85 02		      sta	WSYNC
-    219  f63a
-    220  f63a							; [row:8]
-    221  f63a							; Repeat loop until LoopCount < 0
-    222  f63a		       c6 82		      dec	LoopCount
-    223  f63c		       30 03		      bmi	frame_bottom
-    224  f63e		       4c 12 f5 	      jmp	row_start
-    225  f641
-    226  f641							; reset the background for bottom of playfield
-    227  f641				   frame_bottom
-    228  f641							;sta WSYNC
-    229  f641
-    230  f641							; Form the bottom of the level frame.
-    231  f641		       a9 3f		      lda	#%00111111
-    232  f643		       85 0e		      sta	PF1
-    233  f645		       a9 ff		      lda	#%11111111
-    234  f647		       85 0f		      sta	PF2
-    235  f649
-    236  f649							; Clear all sprites.
-    237  f649		       a9 00		      lda	#0
-    238  f64b		       85 1c		      sta	EMERALD_SP
-    239  f64d		       85 1b		      sta	JET_SP
-    240  f64f		       85 1e		      sta	EMERALD_MI_ENABLE
-    241  f651
-    242  f651		       a9 42		      lda	#COL_BG
-    243  f653		       a0 00		      ldy	#0
-    244  f655		       85 02		      sta	WSYNC
-    245  f657
-    246  f657		       84 08		      sty	COLUPF
-    247  f659		       85 02		      sta	WSYNC
-    248  f65b
-    249  f65b		       85 08		      sta	COLUPF
-    250  f65d		       85 02		      sta	WSYNC
-    251  f65f
-    252  f65f		       85 02		      sta	WSYNC
-    253  f661
-    254  f661		       85 02		      sta	WSYNC
-    255  f663
-    256  f663		       84 08		      sty	COLUPF
-    257  f665		       85 02		      sta	WSYNC
-    258  f667
-    259  f667		       85 08		      sta	COLUPF
-    260  f669		       85 02		      sta	WSYNC
-    261  f66b		       85 02		      sta	WSYNC
-    262  f66d		       4c 00 f4 	      jmp	FrameEnd
+    228  f61a
+    229  f61a							; Emerald byte setting 2B
+    230  f61a		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
+    231  f61d		       8d 1a f0 	      sta	GEM_11_W
+    232  f620		       e8		      inx
+    233  f621		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
+    234  f624		       8d 1e f0 	      sta	GEM_15_W
+    235  f627		       e8		      inx
+    236  f628		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
+    237  f62b		       8d 22 f0 	      sta	GEM_20_W
+    238  f62e		       e8		      inx
+    239  f62f		       bd 40 11 	      lda	KERNEL_STORAGE_R,X
+    240  f632		       8d 26 f0 	      sta	GEM_24_W
+    241  f635
+    242  f635		       4c 38 f6 	      jmp	row_7_end
+    243  f638
+    244  f638				   row_7_end
+    245  f638		       85 02		      sta	WSYNC
+    246  f63a
+    247  f63a							; [row:8]
+    248  f63a							; Repeat loop until LoopCount < 0
+    249  f63a		       c6 82		      dec	LoopCount
+    250  f63c		       30 03		      bmi	frame_bottom
+    251  f63e		       4c 12 f5 	      jmp	row_start
+    252  f641
+    253  f641							; reset the background for bottom of playfield
+    254  f641				   frame_bottom
+    255  f641							;sta WSYNC
+    256  f641
+    257  f641							; Form the bottom of the level frame.
+    258  f641		       a9 3f		      lda	#%00111111
+    259  f643		       85 0e		      sta	PF1
+    260  f645		       a9 ff		      lda	#%11111111
+    261  f647		       85 0f		      sta	PF2
+    262  f649
+    263  f649							; Clear all sprites.
+    264  f649		       a9 00		      lda	#0
+    265  f64b		       85 1c		      sta	EMERALD_SP
+    266  f64d		       85 1b		      sta	JET_SP
+    267  f64f		       85 1e		      sta	EMERALD_MI_ENABLE
+    268  f651
+    269  f651		       a9 42		      lda	#COL_BG
+    270  f653		       a0 00		      ldy	#0
+    271  f655		       85 02		      sta	WSYNC
+    272  f657
+    273  f657		       84 08		      sty	COLUPF
+    274  f659		       85 02		      sta	WSYNC
+    275  f65b
+    276  f65b		       85 08		      sta	COLUPF
+    277  f65d		       85 02		      sta	WSYNC
+    278  f65f
+    279  f65f		       85 02		      sta	WSYNC
+    280  f661
+    281  f661		       85 02		      sta	WSYNC
+    282  f663
+    283  f663		       84 08		      sty	COLUPF
+    284  f665		       85 02		      sta	WSYNC
+    285  f667
+    286  f667		       85 08		      sta	COLUPF
+    287  f669		       85 02		      sta	WSYNC
+    288  f66b		       85 02		      sta	WSYNC
+    289  f66d		       4c 00 f4 	      jmp	FrameEnd
 ------- FILE main.s
 ------- FILE kernel_gem.s LEVEL 2 PASS 2
       0  f670					      include	"kernel_gem.s"
@@ -2312,7 +2296,7 @@
      67  f888		       04 00 00 01	      .byte.b	%0100, %0000000, %0000000, %00000001
      68  f88c				   map_emeralds_end
 ------- FILE main.s
-     69  f88c
-     70  fffc					      org	$fffc
-     71  fffc		       09 f2		      .word.w	Start
-     72  fffe		       09 f2		      .word.w	Start
+     68  f88c
+     69  fffc					      org	$fffc
+     70  fffc		       09 f2		      .word.w	Start
+     71  fffe		       09 f2		      .word.w	Start

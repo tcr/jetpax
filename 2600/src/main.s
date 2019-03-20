@@ -5,7 +5,6 @@
     include "macro.h"
     include "xmacro.h"
     include "vars.h"
-    include "sprites.h"
 
     ; Bank 1
     seg CodeBank1
