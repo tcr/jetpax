@@ -1,7 +1,9 @@
 ; Frame loop, including calling out to other kernels.
 
-; Overscan
 FrameStart: subroutine
+
+    ; Vertical Sync
+VerticalSync: subroutine
     VERTICAL_SYNC
 
     TIMER_SETUP 37
@@ -111,7 +113,8 @@ FrameEnd: subroutine
     sta WSYNC
 
 
-    ; VSYNC
+    ; Overscan
+Overscan: subroutine
     TIMER_WAIT
     TIMER_SETUP 30
 

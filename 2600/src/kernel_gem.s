@@ -56,6 +56,9 @@
 ; Emerald line macro (1, 2, ...)
 
 kernel_1_start: subroutine
+
+    rorg $f100
+
     ; sleep first make this distinct from
     ; other kernel for debug scenarios
     sleep 6
@@ -65,7 +68,7 @@ kernel_1_start: subroutine
     lda #EMR1
     ldx #EMR2
     ldy #EMR3
-.gem_00
+.gem_00:
     .byte GEM_00, EMERALD_SP ; moveable?
 
 ; Critical: 22c (start of precise timing)
@@ -78,13 +81,13 @@ kernel_1_start: subroutine
     ; (D) far
 
     ; TODO bonus VDEL sprite
-.gem_04
+.gem_04:
     .byte GEM_04, EMERALD_SP
 
     ; middle triplet; first kernel 1???
     ; (A)
     sta EMERALD_SP_RESET ; trivial
-.gem_09
+.gem_09:
     ; (B)
     .byte GEM_09, EMERALD_SP
 
@@ -93,13 +96,13 @@ kernel_1_start: subroutine
     sleep 3
 
     ; end triplet; second kernel 1???
-.gem_13
+.gem_13:
     ; (D) for far ?
     .byte GEM_13, EMERALD_SP
 
     ; reset (A)
     sta EMERALD_SP_RESET ; trivial
-.gem_17
+.gem_17:
 
     ; spare; missle writes
     ; 49c (B)
@@ -112,29 +115,30 @@ kernel_1_start: subroutine
     ; dunno how to deal with the opcode length change though?
 
     ; middle triplet; third kernel 1??? (C)
-.gem_18
+.gem_18:
     .byte GEM_18, EMERALD_SP
 
     ; end triplet; free (D)
     sleep 3
-.gem_22
+.gem_22:
     ; (E) past far ????
     .byte GEM_22, EMERALD_SP
 ; Critical End: 64c (cycle follows start of right border)
 
     sleep 9
     rts
-kernel_1_end:
 
 ; Writable offsets
-GEM_00_W equ [$1000 + .gem_00 - kernel_1_start]
-GEM_04_W equ [$1000 + .gem_04 - kernel_1_start]
-GEM_09_W equ [$1000 + .gem_09 - kernel_1_start]
-GEM_13_W equ [$1000 + .gem_13 - kernel_1_start]
-GEM_17_W equ [$1000 + .gem_17 - kernel_1_start]
-GEM_18_W equ [$1000 + .gem_18 - kernel_1_start]
-GEM_22_W equ [$1000 + .gem_22 - kernel_1_start]
+GEM_00_W equ [.gem_00 - $100]
+GEM_04_W equ [.gem_04 - $100]
+GEM_09_W equ [.gem_09 - $100]
+GEM_13_W equ [.gem_13 - $100]
+GEM_17_W equ [.gem_17 - $100]
+GEM_18_W equ [.gem_18 - $100]
+GEM_22_W equ [.gem_22 - $100]
 
+    rend
+kernel_1_end:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -143,6 +147,8 @@ GEM_22_W equ [$1000 + .gem_22 - kernel_1_start]
 ; Emerald line macro (3, 4, ...)
 
 kernel_2_start: subroutine
+    rorg $f100
+
     ; don't sleep first to make this distinct from kernel 1
     pla
     sta GRP0
@@ -217,13 +223,15 @@ kernel_2_start: subroutine
     ; stx.w NUSIZ1
     sleep 9
     rts
-kernel_2_end:
 
 ; Writable offsets
-GEM_02_W equ [$1000 + .gem_02 - kernel_2_start]
-GEM_06_W equ [$1000 + .gem_06 - kernel_2_start]
-GEM_08_W equ [$1000 + .gem_08 - kernel_2_start]
-GEM_11_W equ [$1000 + .gem_11 - kernel_2_start]
-GEM_15_W equ [$1000 + .gem_15 - kernel_2_start]
-GEM_20_W equ [$1000 + .gem_20 - kernel_2_start]
-GEM_24_W equ [$1000 + .gem_24 - kernel_2_start]
+GEM_02_W equ [.gem_02 - $100]
+GEM_06_W equ [.gem_06 - $100]
+GEM_08_W equ [.gem_08 - $100]
+GEM_11_W equ [.gem_11 - $100]
+GEM_15_W equ [.gem_15 - $100]
+GEM_20_W equ [.gem_20 - $100]
+GEM_24_W equ [.gem_24 - $100]
+
+    rend
+kernel_2_end:

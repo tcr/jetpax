@@ -1,6 +1,7 @@
     align 256
 
-Frame0
+    ; Player
+Frame0:
     .byte #%00000000
     .byte #%01100000
     .byte #%01100000
