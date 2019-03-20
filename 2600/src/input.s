@@ -1,6 +1,5 @@
-    include "jetpax.h"
+; Handles input checking. Called from overscan.
 
-; SUBROUTINE
     ; Read joystick movement and apply to object 0
 MoveJoystick
     ; Move vertically
@@ -56,10 +55,7 @@ SkipMoveRight
     rts
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-SpeedCalculation
+SpeedCalculation:
     sec
     lda Speed2
     sbc #7
@@ -97,13 +93,12 @@ NewThing2:
     sta Speed1
     sta Speed2
 .next:
-
     rts
 
 
 
 ; Subroutine
-SetHorizPos
+SetHorizPos:
     sta WSYNC    ; start a new line
     bit 0        ; waste 3 cycles
     sec        ; set carry flag
