@@ -82,16 +82,18 @@ border_top:
     sta COLUPF
     sta WSYNC
     ; sta COLUPF
-    sta WSYNC
 
 PlayArea:
     ; PF is now the playing area
+    sleep 55
     lda #%00000000
     sta PF0
     lda #%00100000
     sta PF1
     lda #%00000000
     sta PF2
+    ASSERT_RUNTIME "_scycles > #50"
+    sta WSYNC
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

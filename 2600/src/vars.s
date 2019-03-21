@@ -174,5 +174,10 @@ HEIGHT_OFFSET equ 200
 FLOOR_OFFSET equ 62
 CEILING_OFFSET equ 190
 
-; YPos definite position 
-YPosStart equ 100
+; Starting player position
+YPosStart equ 62
+XPosStart equ 55
+
+; Top left corner
+; YPosStart equ 190
+; XPosStart equ 28

@@ -33,7 +33,7 @@ Start:
     ; Positions
     lda #YPosStart
     sta YPos
-    lda #55
+    lda #XPosStart
     sta XPos
     lda #0
     sta Speed1
