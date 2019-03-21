@@ -4,6 +4,7 @@
 
 ; mac jet_spritedata_calc_nosta
     mac jet_spritedata_calc_nosta
+    ; assumes lda #SPRITE_HEIGHT
     ; loader
     dcp SpriteEnd
 
@@ -14,9 +15,13 @@
     .byte $b0, $01 ;2c / 3c (taken)
     .byte $2c ; 4c / 0c
     ldy SpriteEnd
+    ldx Frame0,Y
     endm
 
 ; mac jet_spritedata_calc
+;
+; loads the offset from Frame0 in Y, and the sprite value in A, and stores it in
+; GRP0.
     mac jet_spritedata_calc
     ; loader
     lda #SPRITE_HEIGHT
@@ -48,18 +53,21 @@ row_start:
     sta COLUPF
 
     ; Push jump table to the stack
+    ASSERT_RUNTIME "sp == $ff"
+    ; final rts to return point of kernel
     lda #>[row_after_kernel - 1]
-    pha
+    pha ; $ff
     lda #<[row_after_kernel - 1]
-    pha
-    lda #%10000001
-    pha
+    pha ; $fe
+    lda #%10101010
+    pha ; $fd
     lda #>[$1100 - 1]
-    pha
+    pha ; $fc
     lda #<[$1100 - 1]
-    pha
-    lda #%10000001
-    pha
+    pha ; $fb
+    lda #%10101010
+    pha ; $fa
+    ASSERT_RUNTIME "sp == $f9"
 
     sta WSYNC
 
@@ -69,15 +77,12 @@ row_start:
 
     lda #COL_BG
     sta COLUPF
-    
 
     lda #SPRITE_HEIGHT
     jet_spritedata_calc_nosta
-    lda Frame0,Y
-    sta $fa
+    stx $fa
     jet_spritedata_calc_nosta
-    lda Frame0,Y
-    sta $fd
+    stx $fd
 
     sleep 6
 
