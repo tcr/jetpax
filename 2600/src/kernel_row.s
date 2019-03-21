@@ -1,4 +1,4 @@
-; Visible Kernel
+; Frame Start
 
 ; Macros for calculating sprite values (GRPx).
 
@@ -24,81 +24,14 @@
     ldy SpriteEnd
 
     ; 4c
-    ; This must never be 5 cycles This mean Frame0 + Y must not cross below apage boundary.
+    ; This must never be 5 cycles This means Frame0 must be aligned and loading
+    ; from Frame0 + Y must never cross a page boundary.
     lda Frame0,Y
     ; 6c
     .byte $b0, $01 ;2c / 3c (taken)
     .byte $2c ; 4c / 0c
     sta JET_SP ; 0c / 3c
     endm
-
-Kernel: subroutine
-    sta WSYNC ; ??? Is this needed?
-
-    ; First HMOVE
-    sta HMOVE
-
-    ; Frame border top
-    lda #0
-    sta COLUPF
-    sta PF1
-    sta PF2
-    lda #SIGNAL_LINE
-    sta COLUBK
-
-    REPEAT 6
-    sta WSYNC
-    REPEND
-
-    lda #0
-    sta COLUBK
-    sta WSYNC
-
-    ; Start top border
-border_top:
-    ; Make the playfield solid.
-    lda #%00111111
-    sta PF1
-    lda #%11111111
-    sta PF2
-
-    lda #COL_BG
-    ldy #0
-
-    ; X_XXXX_XX
-    ; Commented lines removed to save on space.
-    sta COLUPF
-    sta WSYNC
-    sty COLUPF
-    sta WSYNC
-    sta COLUPF
-    sta WSYNC
-    ; sta COLUPF
-    sta WSYNC
-    ; sta COLUPF
-    sta WSYNC
-    sty COLUPF
-    sta WSYNC
-    sta COLUPF
-    sta WSYNC
-    ; sta COLUPF
-
-PlayArea:
-    ; PF is now the playing area
-    sleep 55
-    lda #%00000000
-    sta PF0
-    lda #%00100000
-    sta PF1
-    lda #%00000000
-    sta PF2
-    ASSERT_RUNTIME "_scycles > #50"
-    sta WSYNC
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-; Frame Start
 
     ; Start the row with a WSYNC.
 row_start:
@@ -108,6 +41,8 @@ row_start:
 
 ; [row:1]
     jet_spritedata_calc
+
+    ; ASSERT_RUNTIME "_scan != #63 || a != #0"
 
     lda #0
     sta COLUPF
@@ -152,6 +87,8 @@ kernel_launch:
     jmp KERNEL_START
 
 row_after_kernel:
+
+row_5:
 ; [row:5]
     ; Cleanup from the kernel.
     lda #0
@@ -160,11 +97,14 @@ row_after_kernel:
     sta COLUPF
 
     jet_spritedata_calc
+    ; ASSERT_RUNTIME "_scan != #59 || y == 3"
 
     sta WSYNC
 
+row_6:
 ; [row:6]
     jet_spritedata_calc
+
     lda #COL_BG
     sta COLUPF
 
@@ -225,6 +165,7 @@ loadframe2:
 
     sta WSYNC
 
+row_7:
 ; [row:7]
     jet_spritedata_calc
 
@@ -249,43 +190,7 @@ row_7_end:
 ; [row:8]
     ; Repeat loop until LoopCount < 0
     dec LoopCount
-    bmi frame_bottom
+    bmi row_end
     jmp row_start
-
-    ; reset the background for bottom of playfield
-frame_bottom:
-    ;sta WSYNC
-
-    ; Form the bottom of the level frame.
-    lda #%00111111
-    sta PF1
-    lda #%11111111
-    sta PF2
-
-    ; Clear all sprites.
-    lda #0
-    sta EMERALD_SP
-    sta JET_SP
-    sta EMERALD_MI_ENABLE
-
-    lda #COL_BG
-    ldy #0
-    sta WSYNC
-
-    sty COLUPF
-    sta WSYNC
-
-    sta COLUPF
-    sta WSYNC
-
-    sta WSYNC
-
-    sta WSYNC
-
-    sty COLUPF
-    sta WSYNC
-
-    sta COLUPF
-    sta WSYNC
-    sta WSYNC
-    jmp FrameEnd
+row_end:
+    jmp border_bottom

@@ -22,8 +22,8 @@ VerticalBlank: subroutine
 
     ; Skip every 8 frames for increasing demo index
     lda FrameCount
-    and #%111
-    cmp #%111
+    and #FrameSkip
+    cmp #FrameSkip
     bne .next_next_thing
 
     clc
@@ -47,8 +47,10 @@ VerticalBlank: subroutine
     sta EMERALD_MI_ENABLE
 
     ; Assign dervied SpriteEnd value
+    clc
     lda #HEIGHT_OFFSET
     sbc YPos
+HereTim:
     sta SpriteEnd
 
     ; Move missile to starting position and fine-tune position
@@ -95,7 +97,7 @@ doframe2after:
 
     ; Start rendering the kernel.
     TIMER_SETUP 192
-    jmp Kernel
+    jmp KernelBorder
 
 FrameEnd: subroutine
     sta WSYNC

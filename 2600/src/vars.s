@@ -181,3 +181,7 @@ XPosStart equ 55
 ; Top left corner
 ; YPosStart equ 190
 ; XPosStart equ 28
+
+
+FrameSkip equ %111
+; FrameSkip equ %1
