@@ -7,7 +7,7 @@
 
     MAC TIMER_SETUP
 .lines  SET {1}
-        lda #(((.lines-1)*76-14)/64)
+        lda #(((.lines)*76-14)/64)
         sta WSYNC
         sta TIM64T
     ENDM
@@ -21,5 +21,6 @@
 .waittimer
         lda INTIM
         bne .waittimer
+        sta WSYNC
     ENDM
 

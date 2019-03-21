@@ -59,6 +59,7 @@ kernel_1_start: subroutine
 
     rorg $f100
 
+Kernel1: subroutine
     ; sleep first make this distinct from
     ; other kernel for debug scenarios
     sleep 6
@@ -149,6 +150,7 @@ kernel_1_end:
 kernel_2_start: subroutine
     rorg $f100
 
+Kernel2: subroutine
     ; don't sleep first to make this distinct from kernel 1
     pla
     sta GRP0
@@ -169,6 +171,8 @@ kernel_2_start: subroutine
     ; have that write GEM_06
 
 ; Critical: 25c (start of precise timing)
+    ASSERT_RUNTIME "_scycles == #25"
+
     ; (A)
     sta EMERALD_SP_RESET ; trivial
 
@@ -217,7 +221,9 @@ kernel_2_start: subroutine
 .gem_24:
     ; (D)
     .byte GEM_24, EMERALD_SP
+
 ; Critical End: 61c (just before gem 24 render)
+    ASSERT_RUNTIME "_scycles == #61"
 
     ; ldx #%0001001
     ; stx.w NUSIZ1

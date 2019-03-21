@@ -32,10 +32,10 @@ ROW_COUNT        equ 16
 
 SIGNAL_LINE equ $02
 
-KERNEL_START      equ $1100
+KERNEL_START      equ $f100
 
-KERNEL_STORAGE_W    equ $1040 ; could be max(frame_1_end, frame_2_end)
-KERNEL_STORAGE_R    equ $1140
+KERNEL_STORAGE_W    equ $f040 ; could be max(frame_1_end, frame_2_end)
+KERNEL_STORAGE_R    equ $f140
 
 ; Sprites
 

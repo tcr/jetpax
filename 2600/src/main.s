@@ -1,10 +1,18 @@
     processor 6502
 
+    ; Stella assertions for "make debug"
+    mac ASSERT_RUNTIME
+.COND SET {1}
+    echo "ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
+    endm
+
     ; Global headers
     include "vcs.h"
     include "macro.h"
     include "xmacro.h"
-    include "vars.h"
+
+    ; RAM and constants
+    include "vars.s"
 
     ; Bank 1
     seg CodeBank1

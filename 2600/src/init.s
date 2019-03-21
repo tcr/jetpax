@@ -42,4 +42,6 @@ Start:
 
     lda #0
     sta ROW_DEMO_INDEX
-    jmp FrameStart
+
+    ; Start with vertical sync (to reset frame)
+    jmp VerticalSync

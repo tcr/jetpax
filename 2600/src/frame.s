@@ -1,11 +1,13 @@
 ; Frame loop, including calling out to other kernels.
 
-FrameStart: subroutine
-
     ; Vertical Sync
 VerticalSync: subroutine
     VERTICAL_SYNC
 
+FrameStart: subroutine
+    ASSERT_RUNTIME "_scan == #0"
+
+VerticalBlank: subroutine
     TIMER_SETUP 37
 
     ; Scanline counter
@@ -30,7 +32,7 @@ VerticalSync: subroutine
     cmp #[map_emeralds_end - map_emeralds]
     bcc .next_thing_local
     lda #0
-.next_thing_local
+.next_thing_local:
     sta ROW_DEMO_INDEX
 .next_next_thing:
     sta WSYNC
@@ -87,20 +89,23 @@ doframe2:
     sta EMERALD_MI_HMOVE
 doframe2after:
 
-
     ; Start rendering the kernel.
     TIMER_WAIT
+    ASSERT_RUNTIME "_scan == #37"
+
+    ; Start rendering the kernel.
     TIMER_SETUP 192
     jmp Kernel
 
 FrameEnd: subroutine
+    sta WSYNC
+
     ; Blank all background colors.
     lda #0
     sta COLUPF
     sta PF2
     sta PF1
     sta EMERALD_SP
-    sta WSYNC
 
     ; Guide lines (2x)
     lda #SIGNAL_LINE
@@ -110,16 +115,19 @@ FrameEnd: subroutine
     REPEND
     lda #$00
     sta COLUBK
-    sta WSYNC
 
+    TIMER_WAIT
+    ASSERT_RUNTIME "_scan == (#37 + #192)"
 
     ; Overscan
 Overscan: subroutine
-    TIMER_WAIT
-    TIMER_SETUP 30
+    sta VBLANK
+    TIMER_SETUP 29
 
     jsr MoveJoystick
     jsr SpeedCalculation
 
     TIMER_WAIT
-    jmp FrameStart
+    ASSERT_RUNTIME "_scan == (#37 + #192 + #29)"
+
+    jmp VerticalSync

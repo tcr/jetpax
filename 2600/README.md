@@ -51,3 +51,11 @@ Misc:
 ;   the kernel those bytes, then a way to generate the bytes to stuff in the
 ;   kernel, then have per-line mutations!!
 ```
+
+Text?
+
+http://atariage.com/forums/topic/180632-32-character-text-display/page-3
+
+Frame diagram:
+
+http://www.randomterrain.com/atari-2600-memories-tutorial-andrew-davie-07.html
