@@ -171,8 +171,8 @@ JET_SP_COLOR            equ COLUP0
 HEIGHT_OFFSET equ 200
 
 ; Compared with YPos
-FLOOR_OFFSET equ 67
-CEILING_OFFSET equ 191
+FLOOR_OFFSET equ 62
+CEILING_OFFSET equ 190
 
 ; YPos definite position 
 YPosStart equ 100

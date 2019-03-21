@@ -2,6 +2,7 @@
 
 ; Macros for calculating sprite values (GRPx).
 
+; mac jet_spritedata_calc_nosta
     mac jet_spritedata_calc_nosta
     ; loader
     dcp SpriteEnd
@@ -15,6 +16,7 @@
     ldy SpriteEnd
     endm
 
+; mac jet_spritedata_calc
     mac jet_spritedata_calc
     ; loader
     lda #SPRITE_HEIGHT
@@ -63,25 +65,23 @@ border_top:
     lda #COL_BG
     ldy #0
 
+    ; X_XXXX_XX
+    ; Commented lines removed to save on space.
     sta COLUPF
     sta WSYNC
-
     sty COLUPF
     sta WSYNC
-
     sta COLUPF
     sta WSYNC
-
+    ; sta COLUPF
     sta WSYNC
-    
+    ; sta COLUPF
     sta WSYNC
-    
     sty COLUPF
     sta WSYNC
-    
     sta COLUPF
     sta WSYNC
-    
+    ; sta COLUPF
     sta WSYNC
 
 PlayArea:

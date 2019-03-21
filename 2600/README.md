@@ -1,5 +1,11 @@
 # 2600 Jetpack
 
+Run
+
+```
+make debug
+```
+
 Essential reading: https://alienbill.com/2600/101/docs/stella.html
 
 Essential reading: https://github.com/munsie/dasm/blob/master/doc/dasm.txt 

@@ -583,8 +583,8 @@
     171 U008f		       00 c8	   HEIGHT_OFFSET equ	200
     172 U008f
     173 U008f							; Compared with YPos
-    174 U008f		       00 43	   FLOOR_OFFSET equ	67
-    175 U008f		       00 bf	   CEILING_OFFSET equ	191
+    174 U008f		       00 3e	   FLOOR_OFFSET equ	62
+    175 U008f		       00 be	   CEILING_OFFSET equ	190
     176 U008f
     177 U008f							; YPos definite position
     178 U008f		       00 64	   YPosStart  equ	100
@@ -1232,6 +1232,8 @@
     116  f41e		       a9 00		      lda	#$00
     117  f420		       85 09		      sta	COLUBK
     118  f422
+    119  f422							; TODO Using a timer for the kernel is probably inappropriate rather than
+    120  f422							; just enforcing strict timing
       0  f422					      TIMER_WAIT
       1  f422				   .waittimer
       2  f422		       ad 84 02 	      lda	INTIM
@@ -1241,19 +1243,19 @@
       1  f429				   .COND      SET	"_scan == (#37 + #192)"
  ASSERT: breakif { pc== $f429  && !(  _scan == (#37 + #192)  ) }
       2  f429					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
-    121  f429
-    122  f429							; Overscan
-    123  f429				   Overscan   subroutine
-    124  f429		       85 01		      sta	VBLANK
+    123  f429
+    124  f429							; Overscan
+    125  f429				   Overscan   subroutine
+    126  f429		       85 01		      sta	VBLANK
       0  f42b					      TIMER_SETUP	29
       1  f42b				   .lines     SET	29
       2  f42b		       a9 22		      lda	#(((.lines)*76-14)/64)
       3  f42d		       85 02		      sta	WSYNC
       4  f42f		       8d 96 02 	      sta	TIM64T
-    126  f432
-    127  f432		       20 42 f4 	      jsr	MoveJoystick
-    128  f435		       20 79 f4 	      jsr	SpeedCalculation
-    129  f438
+    128  f432
+    129  f432		       20 42 f4 	      jsr	MoveJoystick
+    130  f435		       20 79 f4 	      jsr	SpeedCalculation
+    131  f438
       0  f438					      TIMER_WAIT
       1  f438				   .waittimer
       2  f438		       ad 84 02 	      lda	INTIM
@@ -1263,8 +1265,8 @@
       1  f43f				   .COND      SET	"_scan == (#37 + #192 + #29)"
  ASSERT: breakif { pc== $f43f  && !(  _scan == (#37 + #192 + #29)  ) }
       2  f43f					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
-    132  f43f
-    133  f43f		       4c 6f f3 	      jmp	VerticalSync
+    134  f43f
+    135  f43f		       4c 6f f3 	      jmp	VerticalSync
 ------- FILE main.s
 ------- FILE input.s LEVEL 2 PASS 2
       0  f442					      include	"input.s"
@@ -1342,22 +1344,22 @@
      72  f48f		       65 87		      adc	Speed1
      73  f491		       85 89		      sta	YPos
      74  f493
-     75  f493		       c9 43		      cmp	#FLOOR_OFFSET
+     75  f493		       c9 3e		      cmp	#FLOOR_OFFSET
      76  f495		       b0 0a		      bcs	NewThing2
      77  f497
      78  f497							; Reset to floor
-     79  f497		       a9 43		      lda	#FLOOR_OFFSET
+     79  f497		       a9 3e		      lda	#FLOOR_OFFSET
      80  f499		       85 89		      sta	YPos
      81  f49b		       a9 00		      lda	#0
      82  f49d		       85 87		      sta	Speed1
      83  f49f		       85 88		      sta	Speed2
      84  f4a1				   NewThing2
      85  f4a1
-     86  f4a1		       c9 bf		      cmp	#CEILING_OFFSET
+     86  f4a1		       c9 be		      cmp	#CEILING_OFFSET
      87  f4a3		       90 0a		      bcc	.next
      88  f4a5
      89  f4a5							; Reset to ceiling
-     90  f4a5		       a9 bf		      lda	#CEILING_OFFSET
+     90  f4a5		       a9 be		      lda	#CEILING_OFFSET
      91  f4a7		       85 89		      sta	YPos
      92  f4a9		       a9 00		      lda	#0
      93  f4ab		       85 87		      sta	Speed1
@@ -1390,96 +1392,96 @@
       2  f4c4
       3  f4c4							; Macros for calculating sprite values (GRPx).
       4  f4c4
-      5  f4c4					      mac	jet_spritedata_calc_nosta
-      6  f4c4							; loader
-      7  f4c4					      dcp	SpriteEnd
-      8  f4c4
-      9  f4c4							; 4c
-     10  f4c4							; This must never be 5 cycles This mean Frame0 + Y must not cross below apage boundary.
-     11  f4c4							; 6c
-     12  f4c4					      ldy	#0
-     13  f4c4					      .byte	$b0, $01	;2c / 3c (taken)
-     14  f4c4					      .byte	$2c	; 4c / 0c
-     15  f4c4					      ldy	SpriteEnd
-     16  f4c4					      endm
-     17  f4c4
-     18  f4c4					      mac	jet_spritedata_calc
-     19  f4c4							; loader
-     20  f4c4					      lda	#SPRITE_HEIGHT
-     21  f4c4					      dcp	SpriteEnd
-     22  f4c4					      ldy	SpriteEnd
-     23  f4c4
-     24  f4c4							; 4c
-     25  f4c4							; This must never be 5 cycles This mean Frame0 + Y must not cross below apage boundary.
-     26  f4c4					      lda	Frame0,Y
-     27  f4c4							; 6c
-     28  f4c4					      .byte	$b0, $01	;2c / 3c (taken)
-     29  f4c4					      .byte	$2c	; 4c / 0c
-     30  f4c4					      sta	JET_SP	; 0c / 3c
-     31  f4c4					      endm
-     32  f4c4
-     33  f4c4				   Kernel     subroutine
-     34  f4c4		       85 02		      sta	WSYNC	; ??? Is this needed?
-     35  f4c6
-     36  f4c6							; First HMOVE
-     37  f4c6		       85 2a		      sta	HMOVE
-     38  f4c8
-     39  f4c8							; Frame border top
-     40  f4c8		       a9 00		      lda	#0
-     41  f4ca		       85 08		      sta	COLUPF
-     42  f4cc		       85 0e		      sta	PF1
-     43  f4ce		       85 0f		      sta	PF2
-     44  f4d0		       a9 02		      lda	#SIGNAL_LINE
-     45  f4d2		       85 09		      sta	COLUBK
-     46  f4d4
-     47  f4d4					      REPEAT	6
-     48  f4d4		       85 02		      sta	WSYNC
-     47  f4d4					      REPEND
-     48  f4d6		       85 02		      sta	WSYNC
-     47  f4d6					      REPEND
-     48  f4d8		       85 02		      sta	WSYNC
-     47  f4d8					      REPEND
-     48  f4da		       85 02		      sta	WSYNC
-     47  f4da					      REPEND
-     48  f4dc		       85 02		      sta	WSYNC
-     47  f4dc					      REPEND
-     48  f4de		       85 02		      sta	WSYNC
-     49  f4e0					      REPEND
-     50  f4e0
-     51  f4e0		       a9 00		      lda	#0
-     52  f4e2		       85 09		      sta	COLUBK
-     53  f4e4		       85 02		      sta	WSYNC
-     54  f4e6
-     55  f4e6							; Start top border
-     56  f4e6				   border_top
-     57  f4e6							; Make the playfield solid.
-     58  f4e6		       a9 3f		      lda	#%00111111
-     59  f4e8		       85 0e		      sta	PF1
-     60  f4ea		       a9 ff		      lda	#%11111111
-     61  f4ec		       85 0f		      sta	PF2
-     62  f4ee
-     63  f4ee		       a9 42		      lda	#COL_BG
-     64  f4f0		       a0 00		      ldy	#0
-     65  f4f2
-     66  f4f2		       85 08		      sta	COLUPF
-     67  f4f4		       85 02		      sta	WSYNC
-     68  f4f6
-     69  f4f6		       84 08		      sty	COLUPF
-     70  f4f8		       85 02		      sta	WSYNC
-     71  f4fa
-     72  f4fa		       85 08		      sta	COLUPF
-     73  f4fc		       85 02		      sta	WSYNC
-     74  f4fe
-     75  f4fe		       85 02		      sta	WSYNC
-     76  f500
-     77  f500		       85 02		      sta	WSYNC
-     78  f502
-     79  f502		       84 08		      sty	COLUPF
-     80  f504		       85 02		      sta	WSYNC
-     81  f506
+      5  f4c4							; mac jet_spritedata_calc_nosta
+      6  f4c4					      mac	jet_spritedata_calc_nosta
+      7  f4c4							; loader
+      8  f4c4					      dcp	SpriteEnd
+      9  f4c4
+     10  f4c4							; 4c
+     11  f4c4							; This must never be 5 cycles This mean Frame0 + Y must not cross below apage boundary.
+     12  f4c4							; 6c
+     13  f4c4					      ldy	#0
+     14  f4c4					      .byte	$b0, $01	;2c / 3c (taken)
+     15  f4c4					      .byte	$2c	; 4c / 0c
+     16  f4c4					      ldy	SpriteEnd
+     17  f4c4					      endm
+     18  f4c4
+     19  f4c4							; mac jet_spritedata_calc
+     20  f4c4					      mac	jet_spritedata_calc
+     21  f4c4							; loader
+     22  f4c4					      lda	#SPRITE_HEIGHT
+     23  f4c4					      dcp	SpriteEnd
+     24  f4c4					      ldy	SpriteEnd
+     25  f4c4
+     26  f4c4							; 4c
+     27  f4c4							; This must never be 5 cycles This mean Frame0 + Y must not cross below apage boundary.
+     28  f4c4					      lda	Frame0,Y
+     29  f4c4							; 6c
+     30  f4c4					      .byte	$b0, $01	;2c / 3c (taken)
+     31  f4c4					      .byte	$2c	; 4c / 0c
+     32  f4c4					      sta	JET_SP	; 0c / 3c
+     33  f4c4					      endm
+     34  f4c4
+     35  f4c4				   Kernel     subroutine
+     36  f4c4		       85 02		      sta	WSYNC	; ??? Is this needed?
+     37  f4c6
+     38  f4c6							; First HMOVE
+     39  f4c6		       85 2a		      sta	HMOVE
+     40  f4c8
+     41  f4c8							; Frame border top
+     42  f4c8		       a9 00		      lda	#0
+     43  f4ca		       85 08		      sta	COLUPF
+     44  f4cc		       85 0e		      sta	PF1
+     45  f4ce		       85 0f		      sta	PF2
+     46  f4d0		       a9 02		      lda	#SIGNAL_LINE
+     47  f4d2		       85 09		      sta	COLUBK
+     48  f4d4
+     49  f4d4					      REPEAT	6
+     50  f4d4		       85 02		      sta	WSYNC
+     49  f4d4					      REPEND
+     50  f4d6		       85 02		      sta	WSYNC
+     49  f4d6					      REPEND
+     50  f4d8		       85 02		      sta	WSYNC
+     49  f4d8					      REPEND
+     50  f4da		       85 02		      sta	WSYNC
+     49  f4da					      REPEND
+     50  f4dc		       85 02		      sta	WSYNC
+     49  f4dc					      REPEND
+     50  f4de		       85 02		      sta	WSYNC
+     51  f4e0					      REPEND
+     52  f4e0
+     53  f4e0		       a9 00		      lda	#0
+     54  f4e2		       85 09		      sta	COLUBK
+     55  f4e4		       85 02		      sta	WSYNC
+     56  f4e6
+     57  f4e6							; Start top border
+     58  f4e6				   border_top
+     59  f4e6							; Make the playfield solid.
+     60  f4e6		       a9 3f		      lda	#%00111111
+     61  f4e8		       85 0e		      sta	PF1
+     62  f4ea		       a9 ff		      lda	#%11111111
+     63  f4ec		       85 0f		      sta	PF2
+     64  f4ee
+     65  f4ee		       a9 42		      lda	#COL_BG
+     66  f4f0		       a0 00		      ldy	#0
+     67  f4f2
+     68  f4f2							; X_XXXX_XX
+     69  f4f2							; Commented lines removed to save on space.
+     70  f4f2		       85 08		      sta	COLUPF
+     71  f4f4		       85 02		      sta	WSYNC
+     72  f4f6		       84 08		      sty	COLUPF
+     73  f4f8		       85 02		      sta	WSYNC
+     74  f4fa		       85 08		      sta	COLUPF
+     75  f4fc		       85 02		      sta	WSYNC
+     76  f4fe							; sta COLUPF
+     77  f4fe		       85 02		      sta	WSYNC
+     78  f500							; sta COLUPF
+     79  f500		       85 02		      sta	WSYNC
+     80  f502		       84 08		      sty	COLUPF
+     81  f504		       85 02		      sta	WSYNC
      82  f506		       85 08		      sta	COLUPF
      83  f508		       85 02		      sta	WSYNC
-     84  f50a
+     84  f50a							; sta COLUPF
      85  f50a		       85 02		      sta	WSYNC
      86  f50c
      87  f50c				   PlayArea

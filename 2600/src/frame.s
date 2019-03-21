@@ -116,6 +116,8 @@ FrameEnd: subroutine
     lda #$00
     sta COLUBK
 
+    ; TODO Using a timer for the kernel is probably inappropriate rather than
+    ; just enforcing strict timing
     TIMER_WAIT
     ASSERT_RUNTIME "_scan == (#37 + #192)"
 
