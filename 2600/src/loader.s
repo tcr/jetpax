@@ -68,6 +68,7 @@ CopyFrame1Kernel: subroutine
     lda kernel_1_start
     sta $1000
 
+LoadGemState:
     ldx ROW_DEMO_INDEX
     lda map_emeralds+3,X
     EMERALDS_TWO_SKIP
@@ -93,6 +94,7 @@ CopyFrame1Kernel: subroutine
     lda map_emeralds+0,X
     EMERALDS_TWO_SKIP
     EMERALDS_TWO storage_00
+LoadGemStateEnd:
 
     rts
 
