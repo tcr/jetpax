@@ -43,7 +43,10 @@ row_1:
     ASSERT_RUNTIME "_scycles == #10"
 
     jet_spritedata_calc
-    sta WSYNC
+
+    ; Idle.
+    sleep 46
+    ASSERT_RUNTIME "_scycles == #0"
 
 ; [scanline 2]
 row_2:
@@ -54,6 +57,7 @@ row_2:
     lda #0
     sta COLUPF
 
+    ; Idle.
     sleep 51
     ASSERT_RUNTIME "_scycles == #0"
 
@@ -74,21 +78,18 @@ row_3:
     KERNEL_LOAD_PLAYER
     stx $fd
 
+    ; Jump immediately into scanlines 4-5: the gem kernel
     sleep 2
     ASSERT_RUNTIME "_scycles == #73"
-
-; [scanline 4]
-    ; Jump to the copied kernel.
-kernel_launch:
     jmp KERNEL_START
+
+; [scanline 6]
 
     ; Try to avoid page crossing in jet_spritedata_calc
     ; TODO enforce this with ASSERT_RUNTIME instead?
     align 16
 
 row_after_kernel:
-
-; [scanline 6]
 row_6:
     ASSERT_RUNTIME "_scycles == #0"
 
@@ -100,6 +101,7 @@ row_6:
 
     jet_spritedata_calc
 
+    ; Idle.
     sta WSYNC
 
 ; [scanline 7]
@@ -113,6 +115,8 @@ row_7:
     lda #01
     and FrameCount
     bne loadframe2
+
+; Perform gem loading for Kernel A.
 
 loadframe1:
     ASSERT_RUNTIME "_scycles == #32"
@@ -148,6 +152,8 @@ loadframe1:
     sta GEM_22_W
 
     jmp row_8_end
+
+; Perform gem loading for Kernel B.
 
 loadframe2:
     ASSERT_RUNTIME "_scycles == #33"
@@ -185,7 +191,10 @@ row_8:
 
     jmp row_8_end
 
+; Common row 8 return.
+
 row_8_end:
+    ; Idle.
     sta WSYNC
 
 ; [scanline 8]

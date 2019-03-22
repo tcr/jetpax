@@ -2,6 +2,7 @@
 
     mac EMERALDS_TWO
 .target SET {1}
+    ; 18c ?
     ldx #%11
     .byte $CB, $0 ; axs
     ldy map_full,X
@@ -9,6 +10,24 @@
     ror
     ror
     endm
+
+    ; mac EMERALDS_TWO_RLA
+    ; ; 20c
+    ; lda #%00100000 ; 2c
+    ; ; fake code
+    ; cmp against map
+    ; adc .target if true
+
+    ; ldx map
+    ; ldy #%11
+
+    ; lda {TARGET}
+    ; STA ( {TARGET} + A ) if X & Y
+
+    ; rla TEMP ; 5c
+    ; sta [.target - storage + KERNEL_STORAGE_W] ;4
+    ; rol TEMP ; 5c
+    ; endm
 
     mac EMERALDS_TWO_SKIP
     ror
@@ -72,7 +91,9 @@ LoadGemState:
     ldx ROW_DEMO_INDEX
     lda level_01+3,X
     EMERALDS_TWO_SKIP
+BOO:
     EMERALDS_TWO storage_22
+BOO_OKAY:
     EMERALDS_TWO_SKIP
     EMERALDS_TWO storage_18
 
