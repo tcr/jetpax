@@ -35,8 +35,10 @@
     sta JET_SP ; 0c / 3c
     endm
 
-; [scanline 1]
 row_start:
+
+; [scanline 1]
+row_1:
     ; Enter after scanline starts on row "9" and wraps
     ASSERT_RUNTIME "_scycles == #10"
 
@@ -44,6 +46,7 @@ row_start:
     sta WSYNC
 
 ; [scanline 2]
+row_2:
     jet_spritedata_calc
 
     ; Black out playfield
@@ -55,6 +58,7 @@ row_start:
     ASSERT_RUNTIME "_scycles == #0"
 
 ; [scanline 3]
+row_3:
     jet_spritedata_calc
 
     ; Enable playfield
