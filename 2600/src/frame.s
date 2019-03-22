@@ -29,7 +29,7 @@ VerticalBlank: subroutine
     clc
     lda ROW_DEMO_INDEX
     adc #4
-    cmp #[map_emeralds_end - map_emeralds]
+    cmp #[level_01_end - level_01]
     bcc .next_thing_local
     lda #0
 .next_thing_local:

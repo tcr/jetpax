@@ -48,20 +48,43 @@ border_top:
     sty COLUPF
     sta WSYNC
     sta COLUPF
+
+    ldx #$ff
+    txs
+    ; Push jump table to the stack
+    ASSERT_RUNTIME "sp == $ff"
+    ; final rts to return point of kernel
+    lda #>[row_after_kernel - 1]
+    pha ; $ff
+    lda #<[row_after_kernel - 1] ; exit gem kernel
+    pha ; $fe
+    lda #%0 ; GRP0 B
+    pha ; $fd
+    lda #>[$1100 - 1]
+    pha ; $fc
+    lda #<[$1100 - 1] ; repeat gem kernel once
+    pha ; $fb
+    lda #%0 ; GRP0 A
+    pha ; $fa
+    ASSERT_RUNTIME "sp == $f9"
+
     sta WSYNC
     ; sta COLUPF
 
 PlayArea:
     ; PF is now the playing area
-    sleep 55
+    ASSERT_RUNTIME "_scycles == #0"
+    sleep 61
     lda #%00000000
     sta PF0
     lda #%00100000
     sta PF1
     lda #%00000000
     sta PF2
-    ASSERT_RUNTIME "_scycles > #50"
+    ASSERT_RUNTIME "_scycles == #0"
+    sleep 7
     jmp row_start
+    ; enter row on cycle 10.
 
     ; reset the background for bottom of playfield
 border_bottom:

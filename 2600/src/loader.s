@@ -70,28 +70,28 @@ CopyFrame1Kernel: subroutine
 
 LoadGemState:
     ldx ROW_DEMO_INDEX
-    lda map_emeralds+3,X
+    lda level_01+3,X
     EMERALDS_TWO_SKIP
     EMERALDS_TWO storage_22
     EMERALDS_TWO_SKIP
     EMERALDS_TWO storage_18
 
     ldx ROW_DEMO_INDEX
-    lda map_emeralds+2,X
+    lda level_01+2,X
     EMERALDS_ONE storage_17, map_missle_r
     EMERALDS_TWO_SKIP
     EMERALDS_TWO storage_13
     EMERALDS_TWO_SKIP
 
     ldx ROW_DEMO_INDEX
-    lda map_emeralds+1,X
+    lda level_01+1,X
     EMERALDS_TWO storage_09
     EMERALDS_ONE_SKIP
     EMERALDS_TWO_SKIP
     EMERALDS_TWO storage_04
 
     ldx ROW_DEMO_INDEX
-    lda map_emeralds+0,X
+    lda level_01+0,X
     EMERALDS_TWO_SKIP
     EMERALDS_TWO storage_00
 LoadGemStateEnd:
@@ -110,28 +110,28 @@ CopyFrame2Kernel: subroutine
     sta $1000
 
     ldx ROW_DEMO_INDEX
-    lda map_emeralds+3,X
+    lda level_01+3,X
     EMERALDS_TWO storage_24
     EMERALDS_TWO_SKIP
     EMERALDS_TWO storage_20
     EMERALDS_TWO_SKIP
 
     ldx ROW_DEMO_INDEX
-    lda map_emeralds+2,X
+    lda level_01+2,X
     EMERALDS_ONE_SKIP
     EMERALDS_TWO storage_15
     EMERALDS_TWO_SKIP
     EMERALDS_TWO storage_11
 
     ldx ROW_DEMO_INDEX
-    lda map_emeralds+1,X
+    lda level_01+1,X
     EMERALDS_TWO_SKIP
     EMERALDS_ONE storage_08, map_missle_l
     EMERALDS_TWO storage_06
     EMERALDS_TWO_SKIP
 
     ldx ROW_DEMO_INDEX
-    lda map_emeralds+0,X
+    lda level_01+0,X
     EMERALDS_TWO storage_02
     EMERALDS_TWO_SKIP
 

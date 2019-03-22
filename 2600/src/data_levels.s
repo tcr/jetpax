@@ -37,8 +37,7 @@ storage_end:
 
     align 8
     ; first bit of byte 2 & 3 are unused for simplicity
-    .byte %0000, %000001, %0000100, %00000000
-map_emeralds:
+level_01:
     .byte %1010, %0011110, %0000000, %00000000
     .byte %0101, %0011110, %0000000, %00000000
     .byte %0010, %1000111, %1000000, %00000000
@@ -65,4 +64,4 @@ map_emeralds:
     .byte %0011, %1100000, %0000000, %00000101
     .byte %1011, %1100000, %0000000, %00000010
     .byte %0100, %0011110, %0000000, %00000001
-map_emeralds_end:
+level_01_end:

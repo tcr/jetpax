@@ -2,19 +2,16 @@
 
 ; Macros for calculating sprite values (GRPx).
 
-; mac jet_spritedata_calc_nosta
-    mac jet_spritedata_calc_nosta
-    ; assumes lda #SPRITE_HEIGHT
-    ; loader
-    dcp SpriteEnd
-
-    ; 4c
-    ; This must never be 5 cycles This mean Frame0 + Y must not cross below apage boundary.
-    ; 6c
-    ldy #0
-    .byte $b0, $01 ;2c / 3c (taken)
-    .byte $2c ; 4c / 0c
+; Load the player graphics for this scanline using SpriteEnd (3c + 17c)
+    mac KERNEL_LOAD_PLAYER
+    ; expects "lda #SPRITE_HEIGHT" before this ; 3c
+    dcp SpriteEnd ; 5c
+    ldy #0 ; 2c
+    ; constant 6c:
+    .byte $b0, $01 ; 2c / 3c (taken)  : bcs +01 (skipping 1-byte bit instr)
+    .byte $2c ; 4c / 0c              : bit (skip next two bytes)
     ldy SpriteEnd
+    ; 4c
     ldx Frame0,Y
     endm
 
@@ -38,63 +35,59 @@
     sta JET_SP ; 0c / 3c
     endm
 
-    ; Start the row with a WSYNC.
+; [scanline 1]
 row_start:
-    ; ~15c 
+    ; Enter after scanline starts on row "9" and wraps
+    ASSERT_RUNTIME "_scycles == #10"
+
     jet_spritedata_calc
     sta WSYNC
 
-; [row:1]
+; [scanline 2]
     jet_spritedata_calc
 
-    ; ASSERT_RUNTIME "_scan != #63 || a != #0"
-
+    ; Black out playfield
+    ; TODO This should be done with playfield pixels, not color.
     lda #0
     sta COLUPF
 
-    ; Push jump table to the stack
-    ASSERT_RUNTIME "sp == $ff"
-    ; final rts to return point of kernel
-    lda #>[row_after_kernel - 1]
-    pha ; $ff
-    lda #<[row_after_kernel - 1]
-    pha ; $fe
-    lda #%10101010
-    pha ; $fd
-    lda #>[$1100 - 1]
-    pha ; $fc
-    lda #<[$1100 - 1]
-    pha ; $fb
-    lda #%10101010
-    pha ; $fa
-    ASSERT_RUNTIME "sp == $f9"
+    sleep 51
+    ASSERT_RUNTIME "_scycles == #0"
 
-    sta WSYNC
-
-; [row:2]
+; [scanline 3]
     jet_spritedata_calc
 
-
+    ; Enable playfield
     lda #COL_BG
     sta COLUPF
 
+    ; Set stack pointer and populate graphics.
+    ldx #$f9
+    txs
     lda #SPRITE_HEIGHT
-    jet_spritedata_calc_nosta
+    KERNEL_LOAD_PLAYER
     stx $fa
-    jet_spritedata_calc_nosta
+    KERNEL_LOAD_PLAYER
     stx $fd
 
-    sleep 6
+    sleep 2
+    ASSERT_RUNTIME "_scycles == #73"
 
-; [row:3-4]
+; [scanline 4]
     ; Jump to the copied kernel.
 kernel_launch:
     jmp KERNEL_START
 
+    ; Try to avoid page crossing in jet_spritedata_calc
+    ; TODO enforce this with ASSERT_RUNTIME instead?
+    align 16
+
 row_after_kernel:
 
-row_5:
-; [row:5]
+; [scanline 6]
+row_6:
+    ASSERT_RUNTIME "_scycles == #0"
+
     ; Cleanup from the kernel.
     lda #0
     sta EMERALD_MI_ENABLE
@@ -102,12 +95,11 @@ row_5:
     sta COLUPF
 
     jet_spritedata_calc
-    ; ASSERT_RUNTIME "_scan != #59 || y == 3"
 
     sta WSYNC
 
-row_6:
-; [row:6]
+; [scanline 7]
+row_7:
     jet_spritedata_calc
 
     lda #COL_BG
@@ -119,7 +111,7 @@ row_6:
     bne loadframe2
 
 loadframe1:
-    ; ~30c
+    ASSERT_RUNTIME "_scycles == #32"
 
     ; Emerald byte setting 1A
     ldx #0
@@ -135,7 +127,7 @@ loadframe1:
 
     sta WSYNC
 
-; [row:7]
+; [scanline 8]
     jet_spritedata_calc
 
     ; Emerald byte setting 1B
@@ -151,10 +143,10 @@ loadframe1:
     lda KERNEL_STORAGE_R,X
     sta GEM_22_W
 
-    jmp row_7_end
+    jmp row_8_end
 
 loadframe2:
-    ; ~30c
+    ASSERT_RUNTIME "_scycles == #33"
 
     ; Emerald byte setting 2A
     ldx #[storage_02 - storage]
@@ -170,8 +162,8 @@ loadframe2:
 
     sta WSYNC
 
-row_7:
-; [row:7]
+; [scanline 8]
+row_8:
     jet_spritedata_calc
 
     ; Emerald byte setting 2B
@@ -187,12 +179,12 @@ row_7:
     lda KERNEL_STORAGE_R,X
     sta GEM_24_W
 
-    jmp row_7_end
+    jmp row_8_end
 
-row_7_end:
+row_8_end:
     sta WSYNC
 
-; [row:8]
+; [scanline 8]
     ; Repeat loop until LoopCount < 0
     dec LoopCount
     bmi row_end
