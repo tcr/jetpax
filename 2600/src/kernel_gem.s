@@ -32,11 +32,11 @@
 ;    v 22c    v 25c             v 31c                                                                                              v 64c    v 67c
 ;    v -2P    v 7P             v 24P     v 34P    v 43P                               v 79P                               v 115P               v 136P
 ; A: AAAAAAAAABBBBBBBBBCCCCCCCCCDDDDDDDDDAAAAAAAAABBBBBBBBBCCCCCCCCCDDDDDDDDDAAAAAAAAABBBBBBBBBCCCCCCCCCDDDDDDDDDEEEEEEEEE.........,,,,,,,,,---------
-;                                                 GEM9     PF1      GEM13    RESP1    M0=off   GEM18    LDA      GEM22
+;    RESP1    M1=on    vdel?    GEM4     RESP1    GEM9(X)  PF1      GEM13(Y) RESP1    M0=off   GEM18(A) LDA      GEM22(A)
 ;             !--------****        _11__11_       !_11__11_****        _11__11_       !_11__11_****     MM _11__11_       |_11__11_        
 ; Gems:                        ====_XX__XX__XX__XX__XX__XX__XX__XX__XX__XX__XX__XX__XX__XX__XX__XX__XX__XX__XX__XX__XX__XX__XX__XX__XX__XX_====
 ; B:          AAAAAAAAABBBBBBBBBCCCCCCCCCDDDDDDDDDAAAAAAAAABBBBBBBBBCCCCCCCCCDDDDDDDDDAAAAAAAAABBBBBBBBBCCCCCCCCCDDDDDDDDD,,,,,,,,,.........,,,,,,,,,---------
-;                                        GEM6     RESP1    GEM11    M1=on    GEM15    RESP1    GEM20    LDA      GEM24    ?
+;             RESP1    NOP      vdel?    GEM6     RESP1    GEM11(X) M1=on    GEM15(Y) RESP1    GEM20(A) LDA      GEM24(A) LDA      GRP26(A)
 ;                      !--------****        22__22__       !22__22__*MM*        22__22__       !22__22__****        22__22__       |22__22__
 ; PF |0                1       ====                    2                               0               1                               2   ====|
 ;
