@@ -17,36 +17,6 @@
 ; acceptable amount of flicker (15Hz) we can render almost all the gems on each
 ; line, except for two. These are instead rendered by the missile, which
 ; corresponds to the sprite and must have the same color and repeat pattern.
-; 
-; TODO there is a better writeup of how to get the last few sprites on the line
-; with missles in some notebook somewhere?
-;
-;
-; Gem Kernel Map by Color Clock
-;
-; - 3 Color Clocks = 1 CPU cycle
-; - Kernel opcodes are 3 cycles = 9 color clocks
-; - Playfield pixels = 4 color clocks wide
-; - 
-;
-;    v 22c    v 25c             v 31c                                                                                              v 64c    v 67c
-;    v -2P    v 7P             v 24P     v 34P    v 43P                               v 79P                               v 115P               v 136P
-; A: AAAAAAAAABBBBBBBBBCCCCCCCCCDDDDDDDDDAAAAAAAAABBBBBBBBBCCCCCCCCCDDDDDDDDDAAAAAAAAABBBBBBBBBCCCCCCCCCDDDDDDDDDEEEEEEEEE.........,,,,,,,,,---------
-;    RESP1    M1=on    vdel?    GEM4     RESP1    GEM9(X)  PF1      GEM13(Y) RESP1    M0=off   GEM18(A) LDA      GEM22(A)
-;             !--------****        _11__11_       !_11__11_****        _11__11_       !_11__11_****     MM _11__11_       |_11__11_        
-; Gems:                        ====_XX__XX__XX__XX__XX__XX__XX__XX__XX__XX__XX__XX__XX__XX__XX__XX__XX__XX__XX__XX__XX__XX__XX__XX__XX__XX_====
-; B:          AAAAAAAAABBBBBBBBBCCCCCCCCCDDDDDDDDDAAAAAAAAABBBBBBBBBCCCCCCCCCDDDDDDDDDAAAAAAAAABBBBBBBBBCCCCCCCCCDDDDDDDDD,,,,,,,,,.........,,,,,,,,,---------
-;             RESP1    NOP      vdel?    GEM6     RESP1    GEM11(X) M1=on    GEM15(Y) RESP1    GEM20(A) LDA      GEM24(A) LDA      GRP26(A)
-;                      !--------****        22__22__       !22__22__*MM*        22__22__       !22__22__****        22__22__       |22__22__
-; PF |0                1       ====                    2                               0               1                               2   ====|
-;
-;   ====   playfield wall
-;    !     RESP0 
-;    |     Let RESP0 chaining lapse
-;   ****   Mysterious post-resp0 4 cycle wait
-;    MM    Missile
-;    ABCs  Resp0 sequences
-;
 
     ; for copying
     align 256
@@ -73,40 +43,37 @@ Kernel1: subroutine
     .byte GEM_00, EMERALD_SP ; moveable?
 
 ; Critical: 22c (start of precise timing)
-    ; (A)
+    ; [A]
     sta EMERALD_SP_RESET ; trivial
-    ; (B)
+    ; [B]
     sta EMERALD_MI_ENABLE ; trivial ; Is this timing-critical??
-    ; (C)
+    ; [C]
     sleep 3
-    ; (D) far
 
-    ; TODO bonus VDEL sprite
 .gem_04:
+    ; [D]
     .byte GEM_04, EMERALD_SP
 
     ; middle triplet; first kernel 1???
-    ; (A)
+    ; [E]
     sta EMERALD_SP_RESET ; trivial
 .gem_09:
-    ; (B)
+    ; [F]
     .byte GEM_09, EMERALD_SP
 
-    ; TODO PF1 load
-    ; (C)
+    ; [G]
     sleep 3
 
-    ; end triplet; second kernel 1???
 .gem_13:
-    ; (D) for far ?
+    ; [H]
     .byte GEM_13, EMERALD_SP
 
-    ; reset (A)
+    ; [I]
     sta EMERALD_SP_RESET ; trivial
 .gem_17:
 
     ; spare; missle writes
-    ; 49c (B)
+    ; [J]
     .byte GEM_17, EMERALD_MI_ENABLE ; could htis ever possibly be
     ; moved out of the kernel, and if so, huge wins
     ; (makes next sprite a freebie too, then just dealing with 3)
@@ -115,18 +82,26 @@ Kernel1: subroutine
     ; even extreme measures...! PHP with Z register!!! muahaha
     ; dunno how to deal with the opcode length change though?
 
-    ; middle triplet; third kernel 1??? (C)
+    ; middle triplet; third kernel 1???
 .gem_18:
+    ; [K]
     .byte GEM_18, EMERALD_SP
 
-    ; end triplet; free (D)
+    ; [L]
     sleep 3
 .gem_22:
-    ; (E) past far ????
+    ; [M]
     .byte GEM_22, EMERALD_SP
-; Critical End: 64c (cycle follows start of right border)
 
-    sleep 9
+    ; [N]
+    sleep 3
+    ; [O]
+    sleep 3
+    ; [P]
+    sleep 3
+
+    ASSERT_RUNTIME "_scycles == #70"
+    ; 6c
     rts
 
 ; Writable offsets
@@ -143,7 +118,7 @@ kernel_1_end:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; KERNEL 2
+; KERNEL B
 
 ; Emerald line macro (3, 4, ...)
 
@@ -174,29 +149,32 @@ Kernel2: subroutine
 ; Critical: 25c (start of precise timing)
     ASSERT_RUNTIME "_scycles == #25"
 
-    ; (A)
+    ; [A]
     sta EMERALD_SP_RESET ; trivial
 
     ; already set middle triplet
     ;ldx #%00010010
     ;stx.w NUSIZ1
-    ; (B) (C)
-    sleep 6
+
+    ; [B]
+    sleep 3
+    ; [C]
+    sleep 3
 
     ; end triplet; bonus VDEL write
 .gem_06:
-    ; (D)
+    ; [D]
     .byte GEM_06, EMERALD_SP
 
     ; middle triplet; write or change nusiz
-    ; (A)
+    ; [E]
     sta EMERALD_SP_RESET ; trivial
 .gem_11:
-    ; (B)
+    ; [F]
     .byte GEM_11, EMERALD_SP
 
     ; disable missle
-    ; (C)
+    ; [G]
     stx EMERALD_MI_ENABLE
     ; sleep 3
     ; ^ could this be moved, and then free the timing slot
@@ -204,31 +182,33 @@ Kernel2: subroutine
 
     ; end triplet; write or reset
 .gem_15:
-    ; (D)
+    ; [H]
     .byte GEM_15, EMERALD_SP
     ; 49c midway
-    ; (A)
+    ; [I]
     sta EMERALD_SP_RESET ; spare
-    ; PF2
 
-    ; middle triplet; write or change nusiz
 .gem_20:
-    ; (B)
+    ; [J]
     .byte GEM_20, EMERALD_SP
-    ; (C)
+    ; [K]
     sleep 3 ; spare
 
     ; end triplet; free
 .gem_24:
-    ; (D)
+    ; [L]
     .byte GEM_24, EMERALD_SP
 
-; Critical End: 61c (just before gem 24 render)
-    ASSERT_RUNTIME "_scycles == #61"
+    ; [M]
+    sleep 3
+    ; [N]
+    sleep 3
 
-    ; ldx #%0001001
-    ; stx.w NUSIZ1
-    sleep 9
+    ; [O]
+    sleep 3
+
+    ASSERT_RUNTIME "_scycles == #70"
+    ; 6c
     rts
 
 ; Writable offsets

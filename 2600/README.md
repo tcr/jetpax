@@ -6,6 +6,44 @@ Run
 make debug
 ```
 
+## Gem Kernel
+
+```
+
+Gem Kernel Map by Color Clock
+
+ - 3 Color Clocks = 1 CPU cycle
+ - Kernel opcodes are 3 cycles = 9 color clocks
+ - Playfield pixels = 4 color clocks wide
+
+
+    v 22c    v 25c             v 31c                                                                                              v 64c    v 67c
+    v -2P    v 7P             v 24P     v 34P    v 43P                               v 79P            $                  v 115P               v 136P
+ A: A--------B--------C--------D--------E--------F--------G--------H--------I--------J--------K--------L--------M--------N--------O--------P--------
+    RESP1    PF0      nop      GEM4     RESP1    GEM9(A)  M1=on    GEM13(B) RESP1    PF1      GEM18(C) LDA      GEM22    nop      PF0
+             !--------****        s$$sssss       !s$$sssss****     mm ssssssss       !ssssssss****        ssssssss       |ssssssss        
+                                   00  01          04  05          08  09  10          13  14          17  18  19          22  23         
+ Gems:                        ====_AA__AA__BB__BB__AA__AA__BB__BB__AA__AA__AA__BB__BB__AA__AA__BB__BB__BB__AA__AA__BB__BB__AA__AA__BB__BB_====
+                                           02  03          06  07              11  12          15  16              20  21          24  25 
+                      !--------***         ssssssss       !ssssssss****        ssssssss       !ssssssssmm**        $$ssssss       |$$ssssss
+             RESP1    PF0      nop      GEM6     RESP1    GEM11(A) PF1      GEM15(B) RESP1    GEM20(C) M1=off   LDA      GEM24    PF0
+ B:          A--------B--------C--------D--------E--------F--------G--------H--------I--------J--------K--------L--------M--------N--------O--------
+ PF  |0               1       ====                    2                               0               1                               2   ====|
+
+
+
+   ====   playfield wall
+   !      RESP0 
+   |      let RESP0 chaining lapse
+   -      no data due to resetting
+   ****   mysterious post-resp0 4 cycle wait
+   MM     missile
+   ABCs   RESP0 sequences
+
+```
+
+## Etc.
+
 Essential reading: https://alienbill.com/2600/101/docs/stella.html
 
 Essential reading: https://github.com/munsie/dasm/blob/master/doc/dasm.txt 

@@ -139,9 +139,9 @@ COL_EMERALD_2 equ $CC
 
 ; HMOVE values
 
-EMERALD_MI_HMOVE_S equ 39
+EMERALD_MI_HMOVE_S equ 34
 EMERALD_MI_HMOVE_2 equ $d0
-EMERALD_MI_HMOVE_3 equ $10
+EMERALD_MI_HMOVE_3 equ $20
 
 ; Sprite details
 

@@ -7,4 +7,4 @@ play:
 	stella  -bs FA bin/jetpack.bin -bs FA -center 0 -tv.phosphor always -tv.phosblend 40
 
 debug: all
-	stella -debug -bs FA bin/jetpack.bin -bs FA -center 0 -tv.phosphor always -tv.phosblend 40
+	stella -debug -plr.debugcolors 1 -bs FA bin/jetpack.bin -bs FA -center 0 -tv.phosphor always -tv.phosblend 40
