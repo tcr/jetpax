@@ -2,6 +2,17 @@
 
 Start:
     CLEAN_START
+
+    ; just testing stuff
+    
+    lda #%00000011
+    pha
+    plp
+    php
+    ASSERT_RUNTIME "*$ff == \00110011"
+    plp
+
+InitSetup:
     lda #0
     sta FrameCount
 
