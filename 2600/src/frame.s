@@ -50,48 +50,42 @@ VerticalBlank: subroutine
     clc
     lda #HEIGHT_OFFSET
     sbc YPos
-HereTim:
     sta SpriteEnd
 
-    ; Move missile to starting position and fine-tune position
-    ; TODO replace with an HMOVE macro
-    sta WSYNC
-    sleep EMERALD_MI_HMOVE_S
-    sta EMERALD_MI_RESET
 
     ; Player 1
     lda XPos
     ldx #0
     jsr SetHorizPos
 
-
-    ; Choose which hmove value to use
-
-
-    ; [TODO]
-    ; Make these into separate horizontal positioning calls
-    ; which will make it possible to do better missle tricks
-    ; and free up both kernels to have another reigster
-
-
-
-    ; FRAMESWITCH
+PositionMissiles: subroutine
+    ; Kernel A or B
     lda #01
     and FrameCount
-    bne doframe2
+    bne .kernel_b
 
-    ; frame 1
-    lda #EMERALD_MI_HMOVE_2
+.kernel_a:
+    sta WSYNC
+    sleep KERNEL_A_MISSILE_SLEEP
+    sta EMERALD_MI_RESET
+
+    lda #KERNEL_A_MISSILE_HMOVE
     sta EMERALD_MI_HMOVE
-    jmp doframe2after
 
-    ; frame 2
-doframe2:
-    lda #EMERALD_MI_HMOVE_3
+    jmp .complete
+
+.kernel_b:
+    sta WSYNC
+    sleep KERNEL_B_MISSILE_SLEEP
+    sta EMERALD_MI_RESET
+
+    lda #KERNEL_B_MISSILE_HMOVE
     sta EMERALD_MI_HMOVE
-doframe2after:
 
-    ; Start rendering the kernel.
+.complete:
+
+VerticalBlankEnd:
+    ; Wait until the end of Vertical blank.
     TIMER_WAIT
     ASSERT_RUNTIME "_scan == #37"
 

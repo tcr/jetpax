@@ -122,16 +122,16 @@ loadframe1:
     ASSERT_RUNTIME "_scycles == #32"
 
     ; Emerald byte setting 1A
-    ldx #0
-    lda KERNEL_STORAGE_R,X
-    sta GEM_00_W
-    inx
-    lda KERNEL_STORAGE_R,X
-    sta GEM_04_W
-    inx
-    lda KERNEL_STORAGE_R,X
-    sta GEM_09_W
-    inx
+    ; ldx #0
+    ; lda KERNEL_STORAGE_R,X
+    ; sta GEM_00_W
+    ; inx
+    ; lda KERNEL_STORAGE_R,X
+    ; sta GEM_04_W
+    ; inx
+    ; lda KERNEL_STORAGE_R,X
+    ; sta GEM_09_W
+    ; inx
 
     sta WSYNC
 
@@ -139,17 +139,17 @@ loadframe1:
     jet_spritedata_calc
 
     ; Emerald byte setting 1B
-    lda KERNEL_STORAGE_R,X
-    sta GEM_13_W
-    inx
-    lda KERNEL_STORAGE_R,X
-    sta GEM_17_W
-    inx
-    lda KERNEL_STORAGE_R,X
-    sta GEM_18_W
-    inx
-    lda KERNEL_STORAGE_R,X
-    sta GEM_22_W
+    ; lda KERNEL_STORAGE_R,X
+    ; sta GEM_13_W
+    ; inx
+    ; lda KERNEL_STORAGE_R,X
+    ; sta GEM_17_W
+    ; inx
+    ; lda KERNEL_STORAGE_R,X
+    ; sta GEM_18_W
+    ; inx
+    ; lda KERNEL_STORAGE_R,X
+    ; sta GEM_22_W
 
     jmp row_8_end
 
@@ -159,16 +159,16 @@ loadframe2:
     ASSERT_RUNTIME "_scycles == #33"
 
     ; Emerald byte setting 2A
-    ldx #[storage_02 - storage]
-    lda KERNEL_STORAGE_R,X
-    sta GEM_02_W
-    inx
-    lda KERNEL_STORAGE_R,X
-    sta GEM_06_W
-    inx
-    lda KERNEL_STORAGE_R,X
-    sta GEM_08_W
-    inx
+    ; ldx #[storage_02 - storage]
+    ; lda KERNEL_STORAGE_R,X
+    ; sta GEM_02_W
+    ; inx
+    ; lda KERNEL_STORAGE_R,X
+    ; sta GEM_06_W
+    ; inx
+    ; lda KERNEL_STORAGE_R,X
+    ; sta GEM_08_W
+    ; inx
 
     sta WSYNC
 
@@ -177,17 +177,17 @@ row_8:
     jet_spritedata_calc
 
     ; Emerald byte setting 2B
-    lda KERNEL_STORAGE_R,X
-    sta GEM_11_W
-    inx
-    lda KERNEL_STORAGE_R,X
-    sta GEM_15_W
-    inx
-    lda KERNEL_STORAGE_R,X
-    sta GEM_20_W
-    inx
-    lda KERNEL_STORAGE_R,X
-    sta GEM_24_W
+    ; lda KERNEL_STORAGE_R,X
+    ; sta GEM_11_W
+    ; inx
+    ; lda KERNEL_STORAGE_R,X
+    ; sta GEM_15_W
+    ; inx
+    ; lda KERNEL_STORAGE_R,X
+    ; sta GEM_20_W
+    ; inx
+    ; lda KERNEL_STORAGE_R,X
+    ; sta GEM_24_W
 
     jmp row_8_end
 
