@@ -799,7 +799,7 @@
      78  f269
      79  f269							; Copy: KERNEL 1
      80  f269				   CopyFrame1Kernel subroutine
-     81  f269		       a0 2e		      ldy	#(kernel_1_end - kernel_1_start)-1
+     81  f269		       a0 2f		      ldy	#(kernel_1_end - kernel_1_start)-1
      82  f26b				   .loop
      83  f26b		       b9 00 f7 	      lda	kernel_1_start,Y
      84  f26e		       99 00 10 	      sta	$1000,Y
@@ -914,11 +914,11 @@
     123  f2f0				   CopyFrame2Kernel subroutine
     124  f2f0		       a0 2f		      ldy	#(kernel_2_end - kernel_2_start)-1
     125  f2f2				   .loop
-    126  f2f2		       b9 2f f7 	      lda	kernel_2_start,Y
+    126  f2f2		       b9 30 f7 	      lda	kernel_2_start,Y
     127  f2f5		       99 00 10 	      sta	$1000,Y
     128  f2f8		       88		      dey
     129  f2f9		       d0 f7		      bne	.loop
-    130  f2fb		       ad 2f f7 	      lda	kernel_2_start
+    130  f2fb		       ad 30 f7 	      lda	kernel_2_start
     131  f2fe		       8d 00 10 	      sta	$1000
     132  f301
     133  f301		       a6 8e		      ldx	ROW_DEMO_INDEX
@@ -2260,453 +2260,435 @@
       2  f700					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
      34  f700
      35  f700							; this sleep first make this distinct from Kernel B in debugger, lol
-      0  f700					      sleep	6
-      1  f700				   .CYCLES    SET	6
+      0  f700					      sleep	3
+      1  f700				   .CYCLES    SET	3
       2  f700
       3  f700				  -	      IF	.CYCLES < 2
       4  f700				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
       5  f700				  -	      ERR
       6  f700					      ENDIF
       7  f700
-      8  f700				  -	      IF	.CYCLES & 1
-      9  f700				  -	      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f700				  -	      nop	0
-     11  f700				  -	      ELSE
-     12  f700				  -	      bit	VSYNC
-     13  f700				  -	      ENDIF
-     14  f700				  -.CYCLES    SET	.CYCLES - 3
-     15  f700					      ENDIF
-     16  f700
-     17  f700					      REPEAT	.CYCLES / 2
-     18  f700		       ea		      nop
-     17  f700					      REPEND
-     18  f701		       ea		      nop
-     17  f701					      REPEND
-     18  f702		       ea		      nop
-     19  f703					      REPEND
-     37  f703
-     38  f703							; Load next Player sprite
-     39  f703		       68		      pla
-     40  f704		       85 1b		      sta	GRP0
-     41  f706
-     42  f706		       a9 60		      lda	#%01100000
-     43  f708		       a2 06		      ldx	#%00000110
-     44  f70a		       a0 66		      ldy	#%01100110
-     45  f70c		       84 1c		      .byte.b	GEM_00, EMERALD_SP
-     46  f70e
-     47  f70e							; 22c is critical start of precise GRP0 timing for Kernel A
-      0  f70e					      ASSERT_RUNTIME	"_scycles == #22"
-      1  f70e				   .COND      SET	"_scycles == #22"
- ASSERT: breakif { pc== $f10e  && !(  _scycles == #22  ) }
-      2  f70e					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
-     49  f70e				   KernelA_A
-     50  f70e		       85 11		      sta	EMERALD_SP_RESET
-     51  f710				   KernelA_B
-     52  f710		       86 1e		      stx	EMERALD_MI_ENABLE
-     53  f712				   KernelA_C
-      0  f712					      sleep	3
-      1  f712				   .CYCLES    SET	3
-      2  f712
-      3  f712				  -	      IF	.CYCLES < 2
-      4  f712				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  f712				  -	      ERR
-      6  f712					      ENDIF
-      7  f712
-      8  f712					      IF	.CYCLES & 1
-      9  f712					      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f712		       04 00		      nop	0
-     11  f714				  -	      ELSE
-     12  f714				  -	      bit	VSYNC
-     13  f714					      ENDIF
-     14  f714				   .CYCLES    SET	.CYCLES - 3
-     15  f714					      ENDIF
-     16  f714
-     17  f714				  -	      REPEAT	.CYCLES / 2
-     18  f714				  -	      nop
-     19  f714					      REPEND
-     55  f714				   KernelA_D
-     56  f714		       84 1c		      .byte.b	GEM_04, EMERALD_SP
-     57  f716				   KernelA_E
-     58  f716		       85 11		      sta	EMERALD_SP_RESET
-     59  f718				   KernelA_F
-     60  f718		       84 1c		      .byte.b	GEM_09, EMERALD_SP
-     61  f71a				   KernelA_G
-      0  f71a					      sleep	3
-      1  f71a				   .CYCLES    SET	3
-      2  f71a
-      3  f71a				  -	      IF	.CYCLES < 2
-      4  f71a				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  f71a				  -	      ERR
-      6  f71a					      ENDIF
-      7  f71a
-      8  f71a					      IF	.CYCLES & 1
-      9  f71a					      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f71a		       04 00		      nop	0
-     11  f71c				  -	      ELSE
-     12  f71c				  -	      bit	VSYNC
-     13  f71c					      ENDIF
-     14  f71c				   .CYCLES    SET	.CYCLES - 3
-     15  f71c					      ENDIF
-     16  f71c
-     17  f71c				  -	      REPEAT	.CYCLES / 2
-     18  f71c				  -	      nop
-     19  f71c					      REPEND
-     63  f71c				   KernelA_H
-     64  f71c		       84 1c		      .byte.b	GEM_13, EMERALD_SP
-     65  f71e				   KernelA_I
-     66  f71e		       85 11		      sta	EMERALD_SP_RESET
-     67  f720				   KernelA_J
-     68  f720		       84 1e		      .byte.b	GEM_17, EMERALD_MI_ENABLE
-     69  f722				   KernelA_K
-     70  f722		       84 1c		      .byte.b	GEM_18, EMERALD_SP
-     71  f724				   KernelA_L
-      0  f724					      sleep	3
-      1  f724				   .CYCLES    SET	3
-      2  f724
-      3  f724				  -	      IF	.CYCLES < 2
-      4  f724				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  f724				  -	      ERR
-      6  f724					      ENDIF
-      7  f724
-      8  f724					      IF	.CYCLES & 1
-      9  f724					      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f724		       04 00		      nop	0
-     11  f726				  -	      ELSE
-     12  f726				  -	      bit	VSYNC
-     13  f726					      ENDIF
-     14  f726				   .CYCLES    SET	.CYCLES - 3
-     15  f726					      ENDIF
-     16  f726
-     17  f726				  -	      REPEAT	.CYCLES / 2
-     18  f726				  -	      nop
-     19  f726					      REPEND
-     73  f726				   KernelA_M
-     74  f726		       84 1c		      .byte.b	GEM_22, EMERALD_SP
-     75  f728				   KernelA_N
-      0  f728					      sleep	3
-      1  f728				   .CYCLES    SET	3
-      2  f728
-      3  f728				  -	      IF	.CYCLES < 2
-      4  f728				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  f728				  -	      ERR
-      6  f728					      ENDIF
-      7  f728
-      8  f728					      IF	.CYCLES & 1
-      9  f728					      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f728		       04 00		      nop	0
-     11  f72a				  -	      ELSE
-     12  f72a				  -	      bit	VSYNC
-     13  f72a					      ENDIF
-     14  f72a				   .CYCLES    SET	.CYCLES - 3
-     15  f72a					      ENDIF
-     16  f72a
-     17  f72a				  -	      REPEAT	.CYCLES / 2
-     18  f72a				  -	      nop
-     19  f72a					      REPEND
-     77  f72a				   KernelA_O
-      0  f72a					      sleep	3
-      1  f72a				   .CYCLES    SET	3
-      2  f72a
-      3  f72a				  -	      IF	.CYCLES < 2
-      4  f72a				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  f72a				  -	      ERR
-      6  f72a					      ENDIF
-      7  f72a
-      8  f72a					      IF	.CYCLES & 1
-      9  f72a					      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f72a		       04 00		      nop	0
-     11  f72c				  -	      ELSE
-     12  f72c				  -	      bit	VSYNC
-     13  f72c					      ENDIF
-     14  f72c				   .CYCLES    SET	.CYCLES - 3
-     15  f72c					      ENDIF
-     16  f72c
-     17  f72c				  -	      REPEAT	.CYCLES / 2
-     18  f72c				  -	      nop
-     19  f72c					      REPEND
-     79  f72c				   KernelA_P
-      0  f72c					      sleep	3
-      1  f72c				   .CYCLES    SET	3
-      2  f72c
-      3  f72c				  -	      IF	.CYCLES < 2
-      4  f72c				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  f72c				  -	      ERR
-      6  f72c					      ENDIF
-      7  f72c
-      8  f72c					      IF	.CYCLES & 1
-      9  f72c					      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f72c		       04 00		      nop	0
-     11  f72e				  -	      ELSE
-     12  f72e				  -	      bit	VSYNC
-     13  f72e					      ENDIF
-     14  f72e				   .CYCLES    SET	.CYCLES - 3
-     15  f72e					      ENDIF
-     16  f72e
-     17  f72e				  -	      REPEAT	.CYCLES / 2
-     18  f72e				  -	      nop
-     19  f72e					      REPEND
-     81  f72e
-     82  f72e							; 6c
-      0  f72e					      ASSERT_RUNTIME	"_scycles == #70"
-      1  f72e				   .COND      SET	"_scycles == #70"
- ASSERT: breakif { pc== $f12e  && !(  _scycles == #70  ) }
-      2  f72e					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
-     84  f72e		       60		      rts
-     85  f72f
-     86  f72f							; Writable offsets
-     87  f72f		       ff ff ff 00 GEM_00_W   equ	[.gem_00 - $100]
-     88  f72f		       ff ff ff 00 GEM_04_W   equ	[.gem_04 - $100]
-     89  f72f		       ff ff ff 00 GEM_09_W   equ	[.gem_09 - $100]
-     90  f72f		       ff ff ff 00 GEM_13_W   equ	[.gem_13 - $100]
-     91  f72f		       ff ff ff 00 GEM_17_W   equ	[.gem_17 - $100]
-     92  f72f		       ff ff ff 00 GEM_18_W   equ	[.gem_18 - $100]
-     93  f72f		       ff ff ff 00 GEM_22_W   equ	[.gem_22 - $100]
-     94  f72f
-     95  f72f					      rend
-     96  f72f				   kernel_1_end
-     97  f72f
-     98  f72f							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-     99  f72f							;
-    100  f72f							; GEM KERNEL B
-    101  f72f							;
-    102  f72f
-    103  f72f				   kernel_2_start subroutine
-    104  f72f					      rorg	$f100
-    105  f72f
-    106  f72f				   Kernel2    subroutine
-      0  f72f					      ASSERT_RUNTIME	"sp == $f9"
-      1  f72f				   .COND      SET	"sp == $f9"
- ASSERT: breakif { pc== $f100  && !(  sp == $f9  ) }
-      2  f72f					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
-    108  f72f							; Assert: M1 is at position #61
-    109  f72f
-    110  f72f							; don't sleep first to make this distinct from Kernel A in debugger, lol
-    111  f72f
-    112  f72f							; Load next Player sprite
-    113  f72f		       68		      pla
-    114  f730		       85 1b		      sta	GRP0
-    115  f732
-      0  f732					      sleep	4
-      1  f732				   .CYCLES    SET	4
-      2  f732
-      3  f732				  -	      IF	.CYCLES < 2
-      4  f732				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  f732				  -	      ERR
-      6  f732					      ENDIF
-      7  f732
-      8  f732				  -	      IF	.CYCLES & 1
-      9  f732				  -	      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f732				  -	      nop	0
-     11  f732				  -	      ELSE
-     12  f732				  -	      bit	VSYNC
-     13  f732				  -	      ENDIF
-     14  f732				  -.CYCLES    SET	.CYCLES - 3
-     15  f732					      ENDIF
-     16  f732
-     17  f732					      REPEAT	.CYCLES / 2
-     18  f732		       ea		      nop
-     17  f732					      REPEND
-     18  f733		       ea		      nop
-     19  f734					      REPEND
-    117  f734
-    118  f734		       a9 02		      lda	#02
-    119  f736		       a2 0c		      ldx	#%00001100
-    120  f738		       a0 cc		      ldy	#%11001100
-    121  f73a		       85 1e		      .byte.b	GEM_08, EMERALD_MI_ENABLE
-    122  f73c		       a9 c0		      lda	#%11000000
-    123  f73e		       84 1c		      .byte.b	GEM_02, EMERALD_SP
-    124  f740
-    125  f740							; 25c is critical start of precise GRP0 timing for Kernel B
-      0  f740					      ASSERT_RUNTIME	"_scycles == #25"
-      1  f740				   .COND      SET	"_scycles == #25"
- ASSERT: breakif { pc== $f111  && !(  _scycles == #25  ) }
-      2  f740					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
-    127  f740				   KernelB_A
-    128  f740		       85 11		      sta	EMERALD_SP_RESET
-    129  f742				   KernelB_B
-      0  f742					      sleep	3
-      1  f742				   .CYCLES    SET	3
-      2  f742
-      3  f742				  -	      IF	.CYCLES < 2
-      4  f742				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  f742				  -	      ERR
-      6  f742					      ENDIF
-      7  f742
-      8  f742					      IF	.CYCLES & 1
-      9  f742					      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f742		       04 00		      nop	0
-     11  f744				  -	      ELSE
-     12  f744				  -	      bit	VSYNC
-     13  f744					      ENDIF
-     14  f744				   .CYCLES    SET	.CYCLES - 3
-     15  f744					      ENDIF
-     16  f744
-     17  f744				  -	      REPEAT	.CYCLES / 2
-     18  f744				  -	      nop
-     19  f744					      REPEND
-    131  f744				   KernelB_C
-      0  f744					      sleep	3
-      1  f744				   .CYCLES    SET	3
-      2  f744
-      3  f744				  -	      IF	.CYCLES < 2
-      4  f744				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  f744				  -	      ERR
-      6  f744					      ENDIF
-      7  f744
-      8  f744					      IF	.CYCLES & 1
-      9  f744					      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f744		       04 00		      nop	0
-     11  f746				  -	      ELSE
-     12  f746				  -	      bit	VSYNC
-     13  f746					      ENDIF
-     14  f746				   .CYCLES    SET	.CYCLES - 3
-     15  f746					      ENDIF
-     16  f746
-     17  f746				  -	      REPEAT	.CYCLES / 2
-     18  f746				  -	      nop
-     19  f746					      REPEND
-    133  f746				   KernelB_D
-    134  f746		       84 1c		      .byte.b	GEM_06, EMERALD_SP
-    135  f748				   KernelB_E
-    136  f748		       85 11		      sta	EMERALD_SP_RESET
-    137  f74a				   KernelB_F
-    138  f74a		       84 1c		      .byte.b	GEM_11, EMERALD_SP
-    139  f74c				   KernelB_G
-    140  f74c							;stx EMERALD_MI_ENABLE
-      0  f74c					      sleep	3
-      1  f74c				   .CYCLES    SET	3
-      2  f74c
-      3  f74c				  -	      IF	.CYCLES < 2
-      4  f74c				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  f74c				  -	      ERR
-      6  f74c					      ENDIF
-      7  f74c
-      8  f74c					      IF	.CYCLES & 1
-      9  f74c					      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f74c		       04 00		      nop	0
-     11  f74e				  -	      ELSE
-     12  f74e				  -	      bit	VSYNC
-     13  f74e					      ENDIF
-     14  f74e				   .CYCLES    SET	.CYCLES - 3
-     15  f74e					      ENDIF
-     16  f74e
-     17  f74e				  -	      REPEAT	.CYCLES / 2
-     18  f74e				  -	      nop
-     19  f74e					      REPEND
-    142  f74e				   KernelB_H
-    143  f74e		       84 1c		      .byte.b	GEM_15, EMERALD_SP
-    144  f750				   KernelB_I
-    145  f750		       85 11		      sta	EMERALD_SP_RESET
-    146  f752				   KernelB_J
-    147  f752		       84 1c		      .byte.b	GEM_20, EMERALD_SP
-    148  f754				   KernelB_K
-      0  f754					      sleep	3
-      1  f754				   .CYCLES    SET	3
-      2  f754
-      3  f754				  -	      IF	.CYCLES < 2
-      4  f754				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  f754				  -	      ERR
-      6  f754					      ENDIF
-      7  f754
-      8  f754					      IF	.CYCLES & 1
-      9  f754					      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f754		       04 00		      nop	0
-     11  f756				  -	      ELSE
-     12  f756				  -	      bit	VSYNC
-     13  f756					      ENDIF
-     14  f756				   .CYCLES    SET	.CYCLES - 3
-     15  f756					      ENDIF
-     16  f756
-     17  f756				  -	      REPEAT	.CYCLES / 2
-     18  f756				  -	      nop
-     19  f756					      REPEND
-    150  f756				   KernelB_L
-    151  f756		       84 1c		      .byte.b	GEM_24, EMERALD_SP
-    152  f758				   KernelB_M
-      0  f758					      sleep	3
-      1  f758				   .CYCLES    SET	3
-      2  f758
-      3  f758				  -	      IF	.CYCLES < 2
-      4  f758				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  f758				  -	      ERR
-      6  f758					      ENDIF
-      7  f758
-      8  f758					      IF	.CYCLES & 1
-      9  f758					      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f758		       04 00		      nop	0
-     11  f75a				  -	      ELSE
-     12  f75a				  -	      bit	VSYNC
-     13  f75a					      ENDIF
-     14  f75a				   .CYCLES    SET	.CYCLES - 3
-     15  f75a					      ENDIF
-     16  f75a
-     17  f75a				  -	      REPEAT	.CYCLES / 2
-     18  f75a				  -	      nop
-     19  f75a					      REPEND
-    154  f75a				   KernelB_N
-      0  f75a					      sleep	3
-      1  f75a				   .CYCLES    SET	3
-      2  f75a
-      3  f75a				  -	      IF	.CYCLES < 2
-      4  f75a				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  f75a				  -	      ERR
-      6  f75a					      ENDIF
-      7  f75a
-      8  f75a					      IF	.CYCLES & 1
-      9  f75a					      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f75a		       04 00		      nop	0
-     11  f75c				  -	      ELSE
-     12  f75c				  -	      bit	VSYNC
-     13  f75c					      ENDIF
-     14  f75c				   .CYCLES    SET	.CYCLES - 3
-     15  f75c					      ENDIF
-     16  f75c
-     17  f75c				  -	      REPEAT	.CYCLES / 2
-     18  f75c				  -	      nop
-     19  f75c					      REPEND
-    156  f75c				   KernelB_O
-      0  f75c					      sleep	3
-      1  f75c				   .CYCLES    SET	3
-      2  f75c
-      3  f75c				  -	      IF	.CYCLES < 2
-      4  f75c				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  f75c				  -	      ERR
-      6  f75c					      ENDIF
-      7  f75c
-      8  f75c					      IF	.CYCLES & 1
-      9  f75c					      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f75c		       04 00		      nop	0
-     11  f75e				  -	      ELSE
-     12  f75e				  -	      bit	VSYNC
-     13  f75e					      ENDIF
-     14  f75e				   .CYCLES    SET	.CYCLES - 3
-     15  f75e					      ENDIF
-     16  f75e
-     17  f75e				  -	      REPEAT	.CYCLES / 2
-     18  f75e				  -	      nop
-     19  f75e					      REPEND
-    158  f75e
-    159  f75e							; 6c
-      0  f75e					      ASSERT_RUNTIME	"_scycles == #70"
-      1  f75e				   .COND      SET	"_scycles == #70"
+      8  f700					      IF	.CYCLES & 1
+      9  f700					      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f700		       04 00		      nop	0
+     11  f702				  -	      ELSE
+     12  f702				  -	      bit	VSYNC
+     13  f702					      ENDIF
+     14  f702				   .CYCLES    SET	.CYCLES - 3
+     15  f702					      ENDIF
+     16  f702
+     17  f702				  -	      REPEAT	.CYCLES / 2
+     18  f702				  -	      nop
+     19  f702					      REPEND
+     37  f702
+     38  f702							; Load next Player sprite
+     39  f702		       68		      pla
+     40  f703		       85 1b		      sta	GRP0
+     41  f705
+     42  f705		       a9 60		      lda	#%01100000
+     43  f707		       a2 06		      ldx	#%00000110
+     44  f709		       a0 66		      ldy	#%01100110
+     45  f70b
+     46  f70b		       85 1e		      sta	EMERALD_MI_ENABLE	;disable
+     47  f70d
+     48  f70d		       84 1c		      .byte.b	GEM_00, EMERALD_SP
+     49  f70f
+     50  f70f							; 22c is critical start of precise GRP0 timing for Kernel A
+      0  f70f					      ASSERT_RUNTIME	"_scycles == #22"
+      1  f70f				   .COND      SET	"_scycles == #22"
+ ASSERT: breakif { pc== $f10f  && !(  _scycles == #22  ) }
+      2  f70f					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
+     52  f70f				   KernelA_A
+     53  f70f		       85 11		      sta	EMERALD_SP_RESET
+     54  f711				   KernelA_B
+      0  f711					      sleep	3
+      1  f711				   .CYCLES    SET	3
+      2  f711
+      3  f711				  -	      IF	.CYCLES < 2
+      4  f711				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  f711				  -	      ERR
+      6  f711					      ENDIF
+      7  f711
+      8  f711					      IF	.CYCLES & 1
+      9  f711					      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f711		       04 00		      nop	0
+     11  f713				  -	      ELSE
+     12  f713				  -	      bit	VSYNC
+     13  f713					      ENDIF
+     14  f713				   .CYCLES    SET	.CYCLES - 3
+     15  f713					      ENDIF
+     16  f713
+     17  f713				  -	      REPEAT	.CYCLES / 2
+     18  f713				  -	      nop
+     19  f713					      REPEND
+     56  f713				   KernelA_C
+      0  f713					      sleep	3
+      1  f713				   .CYCLES    SET	3
+      2  f713
+      3  f713				  -	      IF	.CYCLES < 2
+      4  f713				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  f713				  -	      ERR
+      6  f713					      ENDIF
+      7  f713
+      8  f713					      IF	.CYCLES & 1
+      9  f713					      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f713		       04 00		      nop	0
+     11  f715				  -	      ELSE
+     12  f715				  -	      bit	VSYNC
+     13  f715					      ENDIF
+     14  f715				   .CYCLES    SET	.CYCLES - 3
+     15  f715					      ENDIF
+     16  f715
+     17  f715				  -	      REPEAT	.CYCLES / 2
+     18  f715				  -	      nop
+     19  f715					      REPEND
+     58  f715				   KernelA_D
+     59  f715		       84 1c		      .byte.b	GEM_04, EMERALD_SP
+     60  f717				   KernelA_E
+     61  f717		       85 11		      sta	EMERALD_SP_RESET
+     62  f719				   KernelA_F
+     63  f719		       86 1e		      stx	EMERALD_MI_ENABLE
+     64  f71b				   KernelA_G
+     65  f71b		       84 1c		      .byte.b	GEM_09, EMERALD_SP
+     66  f71d				   KernelA_H
+     67  f71d		       84 1c		      .byte.b	GEM_13, EMERALD_SP
+     68  f71f				   KernelA_I
+     69  f71f		       85 11		      sta	EMERALD_SP_RESET
+     70  f721				   KernelA_J
+     71  f721		       84 1e		      .byte.b	GEM_17, EMERALD_MI_ENABLE
+     72  f723				   KernelA_K
+     73  f723		       84 1c		      .byte.b	GEM_18, EMERALD_SP
+     74  f725				   KernelA_L
+      0  f725					      sleep	3
+      1  f725				   .CYCLES    SET	3
+      2  f725
+      3  f725				  -	      IF	.CYCLES < 2
+      4  f725				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  f725				  -	      ERR
+      6  f725					      ENDIF
+      7  f725
+      8  f725					      IF	.CYCLES & 1
+      9  f725					      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f725		       04 00		      nop	0
+     11  f727				  -	      ELSE
+     12  f727				  -	      bit	VSYNC
+     13  f727					      ENDIF
+     14  f727				   .CYCLES    SET	.CYCLES - 3
+     15  f727					      ENDIF
+     16  f727
+     17  f727				  -	      REPEAT	.CYCLES / 2
+     18  f727				  -	      nop
+     19  f727					      REPEND
+     76  f727				   KernelA_M
+     77  f727		       84 1c		      .byte.b	GEM_22, EMERALD_SP
+     78  f729				   KernelA_N
+      0  f729					      sleep	3
+      1  f729				   .CYCLES    SET	3
+      2  f729
+      3  f729				  -	      IF	.CYCLES < 2
+      4  f729				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  f729				  -	      ERR
+      6  f729					      ENDIF
+      7  f729
+      8  f729					      IF	.CYCLES & 1
+      9  f729					      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f729		       04 00		      nop	0
+     11  f72b				  -	      ELSE
+     12  f72b				  -	      bit	VSYNC
+     13  f72b					      ENDIF
+     14  f72b				   .CYCLES    SET	.CYCLES - 3
+     15  f72b					      ENDIF
+     16  f72b
+     17  f72b				  -	      REPEAT	.CYCLES / 2
+     18  f72b				  -	      nop
+     19  f72b					      REPEND
+     80  f72b				   KernelA_O
+      0  f72b					      sleep	3
+      1  f72b				   .CYCLES    SET	3
+      2  f72b
+      3  f72b				  -	      IF	.CYCLES < 2
+      4  f72b				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  f72b				  -	      ERR
+      6  f72b					      ENDIF
+      7  f72b
+      8  f72b					      IF	.CYCLES & 1
+      9  f72b					      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f72b		       04 00		      nop	0
+     11  f72d				  -	      ELSE
+     12  f72d				  -	      bit	VSYNC
+     13  f72d					      ENDIF
+     14  f72d				   .CYCLES    SET	.CYCLES - 3
+     15  f72d					      ENDIF
+     16  f72d
+     17  f72d				  -	      REPEAT	.CYCLES / 2
+     18  f72d				  -	      nop
+     19  f72d					      REPEND
+     82  f72d				   KernelA_P
+      0  f72d					      sleep	3
+      1  f72d				   .CYCLES    SET	3
+      2  f72d
+      3  f72d				  -	      IF	.CYCLES < 2
+      4  f72d				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  f72d				  -	      ERR
+      6  f72d					      ENDIF
+      7  f72d
+      8  f72d					      IF	.CYCLES & 1
+      9  f72d					      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f72d		       04 00		      nop	0
+     11  f72f				  -	      ELSE
+     12  f72f				  -	      bit	VSYNC
+     13  f72f					      ENDIF
+     14  f72f				   .CYCLES    SET	.CYCLES - 3
+     15  f72f					      ENDIF
+     16  f72f
+     17  f72f				  -	      REPEAT	.CYCLES / 2
+     18  f72f				  -	      nop
+     19  f72f					      REPEND
+     84  f72f
+     85  f72f							; 6c
+      0  f72f					      ASSERT_RUNTIME	"_scycles == #70"
+      1  f72f				   .COND      SET	"_scycles == #70"
  ASSERT: breakif { pc== $f12f  && !(  _scycles == #70  ) }
-      2  f75e					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
-    161  f75e		       60		      rts
-    162  f75f
-    163  f75f							; Writable offsets
-    164  f75f		       ff ff ff 00 GEM_02_W   equ	[.gem_02 - $100]
-    165  f75f		       ff ff ff 00 GEM_06_W   equ	[.gem_06 - $100]
-    166  f75f		       ff ff ff 00 GEM_08_W   equ	[.gem_08 - $100]
-    167  f75f		       ff ff ff 00 GEM_11_W   equ	[.gem_11 - $100]
-    168  f75f		       ff ff ff 00 GEM_15_W   equ	[.gem_15 - $100]
-    169  f75f		       ff ff ff 00 GEM_20_W   equ	[.gem_20 - $100]
-    170  f75f		       ff ff ff 00 GEM_24_W   equ	[.gem_24 - $100]
-    171  f75f
-    172  f75f					      rend
-    173  f75f				   kernel_2_end
+      2  f72f					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
+     87  f72f		       60		      rts
+     88  f730
+     89  f730							; Writable offsets
+     90  f730		       ff ff ff 00 GEM_00_W   equ	[.gem_00 - $100]
+     91  f730		       ff ff ff 00 GEM_04_W   equ	[.gem_04 - $100]
+     92  f730		       ff ff ff 00 GEM_09_W   equ	[.gem_09 - $100]
+     93  f730		       ff ff ff 00 GEM_13_W   equ	[.gem_13 - $100]
+     94  f730		       ff ff ff 00 GEM_17_W   equ	[.gem_17 - $100]
+     95  f730		       ff ff ff 00 GEM_18_W   equ	[.gem_18 - $100]
+     96  f730		       ff ff ff 00 GEM_22_W   equ	[.gem_22 - $100]
+     97  f730
+     98  f730					      rend
+     99  f730				   kernel_1_end
+    100  f730
+    101  f730							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    102  f730							;
+    103  f730							; GEM KERNEL B
+    104  f730							;
+    105  f730
+    106  f730				   kernel_2_start subroutine
+    107  f730					      rorg	$f100
+    108  f730
+    109  f730				   Kernel2    subroutine
+      0  f730					      ASSERT_RUNTIME	"sp == $f9"
+      1  f730				   .COND      SET	"sp == $f9"
+ ASSERT: breakif { pc== $f100  && !(  sp == $f9  ) }
+      2  f730					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
+    111  f730							; Assert: M1 is at position #61
+    112  f730
+    113  f730							; don't sleep first to make this distinct from Kernel A in debugger, lol
+    114  f730
+    115  f730							; Load next Player sprite
+    116  f730		       68		      pla
+    117  f731		       85 1b		      sta	GRP0
+    118  f733
+      0  f733					      sleep	4
+      1  f733				   .CYCLES    SET	4
+      2  f733
+      3  f733				  -	      IF	.CYCLES < 2
+      4  f733				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  f733				  -	      ERR
+      6  f733					      ENDIF
+      7  f733
+      8  f733				  -	      IF	.CYCLES & 1
+      9  f733				  -	      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f733				  -	      nop	0
+     11  f733				  -	      ELSE
+     12  f733				  -	      bit	VSYNC
+     13  f733				  -	      ENDIF
+     14  f733				  -.CYCLES    SET	.CYCLES - 3
+     15  f733					      ENDIF
+     16  f733
+     17  f733					      REPEAT	.CYCLES / 2
+     18  f733		       ea		      nop
+     17  f733					      REPEND
+     18  f734		       ea		      nop
+     19  f735					      REPEND
+    120  f735
+    121  f735
+    122  f735		       a2 0c		      ldx	#%00001100
+    123  f737		       a0 cc		      ldy	#%11001100
+    124  f739
+    125  f739		       a9 02		      lda	#02
+    126  f73b		       85 1e		      sta	EMERALD_MI_ENABLE	; Enable missile
+    127  f73d
+    128  f73d		       a9 c0		      lda	#%11000000
+    129  f73f		       84 1c		      .byte.b	GEM_02, EMERALD_SP
+    130  f741
+    131  f741							; 25c is critical start of precise GRP0 timing for Kernel B
+      0  f741					      ASSERT_RUNTIME	"_scycles == #25"
+      1  f741				   .COND      SET	"_scycles == #25"
+ ASSERT: breakif { pc== $f111  && !(  _scycles == #25  ) }
+      2  f741					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
+    133  f741				   KernelB_A
+    134  f741		       85 11		      sta	EMERALD_SP_RESET
+    135  f743				   KernelB_B
+      0  f743					      sleep	3
+      1  f743				   .CYCLES    SET	3
+      2  f743
+      3  f743				  -	      IF	.CYCLES < 2
+      4  f743				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  f743				  -	      ERR
+      6  f743					      ENDIF
+      7  f743
+      8  f743					      IF	.CYCLES & 1
+      9  f743					      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f743		       04 00		      nop	0
+     11  f745				  -	      ELSE
+     12  f745				  -	      bit	VSYNC
+     13  f745					      ENDIF
+     14  f745				   .CYCLES    SET	.CYCLES - 3
+     15  f745					      ENDIF
+     16  f745
+     17  f745				  -	      REPEAT	.CYCLES / 2
+     18  f745				  -	      nop
+     19  f745					      REPEND
+    137  f745				   KernelB_C
+      0  f745					      sleep	3
+      1  f745				   .CYCLES    SET	3
+      2  f745
+      3  f745				  -	      IF	.CYCLES < 2
+      4  f745				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  f745				  -	      ERR
+      6  f745					      ENDIF
+      7  f745
+      8  f745					      IF	.CYCLES & 1
+      9  f745					      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f745		       04 00		      nop	0
+     11  f747				  -	      ELSE
+     12  f747				  -	      bit	VSYNC
+     13  f747					      ENDIF
+     14  f747				   .CYCLES    SET	.CYCLES - 3
+     15  f747					      ENDIF
+     16  f747
+     17  f747				  -	      REPEAT	.CYCLES / 2
+     18  f747				  -	      nop
+     19  f747					      REPEND
+    139  f747				   KernelB_D
+    140  f747		       84 1c		      .byte.b	GEM_06, EMERALD_SP
+    141  f749				   KernelB_E
+    142  f749		       85 11		      sta	EMERALD_SP_RESET
+    143  f74b				   KernelB_F
+    144  f74b		       84 1c		      .byte.b	GEM_11, EMERALD_SP
+    145  f74d				   KernelB_G
+      0  f74d					      sleep	3
+      1  f74d				   .CYCLES    SET	3
+      2  f74d
+      3  f74d				  -	      IF	.CYCLES < 2
+      4  f74d				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  f74d				  -	      ERR
+      6  f74d					      ENDIF
+      7  f74d
+      8  f74d					      IF	.CYCLES & 1
+      9  f74d					      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f74d		       04 00		      nop	0
+     11  f74f				  -	      ELSE
+     12  f74f				  -	      bit	VSYNC
+     13  f74f					      ENDIF
+     14  f74f				   .CYCLES    SET	.CYCLES - 3
+     15  f74f					      ENDIF
+     16  f74f
+     17  f74f				  -	      REPEAT	.CYCLES / 2
+     18  f74f				  -	      nop
+     19  f74f					      REPEND
+    147  f74f				   KernelB_H
+    148  f74f		       84 1c		      .byte.b	GEM_15, EMERALD_SP
+    149  f751				   KernelB_I
+    150  f751		       85 11		      sta	EMERALD_SP_RESET
+    151  f753				   KernelB_J
+    152  f753		       84 1c		      .byte.b	GEM_20, EMERALD_SP
+    153  f755				   KernelB_K
+    154  f755		       85 1e		      sta	EMERALD_MI_ENABLE
+    155  f757				   KernelB_L
+    156  f757		       84 1c		      .byte.b	GEM_24, EMERALD_SP
+    157  f759				   KernelB_M
+      0  f759					      sleep	3
+      1  f759				   .CYCLES    SET	3
+      2  f759
+      3  f759				  -	      IF	.CYCLES < 2
+      4  f759				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  f759				  -	      ERR
+      6  f759					      ENDIF
+      7  f759
+      8  f759					      IF	.CYCLES & 1
+      9  f759					      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f759		       04 00		      nop	0
+     11  f75b				  -	      ELSE
+     12  f75b				  -	      bit	VSYNC
+     13  f75b					      ENDIF
+     14  f75b				   .CYCLES    SET	.CYCLES - 3
+     15  f75b					      ENDIF
+     16  f75b
+     17  f75b				  -	      REPEAT	.CYCLES / 2
+     18  f75b				  -	      nop
+     19  f75b					      REPEND
+    159  f75b				   KernelB_N
+      0  f75b					      sleep	3
+      1  f75b				   .CYCLES    SET	3
+      2  f75b
+      3  f75b				  -	      IF	.CYCLES < 2
+      4  f75b				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  f75b				  -	      ERR
+      6  f75b					      ENDIF
+      7  f75b
+      8  f75b					      IF	.CYCLES & 1
+      9  f75b					      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f75b		       04 00		      nop	0
+     11  f75d				  -	      ELSE
+     12  f75d				  -	      bit	VSYNC
+     13  f75d					      ENDIF
+     14  f75d				   .CYCLES    SET	.CYCLES - 3
+     15  f75d					      ENDIF
+     16  f75d
+     17  f75d				  -	      REPEAT	.CYCLES / 2
+     18  f75d				  -	      nop
+     19  f75d					      REPEND
+    161  f75d				   KernelB_O
+      0  f75d					      sleep	3
+      1  f75d				   .CYCLES    SET	3
+      2  f75d
+      3  f75d				  -	      IF	.CYCLES < 2
+      4  f75d				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  f75d				  -	      ERR
+      6  f75d					      ENDIF
+      7  f75d
+      8  f75d					      IF	.CYCLES & 1
+      9  f75d					      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f75d		       04 00		      nop	0
+     11  f75f				  -	      ELSE
+     12  f75f				  -	      bit	VSYNC
+     13  f75f					      ENDIF
+     14  f75f				   .CYCLES    SET	.CYCLES - 3
+     15  f75f					      ENDIF
+     16  f75f
+     17  f75f				  -	      REPEAT	.CYCLES / 2
+     18  f75f				  -	      nop
+     19  f75f					      REPEND
+    163  f75f
+    164  f75f							; 6c
+      0  f75f					      ASSERT_RUNTIME	"_scycles == #70"
+      1  f75f				   .COND      SET	"_scycles == #70"
+ ASSERT: breakif { pc== $f12f  && !(  _scycles == #70  ) }
+      2  f75f					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
+    166  f75f		       60		      rts
+    167  f760
+    168  f760							; Writable offsets
+    169  f760		       ff ff ff 00 GEM_02_W   equ	[.gem_02 - $100]
+    170  f760		       ff ff ff 00 GEM_06_W   equ	[.gem_06 - $100]
+    171  f760		       ff ff ff 00 GEM_08_W   equ	[.gem_08 - $100]
+    172  f760		       ff ff ff 00 GEM_11_W   equ	[.gem_11 - $100]
+    173  f760		       ff ff ff 00 GEM_15_W   equ	[.gem_15 - $100]
+    174  f760		       ff ff ff 00 GEM_20_W   equ	[.gem_20 - $100]
+    175  f760		       ff ff ff 00 GEM_24_W   equ	[.gem_24 - $100]
+    176  f760
+    177  f760					      rend
+    178  f760				   kernel_2_end
 ------- FILE main.s
 ------- FILE data_sprites.s LEVEL 2 PASS 2
-      0  f75f					      include	"data_sprites.s"
+      0  f760					      include	"data_sprites.s"
       1  f800		       00 00 00 00*	      align	256
       2  f800
       3  f800							; Player

@@ -33,7 +33,7 @@ Kernel1: subroutine
     ASSERT_RUNTIME "sp == $f9"
 
     ; this sleep first make this distinct from Kernel B in debugger, lol
-    sleep 6
+    sleep 3
 
     ; Load next Player sprite
     pla
@@ -42,6 +42,9 @@ Kernel1: subroutine
     lda #%01100000
     ldx #%00000110
     ldy #%01100110
+
+    sta EMERALD_MI_ENABLE ;disable
+
     .byte GEM_00, EMERALD_SP
 
     ; 22c is critical start of precise GRP0 timing for Kernel A
@@ -49,7 +52,7 @@ Kernel1: subroutine
 KernelA_A:
     sta EMERALD_SP_RESET
 KernelA_B:
-    stx EMERALD_MI_ENABLE
+    sleep 3
 KernelA_C:
     sleep 3
 KernelA_D:
@@ -57,9 +60,9 @@ KernelA_D:
 KernelA_E:
     sta EMERALD_SP_RESET
 KernelA_F:
-    .byte GEM_09, EMERALD_SP
+    stx EMERALD_MI_ENABLE
 KernelA_G:
-    sleep 3
+    .byte GEM_09, EMERALD_SP
 KernelA_H:
     .byte GEM_13, EMERALD_SP
 KernelA_I:
@@ -115,10 +118,13 @@ Kernel2: subroutine
     
     sleep 4
 
-    lda #02
+
     ldx #%00001100
     ldy #%11001100
-    .byte GEM_08, EMERALD_MI_ENABLE
+
+    lda #02
+    sta EMERALD_MI_ENABLE ; Enable missile
+
     lda #%11000000
     .byte GEM_02, EMERALD_SP
 
@@ -137,7 +143,6 @@ KernelB_E:
 KernelB_F:
     .byte GEM_11, EMERALD_SP
 KernelB_G:
-    ;stx EMERALD_MI_ENABLE
     sleep 3
 KernelB_H:
     .byte GEM_15, EMERALD_SP
@@ -146,7 +151,7 @@ KernelB_I:
 KernelB_J:
     .byte GEM_20, EMERALD_SP
 KernelB_K:
-    sleep 3
+    sta EMERALD_MI_ENABLE
 KernelB_L:
     .byte GEM_24, EMERALD_SP
 KernelB_M:
