@@ -151,11 +151,6 @@ Kernel2: subroutine
 
     ; [A]
     sta EMERALD_SP_RESET ; trivial
-
-    ; already set middle triplet
-    ;ldx #%00010010
-    ;stx.w NUSIZ1
-
     ; [B]
     sleep 3
     ; [C]
