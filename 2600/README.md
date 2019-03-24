@@ -19,12 +19,32 @@ Gem Kernel Map by Color Clock
 A: 01100110 use missiles?
 B: 11001100 (PHP reflected?)   really should look at missile use to make this
 
+STA = PF1
+STX = 01
+STY = 11
 
-00 01
+00 01 ?
 04 10 A VDEL
 09 01 B STX
-13 10 C STY
-18 11 E STX
+13 10 C REFP0?
+18 11 E STY
+
+STA = PF1
+STX = 01
+STY = 11
+
+02    ?
+06    A VDEL
+11 01 B STX
+15 10 D PHP
+20 11 E STY
+
+
+
+magic:
+VDELP1
+RESP1
+PHP
 
 
     v 22c    v 25c             v 31c                                                                                              v 64c    v 67c

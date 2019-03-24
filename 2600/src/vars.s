@@ -42,16 +42,6 @@ KERNEL_STORAGE_R    equ $f140
 ; Nusiz
 THREE_COPIES    equ %00010011
 
-; Frame 1 sprites
-EMR1 equ %01100000
-EMR2 equ %00000110
-EMR3 equ %01100110
-
-; Frame 2 sprites
-T1 equ %11000000
-T2 equ %00001100
-T3 equ %11001100
-
 ; Shorthands
 
 SET_0_0 equ $87 ; SAX (AXS)

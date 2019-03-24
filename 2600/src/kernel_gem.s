@@ -4,8 +4,8 @@
 ; Gems are displayed in alternating kernels. This chart shows
 ; which kernel is responsible for which gem, with missiles denoted.
 ;
-;  1:   |SS  SS   SS  |SS  MSS  SS  |        kernel 1 (S = Sprite, M = missile)
-;  2:   |  SS  SSM  SS|  SS   SS  SS|        kernel 2
+;  1:   |SS  SS  MSS  |SS   SS  SS  |        kernel 1 (S = Sprite, M = missile)
+;  2:   |  SS  SS   SS|  SSM  SS  SS|        kernel 2
 ;  =    |1122112221122|1122111221122|        kernel #
 ;  #    0^      8^       17^       26^       gem index
 ;
@@ -21,87 +21,66 @@
     ; for copying
     align 256
 
-; KERNEL 1
-
-; Emerald line macro (1, 2, ...)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; GEM KERNEL A
+;
 
 kernel_1_start: subroutine
     rorg $f100
 
 Kernel1: subroutine
-    ; sleep first make this distinct from
-    ; other kernel for debug scenarios
     ASSERT_RUNTIME "sp == $f9"
+
+    ; this sleep first make this distinct from Kernel B in debugger, lol
     sleep 6
+
+    ; Load next Player sprite
     pla
     sta GRP0
 
-    lda #EMR1
-    ldx #EMR2
-    ldy #EMR3
-.gem_00:
-    .byte GEM_00, EMERALD_SP ; moveable?
+    lda #%01100000
+    ldx #%00000110
+    ldy #%01100110
+    .byte GEM_00, EMERALD_SP
 
-; Critical: 22c (start of precise timing)
-    ; [A]
-    sta EMERALD_SP_RESET ; trivial
-    ; [B]
-    sta EMERALD_MI_ENABLE ; trivial ; Is this timing-critical??
-    ; [C]
+    ; 22c is critical start of precise GRP0 timing for Kernel A
+    ASSERT_RUNTIME "_scycles == #22"
+KernelA_A:
+    sta EMERALD_SP_RESET
+KernelA_B:
+    sta EMERALD_MI_ENABLE
+KernelA_C:
     sleep 3
-
-.gem_04:
-    ; [D]
+KernelA_D:
     .byte GEM_04, EMERALD_SP
-
-    ; middle triplet; first kernel 1???
-    ; [E]
-    sta EMERALD_SP_RESET ; trivial
-.gem_09:
-    ; [F]
+KernelA_E:
+    sta EMERALD_SP_RESET
+KernelA_F:
     .byte GEM_09, EMERALD_SP
-
-    ; [G]
+KernelA_G:
     sleep 3
-
-.gem_13:
-    ; [H]
+KernelA_H:
     .byte GEM_13, EMERALD_SP
-
-    ; [I]
-    sta EMERALD_SP_RESET ; trivial
-.gem_17:
-
-    ; spare; missle writes
-    ; [J]
-    .byte GEM_17, EMERALD_MI_ENABLE ; could htis ever possibly be
-    ; moved out of the kernel, and if so, huge wins
-    ; (makes next sprite a freebie too, then just dealing with 3)
-    ; unique sprite values!!
-    ; or at least the write of the particular OPCODE out of hte krernel ?
-    ; even extreme measures...! PHP with Z register!!! muahaha
-    ; dunno how to deal with the opcode length change though?
-
-    ; middle triplet; third kernel 1???
-.gem_18:
-    ; [K]
+KernelA_I:
+    sta EMERALD_SP_RESET
+KernelA_J:
+    .byte GEM_17, EMERALD_MI_ENABLE
+KernelA_K:
     .byte GEM_18, EMERALD_SP
-
-    ; [L]
+KernelA_L:
     sleep 3
-.gem_22:
-    ; [M]
+KernelA_M:
     .byte GEM_22, EMERALD_SP
+KernelA_N:
+    sleep 3
+KernelA_O:
+    sleep 3
+KernelA_P:
+    sleep 3
 
-    ; [N]
-    sleep 3
-    ; [O]
-    sleep 3
-    ; [P]
-    sleep 3
-
-    ASSERT_RUNTIME "_scycles == #70"
     ; 6c
+    ASSERT_RUNTIME "_scycles == #70"
     rts
 
 ; Writable offsets
@@ -116,94 +95,69 @@ GEM_22_W equ [.gem_22 - $100]
     rend
 kernel_1_end:
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-; KERNEL B
-
-; Emerald line macro (3, 4, ...)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; GEM KERNEL B
+;
 
 kernel_2_start: subroutine
     rorg $f100
 
 Kernel2: subroutine
     ASSERT_RUNTIME "sp == $f9"
-    ; don't sleep first to make this distinct from kernel 1
+    ; Assert: M1 is at position #61
+    
+    ; don't sleep first to make this distinct from Kernel A in debugger, lol
+
+    ; Load next Player sprite
     pla
     sta GRP0
+    
     sleep 4
 
-    ; Enable missile (using excessive lda instructions)
     lda #02
-    ldx #T2
-    ldy #T3
-.gem_08:
-    .byte GEM_08, EMERALD_MI_ENABLE ; movable
-    lda #T1 ; movable?
-.gem_02:
-    ; load the first sprite
-    .byte GEM_02, EMERALD_SP ; movable
+    ldx #%00001100
+    ldy #%11001100
+    .byte GEM_08, EMERALD_MI_ENABLE
+    lda #%11000000
+    .byte GEM_02, EMERALD_SP
 
-    ; TODO preload the second sprite and 
-    ; have that write GEM_06
-
-; Critical: 25c (start of precise timing)
+    ; 25c is critical start of precise GRP0 timing for Kernel B
     ASSERT_RUNTIME "_scycles == #25"
-
-    ; [A]
-    sta EMERALD_SP_RESET ; trivial
-    ; [B]
+KernelB_A:
+    sta EMERALD_SP_RESET
+KernelB_B:
     sleep 3
-    ; [C]
+KernelB_C:
     sleep 3
-
-    ; end triplet; bonus VDEL write
-.gem_06:
-    ; [D]
+KernelB_D:
     .byte GEM_06, EMERALD_SP
-
-    ; middle triplet; write or change nusiz
-    ; [E]
-    sta EMERALD_SP_RESET ; trivial
-.gem_11:
-    ; [F]
+KernelB_E:
+    sta EMERALD_SP_RESET
+KernelB_F:
     .byte GEM_11, EMERALD_SP
-
-    ; disable missle
-    ; [G]
-    stx EMERALD_MI_ENABLE
-    ; sleep 3
-    ; ^ could this be moved, and then free the timing slot
-    ; then can do the setting of PF1 value(!)
-
-    ; end triplet; write or reset
-.gem_15:
-    ; [H]
+KernelB_G:
+    ;stx EMERALD_MI_ENABLE
+    sleep 3
+KernelB_H:
     .byte GEM_15, EMERALD_SP
-    ; 49c midway
-    ; [I]
-    sta EMERALD_SP_RESET ; spare
-
-.gem_20:
-    ; [J]
+KernelB_I:
+    sta EMERALD_SP_RESET
+KernelB_J:
     .byte GEM_20, EMERALD_SP
-    ; [K]
-    sleep 3 ; spare
-
-    ; end triplet; free
-.gem_24:
-    ; [L]
+KernelB_K:
+    sleep 3
+KernelB_L:
     .byte GEM_24, EMERALD_SP
-
-    ; [M]
+KernelB_M:
     sleep 3
-    ; [N]
+KernelB_N:
     sleep 3
-
-    ; [O]
+KernelB_O:
     sleep 3
 
-    ASSERT_RUNTIME "_scycles == #70"
     ; 6c
+    ASSERT_RUNTIME "_scycles == #70"
     rts
 
 ; Writable offsets
