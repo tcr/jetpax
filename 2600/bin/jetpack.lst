@@ -541,10 +541,10 @@
     129 U008f
     130 U008f							; HMOVE values for missiles
     131 U008f
-    132 U008f		       00 27	   KERNEL_A_MISSILE_SLEEP equ	39
-    133 U008f		       00 d0	   KERNEL_A_MISSILE_HMOVE equ	$d0
+    132 U008f		       00 1c	   KERNEL_A_MISSILE_SLEEP equ	28
+    133 U008f		       00 00	   KERNEL_A_MISSILE_HMOVE equ	$00
     134 U008f
-    135 U008f		       00 27	   KERNEL_B_MISSILE_SLEEP equ	39
+    135 U008f		       00 33	   KERNEL_B_MISSILE_SLEEP equ	51
     136 U008f		       00 10	   KERNEL_B_MISSILE_HMOVE equ	$10
     137 U008f
     138 U008f							; Sprite details
@@ -1154,7 +1154,7 @@
      62  f3d1							; Kernel A or B
      63  f3d1		       a9 01		      lda	#01
      64  f3d3		       25 83		      and	FrameCount
-     65  f3d5		       d0 1f		      bne	.kernel_b
+     65  f3d5		       d0 19		      bne	.kernel_b
      66  f3d7
      67  f3d7				   .kernel_a
      68  f3d7		       85 02		      sta	WSYNC
@@ -1166,16 +1166,20 @@
       5  f3d9				  -	      ERR
       6  f3d9					      ENDIF
       7  f3d9
-      8  f3d9					      IF	.CYCLES & 1
-      9  f3d9					      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f3d9		       04 00		      nop	0
-     11  f3db				  -	      ELSE
-     12  f3db				  -	      bit	VSYNC
-     13  f3db					      ENDIF
-     14  f3db				   .CYCLES    SET	.CYCLES - 3
-     15  f3db					      ENDIF
-     16  f3db
-     17  f3db					      REPEAT	.CYCLES / 2
+      8  f3d9				  -	      IF	.CYCLES & 1
+      9  f3d9				  -	      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f3d9				  -	      nop	0
+     11  f3d9				  -	      ELSE
+     12  f3d9				  -	      bit	VSYNC
+     13  f3d9				  -	      ENDIF
+     14  f3d9				  -.CYCLES    SET	.CYCLES - 3
+     15  f3d9					      ENDIF
+     16  f3d9
+     17  f3d9					      REPEAT	.CYCLES / 2
+     18  f3d9		       ea		      nop
+     17  f3d9					      REPEND
+     18  f3da		       ea		      nop
+     17  f3da					      REPEND
      18  f3db		       ea		      nop
      17  f3db					      REPEND
      18  f3dc		       ea		      nop
@@ -1199,46 +1203,46 @@
      18  f3e5		       ea		      nop
      17  f3e5					      REPEND
      18  f3e6		       ea		      nop
-     17  f3e6					      REPEND
-     18  f3e7		       ea		      nop
-     17  f3e7					      REPEND
-     18  f3e8		       ea		      nop
-     17  f3e8					      REPEND
-     18  f3e9		       ea		      nop
-     17  f3e9					      REPEND
-     18  f3ea		       ea		      nop
-     17  f3ea					      REPEND
-     18  f3eb		       ea		      nop
-     17  f3eb					      REPEND
-     18  f3ec		       ea		      nop
-     19  f3ed					      REPEND
-     70  f3ed		       85 13		      sta	EMERALD_MI_RESET
-     71  f3ef
-     72  f3ef		       a9 d0		      lda	#KERNEL_A_MISSILE_HMOVE
-     73  f3f1		       85 23		      sta	EMERALD_MI_HMOVE
-     74  f3f3
-     75  f3f3		       4c 12 f4 	      jmp	.complete
-     76  f3f6
-     77  f3f6				   .kernel_b
-     78  f3f6		       85 02		      sta	WSYNC
-      0  f3f8					      sleep	KERNEL_B_MISSILE_SLEEP
-      1  f3f8				   .CYCLES    SET	KERNEL_B_MISSILE_SLEEP
-      2  f3f8
-      3  f3f8				  -	      IF	.CYCLES < 2
-      4  f3f8				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  f3f8				  -	      ERR
-      6  f3f8					      ENDIF
-      7  f3f8
-      8  f3f8					      IF	.CYCLES & 1
-      9  f3f8					      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f3f8		       04 00		      nop	0
-     11  f3fa				  -	      ELSE
-     12  f3fa				  -	      bit	VSYNC
-     13  f3fa					      ENDIF
-     14  f3fa				   .CYCLES    SET	.CYCLES - 3
-     15  f3fa					      ENDIF
-     16  f3fa
-     17  f3fa					      REPEAT	.CYCLES / 2
+     19  f3e7					      REPEND
+     70  f3e7		       85 13		      sta	EMERALD_MI_RESET
+     71  f3e9
+     72  f3e9		       a9 00		      lda	#KERNEL_A_MISSILE_HMOVE
+     73  f3eb		       85 23		      sta	EMERALD_MI_HMOVE
+     74  f3ed
+     75  f3ed		       4c 12 f4 	      jmp	.complete
+     76  f3f0
+     77  f3f0				   .kernel_b
+     78  f3f0		       85 02		      sta	WSYNC
+      0  f3f2					      sleep	KERNEL_B_MISSILE_SLEEP
+      1  f3f2				   .CYCLES    SET	KERNEL_B_MISSILE_SLEEP
+      2  f3f2
+      3  f3f2				  -	      IF	.CYCLES < 2
+      4  f3f2				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  f3f2				  -	      ERR
+      6  f3f2					      ENDIF
+      7  f3f2
+      8  f3f2					      IF	.CYCLES & 1
+      9  f3f2					      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f3f2		       04 00		      nop	0
+     11  f3f4				  -	      ELSE
+     12  f3f4				  -	      bit	VSYNC
+     13  f3f4					      ENDIF
+     14  f3f4				   .CYCLES    SET	.CYCLES - 3
+     15  f3f4					      ENDIF
+     16  f3f4
+     17  f3f4					      REPEAT	.CYCLES / 2
+     18  f3f4		       ea		      nop
+     17  f3f4					      REPEND
+     18  f3f5		       ea		      nop
+     17  f3f5					      REPEND
+     18  f3f6		       ea		      nop
+     17  f3f6					      REPEND
+     18  f3f7		       ea		      nop
+     17  f3f7					      REPEND
+     18  f3f8		       ea		      nop
+     17  f3f8					      REPEND
+     18  f3f9		       ea		      nop
+     17  f3f9					      REPEND
      18  f3fa		       ea		      nop
      17  f3fa					      REPEND
      18  f3fb		       ea		      nop
@@ -2298,7 +2302,7 @@
      49  f70e				   KernelA_A
      50  f70e		       85 11		      sta	EMERALD_SP_RESET
      51  f710				   KernelA_B
-     52  f710		       85 1e		      sta	EMERALD_MI_ENABLE
+     52  f710		       86 1e		      stx	EMERALD_MI_ENABLE
      53  f712				   KernelA_C
       0  f712					      sleep	3
       1  f712				   .CYCLES    SET	3

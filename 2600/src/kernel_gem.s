@@ -49,7 +49,7 @@ Kernel1: subroutine
 KernelA_A:
     sta EMERALD_SP_RESET
 KernelA_B:
-    sta EMERALD_MI_ENABLE
+    stx EMERALD_MI_ENABLE
 KernelA_C:
     sleep 3
 KernelA_D:
