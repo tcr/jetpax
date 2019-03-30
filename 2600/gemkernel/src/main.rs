@@ -228,13 +228,18 @@ fn attempt(kernel: &str, gems: &[Gem]) -> Option<Vec<Bytecode>> {
     let mut program = vec![Bytecode::Nop];
     let mut retry = 4;
     let mut i = 1;
-    while i < gems.len() - 1 { // One from end
-        if kernel == "A" {
+    while i < gems.len() { // One from end
             if i == 3 && gems[i] == Gem_0_0 {
                 program.push(Bytecode::Reset4);
                 i += 1;
                 continue;
             }
+            if i == 1 && gems[i] == Gem_0_0 {
+                program.push(Bytecode::Reset4);
+                i += 1;
+                continue;
+            }
+        if kernel == "A" {
             if i == 2 && gems[i] == Gem_0_0 {
                 // This is a Reset2.
                 program.push(Bytecode::Reset4);
