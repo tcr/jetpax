@@ -217,29 +217,24 @@ fn attempt(kernel: &str, gems: &[Gem]) -> Option<Vec<Bytecode>> {
     let mut state = State {
         x: random_gem(),
         y: random_gem(),
+        vdel_value: random_gem(),
         in_vdel: rand::thread_rng().gen(),
+        grp0: gems[0],
         in_blank: false,
         reflected: false,
-        vdel_value: random_gem(),
-        grp0: gems[0],
     };
     
     // We only track the middle four nodes, cause like NOP is "free"
     let mut program = vec![Bytecode::Nop];
     let mut retry = 4;
     let mut i = 1;
-    while i < gems.len() { // One from end
+    while i < gems.len() - 1 { // One from end
+        if kernel == "A" {
             if i == 3 && gems[i] == Gem_0_0 {
                 program.push(Bytecode::Reset4);
                 i += 1;
                 continue;
             }
-            if i == 1 && gems[i] == Gem_0_0 {
-                program.push(Bytecode::Reset4);
-                i += 1;
-                continue;
-            }
-        if kernel == "A" {
             if i == 2 && gems[i] == Gem_0_0 {
                 // This is a Reset2.
                 program.push(Bytecode::Reset4);
@@ -287,6 +282,20 @@ fn attempt(kernel: &str, gems: &[Gem]) -> Option<Vec<Bytecode>> {
     //         return None;
     //     }
     // }
+
+    // Only one PHP.
+    let mut count_php = 0;
+    for bc in &program {
+        match bc {
+            Bytecode::Php => {
+                count_php += 1;
+            }
+            _ => {},
+        }
+    }
+    if count_php > 1 {
+        return None;
+    }
 
     // println!("program {:?}", program);
     print!(". ");
