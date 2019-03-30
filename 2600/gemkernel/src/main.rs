@@ -1,13 +1,18 @@
 // cargo-deps: rand="*", itertools = "*", rayon = "*"
 
-#[allow(non_camel_case_types)]
+// TODO The Reset3 functionality in kernel A (only for kernel A!) is by missing
+// the prior RESP0 call, calling RESP0 on the GEM_09 write. This will bump the
+// spries over by one column, unfortunately, so a trick of: only writing the 
+// high bit (as the low bit) and ussing the right missile starting earlier to
+// get the sprites working. it's tricky but i'm done with it lol
+
+#![allow(non_camel_case_types)]
 
 extern crate rand;
 #[macro_use] extern crate itertools;
 extern crate rayon;
 
 use rand::Rng;
-use std::thread;
 use rayon::prelude::*;
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -19,9 +24,6 @@ enum Gem {
 }
 
 use self::Gem::*;
-
-// const KERNEL: &'static str = "A";
-const KERNEL: &'static str = "B";
 
 fn random_gem() -> Gem {
     match rand::thread_rng().gen_range(0, 4) {
@@ -46,20 +48,20 @@ enum Bytecode {
     Reset4,
 }
 
-fn random_bc() -> Bytecode {
+fn random_bc(kernel: &str) -> Bytecode {
     let mut out_of = vec![
         Bytecode::Nop,
-        Bytecode::VdelOn,
-        Bytecode::VdelOff,
-        Bytecode::BlankOn,
-        Bytecode::BlankOff,
+        Bytecode::VdelOn, // How?
+        Bytecode::VdelOff, // How?
+        Bytecode::BlankOn, // How?
+        Bytecode::BlankOff, // How?
         Bytecode::Stx,
         Bytecode::Sty,
     ];
-    if KERNEL == "A" {
+    if kernel == "A" {
         out_of.push(Bytecode::Reflect);
     }
-    if KERNEL == "B" {
+    if kernel == "B" {
         out_of.push(Bytecode::Php);
     }
     out_of[rand::thread_rng().gen_range(0, out_of.len())]
@@ -141,51 +143,53 @@ impl State {
     }
 }
 
-const GLOBAL_THREADS: usize = 128;
+const GLOBAL_THREADS: usize = 1;
 
 fn main() {
-    // GEM list is six pairs wide.
-    let gems: Vec<_> = (0..6).map(|_| random_gem()).collect();
-
-    // Uncomment to iterate over a specific condition.
-    // let i = [
-    //     (&Gem_0_1, &Gem_0_1, &Gem_0_0, &Gem_1_0, &Gem_1_1, &Gem_0_0)
-    // ];
-
     let all_gems = vec![Gem_0_0, Gem_0_1, Gem_1_0, Gem_1_1];
-    let i = iproduct!(&all_gems, &all_gems, &all_gems, &all_gems, &all_gems, &all_gems);
-    for gt in i {
-        println!("solving: {:?}", gt);
 
-        // Make a vector to hold the children which are spawned.
-        let results: Vec<Vec<Bytecode>> = (0..GLOBAL_THREADS)
-            .into_iter()
-            .collect::<Vec<usize>>()
-            .par_iter()
-            .map(|_| {
-                let gems = vec![*gt.0, *gt.1, *gt.2, *gt.3, *gt.4, *gt.5];
-                // Spin up another thread
-                loop {
-                    if let Some(result) = attempt(&gems) {
-                        return result;
+    for kernel in &["A", "B"] {
+        // Uncomment to iterate over a specific condition.
+        // let i = [
+        //     (&Gem_0_1, &Gem_0_1, &Gem_0_0, &Gem_1_0, &Gem_1_1, &Gem_0_0)
+        // ];
+
+        let i = iproduct!(&all_gems, &all_gems, &all_gems, &all_gems, &all_gems, &all_gems);
+        for gt in i {
+            println!("[{}] solving: {:?}", kernel, gt);
+
+            // Make a vector to hold the children which are spawned.
+            let results = (0..GLOBAL_THREADS)
+                .into_iter()
+                .collect::<Vec<usize>>()
+                .par_iter()
+                .map(|_| {
+                    let gems = vec![*gt.0, *gt.1, *gt.2, *gt.3, *gt.4, *gt.5];
+                    // Spin up another thread
+                    loop {
+                        if let Some(result) = attempt(kernel, &gems) {
+                            return result;
+                        }
                     }
-                }
-            })
-            .collect();
-        
-        let mut program = results
-            .into_iter()
-            .map(|result| {
-                // generate score
-                let score = ranking(&result);
-                (score, result)
-            })
-            .collect::<Vec<_>>();
-        
-        program.sort_by(|a, b| a.0.cmp(&b.0));
+                })
+                .collect::<Vec<Vec<Bytecode>>>();
+            
+            let mut result_ranking = results
+                .into_iter()
+                .map(|program| {
+                    // generate score
+                    let score = ranking(&program);
+                    (score, program)
+                })
+                .collect::<Vec<_>>();
+            
+            result_ranking.sort_by(|a, b| a.0.cmp(&b.0));
 
-        println!("\nprogram: {:?}", program[0]);
-        println!();
+            let program = result_ranking[0].clone();
+
+            println!("\n[{}] program: {:?}", kernel, program);
+            println!();
+        }
     }
 }
 
@@ -208,31 +212,30 @@ fn ranking(program: &[Bytecode]) -> isize {
 }
 
 
-fn attempt(gems: &[Gem]) -> Option<Vec<Bytecode>> {
+// Gradually remove the randomness from these features
+fn attempt(kernel: &str, gems: &[Gem]) -> Option<Vec<Bytecode>> {
     let mut state = State {
         x: random_gem(),
         y: random_gem(),
         in_vdel: rand::thread_rng().gen(),
-        in_blank: rand::thread_rng().gen(),
-        reflected: rand::thread_rng().gen(),
+        in_blank: false,
+        reflected: false,
         vdel_value: random_gem(),
         grp0: gems[0],
     };
-    let mut final_state = state.clone();
-    // println!("gems {:?}", gems);
-    // println!("state: {:?}", state);
-
+    
     // We only track the middle four nodes, cause like NOP is "free"
     let mut program = vec![Bytecode::Nop];
     let mut retry = 4;
     let mut i = 1;
-    while i < gems.len() - 1 {
-        if KERNEL == "A" {
+    while i < gems.len() - 1 { // One from end
+        if kernel == "A" {
             if i == 3 && gems[i] == Gem_0_0 {
                 program.push(Bytecode::Reset4);
                 i += 1;
                 continue;
-            } else if i == 2 && gems[i] == Gem_0_0 {
+            }
+            if i == 2 && gems[i] == Gem_0_0 {
                 // This is a Reset2.
                 program.push(Bytecode::Reset4);
                 i += 1;
@@ -240,7 +243,7 @@ fn attempt(gems: &[Gem]) -> Option<Vec<Bytecode>> {
             }
         }
 
-        let bc = random_bc();
+        let bc = random_bc(kernel);
         let result = state.process(bc);
         // println!("exec {:?} \t\t{:?}", bc, gem);
         if let Some(new_state) = result {
@@ -281,7 +284,9 @@ fn attempt(gems: &[Gem]) -> Option<Vec<Bytecode>> {
     // }
 
     // println!("program {:?}", program);
-    print!(".");
+    print!(". ");
+
+    // TODO this is required
     // if state.in_vdel {
     //     // Imbalenced vdel
     //     println!("imbalanced vdel");
