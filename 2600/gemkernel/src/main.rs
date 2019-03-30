@@ -131,7 +131,7 @@ impl State {
                 state.reflected = !state.reflected;
             }
             Bytecode::Php => {
-                state.grp0 = Gem_1_0;
+                state.grp0 = if rand::thread_rng().gen::<bool>() { Gem_1_0 } else { Gem_1_1 };
             }
             Bytecode::Reset4 => {
                 panic!("unreachable");
@@ -217,7 +217,7 @@ fn attempt(kernel: &str, gems: &[Gem]) -> Option<Vec<Bytecode>> {
         y: random_gem(),
         vdel_value: random_gem(),
         in_vdel: rand::thread_rng().gen(),
-        grp0: gems[0],
+        grp0: random_gem(),
         in_blank: false,
         reflected: false,
     };
@@ -227,22 +227,17 @@ fn attempt(kernel: &str, gems: &[Gem]) -> Option<Vec<Bytecode>> {
     let mut retry = 4;
     let mut i = 0;
     while i < gems.len() - 1 { // One from end
-        if i == 3 && gems[i] == Gem_0_0 {
-            program.push(Bytecode::Reset4);
-            i += 1;
-            continue;
-        }
-        if i == 1 && gems[i] == Gem_0_0 {
-            program.push(Bytecode::Reset4);
-            i += 1;
-            continue;
-        }
-        if i == 5 && gems[i] == Gem_0_0 {
-            program.push(Bytecode::Reset4);
-            i += 1;
-            continue;
-        }
         if kernel == "A" {
+            if i == 3 && gems[i] == Gem_0_0 {
+                program.push(Bytecode::Reset4);
+                i += 1;
+                continue;
+            }
+            if i == 1 && gems[i] == Gem_0_0 {
+                program.push(Bytecode::Reset4);
+                i += 1;
+                continue;
+            }
             if i == 2 && gems[i] == Gem_0_0 {
                 // This is a Reset2.
                 program.push(Bytecode::Reset4);
@@ -309,11 +304,11 @@ fn attempt(kernel: &str, gems: &[Gem]) -> Option<Vec<Bytecode>> {
     print!(". ");
 
     // TODO this is required
-    // if state.in_vdel {
-    //     // Imbalenced vdel
-    //     println!("imbalanced vdel");
-    //     return None;
-    // }
+    if state.in_vdel {
+        // Imbalenced vdel
+        println!("imbalanced vdel");
+        return None;
+    }
 
     Some(program)
 }
