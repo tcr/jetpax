@@ -1,12 +1,13 @@
 // cargo-deps: rand="*", itertools = "*", rayon = "*"
 
+#[allow(non_camel_case_types)]
+
 extern crate rand;
 #[macro_use] extern crate itertools;
 extern crate rayon;
 
 use rand::Rng;
 use std::thread;
-use itertools::Itertools;
 use rayon::prelude::*;
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -18,6 +19,9 @@ enum Gem {
 }
 
 use self::Gem::*;
+
+// const KERNEL: &'static str = "A";
+const KERNEL: &'static str = "B";
 
 fn random_gem() -> Gem {
     match rand::thread_rng().gen_range(0, 4) {
@@ -37,26 +41,27 @@ enum Bytecode {
     BlankOff,
     Stx,
     Sty,
-    // Php,
+    Php,
     Reflect,
     Reset4,
 }
 
-use self::Bytecode::*;
-
 fn random_bc() -> Bytecode {
-    let out_of = vec![
-        Nop,
-        VdelOn,
-        VdelOff,
-        BlankOn,
-        BlankOff,
-        Stx,
-        Sty,
-        Reflect,
-        // Php,
-        // Reset4,
+    let mut out_of = vec![
+        Bytecode::Nop,
+        Bytecode::VdelOn,
+        Bytecode::VdelOff,
+        Bytecode::BlankOn,
+        Bytecode::BlankOff,
+        Bytecode::Stx,
+        Bytecode::Sty,
     ];
+    if KERNEL == "A" {
+        out_of.push(Bytecode::Reflect);
+    }
+    if KERNEL == "B" {
+        out_of.push(Bytecode::Php);
+    }
     out_of[rand::thread_rng().gen_range(0, out_of.len())]
 }
 
@@ -91,44 +96,44 @@ impl State {
         let mut state = self.clone();
 
         match bc {
-            Nop => {},
-            VdelOn => {
+            Bytecode::Nop => {},
+            Bytecode::VdelOn => {
                 if state.in_vdel {
                     return None;
                 }
                 state.in_vdel = true;
             }
-            VdelOff => {
+            Bytecode::VdelOff => {
                 if !state.in_vdel {
                     return None;
                 }
                 state.in_vdel = false;
             }
-            BlankOn => {
+            Bytecode::BlankOn => {
                 if state.in_blank {
                     return None;
                 }
                 state.in_blank = true;
             }
-            BlankOff => {
+            Bytecode::BlankOff => {
                 if !state.in_blank {
                     return None;
                 }
                 state.in_blank = false;
             }
-            Stx => {
+            Bytecode::Stx => {
                 state.grp0 = state.x;
             }
-            Sty => {
+            Bytecode::Sty => {
                 state.grp0 = state.y;
             }
-            Reflect => {
+            Bytecode::Reflect => {
                 state.reflected = !state.reflected;
             }
-            // Php => {
-            //     state.grp0 = Gem_1_0;
-            // }
-            Reset4 => {
+            Bytecode::Php => {
+                state.grp0 = Gem_1_0;
+            }
+            Bytecode::Reset4 => {
                 panic!("unreachable");
             }
         }
@@ -136,22 +141,24 @@ impl State {
     }
 }
 
+const GLOBAL_THREADS: usize = 128;
+
 fn main() {
     // GEM list is six pairs wide.
     let gems: Vec<_> = (0..6).map(|_| random_gem()).collect();
 
-    // To iterate over a specific condition.
-    let i = [
-        (&Gem_0_1, &Gem_0_1, &Gem_0_0, &Gem_1_0, &Gem_1_1, &Gem_0_0)
-    ];
+    // Uncomment to iterate over a specific condition.
+    // let i = [
+    //     (&Gem_0_1, &Gem_0_1, &Gem_0_0, &Gem_1_0, &Gem_1_1, &Gem_0_0)
+    // ];
 
     let all_gems = vec![Gem_0_0, Gem_0_1, Gem_1_0, Gem_1_1];
-    // let i = iproduct!(&all_gems, &all_gems, &all_gems, &all_gems, &all_gems, &all_gems);
-    for gt in &i {
+    let i = iproduct!(&all_gems, &all_gems, &all_gems, &all_gems, &all_gems, &all_gems);
+    for gt in i {
         println!("solving: {:?}", gt);
 
         // Make a vector to hold the children which are spawned.
-        let results: Vec<Vec<Bytecode>> = (0..512)
+        let results: Vec<Vec<Bytecode>> = (0..GLOBAL_THREADS)
             .into_iter()
             .collect::<Vec<usize>>()
             .par_iter()
@@ -177,7 +184,7 @@ fn main() {
         
         program.sort_by(|a, b| a.0.cmp(&b.0));
 
-        println!("program: {:?}", program[0]);
+        println!("\nprogram: {:?}", program[0]);
         println!();
     }
 }
@@ -186,18 +193,20 @@ fn ranking(program: &[Bytecode]) -> isize {
     let mut score = 100;
     for bc in program {
         match bc {
-            Nop => { score -= 10 },
-            VdelOn => { score += 5; },
-            VdelOff => { score += 2; },
-            BlankOn => { score += 5; },
-            BlankOff => { score += 5; },
-            Php => { score += 50; },
-            Reflect => { score += 2; },
-            Stx | Sty => {}
+            Bytecode::Nop => { score -= 10 },
+            Bytecode::VdelOn => { score += 5; },
+            Bytecode::VdelOff => { score += 2; },
+            Bytecode::BlankOn => { score += 5; },
+            Bytecode::BlankOff => { score += 5; },
+            Bytecode::Reset4 => { score += 50; },
+            Bytecode::Reflect => { score += 20; },
+            Bytecode::Php => { score += 50; },
+            Bytecode::Stx | Bytecode::Sty => {}
         }
     }
     score
 }
+
 
 fn attempt(gems: &[Gem]) -> Option<Vec<Bytecode>> {
     let mut state = State {
@@ -209,48 +218,75 @@ fn attempt(gems: &[Gem]) -> Option<Vec<Bytecode>> {
         vdel_value: random_gem(),
         grp0: gems[0],
     };
+    let mut final_state = state.clone();
     // println!("gems {:?}", gems);
     // println!("state: {:?}", state);
 
-    let mut program = vec![Nop];
+    // We only track the middle four nodes, cause like NOP is "free"
+    let mut program = vec![Bytecode::Nop];
     let mut retry = 4;
     let mut i = 1;
     while i < gems.len() - 1 {
-        if i == 3 && gems[i] == Gem_0_0 {
-            program.push(Reset4);
-        // } else if i == 2 && gems[i] == Gem_0_0 {
-        //     program.push(Reset4);
-        } else {
-
-            let bc = random_bc();
-            let result = state.process(bc);
-            // println!("exec {:?} \t\t{:?}", bc, gem);
-            if let Some(new_state) = result {
-                if gems[i] != new_state.current() {
-                    // println!("wrong type");
-                    retry -= 1;
-                    if retry == 0 {
-                        return None;
-                    } else {
-                        continue;
-                    }
-                }
-
-                state = new_state;
-                program.push(bc);
-            } else {
+        if KERNEL == "A" {
+            if i == 3 && gems[i] == Gem_0_0 {
+                program.push(Bytecode::Reset4);
+                i += 1;
+                continue;
+            } else if i == 2 && gems[i] == Gem_0_0 {
+                // This is a Reset2.
+                program.push(Bytecode::Reset4);
+                i += 1;
                 continue;
             }
         }
+
+        let bc = random_bc();
+        let result = state.process(bc);
+        // println!("exec {:?} \t\t{:?}", bc, gem);
+        if let Some(new_state) = result {
+            if gems[i] != new_state.current() {
+                // println!("wrong type");
+                retry -= 1;
+                if retry == 0 {
+                    return None;
+                } else {
+                    continue;
+                }
+            }
+
+            state = new_state;
+            program.push(bc);
+        } else {
+            continue;
+        }
+
         i += 1;
     }
 
+    // Nullify test.
+    // for bc in &program {
+    //     match bc {
+    //         Result4 => {
+    //             continue;
+    //         }
+    //         _ => {},
+    //     }
+    //     let result = final_state.process(*bc);
+    //     if let Some(new_state) = result {
+    //         final_state = new_state;
+    //         // if gems[i] != new_state.current() {
+    //     } else {
+    //         return None;
+    //     }
+    // }
+
     // println!("program {:?}", program);
-    if state.in_vdel {
-        // Imbalenced vdel
-        // println!("imbalanced vdel");
-        return None;
-    }
+    print!(".");
+    // if state.in_vdel {
+    //     // Imbalenced vdel
+    //     println!("imbalanced vdel");
+    //     return None;
+    // }
 
     Some(program)
 }
