@@ -1,5 +1,3 @@
-// cargo-deps: rand="*", itertools = "*", rayon = "*"
-
 // TODO The Reset3 functionality in kernel A (only for kernel A!) is by missing
 // the prior RESP0 call, calling RESP0 on the GEM_09 write. This will bump the
 // spries over by one column, unfortunately, so a trick of: only writing the 
@@ -227,14 +225,24 @@ fn attempt(kernel: &str, gems: &[Gem]) -> Option<Vec<Bytecode>> {
     // We only track the middle four nodes, cause like NOP is "free"
     let mut program = vec![Bytecode::Nop];
     let mut retry = 4;
-    let mut i = 1;
+    let mut i = 0;
     while i < gems.len() - 1 { // One from end
+        if i == 3 && gems[i] == Gem_0_0 {
+            program.push(Bytecode::Reset4);
+            i += 1;
+            continue;
+        }
+        if i == 1 && gems[i] == Gem_0_0 {
+            program.push(Bytecode::Reset4);
+            i += 1;
+            continue;
+        }
+        if i == 5 && gems[i] == Gem_0_0 {
+            program.push(Bytecode::Reset4);
+            i += 1;
+            continue;
+        }
         if kernel == "A" {
-            if i == 3 && gems[i] == Gem_0_0 {
-                program.push(Bytecode::Reset4);
-                i += 1;
-                continue;
-            }
             if i == 2 && gems[i] == Gem_0_0 {
                 // This is a Reset2.
                 program.push(Bytecode::Reset4);
@@ -243,7 +251,7 @@ fn attempt(kernel: &str, gems: &[Gem]) -> Option<Vec<Bytecode>> {
             }
         }
 
-        let bc = random_bc(kernel);
+        let bc = if i == 0 { Bytecode::Nop } else { random_bc(kernel) };
         let result = state.process(bc);
         // println!("exec {:?} \t\t{:?}", bc, gem);
         if let Some(new_state) = result {
