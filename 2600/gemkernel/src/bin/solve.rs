@@ -1,3 +1,5 @@
+#![allow(non_camel_case_types, dead_code, unused_variables)]
+
 use gemkernel::*;
 use maplit::*;
 use rand::Rng;
@@ -41,6 +43,14 @@ fn random_bc(kernel: Kernel) -> Bytecode {
         out_of.push(Bytecode::Php);
     }
     out_of[rand::thread_rng().gen_range(0, out_of.len())]
+}
+
+fn discourage() -> bool {
+    random_entry(&[false, false, false, false, false, false, false, true])
+}
+
+fn encourage() -> bool {
+    random_entry(&[true, true, true, true, true, true, true, false])
 }
 
 /// Generate A.txt and B.txt.
@@ -146,6 +156,8 @@ fn attempt(kernel: Kernel, gems: &[Gem]) -> Option<(Vec<Bytecode>, State, State)
 
     let grp0 = random_gem();
 
+    // Start state assembly.
+
     let mut state = State {
         x,
         y,
@@ -184,7 +196,7 @@ fn attempt(kernel: Kernel, gems: &[Gem]) -> Option<(Vec<Bytecode>, State, State)
                 i += 1;
                 continue;
             }
-            if i == 2 && gems[i] == Gem_0_0 {
+            if i == 2 && gems[i] == Gem_0_0 && discourage() {
                 // This is a Reset2.
                 program.push(Bytecode::Reset4);
                 i += 1;
@@ -243,16 +255,7 @@ fn attempt(kernel: Kernel, gems: &[Gem]) -> Option<(Vec<Bytecode>, State, State)
     // }
 
     // Only one PHP.
-    let mut count_php = 0;
-    for bc in &program {
-        match bc {
-            Bytecode::Php => {
-                count_php += 1;
-            }
-            _ => {},
-        }
-    }
-    if count_php > 1 {
+    if program.iter().filter(|x| **x == Bytecode::Php).count() > 1 {
         return None;
     }
 
