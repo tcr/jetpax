@@ -19,7 +19,7 @@ use serde::{Serialize, Deserialize};
 const SOLVE_THREADS: usize = 1;
 
 fn main() {
-    if true {
+    if false {
         main_generate_tables();
     } else {
         main_process_features();
