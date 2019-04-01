@@ -278,12 +278,17 @@ Essential reading: https://alienbill.com/2600/101/docs/stella.html
 
 Essential reading: https://github.com/munsie/dasm/blob/master/doc/dasm.txt 
 
-This is based off the CBS RAM+ cartridge for 12K ROM space and an additional 256
-bytes of RAM. This is Atari 2600 programming in easy mode.
+This is based off the CBS RAM Plus (RAM+) cartridge.
+
+* These cartridges have for 12K of ROM space, across three banks, with about
+  10.7kb addressible (the first two pages of each bank are reserved for RAM
+  access).
+* RAM+ cartridges support an additional 256 bytes of RAM. (This is Atari 2600
+  programming on easy mode.) You can write to 
 
 > http://www.classic-games.com/atari2600/bankswitch.html
 ```
-CBS  RAM Plus (RAM+)  This maps in 256 bytes of RAM in the first 512 bytes
+CBS RAM Plus (RAM+)  This maps in 256 bytes of RAM in the first 512 bytes
 of the cart; 1000-11FF.  The lower 256 addresses are the write port, while
 the upper 256 addresses are the read port.  To store a byte and retrieve it:
 

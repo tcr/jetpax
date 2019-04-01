@@ -24,13 +24,12 @@ pub enum Gem {
 
 pub use self::Gem::*;
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Hash, Debug, Copy, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Bytecode {
     Nop,
     VdelOn,
     VdelOff,
     BlankOn,
-    BlankOff,
     Stx,
     Sty,
     Php,
@@ -88,12 +87,6 @@ impl State {
                 }
                 state.in_blank = true;
             }
-            Bytecode::BlankOff => {
-                if !state.in_blank {
-                    return None;
-                }
-                state.in_blank = false;
-            }
             Bytecode::Stx => {
                 state.grp0 = state.x;
             }
@@ -120,7 +113,7 @@ pub type GemRow = [Gem; 6];
 pub fn all_gem_rows() -> Vec<GemRow> {
     // Hardcoded override.
     // return vec![
-    //     [Gem_0_1, Gem_0_1, Gem_0_0, Gem_1_0, Gem_1_1, Gem_0_0]
+    //     [Gem_0_1, Gem_1_1, Gem_1_0, Gem_0_0, Gem_0_0, Gem_0_0]
     // ];
 
     let all_gems = vec![Gem_0_0, Gem_0_1, Gem_1_0, Gem_1_1];
