@@ -6,18 +6,33 @@ use std::collections::{HashMap, HashSet};
 use std::fs::File;
 use serde_json;
 
-const RESULT_LIST_COUNT: usize = 60;
-const FILTER_KERNEL: Kernel = Kernel::A;
+const RESULT_LIST_COUNT: usize = 30;
+const FILTER_KERNEL: Kernel = Kernel::B;
 
 // Filter for features of program or state to restrict solving to.
 fn feature_detect(features: &[Feature]) -> bool {
     true
-    // && features.iter().find(|x| {
-    //     **x == Feature::StateInitInVdel(true)
-    // }).is_some()
     && features.iter().find(|x| {
-        **x == Feature::ProgramBytecode(Bytecode::Reflect)
+        // Only show complex scenarios
+        **x == Feature::GemDistinctTotal(3) ||
+        **x == Feature::GemDistinctTotal(4)
     }).is_some()
+
+    // Custom filters
+
+    && features.iter().find(|x| {
+        **x == Feature::ProgramBytecode(Bytecode::Php11)
+    }).is_some()
+    && features.iter().find(|x| {
+        **x == Feature::GemDistinctTotal(3)
+    }).is_some()
+    // && features.iter().find(|x| {
+    //     **x == Feature::ProgramBytecodeIndex(2, Bytecode::Reflect)
+    // }).is_some()
+    // && features.iter().find(|x| {
+    //     **x == Feature::GemSeq2([Gem_1_0, Gem_0_1]) ||
+    //     **x == Feature::GemSeq2([Gem_0_1, Gem_1_0])
+    // }).is_none()
 }
 
 // OVERRIDE Blacklist some features from printed list. TODO
@@ -27,19 +42,24 @@ fn features_filter_output(feature: &Feature) -> bool {
         | Feature::ProgramBytecode(Bytecode::Stx)
         | Feature::ProgramBytecode(Bytecode::Sty)
         | Feature::ProgramBytecodeIndex(_, Bytecode::Nop)
-        | Feature::GemSpan1(_, _) => false,
-        // | Feature::GemDistinct4(_, _)
-        | Feature::ProgramBytecodeIndex(_, _) 
+        // | Feature::GemSeq1(_)
+        // | Feature::GemSpan1(_, _)
+        // | Feature::GemDistinct(_)
+        // | Feature::ProgramBytecodeIndex(_, _) 
         | Feature::ProgramBytecode(Bytecode::Nop) => false,
 
-        // Feature::ProgramBytecodeIndex(_, Bytecode::VdelOn) => true,
+        // Whitelist
+        // Feature::ProgramBytecodeIndex(_, Bytecode::Php) => true,
+        // | Feature::StateInitY(_) => true,
+        // _ => false,
         _ => true,
     }
 }
 
 #[derive(Debug, Hash, Eq, PartialEq, Clone, Copy)]
 enum Feature {
-    GemDistinct4(usize, usize), // window, count 
+    GemDistinctTotal(usize), // count
+    GemDistinct4Window(usize, usize), // start, size
     GemSeq1([Gem; 1]),
     GemSeq2([Gem; 2]),
     GemSeq3([Gem; 3]),
@@ -59,13 +79,17 @@ enum Feature {
     StateInitVdel(Gem),
     StateInitX(Gem),
     StateInitY(Gem),
+    XEqVdel,
+    XNeVdel,
+    YEqVdel,
+    YNeVdel,
 
     // Custom
-    StateGrp0IsNotStart,
     StateVdelIsNotGem1,
     StateVdelIsNotGem0,
     ProgramLateVdel,
     ProgramVdelGap,
+    // PhpDoesntMatchGem
 }
 
 // Identify features from a GemRow.
@@ -87,8 +111,8 @@ fn identify_row_features(gems: &GemRow) -> HashSet<Feature> {
         .map(|(idx, s)| Feature::GemSpan6(idx, [s[0], s[1], s[2], s[3], s[4], s[5]])).collect());
 
     // sequences
-    // res.append(&mut gems.windows(1).enumerate() // kinda useless
-    //     .map(|(idx, s)| Feature::Seq1([s[0]])).collect());
+    res.append(&mut gems.windows(1).enumerate() // kinda useless
+        .map(|(idx, s)| Feature::GemSeq1([s[0]])).collect());
     res.append(&mut gems.windows(2).enumerate()
         .map(|(idx, s)| Feature::GemSeq2([s[0], s[1]])).collect());
     res.append(&mut gems.windows(3).enumerate()
@@ -100,12 +124,19 @@ fn identify_row_features(gems: &GemRow) -> HashSet<Feature> {
     res.append(&mut gems.windows(6).enumerate()
         .map(|(idx, s)| Feature::GemSeq6([s[0], s[1], s[2], s[3], s[4], s[5]])).collect());
 
-    // Count distinct values.
+    // Count number of distinct values.
+    res.push(Feature::GemDistinctTotal(distinct(&gems[..])));
+
+    // Distinct 4 window
     res.append(&mut gems.windows(4).enumerate()
-        .map(|(idx, window)| {
-            let distinct = window.iter().collect::<HashSet<_>>().len();
-            Feature::GemDistinct4(idx, distinct)
-        }).collect());
+        .filter(|(idx, s)| distinct(&s) >= 4)
+        .map(|(idx, s)| Feature::GemDistinct4Window(idx, 4)).collect());
+    res.append(&mut gems.windows(5).enumerate()
+        .filter(|(idx, s)| distinct(&s) >= 4)
+        .map(|(idx, s)| Feature::GemDistinct4Window(idx, 5)).collect());
+    res.append(&mut gems.windows(6).enumerate()
+        .filter(|(idx, s)| distinct(&s) >= 4)
+        .map(|(idx, s)| Feature::GemDistinct4Window(idx, 6)).collect());
 
     res.into_iter().collect()
 }
@@ -143,12 +174,6 @@ fn main() {
                 Feature::StateInitInVdel(init_state.in_vdel),
                 Feature::StateInitGrp0(init_state.grp0),
             ];
-            if init_state.grp0 != gems[0] {
-                features.insert(Feature::StateGrp0IsNotStart);
-            }
-            if init_state.vdel_value != gems[1] {
-                features.insert(Feature::StateVdelIsNotGem1);
-            }
             if init_state.vdel_value != gems[0] {
                 features.insert(Feature::StateVdelIsNotGem0);
             }
@@ -157,6 +182,17 @@ fn main() {
                 features.insert(Feature::ProgramBytecodeIndex(i, *bc));
             }
             features.extend(identify_row_features(&gems));
+            features.insert(
+                if init_state.x == init_state.vdel_value { Feature::XEqVdel } else { Feature::XNeVdel }
+            );
+            features.insert(
+                if init_state.y == init_state.vdel_value { Feature::YEqVdel } else { Feature::YNeVdel }
+            );
+            // if let Some(pos) = program.iter().position(|x| *x == Bytecode::Php) {
+            //     if gems[pos] != Gem_1_0 {
+            //         features.insert(Feature::PhpDoesntMatchGem);
+            //     }
+            // }
 
             // Custom
             for (i, bc) in program[1..].iter().enumerate() {
@@ -185,8 +221,9 @@ fn main() {
             }
 
             if print {
-                println!("match: {:?}", gems);
-                println!("     : {:?}", program);
+                println!("         [ {}            ]", program.iter().map(|x| format!("{:>8}", format!("{:?}", x))).collect::<Vec<_>>().join(" | "));
+                println!("   gems: [ {} ]", gems.iter().map(|x| format!("{:>8}", format!("{:?}", x))).collect::<Vec<_>>().join(" | "));
+                println!();
             }
         }
         (total, feature_union)

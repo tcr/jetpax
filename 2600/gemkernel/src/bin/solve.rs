@@ -1,4 +1,4 @@
-#![allow(non_camel_case_types, dead_code, unused_variables)]
+#![allow(non_camel_case_types, dead_code, unused_variables, non_snake_case)]
 
 use gemkernel::*;
 use maplit::*;
@@ -33,26 +33,9 @@ fn solve<K>(map: &HashMap<K, usize>) -> K where K: Copy + Eq + Hash {
     entries[idx]
 }
 
-fn random_bc(kernel: Kernel) -> Bytecode {
-    let mut out_of = vec![
-        Bytecode::Nop,
-        Bytecode::VdelOn, // D0=1
-        Bytecode::VdelOff, // D0=0
-        Bytecode::Stx,
-        Bytecode::Sty,
-    ];
-    if kernel == Kernel::A {
-        out_of.push(Bytecode::Reflect);
-    }
-    if kernel == Kernel::B {
-        out_of.push(Bytecode::Php);
-    }
-    out_of[rand::thread_rng().gen_range(0, out_of.len())]
-}
-
 /// Generate A.txt and B.txt.
 fn main() {
-    for kernel in [Kernel::A, Kernel::B].into_iter() {
+    for kernel in [/*Kernel::A, */Kernel::B].into_iter() {
     // for kernel in [Kernel::A].into_iter() {
         let mut solved: Export = hashmap![];
         for gems in all_gem_rows() {
@@ -111,7 +94,8 @@ fn ranking(program: &[Bytecode], init_state: &State) -> isize {
             Bytecode::BlankOn => { score += 5; },
             Bytecode::Reset4 => { score += 30; },
             Bytecode::Reflect => { score += 20; },
-            Bytecode::Php => { score += 50; },
+            Bytecode::Php10 => { score += 50; },
+            Bytecode::Php11 => { score += 50; },
             Bytecode::Stx | Bytecode::Sty => {}
         }
     }
@@ -127,7 +111,28 @@ fn ranking(program: &[Bytecode], init_state: &State) -> isize {
 fn attempt(kernel: Kernel, gems: &[Gem]) -> Option<(Vec<Bytecode>, State, State)> {
     let mut retry = 4; // const
 
-    let x = {
+    let is_distinct_4 = distinct(&gems) >= 4;
+    let is_distinct_3 = distinct(&gems) >= 3;
+    // let is_distinct_3 =
+    //     gems.iter().take(3).collect::<HashSet<_>>().len() == 3;
+
+    // in Kernel A we can skip the first two elements.
+    // TODO kernel B also?
+    let leading_blank_pair = kernel == Kernel::A &&
+        gems[0] == Gem_0_0 && gems[1] == Gem_0_0;
+    let trailing_blank_pair = kernel == Kernel::A &&
+        gems[4] == Gem_0_0 && gems[5] == Gem_0_0;
+    
+    // Solve for variables.
+
+    let x = if kernel == Kernel::A {
+        solve(&hashmap![
+            Gem_0_0 => 1,
+            Gem_0_1 => 1,
+            Gem_1_0 => 1,
+            Gem_1_1 => 1,
+        ])
+    } else {
         solve(&hashmap![
             Gem_0_0 => 1,
             Gem_0_1 => 1,
@@ -136,7 +141,14 @@ fn attempt(kernel: Kernel, gems: &[Gem]) -> Option<(Vec<Bytecode>, State, State)
         ])
     };
 
-    let y = {
+    let y = if kernel == Kernel::A {
+        solve(&hashmap![
+            Gem_0_0 => 1,
+            Gem_0_1 => 1,
+            Gem_1_0 => 1,
+            Gem_1_1 => 1,
+        ])
+    } else {
         solve(&hashmap![
             Gem_0_0 => 1,
             Gem_0_1 => 1,
@@ -145,19 +157,21 @@ fn attempt(kernel: Kernel, gems: &[Gem]) -> Option<(Vec<Bytecode>, State, State)
         ])
     };
 
-    let is_distinct_4 =
-        gems.iter().take(4).collect::<HashSet<_>>().len() == 4;
-    let is_distinct_3 =
-        gems.iter().take(3).collect::<HashSet<_>>().len() == 3;
-
-    let in_vdel = {
+    let in_vdel = if kernel == Kernel::A {
+        solve(&hashmap![
+            true => 1,
+            false => 10,
+        ])
+    } else {
         solve(&hashmap![
             true => 1,
             false => 10,
         ])
     };
 
-    let vdel_value = {
+    let vdel_value = if in_vdel {
+        gems[0]
+    } else {
         solve(&hashmap![
             Gem_0_0 => 1,
             Gem_0_1 => 1,
@@ -166,8 +180,11 @@ fn attempt(kernel: Kernel, gems: &[Gem]) -> Option<(Vec<Bytecode>, State, State)
         ])
     };
 
+    // (Solved!)
     let grp0 = if in_vdel {
         gems[1]
+    } else if leading_blank_pair {
+        gems[2]
     } else {
         gems[0]
     };
@@ -184,25 +201,38 @@ fn attempt(kernel: Kernel, gems: &[Gem]) -> Option<(Vec<Bytecode>, State, State)
         reflected: false,
     };
     let init_state = state.clone();
+
+    let vdel_stands_valiantly_alone = init_state.x != init_state.vdel_value && init_state.y != init_state.vdel_value;
     
     // We only track the middle four nodes, cause like NOP is "free"
     let mut program = vec![];
     let mut i = 0;
+    let mut did_php = false;
     while i < gems.len() - 1 { // One from end
+
+        // [1_0, 0_1] or [0_1, 1_0] found as sequence, which
+        // prompts the reset call immediately.
+        let reflected_sequence = i > 0 && (
+            gems[i] == Gem_0_1 && gems[i - 1] == Gem_1_0 ||
+            gems[i] == Gem_1_0 && gems[i - 1] == Gem_0_1
+        );
 
         let bc = if kernel == Kernel::A {
             match i {
                 // Kill first 2 sprites if gems[0] == Gem_0_0 and gems[1] too
-                | 0 if gems[0] == Gem_0_0 && gems[1] == Gem_0_0 => {
+                | 0 if leading_blank_pair => {
                     Bytecode::Reset4
                 }
-                | 1 if gems[0] == Gem_0_0 && gems[1] == Gem_0_0 => {
+                | 1 if leading_blank_pair => {
                     Bytecode::Reset4
                 }
+
+                // If in vdel, immediately disable it.
                 | 1 if init_state.in_vdel => {
                     Bytecode::VdelOff
                 }
 
+                // Skip sprites 1, 2, or 3.
                 1 if gems[i] == Gem_0_0 => {
                     Bytecode::Reset4
                 }
@@ -213,41 +243,84 @@ fn attempt(kernel: Kernel, gems: &[Gem]) -> Option<(Vec<Bytecode>, State, State)
                     Bytecode::Reset4
                 }
 
-                // Kill last 2 sprites if gems[4] == Gem_0_0 but gems[3] doesn't
-                4 if gems[i] == Gem_0_0 && gems[i-1] != Gem_0_0 => {
-                    Bytecode::BlankOn
+                // TODO this is actually a hack, fix this!
+                3 if (gems[i] == Gem_1_0 || gems[i] == Gem_0_1) && gems[i+1] == Gem_0_0 => {
+                    // Skip with value
+                    Bytecode::Reset4
                 }
 
-                // Normal
+                // Kill last 2 sprites if dead
+                | 4
+                | 5 if trailing_blank_pair => {
+                    Bytecode::Reset4
+                }
+
+                // Reflect around a blank gem[1] or gem[3].
+                | 2 if
+                    gems[0..3] == [Gem_1_0, Gem_0_0, Gem_0_1] ||
+                    gems[0..3] == [Gem_0_1, Gem_0_0, Gem_1_0] => {
+                    Bytecode::Reflect
+                }
+                | 4 if
+                    gems[3..5] == [Gem_1_0, Gem_0_0, Gem_0_1] ||
+                    gems[3..5] == [Gem_0_1, Gem_0_0, Gem_1_0] => {
+                    Bytecode::Reflect
+                }
+
+                // Normal execution.
                 0 => {
                     Bytecode::Nop
                 }
                 _ => {
-                    solve(&hashmap!{
-                        Bytecode::Nop => 10,
-                        Bytecode::Stx => 10,
-                        Bytecode::Sty => 10,
-                        Bytecode::Reflect => 1,
-                        Bytecode::VdelOn => 1,
-                        Bytecode::VdelOff => 1,
-                    })
+                    if reflected_sequence {
+                        Bytecode::Reflect
+                    } else {
+                        let bc = solve(&hashmap!{
+                            Bytecode::Nop => 10,
+                            Bytecode::Stx => 10,
+                            Bytecode::Sty => 10,
+                            Bytecode::VdelOn => 1,
+                            Bytecode::VdelOff => 1,
+                        });
+
+                        if bc == Bytecode::VdelOn {
+                            // Vdel must not equal X or Y
+                            Bytecode::Nop
+                        } else {
+                            bc
+                        }
+                    }
                 }
             }
         } else {
-            if i == 0 {
+            match i {
                 // Force first command.
-                Bytecode::Nop
-            } else if i == 1 && init_state.in_vdel {
-                Bytecode::VdelOff
-            } else {
-                solve(&hashmap!{
-                    Bytecode::Nop => 3,
-                    Bytecode::Stx => 3,
-                    Bytecode::Sty => 3,
-                    Bytecode::Php => 1,
-                    // Bytecode::VdelOn => 1,
-                    // Bytecode::VdelOff => 1,
-                })
+                0 => Bytecode::Nop,
+
+                // Disable vdel immediately if on.
+                1 if init_state.in_vdel => {
+                    Bytecode::VdelOff
+                },
+
+                // Use of Php opcode.
+                | 2 | 3 | 4 
+                if !did_php && init_state.in_vdel && gems[i] == Gem_1_0 => {
+                    did_php = true;
+                    Bytecode::Php10
+                }
+                | 2 | 3 | 4 
+                if !did_php && init_state.in_vdel && gems[i] == Gem_1_1 => {
+                    did_php = true;
+                    Bytecode::Php11
+                }
+
+                _ => {
+                    solve(&hashmap!{
+                        Bytecode::Nop => 1,
+                        Bytecode::Stx => 1,
+                        Bytecode::Sty => 1,
+                    })
+                }
             }
         };
 
@@ -302,7 +375,7 @@ fn attempt(kernel: Kernel, gems: &[Gem]) -> Option<(Vec<Bytecode>, State, State)
     // }
 
     // Only one PHP.
-    if program.iter().filter(|x| **x == Bytecode::Php).count() > 1 {
+    if program.iter().filter(|x| **x == Bytecode::Php10 || **x == Bytecode::Php11).count() > 1 {
         return None;
     }
 

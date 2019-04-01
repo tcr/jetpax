@@ -9,7 +9,7 @@
 use itertools::*;
 use rand::Rng;
 use rayon::prelude::*;
-use std::collections::HashMap;
+use std::collections::{HashSet, HashMap};
 use std::io::prelude::*;
 use serde_json;
 use serde::{Serialize, Deserialize};
@@ -32,7 +32,8 @@ pub enum Bytecode {
     BlankOn,
     Stx,
     Sty,
-    Php,
+    Php10,
+    Php11,
     Reflect,
     Reset4,
 }
@@ -96,8 +97,11 @@ impl State {
             Bytecode::Reflect => {
                 state.reflected = !state.reflected;
             }
-            Bytecode::Php => {
-                state.grp0 = if rand::thread_rng().gen::<bool>() { Gem_1_0 } else { Gem_1_1 };
+            Bytecode::Php10 => {
+                state.grp0 = Gem_1_0;
+            }
+            Bytecode::Php11 => {
+                state.grp0 = Gem_1_1;
             }
             Bytecode::Reset4 => {
                 panic!("unreachable");
@@ -113,7 +117,7 @@ pub type GemRow = [Gem; 6];
 pub fn all_gem_rows() -> Vec<GemRow> {
     // Hardcoded override.
     // return vec![
-    //     [Gem_0_1, Gem_1_1, Gem_1_0, Gem_0_0, Gem_0_0, Gem_0_0]
+    //     [Gem_0_0, Gem_0_0, Gem_0_1, Gem_1_0, Gem_0_0, Gem_0_0]
     // ];
 
     let all_gems = vec![Gem_0_0, Gem_0_1, Gem_1_0, Gem_1_1];
@@ -134,3 +138,7 @@ pub enum Kernel {
 pub type Program = Vec<Bytecode>;
 pub type Export = HashMap<GemRow, (Program, State, State)>;
 pub type ExportFormat = Vec<(GemRow, (Program, State, State))>;
+
+pub fn distinct(gems: &[Gem]) -> usize {
+    gems.iter().collect::<HashSet<_>>().len()
+}
