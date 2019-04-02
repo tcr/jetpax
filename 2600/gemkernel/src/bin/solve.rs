@@ -125,81 +125,129 @@ fn attempt(kernel: Kernel, gems: &[Gem]) -> Option<(Vec<Bytecode>, State, State)
     
     // Solve for variables.
 
-    let x = if kernel == Kernel::A {
-        solve(&hashmap![
+    let mut state = if kernel == Kernel::A {
+        let x = solve(&hashmap![
             Gem_0_0 => 1,
             Gem_0_1 => 1,
             Gem_1_0 => 1,
             Gem_1_1 => 1,
-        ])
-    } else {
-        solve(&hashmap![
+        ]);
+        
+        let y = solve(&hashmap![
             Gem_0_0 => 1,
             Gem_0_1 => 1,
             Gem_1_0 => 1,
             Gem_1_1 => 1,
-        ])
-    };
+        ]);
 
-    let y = if kernel == Kernel::A {
-        solve(&hashmap![
-            Gem_0_0 => 1,
-            Gem_0_1 => 1,
-            Gem_1_0 => 1,
-            Gem_1_1 => 1,
-        ])
-    } else {
-        solve(&hashmap![
-            Gem_0_0 => 1,
-            Gem_0_1 => 1,
-            Gem_1_0 => 1,
-            Gem_1_1 => 1,
-        ])
-    };
-
-    let in_vdel = if kernel == Kernel::A {
-        solve(&hashmap![
+        let in_vdel = solve(&hashmap![
             true => 1,
             false => 10,
-        ])
-    } else {
-        solve(&hashmap![
-            true => 1,
-            false => 10,
-        ])
-    };
+        ]);
+            
+        let vdel_value = if in_vdel {
+            gems[0]
+        } else {
+            solve(&hashmap![
+                Gem_0_0 => 1,
+                Gem_0_1 => 1,
+                Gem_1_0 => 1,
+                Gem_1_1 => 1,
+            ])
+        };
 
-    let vdel_value = if in_vdel {
-        gems[0]
-    } else {
-        solve(&hashmap![
+        // (Solved!)
+        let grp0 = if in_vdel {
+            gems[1]
+        } else if leading_blank_pair {
+            gems[2]
+        } else {
+            gems[0]
+        };
+
+        State {
+            x,
+            y,
+            vdel_value,
+            in_vdel,
+            grp0,
+            in_blank: false,
+            reflected: false,
+        }
+    } else if !is_distinct_3 {
+        let x = solve(&hashmap![
             Gem_0_0 => 1,
             Gem_0_1 => 1,
             Gem_1_0 => 1,
             Gem_1_1 => 1,
-        ])
-    };
+        ]);
+        
+        let y = solve(&hashmap![
+            Gem_0_0 => 1,
+            Gem_0_1 => 1,
+            Gem_1_0 => 1,
+            Gem_1_1 => 1,
+        ]);
 
-    // (Solved!)
-    let grp0 = if in_vdel {
-        gems[1]
-    } else if leading_blank_pair {
-        gems[2]
-    } else {
-        gems[0]
+        let in_vdel = false;
+        let vdel_value = Gem_0_0;
+
+        let grp0 = gems[0];
+
+        State {
+            x,
+            y,
+            vdel_value,
+            in_vdel,
+            grp0,
+            in_blank: false,
+            reflected: false,
+        }
+    } else /*if kernel == Kernel::B*/ {
+        let x = solve(&hashmap![
+            Gem_0_0 => 1,
+            Gem_0_1 => 1,
+            Gem_1_0 => 1,
+            Gem_1_1 => 1,
+        ]);
+        
+        let y = solve(&hashmap![
+            Gem_0_0 => 1,
+            Gem_0_1 => 1,
+            Gem_1_0 => 1,
+            Gem_1_1 => 1,
+        ]);
+
+        let in_vdel = is_distinct_3;
+            
+        let vdel_value = if in_vdel {
+            gems[0]
+        } else {
+            Gem_0_0
+        };
+
+        // (Solved!)
+        let grp0 = if in_vdel {
+            gems[1]
+        } else if leading_blank_pair {
+            gems[2]
+        } else {
+            gems[0]
+        };
+
+        State {
+            x,
+            y,
+            vdel_value,
+            in_vdel,
+            grp0,
+            in_blank: false,
+            reflected: false,
+        }
     };
 
     // Start state assembly.
 
-    let mut state = State {
-        x,
-        y,
-        vdel_value,
-        in_vdel,
-        grp0,
-        in_blank: false,
-        reflected: false,
-    };
     let init_state = state.clone();
 
     let vdel_stands_valiantly_alone = init_state.x != init_state.vdel_value && init_state.y != init_state.vdel_value;

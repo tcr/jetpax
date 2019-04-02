@@ -21,11 +21,11 @@ fn feature_detect(features: &[Feature]) -> bool {
     // Custom filters
 
     && features.iter().find(|x| {
-        **x == Feature::ProgramBytecode(Bytecode::Php11)
-    }).is_some()
-    && features.iter().find(|x| {
-        **x == Feature::GemDistinctTotal(3)
-    }).is_some()
+        **x == Feature::StateInitInVdel(true)
+    }).is_none()
+    // && features.iter().find(|x| {
+    //     **x == Feature::GemDistinctTotal(3)
+    // }).is_some()
     // && features.iter().find(|x| {
     //     **x == Feature::ProgramBytecodeIndex(2, Bytecode::Reflect)
     // }).is_some()
