@@ -7,22 +7,22 @@ use std::fs::File;
 use serde_json;
 
 const RESULT_LIST_COUNT: usize = 30;
-const FILTER_KERNEL: Kernel = Kernel::B;
+const FILTER_KERNEL: Kernel = Kernel::A;
 
 // Filter for features of program or state to restrict solving to.
 fn feature_detect(features: &[Feature]) -> bool {
     true
-    && features.iter().find(|x| {
-        // Only show complex scenarios
-        **x == Feature::GemDistinctTotal(3) ||
-        **x == Feature::GemDistinctTotal(4)
-    }).is_some()
+    // && features.iter().find(|x| {
+    //     // Only show complex scenarios
+    //     **x == Feature::GemDistinctTotal(3) ||
+    //     **x == Feature::GemDistinctTotal(4)
+    // }).is_some()
 
     // Custom filters
 
     && features.iter().find(|x| {
         **x == Feature::StateInitInVdel(true)
-    }).is_none()
+    }).is_some()
     // && features.iter().find(|x| {
     //     **x == Feature::GemDistinctTotal(3)
     // }).is_some()

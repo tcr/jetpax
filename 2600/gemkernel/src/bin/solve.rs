@@ -125,7 +125,37 @@ fn attempt(kernel: Kernel, gems: &[Gem]) -> Option<(Vec<Bytecode>, State, State)
     
     // Solve for variables.
 
-    let mut state = if kernel == Kernel::A {
+    let mut state = if !is_distinct_3 {
+        // B default
+
+        let x = solve(&hashmap![
+            Gem_0_0 => 1,
+            Gem_0_1 => 1,
+            Gem_1_0 => 1,
+            Gem_1_1 => 1,
+        ]);
+        
+        let y = solve(&hashmap![
+            Gem_0_0 => 1,
+            Gem_0_1 => 1,
+            Gem_1_0 => 1,
+            Gem_1_1 => 1,
+        ]);
+
+        let in_vdel = false;
+        let vdel_value = Gem_0_0;
+        let grp0 = gems[0];
+
+        State {
+            x,
+            y,
+            vdel_value,
+            in_vdel,
+            grp0,
+            in_blank: false,
+            reflected: false,
+        }
+    } else if kernel == Kernel::A {
         let x = solve(&hashmap![
             Gem_0_0 => 1,
             Gem_0_1 => 1,
@@ -174,35 +204,6 @@ fn attempt(kernel: Kernel, gems: &[Gem]) -> Option<(Vec<Bytecode>, State, State)
             in_blank: false,
             reflected: false,
         }
-    } else if !is_distinct_3 {
-        let x = solve(&hashmap![
-            Gem_0_0 => 1,
-            Gem_0_1 => 1,
-            Gem_1_0 => 1,
-            Gem_1_1 => 1,
-        ]);
-        
-        let y = solve(&hashmap![
-            Gem_0_0 => 1,
-            Gem_0_1 => 1,
-            Gem_1_0 => 1,
-            Gem_1_1 => 1,
-        ]);
-
-        let in_vdel = false;
-        let vdel_value = Gem_0_0;
-
-        let grp0 = gems[0];
-
-        State {
-            x,
-            y,
-            vdel_value,
-            in_vdel,
-            grp0,
-            in_blank: false,
-            reflected: false,
-        }
     } else /*if kernel == Kernel::B*/ {
         let x = solve(&hashmap![
             Gem_0_0 => 1,
@@ -218,22 +219,9 @@ fn attempt(kernel: Kernel, gems: &[Gem]) -> Option<(Vec<Bytecode>, State, State)
             Gem_1_1 => 1,
         ]);
 
-        let in_vdel = is_distinct_3;
-            
-        let vdel_value = if in_vdel {
-            gems[0]
-        } else {
-            Gem_0_0
-        };
-
-        // (Solved!)
-        let grp0 = if in_vdel {
-            gems[1]
-        } else if leading_blank_pair {
-            gems[2]
-        } else {
-            gems[0]
-        };
+        let in_vdel = true;
+        let vdel_value = gems[0];
+        let grp0 = gems[1];
 
         State {
             x,
@@ -323,20 +311,13 @@ fn attempt(kernel: Kernel, gems: &[Gem]) -> Option<(Vec<Bytecode>, State, State)
                     if reflected_sequence {
                         Bytecode::Reflect
                     } else {
-                        let bc = solve(&hashmap!{
+                        solve(&hashmap!{
                             Bytecode::Nop => 10,
                             Bytecode::Stx => 10,
                             Bytecode::Sty => 10,
                             Bytecode::VdelOn => 1,
                             Bytecode::VdelOff => 1,
-                        });
-
-                        if bc == Bytecode::VdelOn {
-                            // Vdel must not equal X or Y
-                            Bytecode::Nop
-                        } else {
-                            bc
-                        }
+                        })
                     }
                 }
             }
