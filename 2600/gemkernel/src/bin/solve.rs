@@ -35,7 +35,7 @@ fn solve<K>(map: &HashMap<K, usize>) -> K where K: Copy + Eq + Hash {
 
 /// Generate A.txt and B.txt.
 fn main() {
-    for kernel in [/*Kernel::A, */Kernel::B].into_iter() {
+    for kernel in [Kernel::A, Kernel::B].into_iter() {
     // for kernel in [Kernel::A].into_iter() {
         let mut solved: Export = hashmap![];
         for gems in all_gem_rows() {
