@@ -112,7 +112,9 @@ fn attempt(kernel: Kernel, gems: &[Gem]) -> Option<(Vec<Bytecode>, State, State)
     let mut retry = 4; // const
 
     let is_distinct_4 = distinct(&gems) >= 4;
+    let is_distinct_4_exactly = distinct(&gems) == 4;
     let is_distinct_3 = distinct(&gems) >= 3;
+    let is_distinct_3_exactly = distinct(&gems) == 3;
     // let is_distinct_3 =
     //     gems.iter().take(3).collect::<HashSet<_>>().len() == 3;
 
@@ -122,6 +124,45 @@ fn attempt(kernel: Kernel, gems: &[Gem]) -> Option<(Vec<Bytecode>, State, State)
         gems[0] == Gem_0_0 && gems[1] == Gem_0_0;
     let trailing_blank_pair = kernel == Kernel::A &&
         gems[4] == Gem_0_0 && gems[5] == Gem_0_0;
+    
+
+/*
+
+Middle VDel
+
+if is_distinct_4_exactly && gems[1] == Gem_0_0 && gems[0] == gems[3] {
+
+         [      Nop |   Reset4 |   VdelOn |  VdelOff |      Sty            ]
+   gems: [  Gem_1_1 |  Gem_0_0 |  Gem_0_1 |  Gem_1_1 |  Gem_1_0 |  Gem_0_0 ]
+
+         [      Nop |   Reset4 |   VdelOn |  VdelOff |      Stx            ]
+   gems: [  Gem_1_1 |  Gem_0_0 |  Gem_1_0 |  Gem_1_1 |  Gem_0_1 |  Gem_1_1 ]
+
+         [      Nop |   Reset4 |   VdelOn |  VdelOff |      Stx            ]
+   gems: [  Gem_1_1 |  Gem_0_0 |  Gem_0_1 |  Gem_1_1 |  Gem_1_0 |  Gem_1_0 ]
+
+         [      Nop |   Reset4 |   VdelOn |  VdelOff |      Stx            ]
+   gems: [  Gem_1_1 |  Gem_0_0 |  Gem_0_1 |  Gem_1_1 |  Gem_1_0 |  Gem_0_1 ]
+
+            } else if is_distinct_4_exactly && gems[1] == Gem_0_0 && gems[1] == gems[3] {
+
+
+         [      Nop |      Stx |   VdelOn |  VdelOff |      Sty            ]
+   gems: [  Gem_0_0 |  Gem_1_1 |  Gem_1_0 |  Gem_1_1 |  Gem_0_1 |  Gem_1_1 ]
+
+         [      Nop |      Stx |   VdelOn |  VdelOff |      Sty            ]
+   gems: [  Gem_0_0 |  Gem_1_1 |  Gem_0_1 |  Gem_1_1 |  Gem_1_0 |  Gem_0_0 ]
+
+         [      Nop |      Sty |   VdelOn |  VdelOff |      Stx            ]
+   gems: [  Gem_0_0 |  Gem_1_1 |  Gem_1_0 |  Gem_1_1 |  Gem_0_1 |  Gem_0_0 ]
+
+         [      Nop |      Stx |   VdelOn |  VdelOff |      Sty            ]
+   gems: [  Gem_1_0 |  Gem_1_1 |  Gem_0_1 |  Gem_1_1 |  Gem_1_0 |  Gem_0_0 ]
+
+*/
+
+    let middle_vdel_a = false; gems[0] != gems[2] && gems[1] != gems[2] && gems[0] != gems[1] && gems[0] != gems[4] && is_distinct_4_exactly && gems[1] == gems[3];
+    let middle_vdel_b = false; //gems[0] != gems[1] && is_distinct_4_exactly && gems[1] == Gem_0_0 && gems[1] == gems[3];
     
     // Solve for variables.
 
@@ -170,20 +211,51 @@ fn attempt(kernel: Kernel, gems: &[Gem]) -> Option<(Vec<Bytecode>, State, State)
             Gem_1_1 => 1,
         ]);
 
-        let in_vdel = solve(&hashmap![
-            true => 1,
-            false => 10,
-        ]);
+        let seq1 = gems.windows(3)
+            .map(|x| {
+                *x == [Gem_1_1, Gem_0_1, Gem_1_1] ||
+                *x == [Gem_1_1, Gem_1_0, Gem_1_1] ||
+                *x == [Gem_0_1, Gem_1_1, Gem_1_0]
+            })
+            .filter(|x| *x)
+            .count() > 0;
+
+        // Start in vdel only for these cases:
+        let in_vdel = if
+            gems[1] != Gem_0_0 &&
+            gems[1] != gems[0] &&
+            gems[1] != gems[2] &&
+            gems[1] != gems[3] &&
+            gems[1] != gems[4] {
+            true
+        } else if {
+            gems[0..2] == [Gem_0_0, Gem_0_1] ||
+            gems[0..2] == [Gem_0_0, Gem_1_0] ||
+            gems[0..2] == [Gem_1_1, Gem_0_1] ||
+            gems[0..2] == [Gem_1_1, Gem_1_0]
+            // gems[0..3] == [Gem_0_0, Gem_0_1, Gem_0_1] ||
+            // gems[0..3] == [Gem_0_0, Gem_0_1, Gem_1_0] ||
+            // gems[0..3] == [Gem_0_0, Gem_0_1, Gem_1_1] ||
+            // gems[0..3] == [Gem_0_0, Gem_1_0, Gem_0_1] ||
+            // gems[0..3] == [Gem_0_0, Gem_1_0, Gem_1_0] ||
+            // gems[0..3] == [Gem_0_0, Gem_1_0, Gem_1_1] ||
+            // gems[0..3] == [Gem_1_1, Gem_0_1, Gem_0_1] ||
+            // gems[0..3] == [Gem_1_1, Gem_0_1, Gem_1_0] ||
+            // gems[0..3] == [Gem_1_1, Gem_0_1, Gem_1_1] ||
+            // gems[0..3] == [Gem_1_1, Gem_1_0, Gem_0_1] ||
+            // gems[0..3] == [Gem_1_1, Gem_1_0, Gem_1_0] ||
+            // gems[0..3] == [Gem_1_1, Gem_1_0, Gem_1_1]
+        } {
+            true
+        } else {
+            false
+        };
             
         let vdel_value = if in_vdel {
             gems[0]
         } else {
-            solve(&hashmap![
-                Gem_0_0 => 1,
-                Gem_0_1 => 1,
-                Gem_1_0 => 1,
-                Gem_1_1 => 1,
-            ])
+            // Middle VDEL
+            gems[2]
         };
 
         // (Solved!)
@@ -279,8 +351,8 @@ fn attempt(kernel: Kernel, gems: &[Gem]) -> Option<(Vec<Bytecode>, State, State)
                     Bytecode::Reset4
                 }
 
-                // TODO this is actually a hack, fix this!
-                3 if (gems[i] == Gem_1_0 || gems[i] == Gem_0_1) && gems[i+1] == Gem_0_0 => {
+                // TODO i don't know how to actually do this:
+                4 if gems[i] == Gem_0_0 => {
                     // Skip with value
                     Bytecode::Reset4
                 }
@@ -303,6 +375,27 @@ fn attempt(kernel: Kernel, gems: &[Gem]) -> Option<(Vec<Bytecode>, State, State)
                     Bytecode::Reflect
                 }
 
+                | 2 if middle_vdel_a || middle_vdel_b => {
+                    Bytecode::VdelOn
+                }
+                | 3 if middle_vdel_a || middle_vdel_b => {
+                    Bytecode::VdelOff
+                }
+
+                // Middle VDelOn/Off Pair
+                | 2 if {
+                    i == 2 &&
+                    is_distinct_3 &&
+                    gems[3] == Gem_1_1 &&
+                    state.current() == Gem_1_1
+                } => {
+                    Bytecode::VdelOn
+                }
+
+                | 3 if state.in_vdel => {
+                    Bytecode::VdelOff
+                }
+
                 // Normal execution.
                 0 => {
                     Bytecode::Nop
@@ -312,11 +405,9 @@ fn attempt(kernel: Kernel, gems: &[Gem]) -> Option<(Vec<Bytecode>, State, State)
                         Bytecode::Reflect
                     } else {
                         solve(&hashmap!{
-                            Bytecode::Nop => 10,
-                            Bytecode::Stx => 10,
-                            Bytecode::Sty => 10,
-                            Bytecode::VdelOn => 1,
-                            Bytecode::VdelOff => 1,
+                            Bytecode::Nop => 1,
+                            Bytecode::Stx => 1,
+                            Bytecode::Sty => 1,
                         })
                     }
                 }

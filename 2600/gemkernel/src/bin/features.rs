@@ -12,17 +12,26 @@ const FILTER_KERNEL: Kernel = Kernel::A;
 // Filter for features of program or state to restrict solving to.
 fn feature_detect(features: &[Feature]) -> bool {
     true
-    // && features.iter().find(|x| {
-    //     // Only show complex scenarios
-    //     **x == Feature::GemDistinctTotal(3) ||
-    //     **x == Feature::GemDistinctTotal(4)
-    // }).is_some()
+    && features.iter().find(|x| {
+        // Only show complex scenarios
+        // **x == Feature::GemDistinctTotal(3) ||
+        **x == Feature::GemDistinctTotal(4)
+    }).is_some()
 
     // Custom filters
 
     && features.iter().find(|x| {
-        **x == Feature::StateInitInVdel(true)
+        **x == Feature::MiddleVdel
     }).is_some()
+    // && features.iter().find(|x| {
+    //     **x == Feature::StateInitInVdel(true)
+    // }).is_some()
+    // && features.iter().find(|x| {
+    //     **x == Feature::ProgramBytecode(Bytecode::Reset4)
+    // }).is_none()
+    // && features.iter().find(|x| {
+    //     **x == Feature::ProgramBytecode(Bytecode::VdelOff)
+    // }).is_some()
     // && features.iter().find(|x| {
     //     **x == Feature::GemDistinctTotal(3)
     // }).is_some()
@@ -50,6 +59,7 @@ fn features_filter_output(feature: &Feature) -> bool {
 
         // Whitelist
         // Feature::ProgramBytecodeIndex(_, Bytecode::Php) => true,
+        // Feature::GemSeq3(_) => true,
         // | Feature::StateInitY(_) => true,
         // _ => false,
         _ => true,
@@ -89,7 +99,9 @@ enum Feature {
     StateVdelIsNotGem0,
     ProgramLateVdel,
     ProgramVdelGap,
-    // PhpDoesntMatchGem
+    LeadPairDiffers,
+    HasFlippedPair,
+    MiddleVdel,
 }
 
 // Identify features from a GemRow.
@@ -182,19 +194,37 @@ fn main() {
                 features.insert(Feature::ProgramBytecodeIndex(i, *bc));
             }
             features.extend(identify_row_features(&gems));
+
+
+            // Custom features
             features.insert(
                 if init_state.x == init_state.vdel_value { Feature::XEqVdel } else { Feature::XNeVdel }
             );
             features.insert(
                 if init_state.y == init_state.vdel_value { Feature::YEqVdel } else { Feature::YNeVdel }
             );
+            if gems[0] != gems[1] {
+                features.insert(Feature::LeadPairDiffers);
+            }
+            if program[2] == Bytecode::VdelOn && program[3] == Bytecode::VdelOff {
+                features.insert(Feature::MiddleVdel);
+            }
+            if gems.windows(2)
+                .map(|pair| {
+                    let a = pair[0];
+                    let b = pair[1];
+                    (a == Gem_0_1 && b == Gem_1_0) ||
+                    (a == Gem_1_0 && b == Gem_0_1)
+                })
+                .filter(|x| *x)
+                .count() > 0 {
+                features.insert(Feature::HasFlippedPair);
+            }
             // if let Some(pos) = program.iter().position(|x| *x == Bytecode::Php) {
             //     if gems[pos] != Gem_1_0 {
             //         features.insert(Feature::PhpDoesntMatchGem);
             //     }
             // }
-
-            // Custom
             for (i, bc) in program[1..].iter().enumerate() {
                 if *bc == Bytecode::VdelOn {
                     features.insert(Feature::ProgramLateVdel);
