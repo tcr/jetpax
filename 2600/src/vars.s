@@ -26,6 +26,8 @@ JMP_ADDR_2 byte
 
 ROW_DEMO_INDEX byte
 
+KERNEL_TEMP_A byte
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ROW_COUNT        equ 16
@@ -39,7 +41,7 @@ KERNEL_STORAGE_R    equ $f140
 
 ; Sprites
 
-; Nusiz
+; three copies - close
 THREE_COPIES    equ %00010011
 
 ; Shorthands

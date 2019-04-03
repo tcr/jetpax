@@ -32,220 +32,6 @@ List of 26 bits --> which sections of RAM to rewrite and which decompress step
 to go to next. Compiler can optimize for available space. Might be easier to
 just write good code though.
 
-on: 01 | off: 10
-00 01 ? VDEL on
-04 10 A VDEL off
-09 01 B STX
-13 10 C REFP0?
-18 11 E STY
-
-on: 01 | off: 11 | Y: -- | X: 10
-00 01 ? VDEL on
-04 11 A VDEL off
-09 01 B VDEL on
-13 11 C VDEL off
-18 10 E stx GRP0
-22*-- M 
-
-This one looks weirder than the rest:
-on: 01 | off: 10 | Y: 11 | X: 10
-00 10 ? -
-04 11 A sty GRP0
-09 01 B VDEL on
-13 11 C VDEL off
-18 10 E stx GRP0
-22*-- M 
-
-
-This one looks weirder than the rest:
-on: 01 | off: 10 | Y: 11 | X: 10
-00 10 ? VDEL on
-04 11 A VDEL off
-09 01 B stx 
-13 11 C sty
-18 10 E VDEL on
-22*01 M VDEL off + stx
-
-on: 01 | off: 10 | Y: 11 | X: 01
-00 01 ? VDEL on
-04 10 A VDEL off
-09 11 B sty GRP0
-13 01 C stx GRP0
-18 10 E REFP0 / PHP
-22*-- M 
-
-on: 10 | off: 01 | Y: 11 | X: 01
-00 10 ? VDEL on
-04 01 A VDEL off
-09 11 B sty GRP0
-13 01 C stx GRP0
-18 10 E REFP0 / PHP
-22*-- M 
-
-on: 11 | off: 01 | Y: 11 | X: 01
-00 01 ? VDEL on
-04 11 A VDEL off
-09 10 B stx GRP0
-13 11 C sty GRP0
-18 01 E VDEL on / PHP
-22*10 M REFP1 / stx GRP0
-(or)
-on: 11 | off: 01 | Y: 11 | X: 01
-00 01 ? stx GRP0
-04 11 A sty GRP0
-09 10 B VDEL on
-13 11 C VDEL off
-18 01 E stx GRP0
-22*10 M REFP1 / PHP
-
-on: 11 | off: 01 | Y: 11 | X: 01
-00 01 ? -
-04 11 A sty GRP0
-09 10 B VDEL on
-13 11 C VDEL off
-18 01 E stx GRP0
-22*-- M 
-
-A
-on: 01 | off: 11 | Y: -- | X: 01
-00 11 ? -
-04 01 A VDEL on
-09 10 B REFP0 (A)
-13 11 C VDEL off
-18 01 E stx GRP0
-22*-- M 
-B
-on: 11 | off: 01 | Y: 11 | X: 01
-00 11 ? VDEL on
-04 01 A VDEL off
-09 10 B PHP (B)
-13 11 C sty GRP0
-18 01 E stx GRP0
-22*-- M 
-
-on: 11 | off: 01 | Y: 11 | X: 10
-00 01 ? -
-04 11 A VDEL on
-09 01 B VDEL off
-13 10 C stx GRP0
-18 11 E sty GRP0
-22*-- M 
-
-
-
-
-
-; IDEAS: For Kernel A, keep VDEL=on traffic to the single items. When making a
-; 0x XX x0 trip or vice versa we just hard code the value with a register.
-; 
-on: 11 | off: 01 | Y: 11 | X: 10
-00 01 ? VDEL on
-04 11 A VDEL off
-09 01 B VDEL on
-13 10 C REFP0
-18 11 E VDEL off
-22*01 M stx GRP0
-
-
-A:
-   10 VDEL on
-   11 VDEL off
-   01 stx
-   10 REFP1
-   11 sty
-   01 VDEL on
-B:
-   10 -
-   11 sty
-   01 stx
-   10 PHP
-   11 sty
-   01 stx
-
-A:
-   10 VDEL on
-   11 VDEL off
-   01 stx
-   10 REFP1
-   11 sty
-   10 stx
-B: (no reverse)
-   10 -
-   11 sty
-   01 stx
-   10 PHP
-   11 VDEL on !
-   10 VDEL off
-
-   11 -
-   01 stx
-   10 PHP
-   11 sty !
-   01 stx !
-   10 VDEL off
-
-   01 VDEL on
-   10 VDEL off
-   11 sty
-   01 stx
-   10 PHP
-   11 sty
-
-~~~ 12 bytes for 12 gems :O 40 bytes taken by kernel, so 120 left.
-~~~ that's 10 rows. not great. need better encoding algo
-
-What the makeup of the last two 10 distinct values, might be the key for B.
-
-A: keep VDEL=on traffic to the single items, using RESP0, or regs to bridge 01 11 10 gaps
-   01 VDEL on
-   10 VDEL off
-   11 VDEL off
-   01 stx
-   10 REFP1
-   11 sty
-B: use VDEL early and just focus on populating the next four registers!
-   01 VDEL on
-   10 VDEL off
-   11 sty
-   01 stx
-   10 PHP
-   11 sty
-
-
-
-
-on: 11 | off: 01 | Y: 11 | X: 10
-00 10 ? VDEL on
-04 11 A VDEL off
-09 01 B stx GRP0
-13 10 C PHP / RESP0
-18 11 E sty GRP0
-22*01 M VDEL ON
-
-VDEL should end as OFF
-
-how many registers: how many of stx, sty, are used + any VDEL state not used
-linear reversing and pushing... or PHP lol
-
-
-
-STA = PF1
-STX = 01
-STY = 11
-
-02    ?
-06    A VDEL
-11 01 B STX
-15 10 D PHP
-20 11 E STY
-
-
-
-magic:
-VDELP1
-RESP1
-PHP
-
 
     v 22c    v 25c             v 31c                                                                                              v 64c    v 67c
     v -2P    v 7P             v 24P     v 34P    v 43P                               v 79P            $                  v 115P               v 136P
@@ -271,6 +57,71 @@ PHP
    ABCs   RESP0 sequences
 
 ```
+
+## NUSIZ Tricks
+
+NUSIZ is a way to set the width and repetition of Player and Missile graphics
+across the screen. This feature is intended to let you draw multiple enemies
+or dangers while only requiring one player object.
+
+["When you strobe RESPx, the player's "coarse" position will be 5 color clocks
+after the
+strobe."](http://atariage.com/forums/topic/239890-respx-nusizx-and-player-positioning/)
+This means when resetting the sprite's position, we will leave a 5 color clock
+gap after the opcode finishes. The mismatch between eight color clocks being a
+sprite and nine being an opcode actually works out—we can time a RESP0 call to
+reset a sprite exactly four color clocks after the previous one ended.
+
+## Gem Kernel
+
+A great reference for NUSIZ tricks is the [Circus 2600
+game](http://atariage.com/forums/topic/207391-circus-atariage-2600/) which
+inspired me to pursue a kernel based on NUSIZ interleaving. Their setup is
+different, as their sprites are not interleaved with e.g. playfield commands and
+thus can maintain a fixed cadance of RESP0 calls, dropping them to create a
+hole.
+
+Jetpax for the 2600 is more complex, because horizontal width is fixed to what
+we can meaningfully render with the playfield. The playfield is a 40 bits wide
+(actually 20 bits repeated) sprite that spans the width of the screen. Each bit
+is 4 color clocks wide, and you can think of it as 40 pixels stretched 4 times
+wide across the screen. This is what games use for background graphics, since
+environment elements tend to be chunky. Jetpax is no different, as we'll need it
+to render ledges, ladders, and the game border.
+
+Jetpack levels are 26 columns wide. 26 doesn't fit more than once into 40, so we
+artifically have to restrict ourselves to the 26*4= 104 color clocks in the
+middle of the 160 color clocks in a scanline. This is fine by rendering a
+floating box in the middle of a black screen, but the loss of horizontal
+resolution is costly.
+
+We'll need to render one gem every four color clocks,
+meaning two for eight color clocks. If we want to use NUSIZ tricks for this,
+we'll need to render two sprites per gem. Each sprite on a line may need a
+different graphic.
+
+Blanking out gem1/3:
+   replace with a sta RESP1 and you're good.
+
+
+Blanking out gem4:
+
+* Boggles the mind
+* KernelA_E is nop
+* G is turned into a RESET
+* replace with:
+  * KERNEL_B_MISSILE_SLEEP equ 46
+  * KERNEL_B_MISSILE_HMOVE equ $20
+
+Blanking out gem6:
+
+* Cursed
+* KernelA_I shortens to two cycles, to load int A the value for Gems 22-23
+* K is replaced by the reset in I
+* L is replaced with "sleep 4" (how?)
+* M will always store STA
+
+That's how blanking works.
 
 ## Etc.
 

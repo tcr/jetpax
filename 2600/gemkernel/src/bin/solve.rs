@@ -119,10 +119,9 @@ fn attempt(kernel: Kernel, gems: &[Gem]) -> Option<(Vec<Bytecode>, State, State)
     //     gems.iter().take(3).collect::<HashSet<_>>().len() == 3;
 
     // in Kernel A we can skip the first two elements.
-    // TODO kernel B also?
-    let leading_blank_pair = kernel == Kernel::A &&
+    let leading_blank_pair = 
         gems[0] == Gem_0_0 && gems[1] == Gem_0_0;
-    let trailing_blank_pair = kernel == Kernel::A &&
+    let trailing_blank_pair =
         gems[4] == Gem_0_0 && gems[5] == Gem_0_0;
     
 
@@ -161,9 +160,25 @@ if is_distinct_4_exactly && gems[1] == Gem_0_0 && gems[0] == gems[3] {
 
 */
 
-    let middle_vdel_a = false; gems[0] != gems[2] && gems[1] != gems[2] && gems[0] != gems[1] && gems[0] != gems[4] && is_distinct_4_exactly && gems[1] == gems[3];
-    let middle_vdel_b = false; //gems[0] != gems[1] && is_distinct_4_exactly && gems[1] == Gem_0_0 && gems[1] == gems[3];
-    
+/*
+
+7  bit  0
+---- ----
+NVss DIZC
+|||| ||||
+|||| |||+- Carry
+|||| ||+-- Zero
+|||| |+--- Interrupt Disable
+|||| +---- Decimal
+||++------ No CPU effect, see: the B flag
+|+-------- Overflow
++--------- Negative
+
+*/
+
+    // 6502 "Nibble VM"
+    // Microcode for doing "decompression" operations.
+
     // Solve for variables.
 
     let mut state = if !is_distinct_3 {
@@ -175,7 +190,7 @@ if is_distinct_4_exactly && gems[1] == Gem_0_0 && gems[0] == gems[3] {
             Gem_1_0 => 1,
             Gem_1_1 => 1,
         ]);
-        
+
         let y = solve(&hashmap![
             Gem_0_0 => 1,
             Gem_0_1 => 1,
@@ -211,20 +226,11 @@ if is_distinct_4_exactly && gems[1] == Gem_0_0 && gems[0] == gems[3] {
             Gem_1_1 => 1,
         ]);
 
-        let seq1 = gems.windows(3)
-            .map(|x| {
-                *x == [Gem_1_1, Gem_0_1, Gem_1_1] ||
-                *x == [Gem_1_1, Gem_1_0, Gem_1_1] ||
-                *x == [Gem_0_1, Gem_1_1, Gem_1_0]
-            })
-            .filter(|x| *x)
-            .count() > 0;
-
         // Start in vdel only for these cases:
         let in_vdel = if
             gems[1] != Gem_0_0 &&
-            gems[1] != gems[0] &&
-            gems[1] != gems[2] &&
+            // gems[1] != gems[0] &&
+            // gems[1] != gems[2] &&
             gems[1] != gems[3] &&
             gems[1] != gems[4] {
             true
@@ -254,7 +260,7 @@ if is_distinct_4_exactly && gems[1] == Gem_0_0 && gems[0] == gems[3] {
         let vdel_value = if in_vdel {
             gems[0]
         } else {
-            // Middle VDEL
+            // Possible middle VDEL
             gems[2]
         };
 
@@ -327,13 +333,22 @@ if is_distinct_4_exactly && gems[1] == Gem_0_0 && gems[0] == gems[3] {
 
         let bc = if kernel == Kernel::A {
             match i {
-                // Kill first 2 sprites if gems[0] == Gem_0_0 and gems[1] too
+                // 1bit kill? else?
+
+                // Kill first 2 sprites if gems[0] == gems[1] == Gem_0_0
                 | 0 if leading_blank_pair => {
                     Bytecode::Reset4
                 }
                 | 1 if leading_blank_pair => {
                     Bytecode::Reset4
                 }
+
+                // Leading nop
+                0 => {
+                    Bytecode::Nop
+                }
+
+                // 1bit kill? else?
 
                 // If in vdel, immediately disable it.
                 | 1 if init_state.in_vdel => {
@@ -351,11 +366,11 @@ if is_distinct_4_exactly && gems[1] == Gem_0_0 && gems[0] == gems[3] {
                     Bytecode::Reset4
                 }
 
-                // TODO i don't know how to actually do this:
-                4 if gems[i] == Gem_0_0 => {
-                    // Skip with value
-                    Bytecode::Reset4
-                }
+                // // TODO i don't know how to actually do this:
+                // 4 if gems[i] == Gem_0_0 => {
+                //     // Skip with value
+                //     Bytecode::Reset4
+                // }
 
                 // Kill last 2 sprites if dead
                 | 4
@@ -375,13 +390,6 @@ if is_distinct_4_exactly && gems[1] == Gem_0_0 && gems[0] == gems[3] {
                     Bytecode::Reflect
                 }
 
-                | 2 if middle_vdel_a || middle_vdel_b => {
-                    Bytecode::VdelOn
-                }
-                | 3 if middle_vdel_a || middle_vdel_b => {
-                    Bytecode::VdelOff
-                }
-
                 // Middle VDelOn/Off Pair
                 | 2 if {
                     i == 2 &&
@@ -392,24 +400,21 @@ if is_distinct_4_exactly && gems[1] == Gem_0_0 && gems[0] == gems[3] {
                     Bytecode::VdelOn
                 }
 
-                | 3 if state.in_vdel => {
+                3 if state.in_vdel => {
                     Bytecode::VdelOff
                 }
 
-                // Normal execution.
-                0 => {
-                    Bytecode::Nop
+                _ if reflected_sequence => {
+                    Bytecode::Reflect
                 }
+
+                // Normal execution.
                 _ => {
-                    if reflected_sequence {
-                        Bytecode::Reflect
-                    } else {
-                        solve(&hashmap!{
-                            Bytecode::Nop => 1,
-                            Bytecode::Stx => 1,
-                            Bytecode::Sty => 1,
-                        })
-                    }
+                    solve(&hashmap!{
+                        Bytecode::Nop => 1,
+                        Bytecode::Stx => 1,
+                        Bytecode::Sty => 1,
+                    })
                 }
             }
         } else {

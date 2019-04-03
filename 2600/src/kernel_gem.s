@@ -39,7 +39,7 @@ Kernel1: subroutine
     pla
     sta GRP0
 
-    lda #%01100000
+    lda #%01100010
     ldx #%00000110
     ldy #%01100110
 
@@ -58,17 +58,17 @@ KernelA_C:
 KernelA_D:
     .byte GEM_04, EMERALD_SP
 KernelA_E:
-    sta EMERALD_SP_RESET
+    sleep 3
 KernelA_F:
     stx EMERALD_MI_ENABLE
 KernelA_G:
-    .byte GEM_09, EMERALD_SP
+    sta EMERALD_SP_RESET
 KernelA_H:
     .byte GEM_13, EMERALD_SP
 KernelA_I:
     sta EMERALD_SP_RESET
 KernelA_J:
-    .byte GEM_17, EMERALD_MI_ENABLE
+    sleep 3  ; PF1
 KernelA_K:
     .byte GEM_18, EMERALD_SP
 KernelA_L:
@@ -142,7 +142,7 @@ KernelB_E:
     sta EMERALD_SP_RESET
 KernelB_F:
     .byte GEM_11, EMERALD_SP
-KernelB_G:
+KernelB_G: ; PF1
     sleep 3
 KernelB_H:
     .byte GEM_15, EMERALD_SP
