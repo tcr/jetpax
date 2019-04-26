@@ -1,4 +1,5 @@
     seg.u Variables
+
     org $80
 
 Temp        byte
@@ -30,98 +31,19 @@ KERNEL_TEMP_A byte
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-ROW_COUNT        equ 16
+ROW_COUNT = 16
 
-SIGNAL_LINE equ $02
+SIGNAL_LINE = $02
 
-KERNEL_START      equ $f100
+; Memory map
 
-KERNEL_STORAGE_W    equ $f040 ; could be max(frame_1_end, frame_2_end)
-KERNEL_STORAGE_R    equ $f140
+KERNEL_START = $f100
+KERNEL_STORAGE_W = $f040 ; is this just max(frame_1_end, frame_2_end) ?
+KERNEL_STORAGE_R = $f140
 
-; Sprites
+; NUSIZ values
 
-; three copies - close
-THREE_COPIES    equ %00010011
-
-; Shorthands
-
-SET_0_0 equ $87 ; SAX (AXS)
-SET_1_0 equ $85 ; STA
-SET_0_1 equ $86 ; STX
-SET_1_1 equ $84 ; STY
-
-SET_0_L equ $86 ; STX
-SET_1_L equ $85 ; STA
-
-SET_0_R equ $85 ; STA
-SET_1_R equ $84 ; STY
-
-; Gem enabling/disabling globally
-
-; ; all off
-; GEM_00 equ SET_0_0
-; GEM_02 equ SET_0_0
-; GEM_04 equ SET_0_0
-; GEM_06 equ SET_0_0
-; GEM_08 equ SET_0_L
-; GEM_09 equ SET_0_0
-; GEM_11 equ SET_0_0
-; GEM_13 equ SET_0_0
-; GEM_15 equ SET_0_0
-; GEM_17 equ SET_0_R
-; GEM_18 equ SET_0_0
-; GEM_20 equ SET_0_0
-; GEM_22 equ SET_0_0
-; GEM_24 equ SET_0_0
-
-; all on
-GEM_00 equ SET_1_1
-GEM_02 equ SET_1_1
-GEM_04 equ SET_1_1
-GEM_06 equ SET_1_1
-GEM_08 equ SET_1_L
-GEM_09 equ SET_1_1
-GEM_11 equ SET_1_1
-GEM_13 equ SET_1_1
-GEM_15 equ SET_1_1
-GEM_17 equ SET_1_R
-GEM_18 equ SET_1_1
-GEM_20 equ SET_1_1
-GEM_22 equ SET_1_1
-GEM_24 equ SET_1_1
-
-; ; odd on
-; GEM_00 equ SET_1_0
-; GEM_02 equ SET_1_0
-; GEM_04 equ SET_1_0
-; GEM_06 equ SET_1_0
-; GEM_08 equ SET_1_L
-; GEM_09 equ SET_0_1
-; GEM_11 equ SET_0_1
-; GEM_13 equ SET_0_1
-; GEM_15 equ SET_0_1
-; GEM_17 equ SET_0_R
-; GEM_18 equ SET_1_0
-; GEM_20 equ SET_1_0
-; GEM_22 equ SET_1_0
-; GEM_24 equ SET_1_0
-
-; ; even on
-; GEM_00 equ SET_0_1
-; GEM_02 equ SET_0_1
-; GEM_04 equ SET_0_1
-; GEM_06 equ SET_0_1
-; GEM_08 equ SET_0_L
-; GEM_09 equ SET_1_0
-; GEM_11 equ SET_1_0
-; GEM_13 equ SET_1_0
-; GEM_15 equ SET_1_0
-; GEM_17 equ SET_1_R
-; GEM_18 equ SET_0_1
-; GEM_20 equ SET_0_1
-; GEM_22 equ SET_0_1
-; GEM_24 equ SET_0_1
+THREE_COPIES = %00010011
 
 ; Colors
 
@@ -141,7 +63,6 @@ KERNEL_B_MISSILE_HMOVE equ $10
 
 SPRITE_HEIGHT    equ 9
 
-
 EMERALD_SP_COLOR        equ COLUP1
 EMERALD_SP              equ GRP1
 EMERALD_MI_ENABLE       equ ENAM1
@@ -155,11 +76,6 @@ JET_SP                  equ GRP0
 JET_SP_RESET            equ RESP0
 JET_SP_HMOVE            equ HMP0
 JET_SP_COLOR            equ COLUP0
-
-
-; Offset from the sprite label to the point
-; at which the sprite actually starts. This is the 0-padding
-; FRAME_OFFSET equ 53
 
 ; Spriteend is HEIGHT_OFFSET - YPos
 HEIGHT_OFFSET equ 200
@@ -176,6 +92,5 @@ XPosStart equ 55
 ; YPosStart equ 190
 ; XPosStart equ 28
 
-
+; Tick (every 8 frames)
 FrameSkip equ %111
-; FrameSkip equ %1

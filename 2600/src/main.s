@@ -67,6 +67,7 @@ Bank3Start:
     ; Bank 3 source code
     include "init.s"
     include "loader.s"
+    include "nibble.s"
     include "frame.s"
     include "input.s"
     include "kernel_border.s"

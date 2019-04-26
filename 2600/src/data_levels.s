@@ -1,41 +1,4 @@
     align 8
-
-storage:
-
-    ; Gem defaults kernel 1
-storage_00:
-    .byte SET_1_0
-storage_04:
-    .byte SET_0_0
-storage_09:
-    .byte SET_1_1
-storage_13:
-    .byte SET_1_1
-storage_17:
-    .byte SET_1_R
-storage_18:
-    .byte SET_0_0
-storage_22:
-    .byte SET_0_0
-
-    ; Gem defaults kernel 2
-storage_02:
-    .byte SET_0_0
-storage_06:
-    .byte SET_0_0
-storage_08:
-    .byte SET_0_L
-storage_11:
-    .byte SET_1_1
-storage_15:
-    .byte SET_1_1
-storage_20:
-    .byte SET_0_0
-storage_24:
-    .byte SET_0_1
-storage_end:
-
-    align 8
     ; first bit of byte 2 & 3 are unused for simplicity
 level_01:
     .byte %1010, %0011110, %0000000, %00000000

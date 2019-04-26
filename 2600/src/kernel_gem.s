@@ -45,7 +45,7 @@ Kernel1: subroutine
 
     sta EMERALD_MI_ENABLE ;disable
 
-    .byte GEM_00, EMERALD_SP
+    sty EMERALD_SP
 
     ; 22c is critical start of precise GRP0 timing for Kernel A
     ASSERT_RUNTIME "_scycles == #22"
@@ -56,7 +56,7 @@ KernelA_B:
 KernelA_C:
     sleep 3
 KernelA_D:
-    .byte GEM_04, EMERALD_SP
+    sty EMERALD_SP
 KernelA_E:
     sleep 3
 KernelA_F:
@@ -64,17 +64,17 @@ KernelA_F:
 KernelA_G:
     sta EMERALD_SP_RESET
 KernelA_H:
-    .byte GEM_13, EMERALD_SP
+    sty EMERALD_SP
 KernelA_I:
     sta EMERALD_SP_RESET
 KernelA_J:
     sleep 3  ; PF1
 KernelA_K:
-    .byte GEM_18, EMERALD_SP
+    sty EMERALD_SP
 KernelA_L:
     sleep 3
 KernelA_M:
-    .byte GEM_22, EMERALD_SP
+    sty EMERALD_SP
 KernelA_N:
     sleep 3
 KernelA_O:
@@ -85,15 +85,6 @@ KernelA_P:
     ; 6c
     ASSERT_RUNTIME "_scycles == #70"
     rts
-
-; Writable offsets
-GEM_00_W equ [.gem_00 - $100]
-GEM_04_W equ [.gem_04 - $100]
-GEM_09_W equ [.gem_09 - $100]
-GEM_13_W equ [.gem_13 - $100]
-GEM_17_W equ [.gem_17 - $100]
-GEM_18_W equ [.gem_18 - $100]
-GEM_22_W equ [.gem_22 - $100]
 
     rend
 kernel_1_end:
@@ -126,7 +117,7 @@ Kernel2: subroutine
     sta EMERALD_MI_ENABLE ; Enable missile
 
     lda #%11000000
-    .byte GEM_02, EMERALD_SP
+    sty EMERALD_SP
 
     ; 25c is critical start of precise GRP0 timing for Kernel B
     ASSERT_RUNTIME "_scycles == #25"
@@ -137,23 +128,23 @@ KernelB_B:
 KernelB_C:
     sleep 3
 KernelB_D:
-    .byte GEM_06, EMERALD_SP
+    sty EMERALD_SP
 KernelB_E:
     sta EMERALD_SP_RESET
 KernelB_F:
-    .byte GEM_11, EMERALD_SP
+    sty EMERALD_SP
 KernelB_G: ; PF1
     sleep 3
 KernelB_H:
-    .byte GEM_15, EMERALD_SP
+    sty EMERALD_SP
 KernelB_I:
     sta EMERALD_SP_RESET
 KernelB_J:
-    .byte GEM_20, EMERALD_SP
+    sty EMERALD_SP
 KernelB_K:
     sta EMERALD_MI_ENABLE
 KernelB_L:
-    .byte GEM_24, EMERALD_SP
+    sty EMERALD_SP
 KernelB_M:
     sleep 3
 KernelB_N:
@@ -164,15 +155,6 @@ KernelB_O:
     ; 6c
     ASSERT_RUNTIME "_scycles == #70"
     rts
-
-; Writable offsets
-GEM_02_W equ [.gem_02 - $100]
-GEM_06_W equ [.gem_06 - $100]
-GEM_08_W equ [.gem_08 - $100]
-GEM_11_W equ [.gem_11 - $100]
-GEM_15_W equ [.gem_15 - $100]
-GEM_20_W equ [.gem_20 - $100]
-GEM_24_W equ [.gem_24 - $100]
 
     rend
 kernel_2_end:

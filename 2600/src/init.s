@@ -1,16 +1,44 @@
 ; Game Initialization after power on or reset
 
+    mac NIBBLE_START_KERNEL
+    endm
+    mac NIBBLE_IF
+        ror
+    endm
+    mac NIBBLE_WRITE
+    endm
+    mac NIBBLE_WRITE_OPCODE
+    endm
+    mac NIBBLE_ELSE
+    endm
+    mac NIBBLE_END_IF
+    endm
+    mac NIBBLE_END_KERNEL
+    endm
+
 Start:
     CLEAN_START
 
     ; just testing stuff
     
-    lda #%00000011
-    pha
-    plp
-    php
-    ASSERT_RUNTIME "*$ff == \00110011"
-    plp
+    NIBBLE_START_KERNEL gem_kernel, 40
+        lda $80
+        cmp #%01100110
+        NIBBLE_IF cs
+            cmp #%01100000
+            NIBBLE_IF cs
+                NIBBLE_WRITE .gem_ldx, #%11001100 ; write value to mem location
+                NIBBLE_WRITE_OPCODE .gem_08, 2, lda #02 ; write *opcode* to mem location
+                NIBBLE_WRITE_OPCODE .gem_09, 2, sleep 3
+            NIBBLE_ELSE
+                NIBBLE_WRITE_OPCODE .gem_08, 2, sta VDELP1
+                NIBBLE_WRITE_OPCODE .gem_09, 2, sta RESP1
+            NIBBLE_END_IF
+        NIBBLE_ELSE
+            NIBBLE_WRITE_OPCODE .gem_08, 2, sleep 3
+            NIBBLE_WRITE_OPCODE .gem_09, 2, sleep 3
+        NIBBLE_END_IF
+    NIBBLE_END_KERNEL
 
 InitSetup:
     lda #0
