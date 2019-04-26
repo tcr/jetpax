@@ -84,6 +84,19 @@ PositionMissiles: subroutine
 
 .complete:
 
+    ; Perform Nibble calculations
+    lda #$00
+    NIBBLE_START_KERNEL gem_kernel, 40
+        ldx level_00
+        cpx #%11000000
+        NIBBLE_IF cs
+            NIBBLE_WRITE_OPCODE [KernelA_TEST - $100], 2, lda #%011000110
+        NIBBLE_ELSE
+            NIBBLE_WRITE_OPCODE [KernelA_TEST - $100], 2, lda #%000000000
+        NIBBLE_END_IF
+    NIBBLE_END_KERNEL
+    sta KERNEL_TEMP_A
+
 VerticalBlankEnd:
     ; Wait until the end of Vertical blank.
     TIMER_WAIT

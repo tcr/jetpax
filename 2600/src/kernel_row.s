@@ -44,9 +44,13 @@ row_1:
 
     jet_spritedata_calc
 
-    ; Idle.
-    sleep 46
-    ASSERT_RUNTIME "_scycles == #0"
+    ; Nibble VM.
+    lda KERNEL_TEMP_A
+    NIBBLE_gem_kernel
+    sta WSYNC
+
+    ; sleep 46
+    ; ASSERT_RUNTIME "_scycles == #0"
 
 ; [scanline 2]
 row_2:
@@ -81,7 +85,7 @@ row_3:
     ; Jump immediately into scanlines 4-5: the gem kernel
     sleep 2
     ASSERT_RUNTIME "_scycles == #73"
-    jmp KERNEL_START
+    jmp RAMP_KERNEL_R
 
 ; [scanline 6]
 

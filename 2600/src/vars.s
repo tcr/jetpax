@@ -35,11 +35,13 @@ ROW_COUNT = 16
 
 SIGNAL_LINE = $02
 
-; Memory map
+; RAM+ memory map
 
-KERNEL_START = $f100
-KERNEL_STORAGE_W = $f040 ; is this just max(frame_1_end, frame_2_end) ?
-KERNEL_STORAGE_R = $f140
+RAMP_KERNEL_W = $f000
+RAMP_KERNEL_R = $f100
+
+RAMP_STORAGE_W = $f040 ; is this just max(frame_1_end, frame_2_end) ?
+RAMP_STORAGE_R = $f140
 
 ; NUSIZ values
 

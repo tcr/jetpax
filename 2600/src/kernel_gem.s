@@ -39,18 +39,19 @@ Kernel1: subroutine
     pla
     sta GRP0
 
-    lda #%01100010
+KernelA_TEST:
+    lda #%01100000
     ldx #%00000110
     ldy #%01100110
 
     sta EMERALD_MI_ENABLE ;disable
 
-    sty EMERALD_SP
+    sta EMERALD_SP
 
     ; 22c is critical start of precise GRP0 timing for Kernel A
     ASSERT_RUNTIME "_scycles == #22"
 KernelA_A:
-    sta EMERALD_SP_RESET
+    stx EMERALD_SP_RESET
 KernelA_B:
     sleep 3
 KernelA_C:
@@ -62,11 +63,11 @@ KernelA_E:
 KernelA_F:
     stx EMERALD_MI_ENABLE
 KernelA_G:
-    sta EMERALD_SP_RESET
+    stx EMERALD_SP_RESET
 KernelA_H:
     sty EMERALD_SP
 KernelA_I:
-    sta EMERALD_SP_RESET
+    stx EMERALD_SP_RESET
 KernelA_J:
     sleep 3  ; PF1
 KernelA_K:

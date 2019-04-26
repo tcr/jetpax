@@ -4,24 +4,15 @@ use std::collections::VecDeque;
 use std::fmt::Write;
 
 const INPUT: &str = r#"
-   NIBBLE_START_KERNEL(gem_kernel, 40)
-   lda $80
-   cmp #%01100110
-   NIBBLE_IF cs ; #1
-      cmp #%01100000
-      NIBBLE_IF cs ; #2
-          NIBBLE_WRITE .gem_ldx, #%11001100 ; write value to mem location
-          NIBBLE_WRITE_OPCODE .gem_08, 2, lda #02 ; write *opcode* to mem location
-          NIBBLE_WRITE_OPCODE .gem_09, 2, sleep 3
-      NIBBLE_ELSE
-          NIBBLE_WRITE_OPCODE .gem_08, 2, sta VDELP1
-          NIBBLE_WRITE_OPCODE .gem_09, 2, sta RESP1
-      NIBBLE_END_IF
-   NIBBLE_ELSE
-      NIBBLE_WRITE_OPCODE .gem_08, 2, sleep 3
-      NIBBLE_WRITE_OPCODE .gem_09, 2, sleep 3
-   NIBBLE_END_IF
-   NIBBLE_END_KERNEL
+    NIBBLE_START_KERNEL gem_kernel, 40
+        ldx level_00
+        cpx #%11000000
+        NIBBLE_IF cs
+            NIBBLE_WRITE_OPCODE [KernelA_TEST - $100], 2, lda #%011000110
+        NIBBLE_ELSE
+            NIBBLE_WRITE_OPCODE [KernelA_TEST - $100], 2, lda #%000000000
+        NIBBLE_END_IF
+    NIBBLE_END_KERNEL
 "#;
 
 #[derive(Debug, Clone)]
@@ -37,7 +28,7 @@ enum Parse {
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let re_nibble_start_kernel = Regex::new(r"^NIBBLE_START_KERNEL\(\s*(.+)\s*,\s*(.+)\s*\)")?;
+    let re_nibble_start_kernel = Regex::new(r"^NIBBLE_START_KERNEL\s+(\S.*)\s*,\s*(\S.*)\s*")?;
     let re_nibble_if = Regex::new(r"^NIBBLE_IF\s+(.+)\s*")?;
     let re_nibble_else = Regex::new(r"^NIBBLE_ELSE")?;
     let re_nibble_end_if = Regex::new(r"^NIBBLE_END_IF")?;
@@ -45,7 +36,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let re_nibble_write_opcode = Regex::new(r"^NIBBLE_WRITE_OPCODE\s+(\S.*),\s*(\S.*)\s*,\s*(\S.*)\s*")?;
     let re_nibble_end_kernel = Regex::new(r"^NIBBLE_END_KERNEL")?;
     
-    let re_data = Regex::new(r"^\s*(.+)\s*(;.*)?$")?;
+    let re_data = Regex::new(r"^\s*(.+?)\s*(;.*)?$")?;
 
     let mut lines = vec![];
     for line in INPUT.lines() {
@@ -112,7 +103,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 opcode_count += 1;
                 writeln!(&mut kernel_data, "NIBBLE_{}_OPCODE_{}:", kernel_name, opcode_count)?;
                 writeln!(&mut kernel_data, "    {}", value)?;
-                writeln!(&mut kernel_data, "    ORG [NIBBLE_{}_OPCODE_{} + {}]", kernel_name, opcode_count, len)?; // enforce
+                writeln!(&mut kernel_data, "    ASSERT_SIZE_EXACT NIBBLE_{}_OPCODE_{}, ., {}", kernel_name, opcode_count, len)?; // enforce
                 for i in 0..*len {
                     writeln!(&mut kernel_code, "    ldx [NIBBLE_{}_OPCODE_{} + {}]", kernel_name, opcode_count, i)?;
                     writeln!(&mut kernel_code, "    stx [{} + {}]", label, i)?;
@@ -121,7 +112,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             Parse::Opcode(opcode) => {}
         }
     }
-    writeln!(&mut kernel_code, "    ENDM");
+    writeln!(&mut kernel_code, "    ENDM")?;
 
     println!("{}", kernel_data);
     println!("{}", kernel_code);

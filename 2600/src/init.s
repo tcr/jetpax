@@ -19,27 +19,6 @@
 Start:
     CLEAN_START
 
-    ; just testing stuff
-    
-    NIBBLE_START_KERNEL gem_kernel, 40
-        lda $80
-        cmp #%01100110
-        NIBBLE_IF cs
-            cmp #%01100000
-            NIBBLE_IF cs
-                NIBBLE_WRITE .gem_ldx, #%11001100 ; write value to mem location
-                NIBBLE_WRITE_OPCODE .gem_08, 2, lda #02 ; write *opcode* to mem location
-                NIBBLE_WRITE_OPCODE .gem_09, 2, sleep 3
-            NIBBLE_ELSE
-                NIBBLE_WRITE_OPCODE .gem_08, 2, sta VDELP1
-                NIBBLE_WRITE_OPCODE .gem_09, 2, sta RESP1
-            NIBBLE_END_IF
-        NIBBLE_ELSE
-            NIBBLE_WRITE_OPCODE .gem_08, 2, sleep 3
-            NIBBLE_WRITE_OPCODE .gem_09, 2, sleep 3
-        NIBBLE_END_IF
-    NIBBLE_END_KERNEL
-
 InitSetup:
     lda #0
     sta FrameCount
