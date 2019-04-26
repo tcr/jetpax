@@ -1,13 +1,34 @@
 ------- FILE main.s LEVEL 1 PASS 2
       1  fffe					      processor	6502
       2  10000 ????
-      3  10000 ????						; Stella assertions for "make debug"
+      3  10000 ????						; Dynamic, runtime (Stella) assertions for "make debug"
       4  10000 ????				       mac	assert_runtime
       5  10000 ????			    .COND      SET	{1}
       6  10000 ????				       echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
       7  10000 ????				       endm
       8  10000 ????
-      9  10000 ????						; Global headers
+      9  10000 ????						; Static assertions for size
+     10  10000 ????				       mac	assert_size
+     11  10000 ????			    .STARTA    SET	{1}
+     12  10000 ????			    .ENDA      SET	{2}
+     13  10000 ????			    .LEN       SET	{3}
+     14  10000 ????				       if	[[.ENDA - .STARTA] >= .LEN]
+     15  10000 ????				       echo	"Error: Exceeded size limit", [.ENDA - .STARTA], "vs", .LEN
+     16  10000 ????				       err
+     17  10000 ????				       endif
+     18  10000 ????				       endm
+     19  10000 ????				       mac	assert_size_exact
+     20  10000 ????			    .STARTA    SET	{1}
+     21  10000 ????			    .ENDA      SET	{2}
+     22  10000 ????			    .LEN       SET	{3}
+     23  10000 ????				       if	[[.ENDA - .STARTA] != .LEN]
+     24  10000 ????				       echo	""
+     25  10000 ????				       echo	"Error: Violated size limit", [.ENDA - .STARTA], "vs", .LEN
+     26  10000 ????				       err
+     27  10000 ????				       endif
+     28  10000 ????				       endm
+     29  10000 ????
+     30  10000 ????						; Global headers
 ------- FILE vcs.h LEVEL 2 PASS 2
       0  10000 ????				       include	"vcs.h"
       1  10000 ????						; VCS.H
@@ -406,8 +427,8 @@
      25  0000 ????				      ENDM
      26  0000 ????
 ------- FILE main.s
-     13  0000 ????
-     14  0000 ????						; RAM and constants
+     34  0000 ????
+     35  0000 ????						; RAM and constants
 ------- FILE vars.s LEVEL 2 PASS 2
       0  0000 ????				      include	"vars.s"
       1 U0090 ????				      seg.u	Variables
@@ -507,58 +528,58 @@
      95 U0090							; Tick (every 8 frames)
      96 U0090		       00 07	   FrameSkip  equ	%111
 ------- FILE main.s
-     16 U0090
-     17 U0090							; Bank 1
-     18  e000 ????				      seg	CodeBank1
-     19  d000					      org	$D000
-     20  d000					      rorg	$F000
-     21  d000		       00	   BANK1      byte.b
-     22  d200					      org	$d200
-     23  d200					      rorg	$d200
-     24  d200				   Bank1Start
-     25  d200		       ad fa ff 	      lda	$fffa
-     26  d203		       ea		      nop
-     27  d204		       ea		      nop
-     28  d205		       ea		      nop
-     29  d206
-     30  dffc					      org	$dffc
-     31  dffc					      rorg	$fffc
-     32  dffc		       00 d2		      .word.w	Bank1Start
-     33  dffe		       00 d2		      .word.w	Bank1Start
-     34  e000
-     35  e000							; Bank 2
-     36  f000 ????				      seg	CodeBank2
-     37  e000					      org	$E000
-     38  e000					      rorg	$F000
-     39  e000		       00	   BANK2      byte.b
-     40  e200					      org	$e200
-     41  e200					      rorg	$f200
-     42  e200				   Bank2Start
-     43  e200		       ad fa ff 	      lda	$fffa
-     44  e203		       ea		      nop
-     45  e204		       ea		      nop
-     46  e205		       ea		      nop
-     47  e206
-     48  effc					      org	$effc
-     49  effc					      rorg	$fffc
-     50  effc		       00 f2		      .word.w	Bank2Start
-     51  effe		       00 f2		      .word.w	Bank2Start
-     52  f000
-     53  f000							; Bank 3
-     54  10000 ????				       seg	CodeBank3
-     55  f000					      org	$F000
-     56  f000					      rorg	$F000
-     57  f000		       00	   BANK3      byte.b
-     58  f200					      org	$f200
-     59  f200					      rorg	$f200
-     60  f200				   Bank3Start
-     61  f200		       ad fa ff 	      lda	$fffa
-     62  f203		       ea		      nop
-     63  f204		       ea		      nop
-     64  f205		       ea		      nop
-     65  f206		       4c 09 f2 	      jmp	Start
-     66  f209
-     67  f209							; Bank 3 source code
+     37 U0090
+     38 U0090							; Bank 1
+     39  e000 ????				      seg	CodeBank1
+     40  d000					      org	$D000
+     41  d000					      rorg	$F000
+     42  d000		       00	   BANK1      byte.b
+     43  d200					      org	$d200
+     44  d200					      rorg	$d200
+     45  d200				   Bank1Start
+     46  d200		       ad fa ff 	      lda	$fffa
+     47  d203		       ea		      nop
+     48  d204		       ea		      nop
+     49  d205		       ea		      nop
+     50  d206
+     51  dffc					      org	$dffc
+     52  dffc					      rorg	$fffc
+     53  dffc		       00 d2		      .word.w	Bank1Start
+     54  dffe		       00 d2		      .word.w	Bank1Start
+     55  e000
+     56  e000							; Bank 2
+     57  f000 ????				      seg	CodeBank2
+     58  e000					      org	$E000
+     59  e000					      rorg	$F000
+     60  e000		       00	   BANK2      byte.b
+     61  e200					      org	$e200
+     62  e200					      rorg	$f200
+     63  e200				   Bank2Start
+     64  e200		       ad fa ff 	      lda	$fffa
+     65  e203		       ea		      nop
+     66  e204		       ea		      nop
+     67  e205		       ea		      nop
+     68  e206
+     69  effc					      org	$effc
+     70  effc					      rorg	$fffc
+     71  effc		       00 f2		      .word.w	Bank2Start
+     72  effe		       00 f2		      .word.w	Bank2Start
+     73  f000
+     74  f000							; Bank 3
+     75  10000 ????				       seg	CodeBank3
+     76  f000					      org	$F000
+     77  f000					      rorg	$F000
+     78  f000		       00	   BANK3      byte.b
+     79  f200					      org	$f200
+     80  f200					      rorg	$f200
+     81  f200				   Bank3Start
+     82  f200		       ad fa ff 	      lda	$fffa
+     83  f203		       ea		      nop
+     84  f204		       ea		      nop
+     85  f205		       ea		      nop
+     86  f206		       4c 09 f2 	      jmp	Start
+     87  f209
+     88  f209							; Bank 3 source code
 ------- FILE init.s LEVEL 2 PASS 2
       0  f209					      include	"init.s"
       1  f209							; Game Initialization after power on or reset
@@ -2172,28 +2193,36 @@
      88  f630
      89  f630					      rend
      90  f630				   kernel_1_end
-     91  f630
-     92  f630							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-     93  f630							;
-     94  f630							; GEM KERNEL B
-     95  f630							;
-     96  f630
-     97  f630				   kernel_2_start subroutine
-     98  f630					      rorg	$f100
-     99  f630
-    100  f630				   Kernel2    subroutine
+      0  f630					      ASSERT_SIZE	kernel_1_start, kernel_1_end, $40
+      1  f630				   .STARTA    SET	kernel_1_start
+      2  f630				   .ENDA      SET	kernel_1_end
+      3  f630				   .LEN       SET	$40
+      4  f630				  -	      if	[[.ENDA - .STARTA] >= .LEN]
+      5  f630				  -	      echo	"Error: Exceeded size limit", [.ENDA - .STARTA], "vs", .LEN
+      6  f630				  -	      err
+      7  f630					      endif
+     92  f630
+     93  f630							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+     94  f630							;
+     95  f630							; GEM KERNEL B
+     96  f630							;
+     97  f630
+     98  f630				   kernel_2_start subroutine
+     99  f630					      rorg	$f100
+    100  f630
+    101  f630				   Kernel2    subroutine
       0  f630					      ASSERT_RUNTIME	"sp == $f9"
       1  f630				   .COND      SET	"sp == $f9"
  ASSERT: breakif { pc== $f100  && !(  sp == $f9  ) }
       2  f630					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
-    102  f630							; Assert: M1 is at position #61
-    103  f630
-    104  f630							; don't sleep first to make this distinct from Kernel A in debugger, lol
-    105  f630
-    106  f630							; Load next Player sprite
-    107  f630		       68		      pla
-    108  f631		       85 1b		      sta	GRP0
-    109  f633
+    103  f630							; Assert: M1 is at position #61
+    104  f630
+    105  f630							; don't sleep first to make this distinct from Kernel A in debugger, lol
+    106  f630
+    107  f630							; Load next Player sprite
+    108  f630		       68		      pla
+    109  f631		       85 1b		      sta	GRP0
+    110  f633
       0  f633					      sleep	4
       1  f633				   .CYCLES    SET	4
       2  f633
@@ -2216,25 +2245,25 @@
      17  f633					      REPEND
      18  f634		       ea		      nop
      19  f635					      REPEND
-    111  f635
     112  f635
-    113  f635		       a2 0c		      ldx	#%00001100
-    114  f637		       a0 cc		      ldy	#%11001100
-    115  f639
-    116  f639		       a9 02		      lda	#02
-    117  f63b		       85 1e		      sta	EMERALD_MI_ENABLE	; Enable missile
-    118  f63d
-    119  f63d		       a9 c0		      lda	#%11000000
-    120  f63f		       84 1c		      sty	EMERALD_SP
-    121  f641
-    122  f641							; 25c is critical start of precise GRP0 timing for Kernel B
+    113  f635
+    114  f635		       a2 0c		      ldx	#%00001100
+    115  f637		       a0 cc		      ldy	#%11001100
+    116  f639
+    117  f639		       a9 02		      lda	#02
+    118  f63b		       85 1e		      sta	EMERALD_MI_ENABLE	; Enable missile
+    119  f63d
+    120  f63d		       a9 c0		      lda	#%11000000
+    121  f63f		       84 1c		      sty	EMERALD_SP
+    122  f641
+    123  f641							; 25c is critical start of precise GRP0 timing for Kernel B
       0  f641					      ASSERT_RUNTIME	"_scycles == #25"
       1  f641				   .COND      SET	"_scycles == #25"
  ASSERT: breakif { pc== $f111  && !(  _scycles == #25  ) }
       2  f641					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
-    124  f641				   KernelB_A
-    125  f641		       85 11		      sta	EMERALD_SP_RESET
-    126  f643				   KernelB_B
+    125  f641				   KernelB_A
+    126  f641		       85 11		      sta	EMERALD_SP_RESET
+    127  f643				   KernelB_B
       0  f643					      sleep	3
       1  f643				   .CYCLES    SET	3
       2  f643
@@ -2255,7 +2284,7 @@
      17  f645				  -	      REPEAT	.CYCLES / 2
      18  f645				  -	      nop
      19  f645					      REPEND
-    128  f645				   KernelB_C
+    129  f645				   KernelB_C
       0  f645					      sleep	3
       1  f645				   .CYCLES    SET	3
       2  f645
@@ -2276,13 +2305,13 @@
      17  f647				  -	      REPEAT	.CYCLES / 2
      18  f647				  -	      nop
      19  f647					      REPEND
-    130  f647				   KernelB_D
-    131  f647		       84 1c		      sty	EMERALD_SP
-    132  f649				   KernelB_E
-    133  f649		       85 11		      sta	EMERALD_SP_RESET
-    134  f64b				   KernelB_F
-    135  f64b		       84 1c		      sty	EMERALD_SP
-    136  f64d				   KernelB_G		; PF1
+    131  f647				   KernelB_D
+    132  f647		       84 1c		      sty	EMERALD_SP
+    133  f649				   KernelB_E
+    134  f649		       85 11		      sta	EMERALD_SP_RESET
+    135  f64b				   KernelB_F
+    136  f64b		       84 1c		      sty	EMERALD_SP
+    137  f64d				   KernelB_G		; PF1
       0  f64d					      sleep	3
       1  f64d				   .CYCLES    SET	3
       2  f64d
@@ -2303,17 +2332,17 @@
      17  f64f				  -	      REPEAT	.CYCLES / 2
      18  f64f				  -	      nop
      19  f64f					      REPEND
-    138  f64f				   KernelB_H
-    139  f64f		       84 1c		      sty	EMERALD_SP
-    140  f651				   KernelB_I
-    141  f651		       85 11		      sta	EMERALD_SP_RESET
-    142  f653				   KernelB_J
-    143  f653		       84 1c		      sty	EMERALD_SP
-    144  f655				   KernelB_K
-    145  f655		       85 1e		      sta	EMERALD_MI_ENABLE
-    146  f657				   KernelB_L
-    147  f657		       84 1c		      sty	EMERALD_SP
-    148  f659				   KernelB_M
+    139  f64f				   KernelB_H
+    140  f64f		       84 1c		      sty	EMERALD_SP
+    141  f651				   KernelB_I
+    142  f651		       85 11		      sta	EMERALD_SP_RESET
+    143  f653				   KernelB_J
+    144  f653		       84 1c		      sty	EMERALD_SP
+    145  f655				   KernelB_K
+    146  f655		       85 1e		      sta	EMERALD_MI_ENABLE
+    147  f657				   KernelB_L
+    148  f657		       84 1c		      sty	EMERALD_SP
+    149  f659				   KernelB_M
       0  f659					      sleep	3
       1  f659				   .CYCLES    SET	3
       2  f659
@@ -2334,7 +2363,7 @@
      17  f65b				  -	      REPEAT	.CYCLES / 2
      18  f65b				  -	      nop
      19  f65b					      REPEND
-    150  f65b				   KernelB_N
+    151  f65b				   KernelB_N
       0  f65b					      sleep	3
       1  f65b				   .CYCLES    SET	3
       2  f65b
@@ -2355,7 +2384,7 @@
      17  f65d				  -	      REPEAT	.CYCLES / 2
      18  f65d				  -	      nop
      19  f65d					      REPEND
-    152  f65d				   KernelB_O
+    153  f65d				   KernelB_O
       0  f65d					      sleep	3
       1  f65d				   .CYCLES    SET	3
       2  f65d
@@ -2376,16 +2405,24 @@
      17  f65f				  -	      REPEAT	.CYCLES / 2
      18  f65f				  -	      nop
      19  f65f					      REPEND
-    154  f65f
-    155  f65f							; 6c
+    155  f65f
+    156  f65f							; 6c
       0  f65f					      ASSERT_RUNTIME	"_scycles == #70"
       1  f65f				   .COND      SET	"_scycles == #70"
  ASSERT: breakif { pc== $f12f  && !(  _scycles == #70  ) }
       2  f65f					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
-    157  f65f		       60		      rts
-    158  f660
-    159  f660					      rend
-    160  f660				   kernel_2_end
+    158  f65f		       60		      rts
+    159  f660
+    160  f660					      rend
+    161  f660				   kernel_2_end
+      0  f660					      ASSERT_SIZE	kernel_2_start, kernel_2_end, $40
+      1  f660				   .STARTA    SET	kernel_2_start
+      2  f660				   .ENDA      SET	kernel_2_end
+      3  f660				   .LEN       SET	$40
+      4  f660				  -	      if	[[.ENDA - .STARTA] >= .LEN]
+      5  f660				  -	      echo	"Error: Exceeded size limit", [.ENDA - .STARTA], "vs", .LEN
+      6  f660				  -	      err
+      7  f660					      endif
 ------- FILE main.s
 ------- FILE data_sprites.s LEVEL 2 PASS 2
       0  f660					      include	"data_sprites.s"
@@ -2408,36 +2445,40 @@
       0  f70a					      include	"data_levels.s"
       1  f710		       00 00 00 00*	      align	8
       2  f710							; first bit of byte 2 & 3 are unused for simplicity
-      3  f710				   level_01
-      4  f710		       0a 1e 00 00	      .byte.b	%1010, %0011110, %0000000, %00000000
-      5  f714		       05 1e 00 00	      .byte.b	%0101, %0011110, %0000000, %00000000
-      6  f718		       02 47 40 00	      .byte.b	%0010, %1000111, %1000000, %00000000
-      7  f71c		       01 27 40 00	      .byte.b	%0001, %0100111, %1000000, %00000000
-      8  f720		       00 57 7c 00	      .byte.b	%0000, %1010111, %1111100, %00000000
-      9  f724		       00 28 3c 00	      .byte.b	%0000, %0101000, %0111100, %00000000
-     10  f728		       00 14 3c 00	      .byte.b	%0000, %0010100, %0111100, %00000000
-     11  f72c		       00 0a 3c 00	      .byte.b	%0000, %0001010, %0111100, %00000000
-     12  f730		       00 05 3c 00	      .byte.b	%0000, %0000101, %0111100, %00000000
-     13  f734		       00 02 43 c0	      .byte.b	%0000, %0000010, %1000011, %11000000
-     14  f738		       00 01 23 c0	      .byte.b	%0000, %0000001, %0100011, %11000000
-     15  f73c		       00 00 53 c0	      .byte.b	%0000, %0000000, %1010011, %11000000
-     16  f740		       00 00 2b c0	      .byte.b	%0000, %0000000, %0101011, %11000000
-     17  f744		       00 00 14 3c	      .byte.b	%0000, %0000000, %0010100, %00111100
-     18  f748		       00 00 0a 3c	      .byte.b	%0000, %0000000, %0001010, %00111100
-     19  f74c		       00 00 05 3c	      .byte.b	%0000, %0000000, %0000101, %00111100
-     20  f750		       00 00 02 bc	      .byte.b	%0000, %0000000, %0000010, %10111100
-     21  f754		       0c 00 01 43	      .byte.b	%1100, %0000000, %0000001, %01000011
-     22  f758		       0c 00 00 a3	      .byte.b	%1100, %0000000, %0000000, %10100011
-     23  f75c		       0c 00 00 53	      .byte.b	%1100, %0000000, %0000000, %01010011
-     24  f760		       0c 00 00 2b	      .byte.b	%1100, %0000000, %0000000, %00101011
-     25  f764		       03 60 00 14	      .byte.b	%0011, %1100000, %0000000, %00010100
-     26  f768		       03 60 00 0a	      .byte.b	%0011, %1100000, %0000000, %00001010
-     27  f76c		       03 60 00 05	      .byte.b	%0011, %1100000, %0000000, %00000101
-     28  f770		       0b 60 00 02	      .byte.b	%1011, %1100000, %0000000, %00000010
-     29  f774		       04 1e 00 01	      .byte.b	%0100, %0011110, %0000000, %00000001
-     30  f778				   level_01_end
+      3  f710
+      4  f710				   level_00
+      5  f710		       f0 1f 1f 0f	      .byte.b	%11110000, %00011111, %00011111, %00001111
+      6  f714
+      7  f714				   level_01
+      8  f714		       0a 1e 00 00	      .byte.b	%1010, %0011110, %0000000, %00000000
+      9  f718		       05 1e 00 00	      .byte.b	%0101, %0011110, %0000000, %00000000
+     10  f71c		       02 47 40 00	      .byte.b	%0010, %1000111, %1000000, %00000000
+     11  f720		       01 27 40 00	      .byte.b	%0001, %0100111, %1000000, %00000000
+     12  f724		       00 57 7c 00	      .byte.b	%0000, %1010111, %1111100, %00000000
+     13  f728		       00 28 3c 00	      .byte.b	%0000, %0101000, %0111100, %00000000
+     14  f72c		       00 14 3c 00	      .byte.b	%0000, %0010100, %0111100, %00000000
+     15  f730		       00 0a 3c 00	      .byte.b	%0000, %0001010, %0111100, %00000000
+     16  f734		       00 05 3c 00	      .byte.b	%0000, %0000101, %0111100, %00000000
+     17  f738		       00 02 43 c0	      .byte.b	%0000, %0000010, %1000011, %11000000
+     18  f73c		       00 01 23 c0	      .byte.b	%0000, %0000001, %0100011, %11000000
+     19  f740		       00 00 53 c0	      .byte.b	%0000, %0000000, %1010011, %11000000
+     20  f744		       00 00 2b c0	      .byte.b	%0000, %0000000, %0101011, %11000000
+     21  f748		       00 00 14 3c	      .byte.b	%0000, %0000000, %0010100, %00111100
+     22  f74c		       00 00 0a 3c	      .byte.b	%0000, %0000000, %0001010, %00111100
+     23  f750		       00 00 05 3c	      .byte.b	%0000, %0000000, %0000101, %00111100
+     24  f754		       00 00 02 bc	      .byte.b	%0000, %0000000, %0000010, %10111100
+     25  f758		       0c 00 01 43	      .byte.b	%1100, %0000000, %0000001, %01000011
+     26  f75c		       0c 00 00 a3	      .byte.b	%1100, %0000000, %0000000, %10100011
+     27  f760		       0c 00 00 53	      .byte.b	%1100, %0000000, %0000000, %01010011
+     28  f764		       0c 00 00 2b	      .byte.b	%1100, %0000000, %0000000, %00101011
+     29  f768		       03 60 00 14	      .byte.b	%0011, %1100000, %0000000, %00010100
+     30  f76c		       03 60 00 0a	      .byte.b	%0011, %1100000, %0000000, %00001010
+     31  f770		       03 60 00 05	      .byte.b	%0011, %1100000, %0000000, %00000101
+     32  f774		       0b 60 00 02	      .byte.b	%1011, %1100000, %0000000, %00000010
+     33  f778		       04 1e 00 01	      .byte.b	%0100, %0011110, %0000000, %00000001
+     34  f77c				   level_01_end
 ------- FILE main.s
-     78  f778
-     79  fffc					      org	$fffc
-     80  fffc		       09 f2		      .word.w	Start
-     81  fffe		       09 f2		      .word.w	Start
+     99  f77c
+    100  fffc					      org	$fffc
+    101  fffc		       09 f2		      .word.w	Start
+    102  fffe		       09 f2		      .word.w	Start

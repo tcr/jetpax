@@ -32,7 +32,6 @@ List of 26 bits --> which sections of RAM to rewrite and which decompress step
 to go to next. Compiler can optimize for available space. Might be easier to
 just write good code though.
 
-
     v 22c    v 25c             v 31c                                                                                              v 64c    v 67c
     v -2P    v 7P             v 24P     v 34P    v 43P                               v 79P            $                  v 115P               v 136P
  A: A--------B--------C--------D--------E--------F--------G--------H--------I--------J--------K--------L--------M--------N--------O--------P--------

@@ -1,5 +1,9 @@
     align 8
     ; first bit of byte 2 & 3 are unused for simplicity
+
+level_00:
+    .byte %11110000, %00011111, %00011111, %00001111
+
 level_01:
     .byte %1010, %0011110, %0000000, %00000000
     .byte %0101, %0011110, %0000000, %00000000

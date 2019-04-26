@@ -1,9 +1,30 @@
     processor 6502
 
-    ; Stella assertions for "make debug"
+    ; Dynamic, runtime (Stella) assertions for "make debug"
     mac ASSERT_RUNTIME
 .COND SET {1}
     echo "ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
+    endm
+
+    ; Static assertions for size
+    mac ASSERT_SIZE
+.STARTA SET {1}
+.ENDA SET {2}
+.LEN SET {3}
+    if [[.ENDA - .STARTA] >= .LEN]
+        echo "Error: Exceeded size limit", [.ENDA - .STARTA], "vs", .LEN
+        err
+    endif
+    endm
+    mac ASSERT_SIZE_EXACT
+.STARTA SET {1}
+.ENDA SET {2}
+.LEN SET {3}
+    if [[.ENDA - .STARTA] != .LEN]
+        echo ""
+        echo "Error: Violated size limit", [.ENDA - .STARTA], "vs", .LEN
+        err
+    endif
     endm
 
     ; Global headers

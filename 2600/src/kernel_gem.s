@@ -88,6 +88,7 @@ KernelA_P:
 
     rend
 kernel_1_end:
+    ASSERT_SIZE kernel_1_start, kernel_1_end, $40
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
@@ -158,3 +159,4 @@ KernelB_O:
 
     rend
 kernel_2_end:
+    ASSERT_SIZE kernel_2_start, kernel_2_end, $40
