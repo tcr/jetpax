@@ -185,17 +185,17 @@ NVss DIZC
         // B default
 
         let x = solve(&hashmap![
-            Gem_0_0 => 1,
+            // Gem_0_0 => 1,
             Gem_0_1 => 1,
             Gem_1_0 => 1,
-            Gem_1_1 => 1,
+            // Gem_1_1 => 1,
         ]);
 
         let y = solve(&hashmap![
             Gem_0_0 => 1,
             Gem_0_1 => 1,
             Gem_1_0 => 1,
-            Gem_1_1 => 1,
+            // Gem_1_1 => 1,
         ]);
 
         let in_vdel = false;
@@ -213,16 +213,16 @@ NVss DIZC
         }
     } else if kernel == Kernel::A {
         let x = solve(&hashmap![
-            Gem_0_0 => 1,
-            Gem_0_1 => 1,
+            // Gem_0_0 => 1,
+            // Gem_0_1 => 1,
             Gem_1_0 => 1,
             Gem_1_1 => 1,
         ]);
         
         let y = solve(&hashmap![
-            Gem_0_0 => 1,
+            // Gem_0_0 => 1,
             Gem_0_1 => 1,
-            Gem_1_0 => 1,
+            // Gem_1_0 => 1,
             Gem_1_1 => 1,
         ]);
 
@@ -283,15 +283,16 @@ NVss DIZC
             reflected: false,
         }
     } else /*if kernel == Kernel::B*/ {
+        // What is it about middle gems that can't be eliminated from either?
         let x = solve(&hashmap![
             Gem_0_0 => 1,
             Gem_0_1 => 1,
             Gem_1_0 => 1,
-            Gem_1_1 => 1,
+            // Gem_1_1 => 1,
         ]);
         
         let y = solve(&hashmap![
-            Gem_0_0 => 1,
+            // Gem_0_0 => 1,
             Gem_0_1 => 1,
             Gem_1_0 => 1,
             Gem_1_1 => 1,
@@ -367,10 +368,10 @@ NVss DIZC
                 }
 
                 // // TODO i don't know how to actually do this:
-                // 4 if gems[i] == Gem_0_0 => {
-                //     // Skip with value
-                //     Bytecode::Reset4
-                // }
+                4 if gems[i] == Gem_0_0 => {
+                    // Skip with value
+                    Bytecode::Reset4
+                }
 
                 // Kill last 2 sprites if dead
                 | 4

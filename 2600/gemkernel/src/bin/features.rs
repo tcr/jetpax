@@ -21,7 +21,7 @@ fn feature_detect(features: &[Feature]) -> bool {
     // Custom filters
 
     && features.iter().find(|x| {
-        **x == Feature::MiddleVdel
+        **x == Feature::StateInitX(Gem_1_0)
     }).is_some()
     // && features.iter().find(|x| {
     //     **x == Feature::StateInitInVdel(true)
