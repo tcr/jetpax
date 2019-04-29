@@ -1,6 +1,12 @@
-:- module(turing, [gem/1, turing/3, cpu_R/2]).
+:- module(turing, [gem/1, turing/3, cpu_R/2, is_cpu/1]).
 :- set_prolog_flag(verbose, silent). 
 :- style_check(-singleton).
+
+kernel(KA).
+kernel(KB).
+
+is_bool(true).
+is_bool(false).
 
 gem(g00).
 gem(g01).
@@ -14,20 +20,44 @@ code(bc_STY).
 code(bc_NOP).
 
 % for Kernel A
-code(bc_REF).
-code(bc_BLK).
+code(bc_RF1).
 code(bc_RST).
+code(bc_BLK). % only cancels third entry
+% % code(bc_RF0).
+
 % for Kernel B
 % code(bc_P10).
 % code(bc_P11).
 
-% BlankOn,
-% Stx,
-% Sty,
-% Php10,
-% Php11,
-% Reflect,
-% Reset4,
+should_occur_once(Prog, Bc) :- member(Bc, Prog).
+should_follow(Prog, Bc) :- \+ (Prog = [Bc|_]).
+should_be_pos(Prog, Poses) :- length(Prog, Len), \+ member(Len, Poses).
+
+% search: ",bc_VD1" | "bc_RST"
+
+% Constaints on opcodes.
+opcode_violation(Prog, bc_VD0) :-
+    should_occur_once(Prog, bc_VD0) ; % restrict count
+    should_follow(Prog, bc_VD1). % only follow VD1 (Kernel A)
+opcode_violation(Prog, bc_VD1) :-
+    should_occur_once(Prog, bc_VD1) ; % restrict count
+    should_be_pos(Prog, [0, 1, 2]). % restrict positions (Kernel A)
+opcode_violation(Prog, bc_RST) :-
+    should_occur_once(Prog, bc_RST) ; % only valid once
+    should_be_pos(Prog, [1, 2, 3]). % only valid positions
+opcode_violation(Prog, bc_BLK) :-
+    should_occur_once(Prog, bc_BLK) ; % restrict count
+    should_be_pos(Prog, [4]). % restrict positions
+opcode_violation(Prog, bc_RF1) :-
+    should_occur_once(Prog, bc_RF1) ; % restrict count
+    should_be_pos(Prog, [2, 3, 4]). % restrict positions
+
+opcode_violation(Prog, bc_P11) :-
+    member(bc_P11, Prog) ; % only appear once
+    member(bc_P10, Prog). % don't  mix.
+opcode_violation(Prog, bc_P10) :-
+    member(bc_P11, Prog) ; % only appear once
+    member(bc_P10, Prog). % don't  mix.
 
 reflect(false, g00, g00).
 reflect(false, g01, g01).
@@ -38,17 +68,21 @@ reflect(true, g01, g10).
 reflect(true, g10, g01).
 reflect(true, g11, g11).
 
-% Grp0, Vdel, VdelOn, X, Y
+% Compute GRP0
 vm_grp0(bc_RST, Cpu, g00).
+vm_grp0(Code, cpu(_, _, _, _, _, true, _), g00).
 vm_grp0(Code, cpu(G, _, false, _, _, false, R), Out) :- reflect(R, G, Out).
 vm_grp0(Code, cpu(_, V, true, _, _, false, R), Out) :- reflect(R, V, Out).
-vm_grp0(Code, cpu(_, _, _, _, _, true, _), g00).
 
-cpu(G, V, D, X, Y, B, R) :-
-    gem(G), gem(V), gem(X), gem(Y).
+is_cpu(cpu(G, V, D, X, Y, B, R)) :-
+    gem(G), gem(V), gem(X), gem(Y), is_bool(D), is_bool(B), is_bool(R).
 
+% Extract Reflect value
 cpu_R(cpu(_, _, _, _, _, _, R), R).
 
+cpu_end_state(cpu(G, V, D, X, Y, B, false)).
+
+% Bytecode
 cpu_update(cpu(G, V, _, X, Y, B, R), bc_VD0, cpu(G, V, false, X, Y, B, R)).
 cpu_update(cpu(G, V, _, X, Y, B, R), bc_VD1, cpu(G, V, true, X, Y, B, R)).
 cpu_update(cpu(_, V, D, X, Y, B, R), bc_STX, cpu(X, V, D, X, Y, B, R)).
@@ -56,32 +90,22 @@ cpu_update(cpu(_, V, D, X, Y, B, R), bc_STY, cpu(Y, V, D, X, Y, B, R)).
 cpu_update(cpu(_, V, D, X, Y, B, R), bc_P10, cpu(g10, V, D, X, Y, B, R)).
 cpu_update(cpu(_, V, D, X, Y, B, R), bc_P11, cpu(g11, V, D, X, Y, B, R)).
 cpu_update(cpu(G, V, D, X, Y, _, R), bc_BLK, cpu(G, V, D, X, Y, true, R)).
-cpu_update(cpu(G, V, D, X, Y, B, R), bc_REF, cpu(G, V, D, X, Y, B, \+ R)).
+cpu_update(cpu(G, V, D, X, Y, B, _), bc_RF1, cpu(G, V, D, X, Y, B, true)).
+cpu_update(cpu(G, V, D, X, Y, B, _), bc_RF0, cpu(G, V, D, X, Y, B, false)).
 cpu_update(Cpu, bc_NOP, Cpu).
 cpu_update(Cpu, bc_RST, Cpu).
 
 % TODO: 6 is a freebie, as long as all relevant flags are off
 
-% Constaints on opcodes.
-% opcode_violation(Prog, bc_VD0) :-
-%     member(bc_VD0, Prog) ;
-%     length(Prog, Len), Len == 6.
-% opcode_violation(Prog, bc_VD1) :-
-%     member(bc_VD1, Prog) ;
-%     length(Prog, Len), Len == 6.
-opcode_violation(Prog, bc_P11) :- member(bc_P11, Prog) ; member(bc_P10, Prog).
-opcode_violation(Prog, bc_P10) :- member(bc_P11, Prog) ; member(bc_P10, Prog).
-% opcode_violation(Prog, bc_RST) :- length(Prog, Len), (Len == 0 ; Len == 2; Len == 4).
-% opcode_violation(Prog, bc_STX) :- length(Prog, Len), Len == 1.
-
-
 %
 % Turing Machine Framework
 %
 
-turing(S0, Tape0, Tape) :-
-    perform(S0, [], Ls, Tape0, Rs),
-    reverse(Ls, Tape),
+turing(state(Q0, Cpu), Tape0, Tape) :-
+    perform(state(Q0, Cpu), [], Ls, Tape0, Rs),
+    is_cpu(Cpu),
+    cpu_end_state(Cpu),
+    reverse([bc_NOP|Ls], Tape),
     maplist(code, Tape).
 
 perform(state(qf, _), Ls, Ls, Rs, Rs) :- !.
@@ -113,6 +137,7 @@ perform(S0, Ls0, Ls, Rs0, Rs) :-
     % with final result being left symbols, Ls, and right symbols, Rs
     perform(S1, Ls1, Ls, Rs1, Rs).
 
+% symbol([], b, []).
 symbol([Sym], b, [Sym]). % HACK: 6 is a freebie
 symbol([Sym|Rs], Sym, Rs).
 
