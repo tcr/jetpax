@@ -1,4 +1,4 @@
-:- module(turing, [gem/1, turing/3, cpu_R/2, is_cpu/1, kernel/1]).
+:- module(turing, [gem/1, turing/3, cpu_R/2, is_cpu/1, kernel/1, condense_program/2, code/1]).
 :- set_prolog_flag(verbose, silent). 
 :- style_check(-singleton).
 
@@ -38,6 +38,42 @@ code(bc_P11) :- kernel(kb).
 should_occur_once(Prog, Bc) :- member(Bc, Prog).
 should_follow(Prog, Bc) :- \+ (Prog = [Bc|_]).
 should_be_pos(Prog, Poses) :- length(Prog, Len), \+ member(Len, Poses).
+
+/*
+
+hash(Prog) :-
+    % VD0(2): 1, 2, 3, -
+    % RST(2): 1, 2, 3, -
+    % RF1(2): 2, 3, 4
+    % VPX + RF1(1) (howwww)
+
+    From this + TIA rules we can compute what vlaues need to go where
+    bashed off the hash itself!
+
+    VD0 == 1 ? VDEL = G0, GRP0 = G1, [VD1,VD0...]
+    VD0 == 2 ? VDEL = G1, GRP0 = G0  [...,VD1,VD0...]
+    VD0 == 3 ? VDEL = G2, GRP0 = G0  [...,...,VD1,VD0...]
+
+    SET RST = value
+    SET RF1 = value
+    SET VPX + RF1 = value
+
+    First value, if blank, should be NOP
+
+    Scan left (from second on) to right:
+    [STX when available, and set X from it]
+    [STY when next changes, and set Y from it]
+    VDELon is ???
+    reflect is ???
+
+*/
+
+condense_program(Prog, Out) :-
+    (nth0(VD0Index, Prog, bc_VD0); VD0Index = 0),
+    (nth0(RSTIndex, Prog, bc_RST); RSTIndex = 0),
+    (nth0(RF1Index, Prog, bc_RF1); RF1Index = 0),
+    (nth0(VPXIndex2, Prog, bc_VDX), VPXIndex1 is VPXIndex2 - 1; VPXIndex = 0),
+    Out = [VD0Index,RSTIndex,RF1Index,VPXIndex].
 
 opcode_violation(Prog, _, bc_VD0) :-
     should_occur_once(Prog, bc_VD0) ; % restrict count
