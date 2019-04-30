@@ -8,11 +8,14 @@ echo 'use_module(library(plunit)). load_test_files(turing). run_tests.' | swipl 
 
 ---
 
+
+; Maybe only a window into the middle 4? BBCCDDEE 0000AAFF
+
 > solve for these 8
-! \[\w+,bc_RST,bc_RF1         8V [g01,g00,g10,g11,g01 ... (truly unique, no VD0)...
+\[\w+,bc_RST,bc_RF1         8V [g01,g00,g10,g11,g01 ... (truly unique, no VD0)...
 
 > solve for the break at the beginning of this...
-! \[\w+,\w+,bc_VD0           24V [g00,g00 ...
+\[\w+,\w+,bc_VD0           24V [g00,g00 ...
 
 > solve for reflect
 \[\w+,\w+,bc_RF1                    24 (16?)
@@ -48,19 +51,19 @@ echo 'use_module(library(plunit)). load_test_files(turing). run_tests.' | swipl 
     [g10,g00,g11,g01,g10
     [g10,g01,g11,g10,g01
 
-> solve for reset (easy)
+> solve for reset (easy, just solve for middle 3 empty)
 \[\w+,bc_RST,bc_VD1                 48
 \[bc_VD1,bc_VD0,bc_RST             288 ; this is tricky one for the RESET class
-\[bc_VD1,bc_VD0,\w+,bc_RST         384
+\[bc_VD1,bc_VD0,\w+,bc_RST         360
 
->  solve for vdelay
-\[\w+,bc_VD1                        96
-\[\w+,\w+,bc_VD1                    96
+>  solve for vdelay (idk how though)
+\[\w+,bc_VD1                        72
+\[\w+,\w+,bc_VD1                    120
 
 ; the 8 (special cases)
 ; the 24 (blank at beginning)
-RF1 = <crit> ? : null.
-RST = <crit> ? 1, 2, or 3 : null.
+RF1 = <pattern_match> ? 2, 3, 4 : null.
+RST = <middle_3_empty> ? 1, 2, or 3 : null.
 VD1 = (RF1 == 2 && RST == 1) ? null
     : RST == 1 ? 2 :
     : <crit> ? 2, 1

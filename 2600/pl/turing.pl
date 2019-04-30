@@ -24,7 +24,6 @@ code(bc_NOP).
 
 % for Kernel A
 code(bc_RST) :- kernel(ka).
-code(bc_BLK) :- kernel(ka). % only cancels third entry
 code(bc_RF1) :- kernel(ka), nb_getval(enable_reflect, Out), Out.
 % % code(bc_RF0).
 
@@ -44,14 +43,11 @@ opcode_violation(Prog, _, bc_VD0) :-
     should_follow(Prog, bc_VD1). % only follow VD1 (Kernel A)
 opcode_violation(Prog, cpu(_, _, D, _, _, _, _), bc_VD1) :-
     should_occur_once(Prog, bc_VD1) ; % restrict count
-    length(Prog, Len), Len == 1, D == true ;
+    % length(Prog, Len), Len == 1, D == true ;
     should_be_pos(Prog, [0, 1, 2]). % restrict positions (Kernel A)
 opcode_violation(Prog, _, bc_RST) :-
     should_occur_once(Prog, bc_RST) ; % only valid once
-    should_be_pos(Prog, [1, 2, 3]). % only valid positions
-opcode_violation(Prog, _, bc_BLK) :-
-    should_occur_once(Prog, bc_BLK) ; % restrict count
-    should_be_pos(Prog, [4]). % restrict positions
+    should_be_pos(Prog, [1, 2, 3, 4]). % only valid positions
 opcode_violation(Prog, _, bc_RF1) :-
     should_occur_once(Prog, bc_RF1) ; % restrict count
     should_be_pos(Prog, [2, 3, 4]). % restrict positions
@@ -71,12 +67,11 @@ reflect(true, g00, g00). reflect(true, g01, g10). reflect(true, g10, g01). refle
 
 % Compute GRP0
 vm_grp0(bc_RST, Cpu, g00).
-vm_grp0(Code, cpu(_, _, _, _, _, true, _), g00).
-vm_grp0(Code, cpu(G, _, false, _, _, false, R), Out) :- reflect(R, G, Out).
-vm_grp0(Code, cpu(_, V, true, _, _, false, R), Out) :- reflect(R, V, Out).
+vm_grp0(Code, cpu(G, _, false, _, _, _, R), Out) :- reflect(R, G, Out).
+vm_grp0(Code, cpu(_, V, true, _, _, _, R), Out) :- reflect(R, V, Out).
 
 is_cpu(cpu(G, V, D, X, Y, B, R)) :-
-    gem(G), gem(V), gem(X), gem(Y), is_bool(D), is_bool(B), is_bool(R).
+    gem(G), gem(V), gem(X), gem(Y), is_bool(D), is_bool(R).
 
 % Extract Reflect value
 cpu_R(cpu(_, _, _, _, _, _, R), R).
@@ -90,7 +85,6 @@ cpu_update(cpu(_, V, D, X, Y, B, R), bc_STX, cpu(X, V, D, X, Y, B, R)).
 cpu_update(cpu(_, V, D, X, Y, B, R), bc_STY, cpu(Y, V, D, X, Y, B, R)).
 cpu_update(cpu(_, V, D, X, Y, B, R), bc_P10, cpu(g10, V, D, X, Y, B, R)).
 cpu_update(cpu(_, V, D, X, Y, B, R), bc_P11, cpu(g11, V, D, X, Y, B, R)).
-cpu_update(cpu(G, V, D, X, Y, _, R), bc_BLK, cpu(G, V, D, X, Y, true, R)).
 cpu_update(cpu(G, V, D, X, Y, B, _), bc_RF1, cpu(G, V, D, X, Y, B, true)).
 cpu_update(cpu(G, V, D, X, Y, B, _), bc_RF0, cpu(G, V, D, X, Y, B, false)).
 cpu_update(Cpu, bc_NOP, Cpu).
@@ -102,11 +96,23 @@ cpu_update(Cpu, bc_RST, Cpu).
 % Turing Machine Framework
 %
 
+% https://stackoverflow.com/questions/20765479/create-a-sublist-from-a-list-given-an-index-and-a-number-of-elements-prolog
+sublist(List, From, Count, SubList) :-
+    To is From + Count - 1,
+    findall(E, (between(From, To, I), nth1(I, List, E)), SubList).
+
+
 turing(state(Q0, Cpu), Tape0, Tape) :-
+    % HACK: Trim first two or last two from selection
+    (append(_, [g00, g00], Tape0) -> sublist(Tape0, 1, 4, Tape1); Tape1 = Tape0),
+    (append([g00, g00], _, Tape1) -> sublist(Tape1, 3, 4, Tape2); Tape2 = Tape1),
+
+    % HACK: Don't reflect so often.
     (nb_setval(enable_reflect, false),
-        perform(state(Q0, Cpu), [], Ls, Tape0, Rs) ;
+        perform(state(Q0, Cpu), [], Ls, Tape2, Rs) ;
     nb_setval(enable_reflect, true),
-        perform(state(Q0, Cpu), [], Ls, Tape0, Rs)),
+        perform(state(Q0, Cpu), [], Ls, Tape2, Rs)),
+
     is_cpu(Cpu),
     cpu_end_state(Cpu),
     reverse([bc_NOP|Ls], Tape),
