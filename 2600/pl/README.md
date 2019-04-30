@@ -68,7 +68,7 @@ VD1 = (RF1 == 2 && RST == 1) ? null
     : RST == 1 ? 2 :
     : <crit> ? 2, 1
     : 0.
-
+bc_VDX = ?
 
 
 

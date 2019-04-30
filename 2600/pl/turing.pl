@@ -25,6 +25,7 @@ code(bc_NOP).
 % for Kernel A
 code(bc_RST) :- kernel(ka).
 code(bc_RF1) :- kernel(ka), nb_getval(enable_reflect, Out), Out.
+code(bc_VDX) :- kernel(ka). % Duplicate VD1 reserved for position 4
 % % code(bc_RF0).
 
 % for Kernel B
@@ -43,14 +44,17 @@ opcode_violation(Prog, _, bc_VD0) :-
     should_follow(Prog, bc_VD1). % only follow VD1 (Kernel A)
 opcode_violation(Prog, cpu(_, _, D, _, _, _, _), bc_VD1) :-
     should_occur_once(Prog, bc_VD1) ; % restrict count
-    % length(Prog, Len), Len == 1, D == true ;
+    length(Prog, Len), Len == 1, D == true ;
     should_be_pos(Prog, [0, 1, 2]). % restrict positions (Kernel A)
 opcode_violation(Prog, _, bc_RST) :-
     should_occur_once(Prog, bc_RST) ; % only valid once
-    should_be_pos(Prog, [1, 2, 3, 4]). % only valid positions
+    should_be_pos(Prog, [1, 2, 3]). % only valid positions
 opcode_violation(Prog, _, bc_RF1) :-
     should_occur_once(Prog, bc_RF1) ; % restrict count
-    should_be_pos(Prog, [2, 3, 4]). % restrict positions
+    should_be_pos(Prog, [1, 2, 3, 4]). % restrict positions
+opcode_violation(Prog, cpu(_, V, _, _, _, _, _), bc_VDX) :-
+    V \= g00 ;
+    should_be_pos(Prog, [4]). % restrict positions
 
 opcode_violation(Prog, _, bc_P11) :-
     member(bc_P11, Prog) ; % only appear once
@@ -81,6 +85,7 @@ cpu_end_state(cpu(G, V, D, X, Y, B, false)).
 % Bytecode
 cpu_update(cpu(G, V, _, X, Y, B, R), bc_VD0, cpu(G, V, false, X, Y, B, R)).
 cpu_update(cpu(G, V, _, X, Y, B, R), bc_VD1, cpu(G, V, true, X, Y, B, R)).
+cpu_update(cpu(G, V, _, X, Y, B, R), bc_VDX, cpu(G, V, true, X, Y, B, R)).
 cpu_update(cpu(_, V, D, X, Y, B, R), bc_STX, cpu(X, V, D, X, Y, B, R)).
 cpu_update(cpu(_, V, D, X, Y, B, R), bc_STY, cpu(Y, V, D, X, Y, B, R)).
 cpu_update(cpu(_, V, D, X, Y, B, R), bc_P10, cpu(g10, V, D, X, Y, B, R)).
