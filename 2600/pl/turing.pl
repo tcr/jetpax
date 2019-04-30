@@ -1,9 +1,11 @@
-:- module(turing, [gem/1, turing/3, cpu_R/2, is_cpu/1]).
+:- module(turing, [gem/1, turing/3, cpu_R/2, is_cpu/1, kernel/1]).
 :- set_prolog_flag(verbose, silent). 
 :- style_check(-singleton).
 
-kernel(KA).
-kernel(KB).
+:- nb_setval(enable_reflect, false).
+
+kernel(ka).
+% kernel(kb).
 
 is_bool(true).
 is_bool(false).
@@ -13,6 +15,7 @@ gem(g01).
 gem(g10).
 gem(g11).
 
+% all kernels
 code(bc_VD1).
 code(bc_VD0).
 code(bc_STX).
@@ -20,53 +23,51 @@ code(bc_STY).
 code(bc_NOP).
 
 % for Kernel A
-code(bc_RF1).
-code(bc_RST).
-code(bc_BLK). % only cancels third entry
+code(bc_RST) :- kernel(ka).
+code(bc_BLK) :- kernel(ka). % only cancels third entry
+code(bc_RF1) :- kernel(ka), nb_getval(enable_reflect, Out), Out.
 % % code(bc_RF0).
 
 % for Kernel B
-% code(bc_P10).
-% code(bc_P11).
-
-should_occur_once(Prog, Bc) :- member(Bc, Prog).
-should_follow(Prog, Bc) :- \+ (Prog = [Bc|_]).
-should_be_pos(Prog, Poses) :- length(Prog, Len), \+ member(Len, Poses).
+code(bc_P10) :- kernel(kb).
+code(bc_P11) :- kernel(kb).
 
 % search: ",bc_VD1" | "bc_RST"
 
 % Constaints on opcodes.
-opcode_violation(Prog, bc_VD0) :-
+should_occur_once(Prog, Bc) :- member(Bc, Prog).
+should_follow(Prog, Bc) :- \+ (Prog = [Bc|_]).
+should_be_pos(Prog, Poses) :- length(Prog, Len), \+ member(Len, Poses).
+
+opcode_violation(Prog, _, bc_VD0) :-
     should_occur_once(Prog, bc_VD0) ; % restrict count
     should_follow(Prog, bc_VD1). % only follow VD1 (Kernel A)
-opcode_violation(Prog, bc_VD1) :-
+opcode_violation(Prog, cpu(_, _, D, _, _, _, _), bc_VD1) :-
     should_occur_once(Prog, bc_VD1) ; % restrict count
+    length(Prog, Len), Len == 1, D == true ;
     should_be_pos(Prog, [0, 1, 2]). % restrict positions (Kernel A)
-opcode_violation(Prog, bc_RST) :-
+opcode_violation(Prog, _, bc_RST) :-
     should_occur_once(Prog, bc_RST) ; % only valid once
     should_be_pos(Prog, [1, 2, 3]). % only valid positions
-opcode_violation(Prog, bc_BLK) :-
+opcode_violation(Prog, _, bc_BLK) :-
     should_occur_once(Prog, bc_BLK) ; % restrict count
     should_be_pos(Prog, [4]). % restrict positions
-opcode_violation(Prog, bc_RF1) :-
+opcode_violation(Prog, _, bc_RF1) :-
     should_occur_once(Prog, bc_RF1) ; % restrict count
     should_be_pos(Prog, [2, 3, 4]). % restrict positions
 
-opcode_violation(Prog, bc_P11) :-
+opcode_violation(Prog, _, bc_P11) :-
     member(bc_P11, Prog) ; % only appear once
-    member(bc_P10, Prog). % don't  mix.
-opcode_violation(Prog, bc_P10) :-
+    member(bc_P10, Prog) ; % don't  mix.
+    should_be_pos(Prog, [2, 3, 4]). % restrict positions
+opcode_violation(Prog, _, bc_P10) :-
     member(bc_P11, Prog) ; % only appear once
-    member(bc_P10, Prog). % don't  mix.
+    member(bc_P10, Prog) ; % don't  mix.
+    should_be_pos(Prog, [2, 3, 4]). % restrict positions
 
-reflect(false, g00, g00).
-reflect(false, g01, g01).
-reflect(false, g10, g10).
-reflect(false, g11, g11).
-reflect(true, g00, g00).
-reflect(true, g01, g10).
-reflect(true, g10, g01).
-reflect(true, g11, g11).
+% Reflection map
+reflect(false, g00, g00). reflect(false, g01, g01). reflect(false, g10, g10). reflect(false, g11, g11).
+reflect(true, g00, g00). reflect(true, g01, g10). reflect(true, g10, g01). reflect(true, g11, g11).
 
 % Compute GRP0
 vm_grp0(bc_RST, Cpu, g00).
@@ -102,7 +103,10 @@ cpu_update(Cpu, bc_RST, Cpu).
 %
 
 turing(state(Q0, Cpu), Tape0, Tape) :-
-    perform(state(Q0, Cpu), [], Ls, Tape0, Rs),
+    (nb_setval(enable_reflect, false),
+        perform(state(Q0, Cpu), [], Ls, Tape0, Rs) ;
+    nb_setval(enable_reflect, true),
+        perform(state(Q0, Cpu), [], Ls, Tape0, Rs)),
     is_cpu(Cpu),
     cpu_end_state(Cpu),
     reverse([bc_NOP|Ls], Tape),
@@ -130,7 +134,8 @@ perform(S0, Ls0, Ls, Rs0, Rs) :-
     % with the action resulting in new left Ls1 and new right Ls2
     % sets of symbols
     action(Action, Ls0, Ls1, [NewSym|RsRest], Rs1),
-    \+ opcode_violation(Ls0, NewSym),
+    S0 = state(_, Cpu0),
+    \+ opcode_violation(Ls0, Cpu0, NewSym),
 
     % Recursively perform the Turing engine on the new state, left,
     % and right sets of symbols until we hit the final state (qf)
