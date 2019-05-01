@@ -72,7 +72,7 @@ condense_program(Prog, Out) :-
     (nth0(VD0Index, Prog, bc_VD0); VD0Index = 0),
     (nth0(RSTIndex, Prog, bc_RST); RSTIndex = 0),
     (nth0(RF1Index, Prog, bc_RF1); RF1Index = 0),
-    (nth0(VPXIndex2, Prog, bc_VDX) -> VPXIndex is VPXIndex2 - 1; VPXIndex = 0),
+    (nth0(VPXIndex2, Prog, bc_VDX) -> VPXIndex = VPXIndex2; VPXIndex = 0),
     Out = [VD0Index,RSTIndex,RF1Index,VPXIndex].
 
 opcode_violation(Prog, _, bc_VD0) :-

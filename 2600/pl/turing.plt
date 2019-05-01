@@ -1,8 +1,6 @@
 :- begin_tests(turing).
 :- use_module("turing.pl").
 
-% solved:\s+(.*)\nSHARD\?\s+\1
-
 % decoder
 
 trim_lead([],[],_).
@@ -16,11 +14,6 @@ lead(T, T2) :-
     trim_lead(T, T1, J),
     append(T2, T1, T).
 
-% https://stackoverflow.com/questions/27479915/how-to-trim-first-n-elements-from-in-list-in-prolog
-leading(L,S) :-      % to trim leading elements from a list
-    nth0(0, L, Lead),
-    strip_while(L, Lead, S).
-
 shard_relation(Gems, Shard, Index, Item) :-
     nth0(0, Shard, VD0Index),
     nth0(1, Shard, RSTIndex),
@@ -32,30 +25,37 @@ shard_relation(Gems, Shard, Index, Item) :-
         RSTIndex > 0, RSTIndex == Index -> Item = bc_RST ;
         RF1Index > 0, RF1Index == Index -> Item = bc_RF1 ;
 
-        VDXIndex > 0, VDXIndex is Index - 1 -> Item = bc_VDX ;
+        VDXIndex > 0, VDXIndex is Index -> Item = bc_VDX ;
 
-        % Find STY
-        Index > 0,
-        max_list([VD0Index, RSTIndex, RF1Index], Max0),
-        Max is Max0 + 2,
-        sublist_to(Gems, Max, 5, Sublist),
-        % print("sublist:"), print(Sublist), nl,
-        lead(Sublist, Output),
-        % print("output:"), print(Output), nl,
-        length(Output, StyIndex),
-        !,
-        % print("idx:"), print(Max + StyIndex), nl,
-        StyIndex > 0, StyIndex \= 3,
-        YIndex is Max + StyIndex - 1,
-        nth0(YIndex, Gems, YVal),
+        % Compile a populated list of indices, "StateList"
+        VD1Index is VD0Index - 1,
+        StateList0 = [VD1Index, VD0Index, RSTIndex, RF1Index, VDXIndex],
+
+        % TODO move this into the join with [1,2,3,4] in subtract, or better yet filter on the indexes
+        % like assembly will do
+        % Add index 1 if it's equal to index 0
+        (
+            nth0(0, Gems, Val1), nth0(1, Gems, Val2), Val1 == Val2 -> append(StateList0, [1], StateList1) ;
+            StateList1 = StateList0
+        ),
+        % Add index 2 if it's equal to index 1
+        (
+            nth0(1, Gems, Val1), nth0(2, Gems, Val2), Val1 == Val2 -> append(StateList1, [2], StateList) ;
+            StateList = StateList1
+        ),
+
+        list_to_set(StateList, UsedIndices0),
+        select(0, UsedIndices0, UsedIndices), % normalize indices by removing 0 (null)
+        subtract([1,2,3,4], UsedIndices, FreeIndices), % get which indices aren't occupied
+        [First|_] = FreeIndices,
+        nth0(First, Gems, XVal),
         nth0(Index, Gems, IndexVal),
-        % print(YVal), nl,
-        % print(IndexVal), nl,
-        YVal == IndexVal -> Item = bc_STY ;
-
-        Index > 0 -> Item = bc_STX ;
-
-        Item = bc_NOP
+        % print(XVal), nl,
+        (
+            member(Index, FreeIndices), XVal == IndexVal -> Item = bc_STX ;
+            member(Index, FreeIndices) -> Item = bc_STY ;
+            Item = bc_NOP
+        )
     ).
 
 test(all_gems) :-
@@ -87,10 +87,9 @@ test(all_gems) :-
             append(Res2, [_], Res),
             write_term("SHARD?    ", []), print(Res2), nl,
             write_term("shard:    ", []), print(Shard), nl,
-            % TODO test these values
             print(Cpu), nl,
-            turing_check(state(q0, Cpu), Gems2, Res2),
-            print(Gems2), nl,
+            % NOTE: Cpu here is optional
+            turing_check(state(q0, _), Gems2, Res2),
             append(Gems2, [_], Gems)
 
             % append(Program2, [_], Program)
