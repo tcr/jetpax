@@ -1,5 +1,6 @@
 :- begin_tests(turing).
 :- use_module("turing.pl").
+:- use_module(library(clpfd)).
 
 % decoder
 
@@ -58,6 +59,9 @@ shard_relation(Gems, Shard, Index, Item) :-
         )
     ).
 
+slow_max(L, Max) :-
+    select(Max, L, Rest), \+ (member(E, Rest), sum(E, #=, ESum), sum(Max, #=, MaxSum), ESum > MaxSum).
+
 test(all_gems) :-
     forall((gem(A), gem(B), gem(C), gem(D), gem(E), gem(F)),
         (Gems = [A, B, C, D, E, F],
@@ -68,27 +72,44 @@ test(all_gems) :-
         append(Prg, [_], Program),
         write_term("solved:   ", []), print(Prg), nl,
 
-        condense_program(Program, Shard),   
+        % Caculate a full shard.
+        condense_program(Program, Shard),
+
+        % Calculate an agnostic shard
+        findall(S0-S1, (gem(S0), gem(S1)), GemGroup),
+        maplist({A,B,C,D,E,F}/[In0-In1,Out]>>(
+            GenericGems = [A, B, C, D, In0, In1],
+            turing(state(q0, _), GenericGems, P2),
+            condense_program(P2, Shard2),
+            Out = Shard2
+        ), GemGroup, SolutionsGroup),
+        slow_max(SolutionsGroup, SharedShard),
+        nl,
+
         !,     
         (
+            write_term("shard:    ", []), print(Shard), nl,
+            write_term("shared:   ", []), print(SharedShard), nl,
+
             % Skip BLK segments for now
             length(Program, ProgramLen), (ProgramLen < 6) ;
 
             % print(Shard), nl, nl,
             Res = [A0, B0, C0, D0, E0, bc_NOP],
-            shard_relation(Gems, Shard, 0, A0),
-            shard_relation(Gems, Shard, 1, B0),
-            shard_relation(Gems, Shard, 2, C0),
-            shard_relation(Gems, Shard, 3, D0),
-            shard_relation(Gems, Shard, 4, E0),
+            shard_relation(Gems, SharedShard, 0, A0),
+            shard_relation(Gems, SharedShard, 1, B0),
+            shard_relation(Gems, SharedShard, 2, C0),
+            shard_relation(Gems, SharedShard, 3, D0),
+            shard_relation(Gems, SharedShard, 4, E0),
             
             % print(Res), nl,
             % print(Program), nl,
             append(Res2, [_], Res),
             write_term("SHARD?    ", []), print(Res2), nl,
-            write_term("shard:    ", []), print(Shard), nl,
-            print(Cpu), nl,
+            print(Cpu), nl
+
             % NOTE: Cpu here is optional
+            % Check if our solution is correct.
             turing_check(state(q0, _), Gems2, Res2),
             append(Gems2, [_], Gems)
 
