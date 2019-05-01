@@ -1,4 +1,4 @@
-:- module(turing, [gem/1, turing/3, cpu_R/2, is_cpu/1, kernel/1, condense_program/2, code/1]).
+:- module(turing, [gem/1, turing/3, cpu_R/2, is_cpu/1, kernel/1, condense_program/2, code/1, sublist_to/4, turing_impl/3]).
 :- set_prolog_flag(verbose, silent). 
 :- style_check(-singleton).
 
@@ -72,7 +72,7 @@ condense_program(Prog, Out) :-
     (nth0(VD0Index, Prog, bc_VD0); VD0Index = 0),
     (nth0(RSTIndex, Prog, bc_RST); RSTIndex = 0),
     (nth0(RF1Index, Prog, bc_RF1); RF1Index = 0),
-    (nth0(VPXIndex2, Prog, bc_VDX), VPXIndex1 is VPXIndex2 - 1; VPXIndex = 0),
+    (nth0(VPXIndex2, Prog, bc_VDX) -> VPXIndex is VPXIndex2 - 1; VPXIndex = 0),
     Out = [VD0Index,RSTIndex,RF1Index,VPXIndex].
 
 opcode_violation(Prog, _, bc_VD0) :-
@@ -142,6 +142,8 @@ sublist(List, From, Count, SubList) :-
     To is From + Count - 1,
     findall(E, (between(From, To, I), nth1(I, List, E)), SubList).
 
+sublist_to(List, From, To, SubList) :-
+    findall(E, (between(From, To, I), nth1(I, List, E)), SubList).
 
 turing(state(Q0, Cpu), Tape0, Tape) :-
     % HACK: Trim first two or last two from selection
@@ -159,8 +161,12 @@ turing(state(Q0, Cpu), Tape0, Tape) :-
     reverse([bc_NOP|Ls], Tape),
     maplist(code, Tape).
 
-perform(state(qf, _), Ls, Ls, Rs, Rs) :- !.
+turing_impl(state(Q0, Cpu), Tape0, Tape) :-
+    perform(state(Q0, Cpu), [], Ls, Tape0, _) ,
+    reverse([bc_NOP|Ls], Tape) .
 
+perform(state(qf, _), Ls, Ls, Rs, Rs) :- !.
+    
 % Q0 - the current state (or initial state before the "perform")
 % Ls0 - the current set of symbols that are LEFT of the head
 % Ls - the FINAL set of symbols that WILL BE left of the head after perform
