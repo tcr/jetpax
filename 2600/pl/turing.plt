@@ -72,27 +72,33 @@ test(all_gems) :-
         append(Prg, [_], Program),
         write_term("solved:   ", []), print(Prg), nl,
 
-        % Caculate a full shard.
-        condense_program(Program, Shard),
+        !,
 
-        % Calculate an agnostic shard
-        findall(S0-S1, (gem(S0), gem(S1)), GemGroup),
-        maplist({A,B,C,D,E,F}/[In0-In1,Out]>>(
-            GenericGems = [A, B, C, D, In0, In1],
-            turing(state(q0, _), GenericGems, P2),
-            condense_program(P2, Shard2),
-            Out = Shard2
-        ), GemGroup, SolutionsGroup),
-        slow_max(SolutionsGroup, SharedShard),
-        nl,
-
-        !,     
         (
-            write_term("shard:    ", []), print(Shard), nl,
+            length(Program, ProgramLen), (ProgramLen < 6) ;
+
+            % Caculate a full shard.
+            condense_program(Program, Shard),
+
+            % Calculate an agnostic shard
+            findall(S0-S1, (gem(S0), gem(S1)), GemGroup),
+            maplist({A,B,C,D,E,F}/[In0-In1,Out]>>(
+                % TODO Is this the right mask to use?
+                GenericGems = [In0, B, C, D, E, In1],
+                turing(state(q0, _), GenericGems, P2),
+                condense_program(P2, Shard2),
+                Out = Shard2
+            ), GemGroup, SolutionsGroup),
+
+            % TODO how to calculate which entry to use then? Max doesn't work, what would?
+            member(SharedShard, SolutionsGroup),
             write_term("shared:   ", []), print(SharedShard), nl,
+            write_term("shard:    ", []), print(Shard), nl,
+
+            % TODO maybe try checking all options and seeing if that works
+            % TODO also look up perfect hashing probably
 
             % Skip BLK segments for now
-            length(Program, ProgramLen), (ProgramLen < 6) ;
 
             % print(Shard), nl, nl,
             Res = [A0, B0, C0, D0, E0, bc_NOP],
@@ -105,8 +111,8 @@ test(all_gems) :-
             % print(Res), nl,
             % print(Program), nl,
             append(Res2, [_], Res),
-            write_term("SHARD?    ", []), print(Res2), nl,
-            print(Cpu), nl
+            write_term("RESULT?   ", []), print(Res2), nl,
+            print(Cpu), nl,
 
             % NOTE: Cpu here is optional
             % Check if our solution is correct.
