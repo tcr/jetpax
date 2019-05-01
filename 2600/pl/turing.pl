@@ -1,4 +1,4 @@
-:- module(turing, [gem/1, turing/3, cpu_R/2, is_cpu/1, kernel/1, condense_program/2, code/1, sublist_to/4, turing_impl/3]).
+:- module(turing, [gem/1, turing/3, cpu_R/2, is_cpu/1, kernel/1, condense_program/2, code/1, sublist_to/4, turing_check/3]).
 :- set_prolog_flag(verbose, silent). 
 :- style_check(-singleton).
 
@@ -161,9 +161,10 @@ turing(state(Q0, Cpu), Tape0, Tape) :-
     reverse([bc_NOP|Ls], Tape),
     maplist(code, Tape).
 
-turing_impl(state(Q0, Cpu), Tape0, Tape) :-
-    perform(state(Q0, Cpu), [], Ls, Tape0, _) ,
-    reverse([bc_NOP|Ls], Tape) .
+turing_check(_, [], []) :- !.
+turing_check(S0, [Gem|Gems], [Code|Prog]) :-
+    rule(S0, Gem, S, Code, right),
+    turing_check(S, Gems, Prog).
 
 perform(state(qf, _), Ls, Ls, Rs, Rs) :- !.
     

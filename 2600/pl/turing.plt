@@ -84,13 +84,14 @@ test(all_gems) :-
             
             % print(Res), nl,
             % print(Program), nl,
-            append(Gems2, [_], Gems),
             append(Res2, [_], Res),
-            % print(Gems2), nl,
             write_term("SHARD?    ", []), print(Res2), nl,
-            write_term("shard:    ", []), print(Shard), nl
+            write_term("shard:    ", []), print(Shard), nl,
             % TODO test these values
-            % turing_impl(state(q0, Cpu), Gems2, Res2)
+            print(Cpu), nl,
+            turing_check(state(q0, Cpu), Gems2, Res2),
+            print(Gems2), nl,
+            append(Gems2, [_], Gems)
 
             % append(Program2, [_], Program)
             % Res2 == Program2
