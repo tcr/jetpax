@@ -18,18 +18,18 @@ shard_relation(Gems, Shard, Index, Item) :-
     nth0(0, Shard, VD0Index),
     nth0(1, Shard, RSTIndex),
     nth0(2, Shard, RF1Index),
-    nth0(3, Shard, VDXIndex),
+    % nth0(3, Shard, VDXIndex),
     (
         VD0Index > 0, VD0Index is Index + 1 -> Item = bc_VD1 ;
         VD0Index > 0, VD0Index == Index -> Item = bc_VD0 ;
         RSTIndex > 0, RSTIndex == Index -> Item = bc_RST ;
         RF1Index > 0, RF1Index == Index -> Item = bc_RF1 ;
 
-        VDXIndex > 0, VDXIndex is Index -> Item = bc_VDX ;
+        % VDXIndex > 0, VDXIndex is Index -> Item = bc_VDX ;
 
         % Compile a populated list of indices, "StateList"
         VD1Index is VD0Index - 1,
-        StateList0 = [VD1Index, VD0Index, RSTIndex, RF1Index, VDXIndex],
+        StateList0 = [VD1Index, VD0Index, RF1Index, RSTIndex],
 
         % TODO move this into the join with [1,2,3,4] in subtract, or better yet filter on the indexes
         % like assembly will do
@@ -47,13 +47,19 @@ shard_relation(Gems, Shard, Index, Item) :-
         list_to_set(StateList, UsedIndices0),
         select(0, UsedIndices0, UsedIndices), % normalize indices by removing 0 (null)
         subtract([1,2,3,4], UsedIndices, FreeIndices), % get which indices aren't occupied
-        [First|_] = FreeIndices,
-        nth0(First, Gems, XVal),
+        maplist([In,Out]>>nth0(In, Gems, Out), FreeIndices, FreeValues),
+        list_to_set(FreeValues, FreeSet),
+        print(FreeValues), nl,
+        nth0(0, FreeSet, XVal),
+        (nth0(1, FreeSet, YVal) ; YVal = XVal),
+        (nth0(2, FreeSet, ZVal) ; ZVal = XVal),
+
         nth0(Index, Gems, IndexVal),
-        % print(XVal), nl,
         (
+            % IndexVal == g00, \+ member(g00, [XVal, YVal, ZVal]) -> Item = bc_RST ;
             member(Index, FreeIndices), XVal == IndexVal -> Item = bc_STX ;
-            member(Index, FreeIndices) -> Item = bc_STY ;
+            member(Index, FreeIndices), YVal == IndexVal -> Item = bc_STY ;
+            Index == 4, member(Index, FreeIndices), ZVal == IndexVal -> Item = bc_VDX ;
             Item = bc_NOP
         )
     ).
