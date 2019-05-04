@@ -1,0 +1,79 @@
+SENTINEL = %01010101
+
+first_pair = gemini_data[0] == gemini_data[1];
+second_pair = gemini_data[1] == gemini_data[2];
+
+// todo: explode the shard
+// 
+
+// addresses for writing opcode
+gemini_opcodes = [null, KernelA_D, KernelA_G, KernelA_H, KernelA_K, KernelA_M];
+
+// todo: how does GRP0 or VDEL0 get populated ?
+
+
+if RSTIndex == 2 {
+    NIBBLE_WRITE(KernelA_HMM1, ??)
+
+    // KernelA_H (probably?)
+    NIBBLE_WRITE_OPCODE(KernelA_H, sta EMERALD_SP_RESET);
+    // TODO how to revert this after?
+
+    RSTIndex = 0;
+}
+if RSTIndex == 4 { // UGH
+    NIBBLE_WRITE_OPCODE(KernelA_I, sta PF1);
+    NIBBLE_WRITE_OPCODE(KernelA_J, ldx #%00110011); ; shifted
+    NIBBLE_WRITE_OPCODE(KernelA_K, stx  EMERALD_SP_RESET);
+    NIBBLE_WRITE_OPCODE(KernelA_L, sleep 4);
+}
+
+for i in 1..5 {
+    let gemini_opcodes = gemini_opcode[i];
+    let gemini_value = gemini_data[i];
+
+    if i == VD1Index {
+        NIBBLE_WRITE_OPCODE(gemini_opcode, php);
+        Z = gems[i];
+        NIBBLE_WRITE(store_z, gems[i]);
+    }
+    else if i == VD0Index {
+        NIBBLE_WRITE_OPCODE(gemini_opcode, stx VDEL1);
+    }
+    else if i == RSTIndex && (i == 2 || i == 4) {
+        // pass
+    }
+    else if i == RSTIndex {
+        NIBBLE_WRITE_OPCODE(gemini_opcode, sleep 3);
+    }
+    else if i == RF1Index {
+        NIBBLE_WRITE_OPCODE(gemini_opcode, stx REFP1);
+    }
+    else (if i == 1 && first_pair) || (i == 2 && second_pair) {
+        NIBBLE_WRITE_OPCODE(gemini_opcode, sleep 3);
+    }
+    else {
+        if X == SENTINEL {
+            X = gemini_value;
+            NIBBLE_WRITE(store_x, gemini_value);
+        }
+        else if Y == SENTINEL {
+            Y = gemini_value;
+            NIBBLE_WRITE(store_y, gemini_value);
+        }
+
+        if X == gemini_value {
+            NIBBLE_WRITE_OPCODE(gem_opcode, stx GRP1);
+        }
+        else if Y == gemini_value {
+            NIBBLE_WRITE_OPCODE(gem_opcode, stx GRP1);
+        }
+        else if Index == 4 {
+            NIBBLE_WRITE_OPCODE(gem_opcode, php); // yep
+        }
+        else {
+            NIBBLE_WRITE_OPCODE(gem_opcode, sleep 3);
+        }
+    }
+}
+NIBBLE_WRITE_OPCODE(KernelAGemM, sta GRP1);

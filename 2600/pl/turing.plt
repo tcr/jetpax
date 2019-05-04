@@ -75,7 +75,7 @@ test(all_gems) :-
         write_term("solved:   ", []), print(Prg), nl,
 
         condense_program(Program, Shard),   
-        !,     
+        !,
         (
             % Skip BLK segments for now
             length(Program, ProgramLen), (ProgramLen < 6) ;

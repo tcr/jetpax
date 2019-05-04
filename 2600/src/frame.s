@@ -72,6 +72,10 @@ PositionMissiles: subroutine
     lda #KERNEL_A_MISSILE_HMOVE
     sta EMERALD_MI_HMOVE
 
+    ; HACK this doesn't belong here
+    ldx #COL_EMERALD
+    stx EMERALD_SP_COLOR
+
     jmp .complete
 
 .kernel_b:
@@ -81,6 +85,10 @@ PositionMissiles: subroutine
 
     lda #KERNEL_B_MISSILE_HMOVE
     sta EMERALD_MI_HMOVE
+
+    ; HACK this doesn't belong here
+    ldx #$e0
+    stx EMERALD_SP_COLOR
 
 .complete:
 
