@@ -31,6 +31,8 @@ KERNEL_TEMP_A byte
 
 RamCurrentKernel byte
 
+RamPF1Value byte
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ROW_COUNT = 16

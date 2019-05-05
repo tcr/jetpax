@@ -56,12 +56,12 @@ Kernel1: subroutine
 KernelA_A:
     sta EMERALD_SP_RESET ; RESPx must be strobed on cycle 25c.
 KernelA_B:
-    sleep 4 ; less 1 because of kernel C ...??
+    sleep 3
 KernelA_C:
-    lda #%10100000 ; Load PF1 (TODO asymmetrical playfield) TODO from reg
+    lda RamPF1Value ; Load PF1 (TODO asymmetrical playfield)
 
 
-; below has one php load (RESET?)
+; below has one `php` call (by default: RESET)
 KernelA_D:
     sty VDELP1 ; Gemini 1A, clear VDELP1
 KernelA_E:

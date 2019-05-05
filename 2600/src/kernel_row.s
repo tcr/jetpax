@@ -62,7 +62,11 @@ row_2:
     sta COLUPF
 
     ; Idle.
-    sleep 46
+    sleep 41
+
+    ; Load PF1 value
+    lda #%10100000
+    sta RamPF1Value
 
     ; Enable playfield at end of scanline
     lda #COL_BG
