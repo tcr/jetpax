@@ -33,20 +33,22 @@ Kernel1: subroutine
     ; ASSERT_RUNTIME "sp == $f9"
     ; ASSERT_RUNTIME "RamCurrentKernel != #1 || _scycles == #22"
 
+    ; To disable VDELP0, we use the Y register %01100110, which has D0 always 0
+
     ; Register config
     lda #$01
     sta EMERALD_MI_ENABLE ; disable missile
-    stx.w VDELP1 ; enable delayed sprite
+    stx.w VDELP1 ; enable delayed sprite TODO: save the extra cycle here
 
-    ; Write Gemini 0 into delayed sprite register
+    ; Write Gemini 0A into delayed sprite register
     sty EMERALD_SP
 
     ; Pop Player sprite from stack
-    ; By writing into GRP0, we copy Gemini 0 into visible sprite register
+    ; By writing into GRP0, we copy Gemini 0A into visible sprite register
     pla
     sta GRP0
 
-    ; Write Gemini 1 into delayed sprite register
+    ; Write Gemini 1A into delayed sprite register
     sty EMERALD_SP
 
     ; 22c is critical start of precise GRP0 timing for Kernel A
@@ -57,26 +59,31 @@ KernelA_B:
     sleep 4 ; less 1 because of kernel C ...??
 KernelA_C:
     lda #%10100000 ; Load PF1 (TODO asymmetrical playfield) TODO from reg
+
+
+; below has one php load (RESET?)
 KernelA_D:
-    sty EMERALD_SP ; Gemini 2
+    sty VDELP1 ; Gemini 1A, clear VDELP1
 KernelA_E:
     sta EMERALD_SP_RESET ; Reset "medium close" NUSIZ repetition
 KernelA_F:
-    stx EMERALD_MI_ENABLE ; Enable the missile 
+    stx EMERALD_MI_ENABLE ; Enable the missile (if we use %0xx00110 pattern)
 KernelA_G:
-    sty EMERALD_SP ; Gemini 3
+    sty EMERALD_SP ; Gemini 2A
+; above has php
+
 KernelA_H:
-    sty EMERALD_SP ; Gemini 4
+    sty EMERALD_SP ; Gemini 3A
 KernelA_I:
     stx EMERALD_SP_RESET ; Reset "medium close" NUSIZ repetition
 KernelA_J:
     sta PF1 ; Write asymmetrical playfield register
 KernelA_K:
-    sty EMERALD_SP ; Gemini 5
+    sty EMERALD_SP ; Gemini 4A
 KernelA_L:
     sleep 3 ; free
 KernelA_M:
-    sty EMERALD_SP ; Gemini 6
+    sty EMERALD_SP ; Gemini 5A
 KernelA_N:
     sleep 3
 KernelA_O:
@@ -137,16 +144,20 @@ KernelB_F:
     sty EMERALD_SP
 KernelB_G: ; PF1
     sleep 3
+
+; below has one php load (RESET?)
 KernelB_H:
-    sty EMERALD_SP
+    sty EMERALD_SP ; Gemini 3B
 KernelB_I:
     sta EMERALD_SP_RESET
 KernelB_J:
-    sty EMERALD_SP
+    sty EMERALD_SP ; Gemini 4B
 KernelB_K:
     sta EMERALD_MI_ENABLE
 KernelB_L:
-    sty EMERALD_SP
+    sty EMERALD_SP ; Gemini 5B
+; above has one PHP loa
+
 KernelB_M:
     sleep 3
 KernelB_N:

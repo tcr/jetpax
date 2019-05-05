@@ -1956,30 +1956,32 @@
      33  f600							; ASSERT_RUNTIME "sp == $f9"
      34  f600							; ASSERT_RUNTIME "RamCurrentKernel != #1 || _scycles == #22"
      35  f600
-     36  f600							; Register config
-     37  f600		       a9 01		      lda	#$01
-     38  f602		       85 1e		      sta	EMERALD_MI_ENABLE	; disable missile
-     39  f604		       8e 26 00 	      stx.w	VDELP1	; enable delayed sprite
-     40  f607
-     41  f607							; Write Gemini 0 into delayed sprite register
-     42  f607		       84 1c		      sty	EMERALD_SP
-     43  f609
-     44  f609							; Pop Player sprite from stack
-     45  f609							; By writing into GRP0, we copy Gemini 0 into visible sprite register
-     46  f609		       68		      pla
-     47  f60a		       85 1b		      sta	GRP0
-     48  f60c
-     49  f60c							; Write Gemini 1 into delayed sprite register
-     50  f60c		       84 1c		      sty	EMERALD_SP
-     51  f60e
-     52  f60e							; 22c is critical start of precise GRP0 timing for Kernel A
+     36  f600							; To disable VDELP0, we use the Y register %01100110, which has D0 always 0
+     37  f600
+     38  f600							; Register config
+     39  f600		       a9 01		      lda	#$01
+     40  f602		       85 1e		      sta	EMERALD_MI_ENABLE	; disable missile
+     41  f604		       8e 26 00 	      stx.w	VDELP1	; enable delayed sprite TODO: save the extra cycle here
+     42  f607
+     43  f607							; Write Gemini 0A into delayed sprite register
+     44  f607		       84 1c		      sty	EMERALD_SP
+     45  f609
+     46  f609							; Pop Player sprite from stack
+     47  f609							; By writing into GRP0, we copy Gemini 0A into visible sprite register
+     48  f609		       68		      pla
+     49  f60a		       85 1b		      sta	GRP0
+     50  f60c
+     51  f60c							; Write Gemini 1A into delayed sprite register
+     52  f60c		       84 1c		      sty	EMERALD_SP
+     53  f60e
+     54  f60e							; 22c is critical start of precise GRP0 timing for Kernel A
       0  f60e					      ASSERT_RUNTIME	"RamCurrentKernel != #1 || _scycles == #22"
       1  f60e				   .COND      SET	"RamCurrentKernel != #1 || _scycles == #22"
  ASSERT: breakif { pc== $f10e  && !(  RamCurrentKernel != #1 || _scycles == #22  ) }
       2  f60e					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
-     54  f60e				   KernelA_A
-     55  f60e		       85 11		      sta	EMERALD_SP_RESET	; RESPx must be strobed on cycle 25c.
-     56  f610				   KernelA_B
+     56  f60e				   KernelA_A
+     57  f60e		       85 11		      sta	EMERALD_SP_RESET	; RESPx must be strobed on cycle 25c.
+     58  f610				   KernelA_B
       0  f610					      sleep	4	; less 1 because of kernel C ...??
       1  f610				   .CYCLES    SET	4
       2  f610
@@ -2002,25 +2004,30 @@
      17  f610					      REPEND
      18  f611		       ea		      nop
      19  f612					      REPEND
-     58  f612				   KernelA_C
-     59  f612		       a9 a0		      lda	#%10100000	; Load PF1 (TODO asymmetrical playfield) TODO from reg
-     60  f614				   KernelA_D
-     61  f614		       84 1c		      sty	EMERALD_SP	; Gemini 2
-     62  f616				   KernelA_E
-     63  f616		       85 11		      sta	EMERALD_SP_RESET	; Reset "medium close" NUSIZ repetition
-     64  f618				   KernelA_F
-     65  f618		       86 1e		      stx	EMERALD_MI_ENABLE	; Enable the missile
-     66  f61a				   KernelA_G
-     67  f61a		       84 1c		      sty	EMERALD_SP	; Gemini 3
-     68  f61c				   KernelA_H
-     69  f61c		       84 1c		      sty	EMERALD_SP	; Gemini 4
-     70  f61e				   KernelA_I
-     71  f61e		       86 11		      stx	EMERALD_SP_RESET	; Reset "medium close" NUSIZ repetition
-     72  f620				   KernelA_J
-     73  f620		       85 0e		      sta	PF1	; Write asymmetrical playfield register
-     74  f622				   KernelA_K
-     75  f622		       84 1c		      sty	EMERALD_SP	; Gemini 5
-     76  f624				   KernelA_L
+     60  f612				   KernelA_C
+     61  f612		       a9 a0		      lda	#%10100000	; Load PF1 (TODO asymmetrical playfield) TODO from reg
+     62  f614
+     63  f614
+     64  f614							; below has one php load (RESET?)
+     65  f614				   KernelA_D
+     66  f614		       84 26		      sty	VDELP1	; Gemini 1A, clear VDELP1
+     67  f616				   KernelA_E
+     68  f616		       85 11		      sta	EMERALD_SP_RESET	; Reset "medium close" NUSIZ repetition
+     69  f618				   KernelA_F
+     70  f618		       86 1e		      stx	EMERALD_MI_ENABLE	; Enable the missile (if we use %0xx00110 pattern)
+     71  f61a				   KernelA_G
+     72  f61a		       84 1c		      sty	EMERALD_SP	; Gemini 2A
+     73  f61c							; above has php
+     74  f61c
+     75  f61c				   KernelA_H
+     76  f61c		       84 1c		      sty	EMERALD_SP	; Gemini 3A
+     77  f61e				   KernelA_I
+     78  f61e		       86 11		      stx	EMERALD_SP_RESET	; Reset "medium close" NUSIZ repetition
+     79  f620				   KernelA_J
+     80  f620		       85 0e		      sta	PF1	; Write asymmetrical playfield register
+     81  f622				   KernelA_K
+     82  f622		       84 1c		      sty	EMERALD_SP	; Gemini 4A
+     83  f624				   KernelA_L
       0  f624					      sleep	3	; free
       1  f624				   .CYCLES    SET	3
       2  f624
@@ -2041,9 +2048,9 @@
      17  f626				  -	      REPEAT	.CYCLES / 2
      18  f626				  -	      nop
      19  f626					      REPEND
-     78  f626				   KernelA_M
-     79  f626		       84 1c		      sty	EMERALD_SP	; Gemini 6
-     80  f628				   KernelA_N
+     85  f626				   KernelA_M
+     86  f626		       84 1c		      sty	EMERALD_SP	; Gemini 5A
+     87  f628				   KernelA_N
       0  f628					      sleep	3
       1  f628				   .CYCLES    SET	3
       2  f628
@@ -2064,7 +2071,7 @@
      17  f62a				  -	      REPEAT	.CYCLES / 2
      18  f62a				  -	      nop
      19  f62a					      REPEND
-     82  f62a				   KernelA_O
+     89  f62a				   KernelA_O
       0  f62a					      sleep	3
       1  f62a				   .CYCLES    SET	3
       2  f62a
@@ -2085,7 +2092,7 @@
      17  f62c				  -	      REPEAT	.CYCLES / 2
      18  f62c				  -	      nop
      19  f62c					      REPEND
-     84  f62c				   KernelA_P
+     91  f62c				   KernelA_P
       0  f62c					      sleep	3
       1  f62c				   .CYCLES    SET	3
       2  f62c
@@ -2106,16 +2113,16 @@
      17  f62e				  -	      REPEAT	.CYCLES / 2
      18  f62e				  -	      nop
      19  f62e					      REPEND
-     86  f62e
-     87  f62e							; 6c
+     93  f62e
+     94  f62e							; 6c
       0  f62e					      ASSERT_RUNTIME	"RamCurrentKernel != #1 || _scycles == #70"
       1  f62e				   .COND      SET	"RamCurrentKernel != #1 || _scycles == #70"
  ASSERT: breakif { pc== $f12e  && !(  RamCurrentKernel != #1 || _scycles == #70  ) }
       2  f62e					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
-     89  f62e		       60		      rts
-     90  f62f
-     91  f62f					      rend
-     92  f62f				   kernel_1_end
+     96  f62e		       60		      rts
+     97  f62f
+     98  f62f					      rend
+     99  f62f				   kernel_1_end
       0  f62f					      ASSERT_SIZE	kernel_1_start, kernel_1_end, $40
       1  f62f				   .STARTA    SET	kernel_1_start
       2  f62f				   .ENDA      SET	kernel_1_end
@@ -2124,24 +2131,24 @@
       5  f62f				  -	      echo	"Error: Exceeded size limit", [.ENDA - .STARTA], "vs", .LEN
       6  f62f				  -	      err
       7  f62f					      endif
-     94  f62f
-     95  f62f							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-     96  f62f							;
-     97  f62f							; GEM KERNEL B
-     98  f62f							;
-     99  f62f
-    100  f62f				   kernel_2_start subroutine
-    101  f62f					      rorg	$f100
-    102  f62f
-    103  f62f				   Kernel2    subroutine
-    104  f62f							; Assert: M1 is at position #61
-    105  f62f
-    106  f62f							; don't sleep first to make this distinct from Kernel A in debugger, lol
-    107  f62f
-    108  f62f							; Load next Player sprite
-    109  f62f		       68		      pla
-    110  f630		       85 1b		      sta	GRP0
-    111  f632
+    101  f62f
+    102  f62f							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    103  f62f							;
+    104  f62f							; GEM KERNEL B
+    105  f62f							;
+    106  f62f
+    107  f62f				   kernel_2_start subroutine
+    108  f62f					      rorg	$f100
+    109  f62f
+    110  f62f				   Kernel2    subroutine
+    111  f62f							; Assert: M1 is at position #61
+    112  f62f
+    113  f62f							; don't sleep first to make this distinct from Kernel A in debugger, lol
+    114  f62f
+    115  f62f							; Load next Player sprite
+    116  f62f		       68		      pla
+    117  f630		       85 1b		      sta	GRP0
+    118  f632
       0  f632					      sleep	4
       1  f632				   .CYCLES    SET	4
       2  f632
@@ -2164,25 +2171,25 @@
      17  f632					      REPEND
      18  f633		       ea		      nop
      19  f634					      REPEND
-    113  f634
-    114  f634
-    115  f634		       a2 0c		      ldx	#%00001100
-    116  f636		       a0 cc		      ldy	#%11001100
-    117  f638
-    118  f638		       a9 02		      lda	#02
-    119  f63a		       85 1e		      sta	EMERALD_MI_ENABLE	; Enable missile
-    120  f63c
-    121  f63c		       a9 c0		      lda	#%11000000
-    122  f63e		       84 1c		      sty	EMERALD_SP
-    123  f640
-    124  f640							; 25c is critical start of precise GRP0 timing for Kernel B
+    120  f634
+    121  f634
+    122  f634		       a2 0c		      ldx	#%00001100
+    123  f636		       a0 cc		      ldy	#%11001100
+    124  f638
+    125  f638		       a9 02		      lda	#02
+    126  f63a		       85 1e		      sta	EMERALD_MI_ENABLE	; Enable missile
+    127  f63c
+    128  f63c		       a9 c0		      lda	#%11000000
+    129  f63e		       84 1c		      sty	EMERALD_SP
+    130  f640
+    131  f640							; 25c is critical start of precise GRP0 timing for Kernel B
       0  f640					      ASSERT_RUNTIME	"RamCurrentKernel != #2 || _scycles == #25"
       1  f640				   .COND      SET	"RamCurrentKernel != #2 || _scycles == #25"
  ASSERT: breakif { pc== $f111  && !(  RamCurrentKernel != #2 || _scycles == #25  ) }
       2  f640					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
-    126  f640				   KernelB_A
-    127  f640		       85 11		      sta	EMERALD_SP_RESET
-    128  f642				   KernelB_B
+    133  f640				   KernelB_A
+    134  f640		       85 11		      sta	EMERALD_SP_RESET
+    135  f642				   KernelB_B
       0  f642					      sleep	3
       1  f642				   .CYCLES    SET	3
       2  f642
@@ -2203,7 +2210,7 @@
      17  f644				  -	      REPEAT	.CYCLES / 2
      18  f644				  -	      nop
      19  f644					      REPEND
-    130  f644				   KernelB_C
+    137  f644				   KernelB_C
       0  f644					      sleep	3
       1  f644				   .CYCLES    SET	3
       2  f644
@@ -2224,13 +2231,13 @@
      17  f646				  -	      REPEAT	.CYCLES / 2
      18  f646				  -	      nop
      19  f646					      REPEND
-    132  f646				   KernelB_D
-    133  f646		       84 1c		      sty	EMERALD_SP
-    134  f648				   KernelB_E
-    135  f648		       85 11		      sta	EMERALD_SP_RESET
-    136  f64a				   KernelB_F
-    137  f64a		       84 1c		      sty	EMERALD_SP
-    138  f64c				   KernelB_G		; PF1
+    139  f646				   KernelB_D
+    140  f646		       84 1c		      sty	EMERALD_SP
+    141  f648				   KernelB_E
+    142  f648		       85 11		      sta	EMERALD_SP_RESET
+    143  f64a				   KernelB_F
+    144  f64a		       84 1c		      sty	EMERALD_SP
+    145  f64c				   KernelB_G		; PF1
       0  f64c					      sleep	3
       1  f64c				   .CYCLES    SET	3
       2  f64c
@@ -2251,17 +2258,21 @@
      17  f64e				  -	      REPEAT	.CYCLES / 2
      18  f64e				  -	      nop
      19  f64e					      REPEND
-    140  f64e				   KernelB_H
-    141  f64e		       84 1c		      sty	EMERALD_SP
-    142  f650				   KernelB_I
-    143  f650		       85 11		      sta	EMERALD_SP_RESET
-    144  f652				   KernelB_J
-    145  f652		       84 1c		      sty	EMERALD_SP
-    146  f654				   KernelB_K
-    147  f654		       85 1e		      sta	EMERALD_MI_ENABLE
-    148  f656				   KernelB_L
-    149  f656		       84 1c		      sty	EMERALD_SP
-    150  f658				   KernelB_M
+    147  f64e
+    148  f64e							; below has one php load (RESET?)
+    149  f64e				   KernelB_H
+    150  f64e		       84 1c		      sty	EMERALD_SP	; Gemini 3B
+    151  f650				   KernelB_I
+    152  f650		       85 11		      sta	EMERALD_SP_RESET
+    153  f652				   KernelB_J
+    154  f652		       84 1c		      sty	EMERALD_SP	; Gemini 4B
+    155  f654				   KernelB_K
+    156  f654		       85 1e		      sta	EMERALD_MI_ENABLE
+    157  f656				   KernelB_L
+    158  f656		       84 1c		      sty	EMERALD_SP	; Gemini 5B
+    159  f658							; above has one PHP loa
+    160  f658
+    161  f658				   KernelB_M
       0  f658					      sleep	3
       1  f658				   .CYCLES    SET	3
       2  f658
@@ -2282,7 +2293,7 @@
      17  f65a				  -	      REPEAT	.CYCLES / 2
      18  f65a				  -	      nop
      19  f65a					      REPEND
-    152  f65a				   KernelB_N
+    163  f65a				   KernelB_N
       0  f65a					      sleep	3
       1  f65a				   .CYCLES    SET	3
       2  f65a
@@ -2303,7 +2314,7 @@
      17  f65c				  -	      REPEAT	.CYCLES / 2
      18  f65c				  -	      nop
      19  f65c					      REPEND
-    154  f65c				   KernelB_O
+    165  f65c				   KernelB_O
       0  f65c					      sleep	3
       1  f65c				   .CYCLES    SET	3
       2  f65c
@@ -2324,16 +2335,16 @@
      17  f65e				  -	      REPEAT	.CYCLES / 2
      18  f65e				  -	      nop
      19  f65e					      REPEND
-    156  f65e
-    157  f65e							; 6c
+    167  f65e
+    168  f65e							; 6c
       0  f65e					      ASSERT_RUNTIME	"RamCurrentKernel != #2 || _scycles == #70"
       1  f65e				   .COND      SET	"RamCurrentKernel != #2 || _scycles == #70"
  ASSERT: breakif { pc== $f12f  && !(  RamCurrentKernel != #2 || _scycles == #70  ) }
       2  f65e					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
-    159  f65e		       60		      rts
-    160  f65f
-    161  f65f					      rend
-    162  f65f				   kernel_2_end
+    170  f65e		       60		      rts
+    171  f65f
+    172  f65f					      rend
+    173  f65f				   kernel_2_end
       0  f65f					      ASSERT_SIZE	kernel_2_start, kernel_2_end, $40
       1  f65f				   .STARTA    SET	kernel_2_start
       2  f65f				   .ENDA      SET	kernel_2_end

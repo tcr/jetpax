@@ -35,13 +35,13 @@ just write good code though.
     v 22c    v 25c             v 31c                                                                                              v 64c    v 67c
     v -2P    v 7P             v 24P     v 34P    v 43P                               v 79P            $                  v 115P               v 136P
  A: A--------B--------C--------D--------E--------F--------G--------H--------I--------J--------K--------L--------M--------N--------O--------P--------
-    RESP1    PF0      LDA      GEM4(A)  RESP1    M1=on    GEM9(B)  GEM13(C) RESP1    PF1(D)   GEM18(E) LDA      GEM22    nop      PF2=0
-                                   00  01          04  05          08  09  10          13  14              18  19          22  23         
-             !--------????        s$$sssss       !s$$sssss????     mm ssssssss       !ssssssss????        ssssssss       |ssssssss        
+    RESP1    PF0      LDA PF1  GEM1A    RESP1    M1=on    GEM2A    GEM3A    RESP1    PF1      GEM4A    LDA      GEM5A    nop      PF2=0
+                                   00  01            04  05        08  09  10          13  14              18  19          22  23         
+             !--------????        s$$0Asss       !s$$1Asss????     mm sss2Asss       !sss3Asss????        sss4Asss       |sss5Asss        
  Gems:                        ====_AA__AA__BB__BB__AA__AA__BB__BB__AA__AA__AA__BB__BB__AA__AA__BB__BB__BB__AA__AA__BB__BB__AA__AA__BB__BB_====
-                      !--------????        ssssssss       !ssssssss????       ssssssss       !ssssssssmm??        $$ssssss       |$$ssssss
+                      !--------????        sss0Bsss       !sss1Bsss????        sss2Bsss       !sss3Bsssmm??        $$s4Bsss       |$$s5Bsss
                                            02  03          06  07              11  12          15  16  17          20  21          24  25 
-             RESP1    PF0      LDA      GEM6(A)  RESP1    GEM11(B) PF1(C)   GEM15(D) RESP1    GEM20(E) M1=off   LDA      GEM24    PF2=0
+             RESP1    PF0      LDA      GEM1B    RESP1    GEM2B    PF1      GEM3B    RESP1    GEM4B    M1=off   LDA      GEM5B    PF2=0
  B:          A--------B--------C--------D--------E--------F--------G--------H--------I--------J--------K--------L--------M--------N--------O--------
  PF  |0               1       ====                    2                               0               1                               2   ====|
 
