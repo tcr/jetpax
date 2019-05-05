@@ -37,10 +37,11 @@ Kernel1: subroutine
     pla
     sta GRP0
 
+    ; Load playfield image
+    lda #%10100000
+
     ; this sleep first make this distinct from Kernel B in debugger, lol
     sleep 7
-
-    lda #%10100000 ; Side borders (TODO: make asymmetrical)
 
     sta EMERALD_MI_ENABLE ;disable
 
