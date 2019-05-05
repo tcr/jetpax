@@ -4,8 +4,8 @@
 
 :- nb_setval(enable_reflect, false).
 
-kernel(ka).
-% kernel(kb).
+% kernel(ka).
+kernel(kb).
 
 is_bool(true).
 is_bool(false).

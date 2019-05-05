@@ -17,9 +17,6 @@ VerticalBlank: subroutine
     ; Frame counter
     inc FrameCount
 
-    ; Copy frames
-    jsr CopyFrame
-
     ; Skip every 8 frames for increasing demo index
     lda FrameCount
     and #FrameSkip
@@ -58,52 +55,72 @@ VerticalBlank: subroutine
     ldx #0
     jsr SetHorizPos
 
-PositionMissiles: subroutine
+frame_setup: subroutine
     ; Kernel A or B
     lda #01
     and FrameCount
-    bne .kernel_b
+    bne frame_setup_kernel_b
 
-.kernel_a:
+frame_setup_kernel_a: subroutine
+    ; Load kernel into CBSRAM
+    jsr LoadKernelA
+
+    ; Move missile
     sta WSYNC
     sleep KERNEL_A_MISSILE_SLEEP
     sta EMERALD_MI_RESET
-
     lda #KERNEL_A_MISSILE_HMOVE
     sta EMERALD_MI_HMOVE
 
-    ; HACK this doesn't belong here
+    ; DEBUG: Set per-kernel color
     ldx #COL_EMERALD
     stx EMERALD_SP_COLOR
 
-    jmp .complete
+    ; HACK this doesn't belong here
+    lda #%11111111
+    sta REFP1
 
-.kernel_b:
+    jmp frame_setup_complete
+
+frame_setup_kernel_b: subroutine
+    ; Load kernel into CBSRAM
+    jsr LoadKernelB
+
+    ; Move missile
     sta WSYNC
     sleep KERNEL_B_MISSILE_SLEEP
     sta EMERALD_MI_RESET
-
     lda #KERNEL_B_MISSILE_HMOVE
     sta EMERALD_MI_HMOVE
 
-    ; HACK this doesn't belong here
+    ; DEBUG: Set per-kernel color
     ldx #$e0
     stx EMERALD_SP_COLOR
 
-.complete:
+    lda #0
+    sta REFP1
 
-    ; Perform Nibble calculations
-    lda #$00
-    NIBBLE_START_KERNEL gem_kernel, 40
-        ldx level_00
-        cpx #%11000000
-        NIBBLE_IF cs
-            NIBBLE_WRITE_OPCODE [KernelA_TEST - $100], 2, lda #%011000110
-        NIBBLE_ELSE
-            NIBBLE_WRITE_OPCODE [KernelA_TEST - $100], 2, lda #%000000000
-        NIBBLE_END_IF
-    NIBBLE_END_KERNEL
-    sta KERNEL_TEMP_A
+frame_setup_complete:
+
+    lda shard_map
+    ldy #1 ; gemini counter, starting at 1
+gemini_builder:
+    cpy #1 ; TODO top two bits of shard_map
+    bne .no_vd0
+.no_vd0:
+
+    ; Perform kernel Nibble calculations
+    ; lda #$00
+    ; NIBBLE_START_KERNEL gem_kernel, 40
+    ;     ldx level_00
+    ;     cpx #%11000000
+    ;     NIBBLE_IF cs
+    ;         NIBBLE_WRITE_OPCODE [KernelA_TEST - $100], 2, lda #%011000110
+    ;     NIBBLE_ELSE
+    ;         NIBBLE_WRITE_OPCODE [KernelA_TEST - $100], 2, lda #%000000000
+    ;     NIBBLE_END_IF
+    ; NIBBLE_END_KERNEL
+    ; sta KERNEL_TEMP_A
 
 VerticalBlankEnd:
     ; Wait until the end of Vertical blank.

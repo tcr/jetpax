@@ -1,14 +1,9 @@
-; Copies the gem kernel to RAM
+; Copies the gem kernels to RAM
 
-CopyFrame: subroutine
-    ; FRAMESWITCH
+    ; Copy Kernel A to CBSRAM
+LoadKernelA: subroutine
     lda #01
-    and FrameCount
-    beq CopyFrame1Kernel
-    jmp CopyFrame2Kernel
-
-    ; Copy: KERNEL 1
-CopyFrame1Kernel: subroutine
+    sta RamCurrentKernel
     ldy #(kernel_1_end - kernel_1_start)-1
 .loop:
     lda kernel_1_start,Y
@@ -19,8 +14,10 @@ CopyFrame1Kernel: subroutine
     sta $1000
     rts
 
-    ; Copy: KERNEL 2
-CopyFrame2Kernel: subroutine
+    ; Copy Kernel B to CBSRAM
+LoadKernelB: subroutine
+    lda #02
+    sta RamCurrentKernel
     ldy #(kernel_2_end - kernel_2_start)-1
 .loop:
     lda kernel_2_start,Y

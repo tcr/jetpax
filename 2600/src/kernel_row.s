@@ -45,8 +45,8 @@ row_1:
     jet_spritedata_calc
 
     ; Nibble VM.
-    lda KERNEL_TEMP_A
-    NIBBLE_gem_kernel
+    ; lda KERNEL_TEMP_A
+    ; NIBBLE_gem_kernel
     sta WSYNC
 
     ; sleep 46
@@ -62,16 +62,17 @@ row_2:
     sta COLUPF
 
     ; Idle.
-    sleep 51
+    sleep 46
+
+    ; Enable playfield at end of scanline
+    lda #COL_BG
+    sta COLUPF
+
     ASSERT_RUNTIME "_scycles == #0"
 
 ; [scanline 3]
 row_3:
     jet_spritedata_calc
-
-    ; Enable playfield
-    lda #COL_BG
-    sta COLUPF
 
     ; Set stack pointer and populate graphics.
     ldx #$f9
@@ -82,8 +83,13 @@ row_3:
     KERNEL_LOAD_PLAYER
     stx $fd
 
-    ; Jump immediately into scanlines 4-5: the gem kernel
-    sleep 2
+    ; Idle.
+    sleep 3
+
+; [scanlines 4-5]
+    ; We jump immediately into scanlines 4-5, the "gem kernel"
+    ldx #%00000110
+    ldy #%01100110
     ASSERT_RUNTIME "_scycles == #73"
     jmp RAMP_KERNEL_R
 

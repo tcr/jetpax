@@ -29,6 +29,8 @@ ROW_DEMO_INDEX byte
 
 KERNEL_TEMP_A byte
 
+RamCurrentKernel byte
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ROW_COUNT = 16

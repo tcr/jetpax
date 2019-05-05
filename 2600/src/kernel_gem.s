@@ -30,26 +30,24 @@ kernel_1_start: subroutine
     rorg $f100
 
 Kernel1: subroutine
-    ASSERT_RUNTIME "sp == $f9"
-
-    ; this sleep first make this distinct from Kernel B in debugger, lol
-    sleep 3
+    ; ASSERT_RUNTIME "sp == $f9"
+    ; ASSERT_RUNTIME "RamCurrentKernel != #1 || _scycles == #22"
 
     ; Load next Player sprite
     pla
     sta GRP0
 
-KernelA_TEST:
-    lda #%01100000
-    ldx #%00000110
-    ldy #%01100110
+    ; this sleep first make this distinct from Kernel B in debugger, lol
+    sleep 7
+
+    lda #%10100000 ; Side borders (TODO: make asymmetrical)
 
     sta EMERALD_MI_ENABLE ;disable
 
     sty EMERALD_SP
 
     ; 22c is critical start of precise GRP0 timing for Kernel A
-    ASSERT_RUNTIME "_scycles == #22"
+    ASSERT_RUNTIME "RamCurrentKernel != #1 || _scycles == #22"
 KernelA_A:
     sta EMERALD_SP_RESET
 KernelA_B:
@@ -67,9 +65,9 @@ KernelA_G:
 KernelA_H:
     sty EMERALD_SP
 KernelA_I:
-    sta EMERALD_SP_RESET
+    stx EMERALD_SP_RESET
 KernelA_J:
-    sleep 3  ; two bytes; will write sta PF1
+    sta PF1 ; Write asynchronous playfield
 KernelA_K:
     sty EMERALD_SP
 KernelA_L:
@@ -84,7 +82,7 @@ KernelA_P:
     sleep 3
 
     ; 6c
-    ASSERT_RUNTIME "_scycles == #70"
+    ASSERT_RUNTIME "RamCurrentKernel != #1 || _scycles == #70"
     rts
 
     rend
@@ -100,7 +98,6 @@ kernel_2_start: subroutine
     rorg $f100
 
 Kernel2: subroutine
-    ASSERT_RUNTIME "sp == $f9"
     ; Assert: M1 is at position #61
     
     ; don't sleep first to make this distinct from Kernel A in debugger, lol
@@ -122,7 +119,7 @@ Kernel2: subroutine
     sty EMERALD_SP
 
     ; 25c is critical start of precise GRP0 timing for Kernel B
-    ASSERT_RUNTIME "_scycles == #25"
+    ASSERT_RUNTIME "RamCurrentKernel != #2 || _scycles == #25"
 KernelB_A:
     sta EMERALD_SP_RESET
 KernelB_B:
@@ -155,7 +152,7 @@ KernelB_O:
     sleep 3
 
     ; 6c
-    ASSERT_RUNTIME "_scycles == #70"
+    ASSERT_RUNTIME "RamCurrentKernel != #2 || _scycles == #70"
     rts
 
     rend
