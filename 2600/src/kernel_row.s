@@ -78,17 +78,17 @@ row_2:
 row_3:
     jet_spritedata_calc
 
-    ; Set stack pointer and populate graphics.
-    ldx #$f9
+    ; Set stack pointer.
+    ldx #$fb
     txs
+    ; Pre-populate graphics.
+    ; REFACTOR remove use of the _temp variable?
     lda #SPRITE_HEIGHT
     KERNEL_LOAD_PLAYER
-    stx $fa
+    stx RamKernelGRP0_temp
     KERNEL_LOAD_PLAYER
-    stx $fd
-
-    ; Idle.
-    sleep 3
+    stx RamKernelGRP0
+    lda RamKernelGRP0_temp ; Load sprite 2 into A
 
 ; [scanlines 4-5]
     ; We jump immediately into scanlines 4-5, the "gem kernel"

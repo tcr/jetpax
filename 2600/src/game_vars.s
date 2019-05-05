@@ -32,6 +32,8 @@ KERNEL_TEMP_A byte
 RamCurrentKernel byte
 
 RamPF1Value byte
+RamKernelGRP0 byte
+RamKernelGRP0_temp byte
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

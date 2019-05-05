@@ -35,21 +35,22 @@ Kernel1: subroutine
 
     ; To disable VDELP0, we use the Y register %01100110, which has D0 always 0
 
-    ; Register config
-    lda #$01
-    sta EMERALD_MI_ENABLE ; disable missile
-    stx.w VDELP1 ; enable delayed sprite TODO: save the extra cycle here
-
     ; Write Gemini 0A into delayed sprite register
     sty EMERALD_SP
 
     ; Pop Player sprite from stack
     ; By writing into GRP0, we copy Gemini 0A into visible sprite register
-    pla
-    sta GRP0
+    sta GRP0 ; store from A
 
     ; Write Gemini 1A into delayed sprite register
     sty EMERALD_SP
+
+    sleep 4
+
+    ; Register config
+    lda #$01
+    sta EMERALD_MI_ENABLE ; disable missile
+    stx.w VDELP1 ; enable delayed sprite TODO: save the extra cycle here
 
     ; 22c is critical start of precise GRP0 timing for Kernel A
     ASSERT_RUNTIME "RamCurrentKernel != #1 || _scycles == #22"
@@ -93,7 +94,9 @@ KernelA_N:
 KernelA_O:
     sleep 3
 KernelA_P:
-    sleep 3
+    lda RamKernelGRP0
+
+    ; TODO load next line's GRP1
 
     ; 6c
     ASSERT_RUNTIME "RamCurrentKernel != #1 || _scycles == #70"
@@ -117,10 +120,9 @@ Kernel2: subroutine
     ; don't sleep first to make this distinct from Kernel A in debugger, lol
 
     ; Load next Player sprite
-    pla
     sta GRP0
     
-    sleep 4
+    sleep 8
 
 
     ldx #%00001100
@@ -167,7 +169,7 @@ KernelB_M:
 KernelB_N:
     sleep 3
 KernelB_O:
-    sleep 3
+    lda RamKernelGRP0
 
     ; 6c
     ASSERT_RUNTIME "RamCurrentKernel != #2 || _scycles == #70"

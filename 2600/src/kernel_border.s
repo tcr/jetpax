@@ -58,15 +58,11 @@ border_top:
     pha ; $ff
     lda #<[row_after_kernel - 1] ; exit gem kernel
     pha ; $fe
-    lda #%0 ; GRP0 B
-    pha ; $fd
     lda #>[$1100 - 1]
-    pha ; $fc
+    pha ; $fd
     lda #<[$1100 - 1] ; repeat gem kernel once
-    pha ; $fb
-    lda #%0 ; GRP0 A
-    pha ; $fa
-    ASSERT_RUNTIME "sp == $f9"
+    pha ; $fc
+    ASSERT_RUNTIME "sp == $fb"
 
     sta WSYNC
     ; sta COLUPF
