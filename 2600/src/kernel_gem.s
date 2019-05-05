@@ -33,48 +33,50 @@ Kernel1: subroutine
     ; ASSERT_RUNTIME "sp == $f9"
     ; ASSERT_RUNTIME "RamCurrentKernel != #1 || _scycles == #22"
 
-    ; Load next Player sprite
+    ; Register config
+    lda #$01
+    sta EMERALD_MI_ENABLE ; disable missile
+    stx.w VDELP1 ; enable delayed sprite
+
+    ; Write Gemini 0 into delayed sprite register
+    sty EMERALD_SP
+
+    ; Pop Player sprite from stack
+    ; By writing into GRP0, we copy Gemini 0 into visible sprite register
     pla
     sta GRP0
 
-    ; Load playfield image
-    lda #%10100000
-
-    ; this sleep first make this distinct from Kernel B in debugger, lol
-    sleep 7
-
-    sta EMERALD_MI_ENABLE ;disable
-
+    ; Write Gemini 1 into delayed sprite register
     sty EMERALD_SP
 
     ; 22c is critical start of precise GRP0 timing for Kernel A
     ASSERT_RUNTIME "RamCurrentKernel != #1 || _scycles == #22"
 KernelA_A:
-    sta EMERALD_SP_RESET
+    sta EMERALD_SP_RESET ; RESPx must be strobed on cycle 25c.
 KernelA_B:
-    sleep 3
+    sleep 4 ; less 1 because of kernel C ...??
 KernelA_C:
-    sleep 3
+    lda #%10100000 ; Load PF1 (TODO asymmetrical playfield) TODO from reg
 KernelA_D:
-    sty EMERALD_SP
+    sty EMERALD_SP ; Gemini 2
 KernelA_E:
-    sta EMERALD_SP_RESET
+    sta EMERALD_SP_RESET ; Reset "medium close" NUSIZ repetition
 KernelA_F:
-    stx EMERALD_MI_ENABLE
+    stx EMERALD_MI_ENABLE ; Enable the missile 
 KernelA_G:
-    sty EMERALD_SP
+    sty EMERALD_SP ; Gemini 3
 KernelA_H:
-    sty EMERALD_SP
+    sty EMERALD_SP ; Gemini 4
 KernelA_I:
-    stx EMERALD_SP_RESET
+    stx EMERALD_SP_RESET ; Reset "medium close" NUSIZ repetition
 KernelA_J:
-    sta PF1 ; Write asynchronous playfield
+    sta PF1 ; Write asymmetrical playfield register
 KernelA_K:
-    sty EMERALD_SP
+    sty EMERALD_SP ; Gemini 5
 KernelA_L:
-    sleep 3
+    sleep 3 ; free
 KernelA_M:
-    sty EMERALD_SP
+    sty EMERALD_SP ; Gemini 6
 KernelA_N:
     sleep 3
 KernelA_O:
