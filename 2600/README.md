@@ -114,11 +114,7 @@ Blanking out gem4:
 
 Blanking out gem6:
 
-* Cursed
-* KernelA_I shortens to two cycles, to load int A the value for Gems 22-23
-* K is replaced by the reset in I
-* L is replaced with "sleep 4" (how?)
-* M will always store STA
+See asm-conversion.txt
 
 That's how blanking works.
 

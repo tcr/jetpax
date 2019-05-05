@@ -1,21 +1,5 @@
 ; Game Initialization after power on or reset
 
-    mac NIBBLE_START_KERNEL
-    endm
-    mac NIBBLE_IF
-        ror
-    endm
-    mac NIBBLE_WRITE
-    endm
-    mac NIBBLE_WRITE_OPCODE
-    endm
-    mac NIBBLE_ELSE
-    endm
-    mac NIBBLE_END_IF
-    endm
-    mac NIBBLE_END_KERNEL
-    endm
-
 Start:
     CLEAN_START
 

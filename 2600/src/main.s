@@ -1,5 +1,22 @@
     processor 6502
 
+    ; Nibble null methods
+    mac NIBBLE_START_KERNEL
+    endm
+    mac NIBBLE_IF
+        ror
+    endm
+    mac NIBBLE_WRITE
+    endm
+    mac NIBBLE_WRITE_OPCODE
+    endm
+    mac NIBBLE_ELSE
+    endm
+    mac NIBBLE_END_IF
+    endm
+    mac NIBBLE_END_KERNEL
+    endm
+
     ; Dynamic, runtime (Stella) assertions for "make debug"
     mac ASSERT_RUNTIME
 .COND SET {1}
@@ -33,7 +50,7 @@
     include "xmacro.h"
 
     ; RAM and constants
-    include "vars.s"
+    include "game_vars.s"
 
     ; Bank 1
     seg CodeBank1
@@ -86,11 +103,11 @@ Bank3Start:
     jmp Start
 
     ; Bank 3 source code
-    include "init.s"
-    include "loader.s"
+    include "game_init.s"
+    include "kernel_loader.s"
     include "nibble.s"
-    include "frame.s"
-    include "input.s"
+    include "game_frame.s"
+    include "game_input.s"
     include "kernel_border.s"
     include "kernel_row.s"
     include "kernel_gem.s"
