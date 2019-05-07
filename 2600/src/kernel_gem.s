@@ -30,14 +30,14 @@ kernel_1_start: subroutine
     rorg $f100
 
     ; Kernel Marker
-    .byte $01
+    .byte $A
 
 KernelA_early:
     lda #44
 
 Kernel1: subroutine
     ; ASSERT_RUNTIME "sp == $f9"
-    ; ASSERT_RUNTIME "RamCurrentKernel != #1 || _scycles == #22"
+    ASSERT_RUNTIME_KERNEL $A, "_scycles == 22"
 
     ; To disable VDELP0, we use the Y register %01100110, which has D0 always 0
 
@@ -57,7 +57,7 @@ Kernel1: subroutine
     stx.w VDELP1 ; enable delayed sprite TODO: save the extra cycle here
 
     ; 22c is critical start of precise GRP0 timing for Kernel A
-    ASSERT_RUNTIME "RamCurrentKernel != #1 || _scycles == #22"
+    ASSERT_RUNTIME_KERNEL $A, "_scycles == 22"
 KernelA_A:
     sta EMERALD_SP_RESET ; RESPx must be strobed on cycle 25c.
 KernelA_B:
@@ -95,12 +95,13 @@ KernelA_M:
     sty EMERALD_SP ; Gemini 5A
 KernelA_N:
     sleep 2
+
 KernelA_O:
-    pla
+    pla ; reset stack pointer
 
     ; 7c
 KernelA_branch:
-    ASSERT_RUNTIME "*RamCurrentKernel != #1 || _scycles == #70"
+    ASSERT_RUNTIME_KERNEL $A, "_scycles == 70"
     lda INTIM
     bne KernelA_early
 
@@ -119,7 +120,7 @@ kernel_2_start: subroutine
     rorg $f100
 
     ; Kernel Marker
-    .byte $02
+    .byte $B
 
 KernelB_early:
     lda #44
@@ -145,7 +146,7 @@ Kernel2: subroutine
     sty EMERALD_SP
 
     ; 25c is critical start of precise GRP0 timing for Kernel B
-    ASSERT_RUNTIME "RamCurrentKernel != #2 || _scycles == #25"
+    ASSERT_RUNTIME_KERNEL $B, "_scycles == 25"
 KernelB_A:
     sta EMERALD_SP_RESET
 KernelB_B:
@@ -181,7 +182,7 @@ KernelB_N:
 
     ; 7c
 KernelB_branch:
-    ASSERT_RUNTIME "*RamCurrentKernel != #2 || _scycles == #67"
+    ASSERT_RUNTIME_KERNEL $B, "_scycles == #67"
     lda INTIM
     bne KernelB_early
 

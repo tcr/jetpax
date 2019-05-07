@@ -23,6 +23,14 @@
     echo "ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
     endm
 
+
+    ; Dynamic, runtime (Stella) assertions for "make debug"
+    mac ASSERT_RUNTIME_KERNEL
+.KERNEL SET {1}
+.COND SET {2}
+    echo "ASSERT:", "breakif { pc==", ., " && !( ( *$f100 == #", .KERNEL, " ) && ( ", .COND, " ) ) }"
+    endm
+
     ; Static assertions for size
     mac ASSERT_SIZE
 .STARTA SET {1}

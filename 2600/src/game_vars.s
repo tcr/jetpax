@@ -29,8 +29,6 @@ ROW_DEMO_INDEX byte
 
 KERNEL_TEMP_A byte
 
-RamCurrentKernel    byte
-
 RamPF1Value         byte
 RamKernelGRP0       byte ; temp
 RamStackBkp         byte
