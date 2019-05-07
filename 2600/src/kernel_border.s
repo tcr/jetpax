@@ -58,9 +58,9 @@ border_top:
     pha ; $ff
     lda #<[row_after_kernel - 1] ; exit gem kernel
     pha ; $fe
-    lda #>[$1100 - 1]
+    lda #>[CBSRAM_KERNEL_ENTRY - 1]
     pha ; $fd
-    lda #<[$1100 - 1] ; repeat gem kernel once
+    lda #<[CBSRAM_KERNEL_ENTRY - 1] ; repeat gem kernel once
     pha ; $fc
     ASSERT_RUNTIME "sp == $fb"
 

@@ -47,10 +47,12 @@ row_1:
     ; Nibble VM.
     ; lda KERNEL_TEMP_A
     ; NIBBLE_gem_kernel
-    sta WSYNC
+    ; sta WSYNC
 
-    ; sleep 46
-    ; ASSERT_RUNTIME "_scycles == #0"
+    ; Nibble VM.
+    sleep 46
+
+    ASSERT_RUNTIME "_scycles == #0"
 
 ; [scanline 2]
 row_2:
@@ -61,7 +63,7 @@ row_2:
     lda #0
     sta COLUPF
 
-    ; Idle.
+    ; Nibble VM.
     sleep 41
 
     ; Load PF1 value
@@ -95,7 +97,7 @@ row_3:
     ldx #%00000110
     ldy #%01100110
     ASSERT_RUNTIME "_scycles == #73"
-    jmp RAMP_KERNEL_R
+    jmp CBSRAM_KERNEL_ENTRY
 
 ; [scanline 6]
 

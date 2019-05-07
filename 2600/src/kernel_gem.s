@@ -29,6 +29,8 @@
 kernel_1_start: subroutine
     rorg $f100
 
+    .byte $01, $01, $01, $01
+
 Kernel1: subroutine
     ; ASSERT_RUNTIME "sp == $f9"
     ; ASSERT_RUNTIME "RamCurrentKernel != #1 || _scycles == #22"
@@ -37,11 +39,9 @@ Kernel1: subroutine
 
     ; Write Gemini 0A into delayed sprite register
     sty EMERALD_SP
-
-    ; Pop Player sprite from stack
-    ; By writing into GRP0, we copy Gemini 0A into visible sprite register
-    sta GRP0 ; store from A
-
+    ; Write Player from accumulator. When writing to the other sprite, the
+    ; TIA will copy Gemini 0A into visible sprite register
+    sta JET_SP
     ; Write Gemini 1A into delayed sprite register
     sty EMERALD_SP
 
@@ -113,6 +113,8 @@ kernel_1_end:
 
 kernel_2_start: subroutine
     rorg $f100
+
+    .byte $02, $02, $02, $02
 
 Kernel2: subroutine
     ; Assert: M1 is at position #61
