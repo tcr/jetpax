@@ -50,8 +50,9 @@ row_1:
     ; sta WSYNC
 
     ; Nibble VM.
-    sleep 46
+    sleep 42
 
+    ; Set stack pointer for PHP use.
     ldx #RESP1
     txs
 

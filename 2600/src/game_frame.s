@@ -49,7 +49,6 @@ VerticalBlank: subroutine
     sbc YPos
     sta SpriteEnd
 
-
     ; Player 1
     lda XPos
     ldx #0
@@ -127,6 +126,10 @@ VerticalBlankEnd:
     TIMER_WAIT
     ASSERT_RUNTIME "_scan == #37"
 
+    ; Save stack pointer
+    tsx
+    stx RamStackBkp
+
     ; Start rendering the kernel.
     jmp KernelBorder
 
@@ -149,7 +152,11 @@ FrameEnd: subroutine
     lda #$00
     sta COLUBK
 
-    ; TODO Should a timer be necessary for ending the graphics kernel?
+    ; Restore stack pointer
+    ldx RamStackBkp
+    txs
+
+    ; Display the rest of the blank screen.
     TIMER_SETUP 25
     sta WSYNC
     TIMER_WAIT

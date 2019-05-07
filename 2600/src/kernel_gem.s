@@ -82,7 +82,7 @@ KernelA_H:
 
 ; RST4 vvv
 KernelA_I:
-    stx EMERALD_SP_RESET ; Reset "medium close" NUSIZ repetition
+    php ; Reset "medium close" NUSIZ repetition
 KernelA_J: ; unchanging
     sta PF1 ; Write asymmetrical playfield register
 KernelA_K:
@@ -94,9 +94,9 @@ KernelA_L:
 KernelA_M:
     sty EMERALD_SP ; Gemini 5A
 KernelA_N:
-    sleep 3
+    sleep 2
 KernelA_O:
-    sleep 3
+    pla
 
     ; 7c
 KernelA_branch:

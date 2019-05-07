@@ -33,6 +33,7 @@ RamCurrentKernel    byte
 
 RamPF1Value         byte
 RamKernelGRP0       byte ; temp
+RamStackBkp         byte
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
