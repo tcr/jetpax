@@ -40,7 +40,7 @@ KernelA: subroutine
     ; ASSERT_RUNTIME "sp == $f9"
     ASSERT_RUNTIME_KERNEL $A, "_scycles == #0"
 
-    ; To disable VDELP0, we use the Y register %01100110, which has D0 always 0
+    ; VDELP0: to write 0, we use the Y register %01100110, which has D0 always 0
 
     ; Write Gemini 0A into delayed sprite register
     sty EMERALD_SP
@@ -50,12 +50,12 @@ KernelA: subroutine
     ; Write Gemini 1A into delayed sprite register
     sty EMERALD_SP
 
-    sleep 4
+    sleep 5
 
     ; Register config
     lda #$01
     sta EMERALD_MI_ENABLE ; disable missile
-    stx.w VDELP1 ; enable delayed sprite TODO: save the extra cycle here
+    stx VDELP1 ; enable delayed sprite
 
     ; 22c is critical start of precise GRP0 timing for Kernel A
     ASSERT_RUNTIME_KERNEL $A, "_scycles == #22"
@@ -129,24 +129,27 @@ KernelB_early:
     lda #$ff
 
 KernelB: subroutine
-    ; Load next Player sprite
-    sta GRP0
+    ; VDELP0: to write 0, we use the Y register %01100110, which has D0 always 0
 
     ldx #%00000011
     ldy #%00110011
 
-    lda #02
-    sta EMERALD_MI_ENABLE ; Enable missile
-
-    lda #%11000000
+    ; Write Gemini 0A into delayed sprite register
+    sty.w EMERALD_SP
+    ; Write Player from accumulator. When writing to the other sprite, the
+    ; TIA will copy Gemini 0A into visible sprite register
+    sta JET_SP
+    ; Write Gemini 1A into delayed sprite register
     sty EMERALD_SP
 
+    stx EMERALD_MI_ENABLE ; Enable missile
+
     ; Playfield
-    lda #%01100000
+    lda RamPF1Value
 
     ; Php setup
     sec
-    bit.w RamZeroByte
+    bit RamZeroByte
     ; clc
     ; bit.w RamLowerSixByte
 
@@ -164,7 +167,7 @@ KernelB_E:
     sta EMERALD_SP_RESET
 KernelB_F:
     sty EMERALD_SP
-KernelB_G: ; PF1
+KernelB_G:
     sta PF1
 
 ; below has one php load (could just be RESET)
@@ -173,7 +176,7 @@ KernelB_H:
 KernelB_I:
     sta EMERALD_SP_RESET
 KernelB_J:
-    sleep 3 ; Gemini 4B
+    sty EMERALD_SP ; Gemini 4B
 KernelB_K:
     sta EMERALD_MI_ENABLE
 KernelB_L:
