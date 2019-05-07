@@ -1,24 +1,38 @@
 NIBBLE_gem_kernel_OPCODE_1:
-    lda #%011000110
-    ASSERT_SIZE_EXACT NIBBLE_gem_kernel_OPCODE_1, ., 2
+    php
+    ASSERT_SIZE_EXACT NIBBLE_gem_kernel_OPCODE_1, ., 1
 NIBBLE_gem_kernel_OPCODE_2:
-    lda #%000000000
+    sta EMERALD_SP_RESET
     ASSERT_SIZE_EXACT NIBBLE_gem_kernel_OPCODE_2, ., 2
+NIBBLE_gem_kernel_OPCODE_3:
+    sty VDELP1
+    ASSERT_SIZE_EXACT NIBBLE_gem_kernel_OPCODE_3, ., 2
+NIBBLE_gem_kernel_OPCODE_4:
+    php
+    ASSERT_SIZE_EXACT NIBBLE_gem_kernel_OPCODE_4, ., 1
 
     MAC NIBBLE_gem_kernel
 .if_1:
     asl
-    bcc .else_1
+    bcc .endif_1
+.if_2:
+    asl
+    bcc .else_2
     ldx [NIBBLE_gem_kernel_OPCODE_1 + 0]
-    stx [[KernelA_TEST - $100] + 0]
-    ldx [NIBBLE_gem_kernel_OPCODE_1 + 1]
-    stx [[KernelA_TEST - $100] + 1]
-    jmp .endif_1
-.else_1:
+    stx [[KernelB_D - $100 + 0] + 0]
     ldx [NIBBLE_gem_kernel_OPCODE_2 + 0]
-    stx [[KernelA_TEST - $100] + 0]
+    stx [[KernelB_D - $100 + 1] + 0]
     ldx [NIBBLE_gem_kernel_OPCODE_2 + 1]
-    stx [[KernelA_TEST - $100] + 1]
+    stx [[KernelB_D - $100 + 1] + 1]
+    jmp .endif_2
+.else_2:
+    ldx [NIBBLE_gem_kernel_OPCODE_3 + 0]
+    stx [[KernelB_D - $100 + 0] + 0]
+    ldx [NIBBLE_gem_kernel_OPCODE_3 + 1]
+    stx [[KernelB_D - $100 + 0] + 1]
+    ldx [NIBBLE_gem_kernel_OPCODE_4 + 0]
+    stx [[KernelB_D - $100 + 2] + 0]
+.endif_2:
 .endif_1:
     ENDM
 

@@ -5,12 +5,17 @@ use std::fmt::Write;
 
 const INPUT: &str = r#"
     NIBBLE_START_KERNEL gem_kernel, 40
-        ldx level_00
-        cpx #%11000000
-        NIBBLE_IF cs
-            NIBBLE_WRITE_OPCODE [KernelA_TEST - $100], 2, lda #%011000110
-        NIBBLE_ELSE
-            NIBBLE_WRITE_OPCODE [KernelA_TEST - $100], 2, lda #%000000000
+        lda #01
+        and FrameCount
+        cmp #01
+        NIBBLE_IF cs 
+            NIBBLE_IF cs
+                NIBBLE_WRITE_OPCODE [KernelB_D - $100 + 0], 1, php
+                NIBBLE_WRITE_OPCODE [KernelB_D - $100 + 1], 2, sta EMERALD_SP_RESET
+            NIBBLE_ELSE
+                NIBBLE_WRITE_OPCODE [KernelB_D - $100 + 0], 2, sty VDELP1
+                NIBBLE_WRITE_OPCODE [KernelB_D - $100 + 2], 1, php
+            NIBBLE_END_IF
         NIBBLE_END_IF
     NIBBLE_END_KERNEL
 "#;
@@ -49,6 +54,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         let parsed = if let Some(m) = re_nibble_start_kernel.captures(&line) {
             Parse::NibbleStartKernel(m[1].to_string(), m[2].parse()?)
         } else if let Some(m) = re_nibble_if.captures(&line) {
+            // Limitation for now until client NIBBLE_IF code figured out
             assert_eq!(&m[1], "cs");
             Parse::NibbleIf(m[1].to_string())
         } else if let Some(_) = re_nibble_else.captures(&line) {

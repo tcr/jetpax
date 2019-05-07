@@ -27,10 +27,9 @@ JMP_ADDR_2 byte
 
 ROW_DEMO_INDEX byte
 
-KERNEL_TEMP_A byte
-
+RamNibbleVar1       byte
 RamZeroByte         byte
-RamLowerSixByte         byte
+RamLowerSixByte     byte
 RamPF1Value         byte
 RamKernelGRP0       byte ; temp
 RamStackBkp         byte

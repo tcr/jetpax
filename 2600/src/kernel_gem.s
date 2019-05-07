@@ -37,10 +37,7 @@ KernelA_early:
     lda #$ff
 
 KernelA: subroutine
-    ; ASSERT_RUNTIME "sp == $f9"
     ASSERT_RUNTIME_KERNEL $A, "_scycles == #0"
-
-    ; VDELP0: to write 0, we use the Y register %01100110, which has D0 always 0
 
     ; Write Gemini 0A into delayed sprite register
     sty EMERALD_SP
@@ -130,7 +127,7 @@ KernelB_early:
     lda #$ff
 
 KernelB: subroutine
-    ; VDELP0: to write 0, we use the Y register %01100110, which has D0 always 0
+    ASSERT_RUNTIME_KERNEL $B, "_scycles == #0"
 
     ; Write Gemini 0A into delayed sprite register
     sty EMERALD_SP
@@ -144,9 +141,8 @@ KernelB: subroutine
     lda #$ff
     sta EMERALD_MI_ENABLE ; enable missile
     sta VDELP1 ; enable delayed sprite
-    ; sleep 3
 
-    ; Playfield
+    ; Load PF1 value into accumulator
     lda RamPF1Value
 
     ; Clear bits in processor status register for drawing.
@@ -161,7 +157,8 @@ KernelB_B:
 KernelB_C:
 KernelB_D:
     sleep 4
-    .byte $9F, VDELP1-%00110011, $00 ; this has to get computed or somethinng
+    ; set D0 = 0 without using a register
+    asl VDELP1
 KernelB_E:
     sta EMERALD_SP_RESET
 KernelB_F:
