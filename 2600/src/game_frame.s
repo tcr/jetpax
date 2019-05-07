@@ -83,6 +83,12 @@ frame_setup_kernel_a: subroutine
     lda #RESP1
     sta RamKernelPhpTarget
 
+    ; Kernel: Set X register.
+    lda #%00000110
+    sta RamKernelX
+    lda #%01100110
+    sta RamKernelY
+
     jmp frame_setup_complete
 
 frame_setup_kernel_b: subroutine
@@ -107,6 +113,12 @@ frame_setup_kernel_b: subroutine
     ; Kernel: Set target of PHP instruction.
     lda #GRP1
     sta RamKernelPhpTarget
+
+    ; Kernel: Set X register.
+    lda #%00000011
+    sta RamKernelX
+    lda #%00110011
+    sta RamKernelY
 
 frame_setup_complete:
 

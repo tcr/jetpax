@@ -456,8 +456,8 @@
      60  0000 ????						; RAM and constants
 ------- FILE game_vars.s LEVEL 2 PASS 2
       0  0000 ????				      include	"game_vars.s"
-      1 U0096 ????				      seg.u	Variables
-      2 U0096 ????
+      1 U0098 ????				      seg.u	Variables
+      2 U0098 ????
       3 U0080					      org	$80
       4 U0080
       5 U0080		       00	   Temp       byte.b
@@ -493,77 +493,79 @@
      35 U0093		       00	   RamKernelGRP0 byte.b		; temp
      36 U0094		       00	   RamStackBkp byte.b
      37 U0095		       00	   RamKernelPhpTarget byte.b
-     38 U0096
-     39 U0096							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-     40 U0096
-     41 U0096		       00 10	   ROW_COUNT  =	16
-     42 U0096
-     43 U0096		       00 02	   SIGNAL_LINE =	$02
-     44 U0096
-     45 U0096							; RAM+ memory map
-     46 U0096		       f0 00	   CBSRAM_KERNEL_WRITE =	$f000
-     47 U0096		       f1 00	   CBSRAM_KERNEL_READ =	$f100
-     48 U0096		       f1 03	   CBSRAM_KERNEL_ENTRY =	[CBSRAM_KERNEL_READ + 3]
-     49 U0096
-     50 U0096		       f0 40	   RAMP_STORAGE_W =	$f040	; is this just max(frame_1_end, frame_2_end) ?
-     51 U0096		       f1 40	   RAMP_STORAGE_R =	$f140
-     52 U0096
-     53 U0096							; NUSIZ values
-     54 U0096
-     55 U0096		       00 13	   THREE_COPIES =	%00010011
-     56 U0096
-     57 U0096							; Colors
-     58 U0096
-     59 U0096		       00 42	   COL_BG     equ	$42
-     60 U0096		       00 cc	   COL_EMERALD equ	$CC
-     61 U0096		       00 cc	   COL_EMERALD_2 equ	$CC
-     62 U0096
-     63 U0096							; HMOVE values for missiles
-     64 U0096
-     65 U0096		       00 1c	   KERNEL_A_MISSILE_SLEEP equ	28
-     66 U0096		       00 00	   KERNEL_A_MISSILE_HMOVE equ	$00
-     67 U0096
-     68 U0096		       00 33	   KERNEL_B_MISSILE_SLEEP equ	51
-     69 U0096		       00 10	   KERNEL_B_MISSILE_HMOVE equ	$10
-     70 U0096
-     71 U0096							; Sprite details
-     72 U0096
-     73 U0096		       00 09	   SPRITE_HEIGHT equ	9
-     74 U0096
-     75 U0096		       00 07	   EMERALD_SP_COLOR equ	COLUP1
-     76 U0096		       00 1c	   EMERALD_SP equ	GRP1
-     77 U0096		       00 1e	   EMERALD_MI_ENABLE equ	ENAM1
-     78 U0096		       00 11	   EMERALD_SP_RESET equ	RESP1
-     79 U0096		       00 13	   EMERALD_MI_RESET equ	RESM1
-     80 U0096		       00 21	   EMERALD_SP_HMOVE equ	HMP1
-     81 U0096		       00 23	   EMERALD_MI_HMOVE equ	HMM1
-     82 U0096		       00 05	   EMERALD_COPIES equ	NUSIZ1
-     83 U0096
-     84 U0096		       00 1b	   JET_SP     equ	GRP0
-     85 U0096		       00 10	   JET_SP_RESET equ	RESP0
-     86 U0096		       00 20	   JET_SP_HMOVE equ	HMP0
-     87 U0096		       00 06	   JET_SP_COLOR equ	COLUP0
-     88 U0096
-     89 U0096							; Spriteend is HEIGHT_OFFSET - YPos
-     90 U0096		       00 c8	   HEIGHT_OFFSET equ	200
-     91 U0096
-     92 U0096							; Compared with YPos
-     93 U0096		       00 3e	   FLOOR_OFFSET equ	62
-     94 U0096		       00 be	   CEILING_OFFSET equ	190
-     95 U0096
-     96 U0096							; Starting player position
-     97 U0096		       00 3e	   YPosStart  equ	62
-     98 U0096		       00 37	   XPosStart  equ	55
-     99 U0096
-    100 U0096							; Top left corner
-    101 U0096							; YPosStart equ 190
-    102 U0096							; XPosStart equ 28
-    103 U0096
-    104 U0096							; Tick (every 8 frames)
-    105 U0096		       00 07	   FrameSkip  equ	%111
+     38 U0096		       00	   RamKernelX byte.b
+     39 U0097		       00	   RamKernelY byte.b
+     40 U0098
+     41 U0098							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+     42 U0098
+     43 U0098		       00 10	   ROW_COUNT  =	16
+     44 U0098
+     45 U0098		       00 02	   SIGNAL_LINE =	$02
+     46 U0098
+     47 U0098							; RAM+ memory map
+     48 U0098		       f0 00	   CBSRAM_KERNEL_WRITE =	$f000
+     49 U0098		       f1 00	   CBSRAM_KERNEL_READ =	$f100
+     50 U0098		       f1 03	   CBSRAM_KERNEL_ENTRY =	[CBSRAM_KERNEL_READ + 3]
+     51 U0098
+     52 U0098		       f0 40	   RAMP_STORAGE_W =	$f040	; is this just max(frame_1_end, frame_2_end) ?
+     53 U0098		       f1 40	   RAMP_STORAGE_R =	$f140
+     54 U0098
+     55 U0098							; NUSIZ values
+     56 U0098
+     57 U0098		       00 13	   THREE_COPIES =	%00010011
+     58 U0098
+     59 U0098							; Colors
+     60 U0098
+     61 U0098		       00 42	   COL_BG     equ	$42
+     62 U0098		       00 cc	   COL_EMERALD equ	$CC
+     63 U0098		       00 cc	   COL_EMERALD_2 equ	$CC
+     64 U0098
+     65 U0098							; HMOVE values for missiles
+     66 U0098
+     67 U0098		       00 1c	   KERNEL_A_MISSILE_SLEEP equ	28
+     68 U0098		       00 00	   KERNEL_A_MISSILE_HMOVE equ	$00
+     69 U0098
+     70 U0098		       00 33	   KERNEL_B_MISSILE_SLEEP equ	51
+     71 U0098		       00 10	   KERNEL_B_MISSILE_HMOVE equ	$10
+     72 U0098
+     73 U0098							; Sprite details
+     74 U0098
+     75 U0098		       00 09	   SPRITE_HEIGHT equ	9
+     76 U0098
+     77 U0098		       00 07	   EMERALD_SP_COLOR equ	COLUP1
+     78 U0098		       00 1c	   EMERALD_SP equ	GRP1
+     79 U0098		       00 1e	   EMERALD_MI_ENABLE equ	ENAM1
+     80 U0098		       00 11	   EMERALD_SP_RESET equ	RESP1
+     81 U0098		       00 13	   EMERALD_MI_RESET equ	RESM1
+     82 U0098		       00 21	   EMERALD_SP_HMOVE equ	HMP1
+     83 U0098		       00 23	   EMERALD_MI_HMOVE equ	HMM1
+     84 U0098		       00 05	   EMERALD_COPIES equ	NUSIZ1
+     85 U0098
+     86 U0098		       00 1b	   JET_SP     equ	GRP0
+     87 U0098		       00 10	   JET_SP_RESET equ	RESP0
+     88 U0098		       00 20	   JET_SP_HMOVE equ	HMP0
+     89 U0098		       00 06	   JET_SP_COLOR equ	COLUP0
+     90 U0098
+     91 U0098							; Spriteend is HEIGHT_OFFSET - YPos
+     92 U0098		       00 c8	   HEIGHT_OFFSET equ	200
+     93 U0098
+     94 U0098							; Compared with YPos
+     95 U0098		       00 3e	   FLOOR_OFFSET equ	62
+     96 U0098		       00 be	   CEILING_OFFSET equ	190
+     97 U0098
+     98 U0098							; Starting player position
+     99 U0098		       00 3e	   YPosStart  equ	62
+    100 U0098		       00 37	   XPosStart  equ	55
+    101 U0098
+    102 U0098							; Top left corner
+    103 U0098							; YPosStart equ 190
+    104 U0098							; XPosStart equ 28
+    105 U0098
+    106 U0098							; Tick (every 8 frames)
+    107 U0098		       00 07	   FrameSkip  equ	%111
 ------- FILE main.s
-     62 U0096
-     63 U0096							; Bank 1
+     62 U0098
+     63 U0098							; Bank 1
      64  e000 ????				      seg	CodeBank1
      65  d000					      org	$D000
      66  d000					      rorg	$F000
@@ -881,13 +883,13 @@
      52  f2ce							; Player 1
      53  f2ce		       a5 86		      lda	XPos
      54  f2d0		       a2 00		      ldx	#0
-     55  f2d2		       20 04 f4 	      jsr	SetHorizPos
+     55  f2d2		       20 14 f4 	      jsr	SetHorizPos
      56  f2d5
      57  f2d5				   frame_setup subroutine
      58  f2d5							; Kernel A or B
      59  f2d5		       a9 01		      lda	#01
      60  f2d7		       25 83		      and	FrameCount
-     61  f2d9		       d0 28		      bne	frame_setup_kernel_b
+     61  f2d9		       d0 30		      bne	frame_setup_kernel_b
      62  f2db
      63  f2db				   frame_setup_kernel_a subroutine
      64  f2db							; Load kernel into CBSRAM
@@ -957,48 +959,38 @@
      83  f2fc		       a9 11		      lda	#RESP1
      84  f2fe		       85 95		      sta	RamKernelPhpTarget
      85  f300
-     86  f300		       4c 34 f3 	      jmp	frame_setup_complete
-     87  f303
-     88  f303				   frame_setup_kernel_b subroutine
-     89  f303							; Load kernel into CBSRAM
-     90  f303		       20 68 f2 	      jsr	LoadKernelB
-     91  f306
-     92  f306							; Move missile
-     93  f306		       85 02		      sta	WSYNC
-      0  f308					      sleep	KERNEL_B_MISSILE_SLEEP
-      1  f308				   .CYCLES    SET	KERNEL_B_MISSILE_SLEEP
-      2  f308
-      3  f308				  -	      IF	.CYCLES < 2
-      4  f308				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  f308				  -	      ERR
-      6  f308					      ENDIF
-      7  f308
-      8  f308					      IF	.CYCLES & 1
-      9  f308					      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f308		       04 00		      nop	0
-     11  f30a				  -	      ELSE
-     12  f30a				  -	      bit	VSYNC
-     13  f30a					      ENDIF
-     14  f30a				   .CYCLES    SET	.CYCLES - 3
-     15  f30a					      ENDIF
-     16  f30a
-     17  f30a					      REPEAT	.CYCLES / 2
-     18  f30a		       ea		      nop
-     17  f30a					      REPEND
-     18  f30b		       ea		      nop
-     17  f30b					      REPEND
-     18  f30c		       ea		      nop
-     17  f30c					      REPEND
-     18  f30d		       ea		      nop
-     17  f30d					      REPEND
-     18  f30e		       ea		      nop
-     17  f30e					      REPEND
-     18  f30f		       ea		      nop
-     17  f30f					      REPEND
-     18  f310		       ea		      nop
-     17  f310					      REPEND
-     18  f311		       ea		      nop
-     17  f311					      REPEND
+     86  f300							; Kernel: Set X register.
+     87  f300		       a9 06		      lda	#%00000110
+     88  f302		       85 96		      sta	RamKernelX
+     89  f304		       a9 66		      lda	#%01100110
+     90  f306		       85 97		      sta	RamKernelY
+     91  f308
+     92  f308		       4c 44 f3 	      jmp	frame_setup_complete
+     93  f30b
+     94  f30b				   frame_setup_kernel_b subroutine
+     95  f30b							; Load kernel into CBSRAM
+     96  f30b		       20 68 f2 	      jsr	LoadKernelB
+     97  f30e
+     98  f30e							; Move missile
+     99  f30e		       85 02		      sta	WSYNC
+      0  f310					      sleep	KERNEL_B_MISSILE_SLEEP
+      1  f310				   .CYCLES    SET	KERNEL_B_MISSILE_SLEEP
+      2  f310
+      3  f310				  -	      IF	.CYCLES < 2
+      4  f310				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  f310				  -	      ERR
+      6  f310					      ENDIF
+      7  f310
+      8  f310					      IF	.CYCLES & 1
+      9  f310					      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f310		       04 00		      nop	0
+     11  f312				  -	      ELSE
+     12  f312				  -	      bit	VSYNC
+     13  f312					      ENDIF
+     14  f312				   .CYCLES    SET	.CYCLES - 3
+     15  f312					      ENDIF
+     16  f312
+     17  f312					      REPEAT	.CYCLES / 2
      18  f312		       ea		      nop
      17  f312					      REPEND
      18  f313		       ea		      nop
@@ -1030,378 +1022,368 @@
      18  f320		       ea		      nop
      17  f320					      REPEND
      18  f321		       ea		      nop
-     19  f322					      REPEND
-     95  f322		       85 13		      sta	EMERALD_MI_RESET
-     96  f324		       a9 10		      lda	#KERNEL_B_MISSILE_HMOVE
-     97  f326		       85 23		      sta	EMERALD_MI_HMOVE
-     98  f328
-     99  f328							; DEBUG: Set per-kernel color
-    100  f328		       a2 e0		      ldx	#$e0
-    101  f32a		       86 07		      stx	EMERALD_SP_COLOR
-    102  f32c
-    103  f32c							; Disable reflection for Jetpack.
-    104  f32c		       a9 ff		      lda	#%11111111
-    105  f32e		       85 0c		      sta	REFP1
-    106  f330
-    107  f330							; Kernel: Set target of PHP instruction.
-    108  f330		       a9 1c		      lda	#GRP1
-    109  f332		       85 95		      sta	RamKernelPhpTarget
-    110  f334
-    111  f334				   frame_setup_complete
-    112  f334
-    113  f334		       ad 7c f7 	      lda	shard_map
-    114  f337		       a0 01		      ldy	#1	; gemini counter, starting at 1
-    115  f339				   gemini_builder
-    116  f339		       c0 01		      cpy	#1	; TODO top two bits of shard_map
-    117  f33b		       d0 00		      bne	.no_vd0
-    118  f33d				   .no_vd0
-    119  f33d
-    120  f33d							; Perform kernel Nibble calculations
-    121  f33d							; lda #$00
-    122  f33d							; NIBBLE_START_KERNEL gem_kernel, 40
-    123  f33d							;     ldx level_00
-    124  f33d							;     cpx #%11000000
-    125  f33d							;     NIBBLE_IF cs
-    126  f33d							;	   NIBBLE_WRITE_OPCODE [KernelA_TEST - $100], 2, lda #%011000110
-    127  f33d							;     NIBBLE_ELSE
-    128  f33d							;	   NIBBLE_WRITE_OPCODE [KernelA_TEST - $100], 2, lda #%000000000
-    129  f33d							;     NIBBLE_END_IF
-    130  f33d							; NIBBLE_END_KERNEL
-    131  f33d							; sta KERNEL_TEMP_A
-    132  f33d
-    133  f33d				   VerticalBlankEnd
-    134  f33d							; Wait until the end of Vertical blank.
-      0  f33d					      TIMER_WAIT
-      1  f33d				   .waittimer
-      2  f33d		       ad 84 02 	      lda	INTIM
-      3  f340		       d0 fb		      bne	.waittimer
-      4  f342		       85 02		      sta	WSYNC
-      0  f344					      ASSERT_RUNTIME	"_scan == #37"
-      1  f344				   .COND      SET	"_scan == #37"
- ASSERT: breakif { pc== $f344  && !(  _scan == #37  ) }
-      2  f344					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
-    137  f344
-    138  f344							; Save stack pointer
-    139  f344		       ba		      tsx
-    140  f345		       86 94		      stx	RamStackBkp
-    141  f347
-    142  f347							; Start rendering the kernel.
-    143  f347		       4c 18 f4 	      jmp	KernelBorder
-    144  f34a
-    145  f34a				   FrameEnd   subroutine
-    146  f34a		       85 02		      sta	WSYNC
-    147  f34c
-    148  f34c							; Blank all background colors.
-    149  f34c		       a9 00		      lda	#0
-    150  f34e		       85 08		      sta	COLUPF
-    151  f350		       85 0f		      sta	PF2
-    152  f352		       85 0e		      sta	PF1
-    153  f354		       85 1c		      sta	EMERALD_SP
-    154  f356
-    155  f356							; Guide lines (2x)
-    156  f356		       a9 02		      lda	#SIGNAL_LINE
-    157  f358		       85 09		      sta	COLUBK
-    158  f35a					      REPEAT	6
-    159  f35a		       85 02		      sta	WSYNC
-    158  f35a					      REPEND
-    159  f35c		       85 02		      sta	WSYNC
-    158  f35c					      REPEND
-    159  f35e		       85 02		      sta	WSYNC
-    158  f35e					      REPEND
-    159  f360		       85 02		      sta	WSYNC
-    158  f360					      REPEND
-    159  f362		       85 02		      sta	WSYNC
-    158  f362					      REPEND
-    159  f364		       85 02		      sta	WSYNC
-    160  f366					      REPEND
-    161  f366		       a9 00		      lda	#$00
-    162  f368		       85 09		      sta	COLUBK
-    163  f36a
-    164  f36a							; Restore stack pointer
-    165  f36a		       a6 94		      ldx	RamStackBkp
-    166  f36c		       9a		      txs
-    167  f36d
-    168  f36d							; Display the rest of the blank screen.
-      0  f36d					      TIMER_SETUP	25
-      1  f36d				   .lines     SET	25
-      2  f36d		       a9 1d		      lda	#(((.lines)*76-14)/64)
-      3  f36f		       85 02		      sta	WSYNC
-      4  f371		       8d 96 02 	      sta	TIM64T
-    170  f374		       85 02		      sta	WSYNC
-      0  f376					      TIMER_WAIT
-      1  f376				   .waittimer
-      2  f376		       ad 84 02 	      lda	INTIM
-      3  f379		       d0 fb		      bne	.waittimer
-      4  f37b		       85 02		      sta	WSYNC
-      0  f37d					      ASSERT_RUNTIME	"_scan == (#37 + #192)"
-      1  f37d				   .COND      SET	"_scan == (#37 + #192)"
- ASSERT: breakif { pc== $f37d  && !(  _scan == (#37 + #192)  ) }
-      2  f37d					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
-    173  f37d
-    174  f37d							; Overscan
-    175  f37d				   Overscan   subroutine
-    176  f37d		       85 01		      sta	VBLANK
-      0  f37f					      TIMER_SETUP	29
-      1  f37f				   .lines     SET	29
-      2  f37f		       a9 22		      lda	#(((.lines)*76-14)/64)
-      3  f381		       85 02		      sta	WSYNC
-      4  f383		       8d 96 02 	      sta	TIM64T
-    178  f386
-    179  f386		       20 96 f3 	      jsr	MoveJoystick
-    180  f389		       20 cd f3 	      jsr	SpeedCalculation
-    181  f38c
-      0  f38c					      TIMER_WAIT
-      1  f38c				   .waittimer
-      2  f38c		       ad 84 02 	      lda	INTIM
-      3  f38f		       d0 fb		      bne	.waittimer
-      4  f391		       85 02		      sta	WSYNC
-      0  f393					      ASSERT_RUNTIME	"_scan == (#37 + #192 + #29)"
-      1  f393				   .COND      SET	"_scan == (#37 + #192 + #29)"
- ASSERT: breakif { pc== $f393  && !(  _scan == (#37 + #192 + #29)  ) }
-      2  f393					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
-    184  f393
-    185  f393		       4c 7e f2 	      jmp	VerticalSync
+     17  f321					      REPEND
+     18  f322		       ea		      nop
+     17  f322					      REPEND
+     18  f323		       ea		      nop
+     17  f323					      REPEND
+     18  f324		       ea		      nop
+     17  f324					      REPEND
+     18  f325		       ea		      nop
+     17  f325					      REPEND
+     18  f326		       ea		      nop
+     17  f326					      REPEND
+     18  f327		       ea		      nop
+     17  f327					      REPEND
+     18  f328		       ea		      nop
+     17  f328					      REPEND
+     18  f329		       ea		      nop
+     19  f32a					      REPEND
+    101  f32a		       85 13		      sta	EMERALD_MI_RESET
+    102  f32c		       a9 10		      lda	#KERNEL_B_MISSILE_HMOVE
+    103  f32e		       85 23		      sta	EMERALD_MI_HMOVE
+    104  f330
+    105  f330							; DEBUG: Set per-kernel color
+    106  f330		       a2 e0		      ldx	#$e0
+    107  f332		       86 07		      stx	EMERALD_SP_COLOR
+    108  f334
+    109  f334							; Disable reflection for Jetpack.
+    110  f334		       a9 ff		      lda	#%11111111
+    111  f336		       85 0c		      sta	REFP1
+    112  f338
+    113  f338							; Kernel: Set target of PHP instruction.
+    114  f338		       a9 1c		      lda	#GRP1
+    115  f33a		       85 95		      sta	RamKernelPhpTarget
+    116  f33c
+    117  f33c							; Kernel: Set X register.
+    118  f33c		       a9 03		      lda	#%00000011
+    119  f33e		       85 96		      sta	RamKernelX
+    120  f340		       a9 33		      lda	#%00110011
+    121  f342		       85 97		      sta	RamKernelY
+    122  f344
+    123  f344				   frame_setup_complete
+    124  f344
+    125  f344		       ad 7c f7 	      lda	shard_map
+    126  f347		       a0 01		      ldy	#1	; gemini counter, starting at 1
+    127  f349				   gemini_builder
+    128  f349		       c0 01		      cpy	#1	; TODO top two bits of shard_map
+    129  f34b		       d0 00		      bne	.no_vd0
+    130  f34d				   .no_vd0
+    131  f34d
+    132  f34d							; Perform kernel Nibble calculations
+    133  f34d							; lda #$00
+    134  f34d							; NIBBLE_START_KERNEL gem_kernel, 40
+    135  f34d							;     ldx level_00
+    136  f34d							;     cpx #%11000000
+    137  f34d							;     NIBBLE_IF cs
+    138  f34d							;	   NIBBLE_WRITE_OPCODE [KernelA_TEST - $100], 2, lda #%011000110
+    139  f34d							;     NIBBLE_ELSE
+    140  f34d							;	   NIBBLE_WRITE_OPCODE [KernelA_TEST - $100], 2, lda #%000000000
+    141  f34d							;     NIBBLE_END_IF
+    142  f34d							; NIBBLE_END_KERNEL
+    143  f34d							; sta KERNEL_TEMP_A
+    144  f34d
+    145  f34d				   VerticalBlankEnd
+    146  f34d							; Wait until the end of Vertical blank.
+      0  f34d					      TIMER_WAIT
+      1  f34d				   .waittimer
+      2  f34d		       ad 84 02 	      lda	INTIM
+      3  f350		       d0 fb		      bne	.waittimer
+      4  f352		       85 02		      sta	WSYNC
+      0  f354					      ASSERT_RUNTIME	"_scan == #37"
+      1  f354				   .COND      SET	"_scan == #37"
+ ASSERT: breakif { pc== $f354  && !(  _scan == #37  ) }
+      2  f354					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
+    149  f354
+    150  f354							; Save stack pointer
+    151  f354		       ba		      tsx
+    152  f355		       86 94		      stx	RamStackBkp
+    153  f357
+    154  f357							; Start rendering the kernel.
+    155  f357		       4c 28 f4 	      jmp	KernelBorder
+    156  f35a
+    157  f35a				   FrameEnd   subroutine
+    158  f35a		       85 02		      sta	WSYNC
+    159  f35c
+    160  f35c							; Blank all background colors.
+    161  f35c		       a9 00		      lda	#0
+    162  f35e		       85 08		      sta	COLUPF
+    163  f360		       85 0f		      sta	PF2
+    164  f362		       85 0e		      sta	PF1
+    165  f364		       85 1c		      sta	EMERALD_SP
+    166  f366
+    167  f366							; Guide lines (2x)
+    168  f366		       a9 02		      lda	#SIGNAL_LINE
+    169  f368		       85 09		      sta	COLUBK
+    170  f36a					      REPEAT	6
+    171  f36a		       85 02		      sta	WSYNC
+    170  f36a					      REPEND
+    171  f36c		       85 02		      sta	WSYNC
+    170  f36c					      REPEND
+    171  f36e		       85 02		      sta	WSYNC
+    170  f36e					      REPEND
+    171  f370		       85 02		      sta	WSYNC
+    170  f370					      REPEND
+    171  f372		       85 02		      sta	WSYNC
+    170  f372					      REPEND
+    171  f374		       85 02		      sta	WSYNC
+    172  f376					      REPEND
+    173  f376		       a9 00		      lda	#$00
+    174  f378		       85 09		      sta	COLUBK
+    175  f37a
+    176  f37a							; Restore stack pointer
+    177  f37a		       a6 94		      ldx	RamStackBkp
+    178  f37c		       9a		      txs
+    179  f37d
+    180  f37d							; Display the rest of the blank screen.
+      0  f37d					      TIMER_SETUP	25
+      1  f37d				   .lines     SET	25
+      2  f37d		       a9 1d		      lda	#(((.lines)*76-14)/64)
+      3  f37f		       85 02		      sta	WSYNC
+      4  f381		       8d 96 02 	      sta	TIM64T
+    182  f384		       85 02		      sta	WSYNC
+      0  f386					      TIMER_WAIT
+      1  f386				   .waittimer
+      2  f386		       ad 84 02 	      lda	INTIM
+      3  f389		       d0 fb		      bne	.waittimer
+      4  f38b		       85 02		      sta	WSYNC
+      0  f38d					      ASSERT_RUNTIME	"_scan == (#37 + #192)"
+      1  f38d				   .COND      SET	"_scan == (#37 + #192)"
+ ASSERT: breakif { pc== $f38d  && !(  _scan == (#37 + #192)  ) }
+      2  f38d					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
+    185  f38d
+    186  f38d							; Overscan
+    187  f38d				   Overscan   subroutine
+    188  f38d		       85 01		      sta	VBLANK
+      0  f38f					      TIMER_SETUP	29
+      1  f38f				   .lines     SET	29
+      2  f38f		       a9 22		      lda	#(((.lines)*76-14)/64)
+      3  f391		       85 02		      sta	WSYNC
+      4  f393		       8d 96 02 	      sta	TIM64T
+    190  f396
+    191  f396		       20 a6 f3 	      jsr	MoveJoystick
+    192  f399		       20 dd f3 	      jsr	SpeedCalculation
+    193  f39c
+      0  f39c					      TIMER_WAIT
+      1  f39c				   .waittimer
+      2  f39c		       ad 84 02 	      lda	INTIM
+      3  f39f		       d0 fb		      bne	.waittimer
+      4  f3a1		       85 02		      sta	WSYNC
+      0  f3a3					      ASSERT_RUNTIME	"_scan == (#37 + #192 + #29)"
+      1  f3a3				   .COND      SET	"_scan == (#37 + #192 + #29)"
+ ASSERT: breakif { pc== $f3a3  && !(  _scan == (#37 + #192 + #29)  ) }
+      2  f3a3					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
+    196  f3a3
+    197  f3a3		       4c 7e f2 	      jmp	VerticalSync
 ------- FILE main.s
 ------- FILE game_input.s LEVEL 2 PASS 2
-      0  f396					      include	"game_input.s"
-      1  f396							; Handles input checking. Called from overscan.
-      2  f396
-      3  f396							; Read joystick movement and apply to object 0
-      4  f396				   MoveJoystick
-      5  f396							; Move vertically
-      6  f396							; (up and down are actually reversed since ypos starts at bottom)
-      7  f396							;     ldx YPos
-      8  f396		       a9 10		      lda	#%00010000	;Up?
-      9  f398		       2c 80 02 	      bit	SWCHA
-     10  f39b		       d0 0d		      bne	SkipMoveUp
-     11  f39d
-     12  f39d		       18		      clc
-     13  f39e		       a5 88		      lda	Speed2
-     14  f3a0		       69 0c		      adc	#12
-     15  f3a2		       85 88		      sta	Speed2
-     16  f3a4		       a5 87		      lda	Speed1
-     17  f3a6		       69 00		      adc	#00
-     18  f3a8		       85 87		      sta	Speed1
-     19  f3aa
-     20  f3aa				   SkipMoveUp
-     21  f3aa		       a6 86		      ldx	XPos
-     22  f3ac
-     23  f3ac							; Only check left/right on odd frames;
-     24  f3ac							; TODO make this just a fractional speed
-     25  f3ac							; rather than dropping frames
-     26  f3ac		       a9 01		      lda	#01
-     27  f3ae		       25 83		      and	FrameCount
-     28  f3b0		       d0 18		      bne	SkipMoveRight
-     29  f3b2
-     30  f3b2
-     31  f3b2							; Move horizontally
-     32  f3b2		       a9 40		      lda	#%01000000	;Left?
-     33  f3b4		       2c 80 02 	      bit	SWCHA
-     34  f3b7		       d0 05		      bne	SkipMoveLeft
-     35  f3b9		       e0 1d		      cpx	#29
-     36  f3bb		       90 01		      bcc	SkipMoveLeft
-     37  f3bd		       ca		      dex
-     38  f3be
-     39  f3be							; Reflect
-     40  f3be							;     lda #$ff
-     41  f3be							;     sta REFP0
-     42  f3be				   SkipMoveLeft
-     43  f3be		       a9 80		      lda	#%10000000	;Right?
-     44  f3c0		       2c 80 02 	      bit	SWCHA
-     45  f3c3		       d0 05		      bne	SkipMoveRight
-     46  f3c5		       e0 80		      cpx	#128
-     47  f3c7		       b0 01		      bcs	SkipMoveRight
-     48  f3c9		       e8		      inx
-     49  f3ca
-     50  f3ca							; Reflect
-     51  f3ca							;     lda #$0
-     52  f3ca							;     sta REFP0
-     53  f3ca				   SkipMoveRight
-     54  f3ca		       86 86		      stx	XPos
-     55  f3cc		       60		      rts
-     56  f3cd
-     57  f3cd
-     58  f3cd				   SpeedCalculation
-     59  f3cd		       38		      sec
-     60  f3ce		       a5 88		      lda	Speed2
-     61  f3d0		       e9 07		      sbc	#7
-     62  f3d2		       85 88		      sta	Speed2
-     63  f3d4		       a5 87		      lda	Speed1
-     64  f3d6		       e9 00		      sbc	#0
-     65  f3d8		       85 87		      sta	Speed1
-     66  f3da
-     67  f3da		       18		      clc
-     68  f3db		       a5 8a		      lda	YPos2
-     69  f3dd		       65 88		      adc	Speed2
-     70  f3df		       85 8a		      sta	YPos2
-     71  f3e1		       a5 89		      lda	YPos
-     72  f3e3		       65 87		      adc	Speed1
-     73  f3e5		       85 89		      sta	YPos
-     74  f3e7
-     75  f3e7		       c9 3e		      cmp	#FLOOR_OFFSET
-     76  f3e9		       b0 0a		      bcs	NewThing2
-     77  f3eb
-     78  f3eb							; Reset to floor
-     79  f3eb		       a9 3e		      lda	#FLOOR_OFFSET
-     80  f3ed		       85 89		      sta	YPos
-     81  f3ef		       a9 00		      lda	#0
-     82  f3f1		       85 87		      sta	Speed1
-     83  f3f3		       85 88		      sta	Speed2
-     84  f3f5				   NewThing2
-     85  f3f5
-     86  f3f5		       c9 be		      cmp	#CEILING_OFFSET
-     87  f3f7		       90 0a		      bcc	.next
-     88  f3f9
-     89  f3f9							; Reset to ceiling
-     90  f3f9		       a9 be		      lda	#CEILING_OFFSET
-     91  f3fb		       85 89		      sta	YPos
-     92  f3fd		       a9 00		      lda	#0
-     93  f3ff		       85 87		      sta	Speed1
-     94  f401		       85 88		      sta	Speed2
-     95  f403				   .next
-     96  f403		       60		      rts
-     97  f404
-     98  f404
-     99  f404
-    100  f404							; Subroutine
-    101  f404				   SetHorizPos
-    102  f404		       85 02		      sta	WSYNC	; start a new line
-    103  f406		       24 00		      bit	0	; waste 3 cycles
-    104  f408		       38		      sec		; set carry flag
-    105  f409				   DivideLoop
-    106  f409		       e9 0f		      sbc	#15	; subtract 15
-    107  f40b		       b0 fc		      bcs	DivideLoop	; branch until negative
-    108  f40d		       49 07		      eor	#7	; calculate fine offset
-    109  f40f		       0a		      asl
-    110  f410		       0a		      asl
-    111  f411		       0a		      asl
-    112  f412		       0a		      asl
-    113  f413		       95 10		      sta	JET_SP_RESET,x	; fix coarse position
-    114  f415		       95 20		      sta	JET_SP_HMOVE,x	; set fine offset
-    115  f417		       60		      rts		; return to caller
+      0  f3a6					      include	"game_input.s"
+      1  f3a6							; Handles input checking. Called from overscan.
+      2  f3a6
+      3  f3a6							; Read joystick movement and apply to object 0
+      4  f3a6				   MoveJoystick
+      5  f3a6							; Move vertically
+      6  f3a6							; (up and down are actually reversed since ypos starts at bottom)
+      7  f3a6							;     ldx YPos
+      8  f3a6		       a9 10		      lda	#%00010000	;Up?
+      9  f3a8		       2c 80 02 	      bit	SWCHA
+     10  f3ab		       d0 0d		      bne	SkipMoveUp
+     11  f3ad
+     12  f3ad		       18		      clc
+     13  f3ae		       a5 88		      lda	Speed2
+     14  f3b0		       69 0c		      adc	#12
+     15  f3b2		       85 88		      sta	Speed2
+     16  f3b4		       a5 87		      lda	Speed1
+     17  f3b6		       69 00		      adc	#00
+     18  f3b8		       85 87		      sta	Speed1
+     19  f3ba
+     20  f3ba				   SkipMoveUp
+     21  f3ba		       a6 86		      ldx	XPos
+     22  f3bc
+     23  f3bc							; Only check left/right on odd frames;
+     24  f3bc							; TODO make this just a fractional speed
+     25  f3bc							; rather than dropping frames
+     26  f3bc		       a9 01		      lda	#01
+     27  f3be		       25 83		      and	FrameCount
+     28  f3c0		       d0 18		      bne	SkipMoveRight
+     29  f3c2
+     30  f3c2
+     31  f3c2							; Move horizontally
+     32  f3c2		       a9 40		      lda	#%01000000	;Left?
+     33  f3c4		       2c 80 02 	      bit	SWCHA
+     34  f3c7		       d0 05		      bne	SkipMoveLeft
+     35  f3c9		       e0 1d		      cpx	#29
+     36  f3cb		       90 01		      bcc	SkipMoveLeft
+     37  f3cd		       ca		      dex
+     38  f3ce
+     39  f3ce							; Reflect
+     40  f3ce							;     lda #$ff
+     41  f3ce							;     sta REFP0
+     42  f3ce				   SkipMoveLeft
+     43  f3ce		       a9 80		      lda	#%10000000	;Right?
+     44  f3d0		       2c 80 02 	      bit	SWCHA
+     45  f3d3		       d0 05		      bne	SkipMoveRight
+     46  f3d5		       e0 80		      cpx	#128
+     47  f3d7		       b0 01		      bcs	SkipMoveRight
+     48  f3d9		       e8		      inx
+     49  f3da
+     50  f3da							; Reflect
+     51  f3da							;     lda #$0
+     52  f3da							;     sta REFP0
+     53  f3da				   SkipMoveRight
+     54  f3da		       86 86		      stx	XPos
+     55  f3dc		       60		      rts
+     56  f3dd
+     57  f3dd
+     58  f3dd				   SpeedCalculation
+     59  f3dd		       38		      sec
+     60  f3de		       a5 88		      lda	Speed2
+     61  f3e0		       e9 07		      sbc	#7
+     62  f3e2		       85 88		      sta	Speed2
+     63  f3e4		       a5 87		      lda	Speed1
+     64  f3e6		       e9 00		      sbc	#0
+     65  f3e8		       85 87		      sta	Speed1
+     66  f3ea
+     67  f3ea		       18		      clc
+     68  f3eb		       a5 8a		      lda	YPos2
+     69  f3ed		       65 88		      adc	Speed2
+     70  f3ef		       85 8a		      sta	YPos2
+     71  f3f1		       a5 89		      lda	YPos
+     72  f3f3		       65 87		      adc	Speed1
+     73  f3f5		       85 89		      sta	YPos
+     74  f3f7
+     75  f3f7		       c9 3e		      cmp	#FLOOR_OFFSET
+     76  f3f9		       b0 0a		      bcs	NewThing2
+     77  f3fb
+     78  f3fb							; Reset to floor
+     79  f3fb		       a9 3e		      lda	#FLOOR_OFFSET
+     80  f3fd		       85 89		      sta	YPos
+     81  f3ff		       a9 00		      lda	#0
+     82  f401		       85 87		      sta	Speed1
+     83  f403		       85 88		      sta	Speed2
+     84  f405				   NewThing2
+     85  f405
+     86  f405		       c9 be		      cmp	#CEILING_OFFSET
+     87  f407		       90 0a		      bcc	.next
+     88  f409
+     89  f409							; Reset to ceiling
+     90  f409		       a9 be		      lda	#CEILING_OFFSET
+     91  f40b		       85 89		      sta	YPos
+     92  f40d		       a9 00		      lda	#0
+     93  f40f		       85 87		      sta	Speed1
+     94  f411		       85 88		      sta	Speed2
+     95  f413				   .next
+     96  f413		       60		      rts
+     97  f414
+     98  f414
+     99  f414
+    100  f414							; Subroutine
+    101  f414				   SetHorizPos
+    102  f414		       85 02		      sta	WSYNC	; start a new line
+    103  f416		       24 00		      bit	0	; waste 3 cycles
+    104  f418		       38		      sec		; set carry flag
+    105  f419				   DivideLoop
+    106  f419		       e9 0f		      sbc	#15	; subtract 15
+    107  f41b		       b0 fc		      bcs	DivideLoop	; branch until negative
+    108  f41d		       49 07		      eor	#7	; calculate fine offset
+    109  f41f		       0a		      asl
+    110  f420		       0a		      asl
+    111  f421		       0a		      asl
+    112  f422		       0a		      asl
+    113  f423		       95 10		      sta	JET_SP_RESET,x	; fix coarse position
+    114  f425		       95 20		      sta	JET_SP_HMOVE,x	; set fine offset
+    115  f427		       60		      rts		; return to caller
 ------- FILE main.s
 ------- FILE kernel_border.s LEVEL 2 PASS 2
-      0  f418					      include	"kernel_border.s"
-      1  f418							; Visible Kernel
-      2  f418
-      3  f418				   KernelBorder subroutine
-      4  f418		       85 02		      sta	WSYNC	; ??? Is this needed?
-      5  f41a
-      6  f41a							; First HMOVE
-      7  f41a		       85 2a		      sta	HMOVE
-      8  f41c
-      9  f41c							; Border top
-     10  f41c		       a9 00		      lda	#0
-     11  f41e		       85 08		      sta	COLUPF
-     12  f420		       85 0e		      sta	PF1
-     13  f422		       85 0f		      sta	PF2
-     14  f424		       a9 02		      lda	#SIGNAL_LINE
-     15  f426		       85 09		      sta	COLUBK
-     16  f428
-     17  f428					      REPEAT	6
-     18  f428		       85 02		      sta	WSYNC
-     17  f428					      REPEND
-     18  f42a		       85 02		      sta	WSYNC
-     17  f42a					      REPEND
-     18  f42c		       85 02		      sta	WSYNC
-     17  f42c					      REPEND
-     18  f42e		       85 02		      sta	WSYNC
-     17  f42e					      REPEND
-     18  f430		       85 02		      sta	WSYNC
-     17  f430					      REPEND
-     18  f432		       85 02		      sta	WSYNC
-     19  f434					      REPEND
-     20  f434
-     21  f434		       a9 00		      lda	#0
-     22  f436		       85 09		      sta	COLUBK
-     23  f438		       85 02		      sta	WSYNC
-     24  f43a
-     25  f43a							; Start top border
-     26  f43a				   border_top
-     27  f43a							; Make the playfield solid.
-     28  f43a		       a9 3f		      lda	#%00111111
-     29  f43c		       85 0e		      sta	PF1
-     30  f43e		       a9 ff		      lda	#%11111111
-     31  f440		       85 0f		      sta	PF2
-     32  f442
-     33  f442		       a9 42		      lda	#COL_BG
-     34  f444		       a0 00		      ldy	#0
-     35  f446
-     36  f446							; X_XXXX_XX
-     37  f446							; Commented lines removed to save on space.
-     38  f446		       85 08		      sta	COLUPF
-     39  f448		       85 02		      sta	WSYNC
-     40  f44a		       84 08		      sty	COLUPF
-     41  f44c		       85 02		      sta	WSYNC
-     42  f44e		       85 08		      sta	COLUPF
-     43  f450		       85 02		      sta	WSYNC
-     44  f452							; sta COLUPF
-     45  f452		       85 02		      sta	WSYNC
-     46  f454							; sta COLUPF
-     47  f454		       85 02		      sta	WSYNC
-     48  f456		       84 08		      sty	COLUPF
-     49  f458		       85 02		      sta	WSYNC
-     50  f45a		       85 08		      sta	COLUPF
-     51  f45c
-     52  f45c		       85 02		      sta	WSYNC
-     53  f45e							; sta COLUPF
-     54  f45e
-     55  f45e				   PlayArea
-     56  f45e							; PF is now the playing area
-      0  f45e					      ASSERT_RUNTIME	"_scycles == #0"
-      1  f45e				   .COND      SET	"_scycles == #0"
- ASSERT: breakif { pc== $f45e  && !(  _scycles == #0  ) }
-      2  f45e					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
-      0  f45e					      sleep	61
-      1  f45e				   .CYCLES    SET	61
-      2  f45e
-      3  f45e				  -	      IF	.CYCLES < 2
-      4  f45e				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  f45e				  -	      ERR
-      6  f45e					      ENDIF
-      7  f45e
-      8  f45e					      IF	.CYCLES & 1
-      9  f45e					      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f45e		       04 00		      nop	0
-     11  f460				  -	      ELSE
-     12  f460				  -	      bit	VSYNC
-     13  f460					      ENDIF
-     14  f460				   .CYCLES    SET	.CYCLES - 3
-     15  f460					      ENDIF
-     16  f460
-     17  f460					      REPEAT	.CYCLES / 2
-     18  f460		       ea		      nop
-     17  f460					      REPEND
-     18  f461		       ea		      nop
-     17  f461					      REPEND
-     18  f462		       ea		      nop
-     17  f462					      REPEND
-     18  f463		       ea		      nop
-     17  f463					      REPEND
-     18  f464		       ea		      nop
-     17  f464					      REPEND
-     18  f465		       ea		      nop
-     17  f465					      REPEND
-     18  f466		       ea		      nop
-     17  f466					      REPEND
-     18  f467		       ea		      nop
-     17  f467					      REPEND
-     18  f468		       ea		      nop
-     17  f468					      REPEND
-     18  f469		       ea		      nop
-     17  f469					      REPEND
-     18  f46a		       ea		      nop
-     17  f46a					      REPEND
-     18  f46b		       ea		      nop
-     17  f46b					      REPEND
-     18  f46c		       ea		      nop
-     17  f46c					      REPEND
-     18  f46d		       ea		      nop
-     17  f46d					      REPEND
-     18  f46e		       ea		      nop
-     17  f46e					      REPEND
-     18  f46f		       ea		      nop
-     17  f46f					      REPEND
+      0  f428					      include	"kernel_border.s"
+      1  f428							; Visible Kernel
+      2  f428
+      3  f428				   KernelBorder subroutine
+      4  f428		       85 02		      sta	WSYNC	; ??? Is this needed?
+      5  f42a
+      6  f42a							; First HMOVE
+      7  f42a		       85 2a		      sta	HMOVE
+      8  f42c
+      9  f42c							; Border top
+     10  f42c		       a9 00		      lda	#0
+     11  f42e		       85 08		      sta	COLUPF
+     12  f430		       85 0e		      sta	PF1
+     13  f432		       85 0f		      sta	PF2
+     14  f434		       a9 02		      lda	#SIGNAL_LINE
+     15  f436		       85 09		      sta	COLUBK
+     16  f438
+     17  f438					      REPEAT	6
+     18  f438		       85 02		      sta	WSYNC
+     17  f438					      REPEND
+     18  f43a		       85 02		      sta	WSYNC
+     17  f43a					      REPEND
+     18  f43c		       85 02		      sta	WSYNC
+     17  f43c					      REPEND
+     18  f43e		       85 02		      sta	WSYNC
+     17  f43e					      REPEND
+     18  f440		       85 02		      sta	WSYNC
+     17  f440					      REPEND
+     18  f442		       85 02		      sta	WSYNC
+     19  f444					      REPEND
+     20  f444
+     21  f444		       a9 00		      lda	#0
+     22  f446		       85 09		      sta	COLUBK
+     23  f448		       85 02		      sta	WSYNC
+     24  f44a
+     25  f44a							; Start top border
+     26  f44a				   border_top
+     27  f44a							; Make the playfield solid.
+     28  f44a		       a9 3f		      lda	#%00111111
+     29  f44c		       85 0e		      sta	PF1
+     30  f44e		       a9 ff		      lda	#%11111111
+     31  f450		       85 0f		      sta	PF2
+     32  f452
+     33  f452		       a9 42		      lda	#COL_BG
+     34  f454		       a0 00		      ldy	#0
+     35  f456
+     36  f456							; X_XXXX_XX
+     37  f456							; Commented lines removed to save on space.
+     38  f456		       85 08		      sta	COLUPF
+     39  f458		       85 02		      sta	WSYNC
+     40  f45a		       84 08		      sty	COLUPF
+     41  f45c		       85 02		      sta	WSYNC
+     42  f45e		       85 08		      sta	COLUPF
+     43  f460		       85 02		      sta	WSYNC
+     44  f462							; sta COLUPF
+     45  f462		       85 02		      sta	WSYNC
+     46  f464							; sta COLUPF
+     47  f464		       85 02		      sta	WSYNC
+     48  f466		       84 08		      sty	COLUPF
+     49  f468		       85 02		      sta	WSYNC
+     50  f46a		       85 08		      sta	COLUPF
+     51  f46c
+     52  f46c		       85 02		      sta	WSYNC
+     53  f46e							; sta COLUPF
+     54  f46e
+     55  f46e				   PlayArea
+     56  f46e							; PF is now the playing area
+      0  f46e					      ASSERT_RUNTIME	"_scycles == #0"
+      1  f46e				   .COND      SET	"_scycles == #0"
+ ASSERT: breakif { pc== $f46e  && !(  _scycles == #0  ) }
+      2  f46e					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
+      0  f46e					      sleep	61
+      1  f46e				   .CYCLES    SET	61
+      2  f46e
+      3  f46e				  -	      IF	.CYCLES < 2
+      4  f46e				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  f46e				  -	      ERR
+      6  f46e					      ENDIF
+      7  f46e
+      8  f46e					      IF	.CYCLES & 1
+      9  f46e					      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f46e		       04 00		      nop	0
+     11  f470				  -	      ELSE
+     12  f470				  -	      bit	VSYNC
+     13  f470					      ENDIF
+     14  f470				   .CYCLES    SET	.CYCLES - 3
+     15  f470					      ENDIF
+     16  f470
+     17  f470					      REPEAT	.CYCLES / 2
      18  f470		       ea		      nop
      17  f470					      REPEND
      18  f471		       ea		      nop
@@ -1427,419 +1409,410 @@
      18  f47b		       ea		      nop
      17  f47b					      REPEND
      18  f47c		       ea		      nop
-     19  f47d					      REPEND
-     59  f47d		       a9 00		      lda	#%00000000
-     60  f47f		       85 0d		      sta	PF0
-     61  f481		       a9 20		      lda	#%00100000
-     62  f483		       85 0e		      sta	PF1
-     63  f485		       a9 00		      lda	#%00000000
-     64  f487		       85 0f		      sta	PF2
-      0  f489					      ASSERT_RUNTIME	"_scycles == #0"
-      1  f489				   .COND      SET	"_scycles == #0"
- ASSERT: breakif { pc== $f489  && !(  _scycles == #0  ) }
-      2  f489					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
-      0  f489					      sleep	7
-      1  f489				   .CYCLES    SET	7
-      2  f489
-      3  f489				  -	      IF	.CYCLES < 2
-      4  f489				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  f489				  -	      ERR
-      6  f489					      ENDIF
-      7  f489
-      8  f489					      IF	.CYCLES & 1
-      9  f489					      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f489		       04 00		      nop	0
-     11  f48b				  -	      ELSE
-     12  f48b				  -	      bit	VSYNC
-     13  f48b					      ENDIF
-     14  f48b				   .CYCLES    SET	.CYCLES - 3
-     15  f48b					      ENDIF
-     16  f48b
-     17  f48b					      REPEAT	.CYCLES / 2
+     17  f47c					      REPEND
+     18  f47d		       ea		      nop
+     17  f47d					      REPEND
+     18  f47e		       ea		      nop
+     17  f47e					      REPEND
+     18  f47f		       ea		      nop
+     17  f47f					      REPEND
+     18  f480		       ea		      nop
+     17  f480					      REPEND
+     18  f481		       ea		      nop
+     17  f481					      REPEND
+     18  f482		       ea		      nop
+     17  f482					      REPEND
+     18  f483		       ea		      nop
+     17  f483					      REPEND
+     18  f484		       ea		      nop
+     17  f484					      REPEND
+     18  f485		       ea		      nop
+     17  f485					      REPEND
+     18  f486		       ea		      nop
+     17  f486					      REPEND
+     18  f487		       ea		      nop
+     17  f487					      REPEND
+     18  f488		       ea		      nop
+     17  f488					      REPEND
+     18  f489		       ea		      nop
+     17  f489					      REPEND
+     18  f48a		       ea		      nop
+     17  f48a					      REPEND
      18  f48b		       ea		      nop
      17  f48b					      REPEND
      18  f48c		       ea		      nop
      19  f48d					      REPEND
-     67  f48d		       4c bf f4 	      jmp	row_start
-     68  f490							; enter row on cycle 10.
-     69  f490
-     70  f490							; reset the background for bottom of playfield
-     71  f490				   border_bottom
-     72  f490							;sta WSYNC
-     73  f490
-     74  f490							; Form the bottom of the level frame.
-     75  f490		       a9 3f		      lda	#%00111111
-     76  f492		       85 0e		      sta	PF1
-     77  f494		       a9 ff		      lda	#%11111111
-     78  f496		       85 0f		      sta	PF2
-     79  f498
-     80  f498							; Clear all sprites.
-     81  f498		       a9 00		      lda	#0
-     82  f49a		       85 1c		      sta	EMERALD_SP
-     83  f49c		       85 1b		      sta	JET_SP
-     84  f49e		       85 1e		      sta	EMERALD_MI_ENABLE
-     85  f4a0
-     86  f4a0		       a9 42		      lda	#COL_BG
-     87  f4a2		       a0 00		      ldy	#0
-     88  f4a4		       85 02		      sta	WSYNC
-     89  f4a6
-     90  f4a6		       84 08		      sty	COLUPF
-     91  f4a8		       85 02		      sta	WSYNC
-     92  f4aa
-     93  f4aa		       85 08		      sta	COLUPF
-     94  f4ac		       85 02		      sta	WSYNC
-     95  f4ae
-     96  f4ae		       85 02		      sta	WSYNC
-     97  f4b0
-     98  f4b0		       85 02		      sta	WSYNC
-     99  f4b2
-    100  f4b2		       84 08		      sty	COLUPF
-    101  f4b4		       85 02		      sta	WSYNC
-    102  f4b6
-    103  f4b6		       85 08		      sta	COLUPF
-    104  f4b8		       85 02		      sta	WSYNC
-    105  f4ba		       85 02		      sta	WSYNC
-    106  f4bc		       4c 4a f3 	      jmp	FrameEnd
+     59  f48d		       a9 00		      lda	#%00000000
+     60  f48f		       85 0d		      sta	PF0
+     61  f491		       a9 20		      lda	#%00100000
+     62  f493		       85 0e		      sta	PF1
+     63  f495		       a9 00		      lda	#%00000000
+     64  f497		       85 0f		      sta	PF2
+      0  f499					      ASSERT_RUNTIME	"_scycles == #0"
+      1  f499				   .COND      SET	"_scycles == #0"
+ ASSERT: breakif { pc== $f499  && !(  _scycles == #0  ) }
+      2  f499					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
+      0  f499					      sleep	7
+      1  f499				   .CYCLES    SET	7
+      2  f499
+      3  f499				  -	      IF	.CYCLES < 2
+      4  f499				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  f499				  -	      ERR
+      6  f499					      ENDIF
+      7  f499
+      8  f499					      IF	.CYCLES & 1
+      9  f499					      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f499		       04 00		      nop	0
+     11  f49b				  -	      ELSE
+     12  f49b				  -	      bit	VSYNC
+     13  f49b					      ENDIF
+     14  f49b				   .CYCLES    SET	.CYCLES - 3
+     15  f49b					      ENDIF
+     16  f49b
+     17  f49b					      REPEAT	.CYCLES / 2
+     18  f49b		       ea		      nop
+     17  f49b					      REPEND
+     18  f49c		       ea		      nop
+     19  f49d					      REPEND
+     67  f49d		       4c cf f4 	      jmp	row_start
+     68  f4a0							; enter row on cycle 10.
+     69  f4a0
+     70  f4a0							; reset the background for bottom of playfield
+     71  f4a0				   border_bottom
+     72  f4a0							;sta WSYNC
+     73  f4a0
+     74  f4a0							; Form the bottom of the level frame.
+     75  f4a0		       a9 3f		      lda	#%00111111
+     76  f4a2		       85 0e		      sta	PF1
+     77  f4a4		       a9 ff		      lda	#%11111111
+     78  f4a6		       85 0f		      sta	PF2
+     79  f4a8
+     80  f4a8							; Clear all sprites.
+     81  f4a8		       a9 00		      lda	#0
+     82  f4aa		       85 1c		      sta	EMERALD_SP
+     83  f4ac		       85 1b		      sta	JET_SP
+     84  f4ae		       85 1e		      sta	EMERALD_MI_ENABLE
+     85  f4b0
+     86  f4b0		       a9 42		      lda	#COL_BG
+     87  f4b2		       a0 00		      ldy	#0
+     88  f4b4		       85 02		      sta	WSYNC
+     89  f4b6
+     90  f4b6		       84 08		      sty	COLUPF
+     91  f4b8		       85 02		      sta	WSYNC
+     92  f4ba
+     93  f4ba		       85 08		      sta	COLUPF
+     94  f4bc		       85 02		      sta	WSYNC
+     95  f4be
+     96  f4be		       85 02		      sta	WSYNC
+     97  f4c0
+     98  f4c0		       85 02		      sta	WSYNC
+     99  f4c2
+    100  f4c2		       84 08		      sty	COLUPF
+    101  f4c4		       85 02		      sta	WSYNC
+    102  f4c6
+    103  f4c6		       85 08		      sta	COLUPF
+    104  f4c8		       85 02		      sta	WSYNC
+    105  f4ca		       85 02		      sta	WSYNC
+    106  f4cc		       4c 5a f3 	      jmp	FrameEnd
 ------- FILE main.s
 ------- FILE kernel_row.s LEVEL 2 PASS 2
-      0  f4bf					      include	"kernel_row.s"
-      1  f4bf							; Frame Start
-      2  f4bf
-      3  f4bf							; Macros for calculating sprite values (GRPx).
-      4  f4bf
-      5  f4bf							; Load the player graphics for this scanline using SpriteEnd (3c + 17c)
-      6  f4bf					      mac	kernel_load_player
-      7  f4bf							; expects "lda #SPRITE_HEIGHT" before this ; 3c
-      8  f4bf					      dcp	SpriteEnd	; 5c
-      9  f4bf					      ldy	#0	; 2c
-     10  f4bf							; constant 6c:
-     11  f4bf					      .byte	$b0, $01	; 2c / 3c (taken)  : bcs +01 (skipping 1-byte bit instr)
-     12  f4bf					      .byte	$2c	; 4c / 0c		: bit (skip next two bytes)
-     13  f4bf					      ldy	SpriteEnd
-     14  f4bf							; 4c
-     15  f4bf					      ldx	Frame0,Y
-     16  f4bf					      endm
-     17  f4bf
-     18  f4bf							; mac jet_spritedata_calc
-     19  f4bf							;
-     20  f4bf							; loads the offset from Frame0 in Y, and the sprite value in A, and stores it in
-     21  f4bf							; GRP0.
-     22  f4bf					      mac	jet_spritedata_calc
-     23  f4bf							; loader
-     24  f4bf					      lda	#SPRITE_HEIGHT
-     25  f4bf					      dcp	SpriteEnd
-     26  f4bf					      ldy	SpriteEnd
-     27  f4bf
-     28  f4bf							; 4c
-     29  f4bf							; This must never be 5 cycles This means Frame0 must be aligned and loading
-     30  f4bf							; from Frame0 + Y must never cross a page boundary.
-     31  f4bf					      lda	Frame0,Y
-     32  f4bf							; 6c
-     33  f4bf					      .byte	$b0, $01	;2c / 3c (taken)
-     34  f4bf					      .byte	$2c	; 4c / 0c
-     35  f4bf					      sta	JET_SP	; 0c / 3c
-     36  f4bf					      endm
-     37  f4bf
-     38  f4bf				   row_start
-     39  f4bf
-     40  f4bf							; [scanline 1]
-     41  f4bf				   row_1
-     42  f4bf							; Enter after scanline starts on row "9" and wraps
-      0  f4bf					      ASSERT_RUNTIME	"_scycles == #10"
-      1  f4bf				   .COND      SET	"_scycles == #10"
- ASSERT: breakif { pc== $f4bf  && !(  _scycles == #10  ) }
-      2  f4bf					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
-     44  f4bf
-      0  f4bf					      jet_spritedata_calc
-      1  f4bf
-      2  f4bf		       a9 09		      lda	#SPRITE_HEIGHT
-      3  f4c1		       c7 85		      dcp	SpriteEnd
-      4  f4c3		       a4 85		      ldy	SpriteEnd
-      5  f4c5
-      6  f4c5
-      7  f4c5
-      8  f4c5
-      9  f4c5		       b9 00 f7 	      lda	Frame0,Y
-     10  f4c8
-     11  f4c8		       b0 01		      .byte.b	$b0, $01
-     12  f4ca		       2c		      .byte.b	$2c
-     13  f4cb		       85 1b		      sta	JET_SP
-     46  f4cd
-     47  f4cd							; Nibble VM.
-     48  f4cd							; lda KERNEL_TEMP_A
-     49  f4cd							; NIBBLE_gem_kernel
-     50  f4cd							; sta WSYNC
-     51  f4cd
-     52  f4cd							; [[[Nibble VM.]]]
-      0  f4cd					      sleep	41
-      1  f4cd				   .CYCLES    SET	41
-      2  f4cd
-      3  f4cd				  -	      IF	.CYCLES < 2
-      4  f4cd				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  f4cd				  -	      ERR
-      6  f4cd					      ENDIF
-      7  f4cd
-      8  f4cd					      IF	.CYCLES & 1
-      9  f4cd					      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f4cd		       04 00		      nop	0
-     11  f4cf				  -	      ELSE
-     12  f4cf				  -	      bit	VSYNC
-     13  f4cf					      ENDIF
-     14  f4cf				   .CYCLES    SET	.CYCLES - 3
-     15  f4cf					      ENDIF
-     16  f4cf
-     17  f4cf					      REPEAT	.CYCLES / 2
-     18  f4cf		       ea		      nop
-     17  f4cf					      REPEND
-     18  f4d0		       ea		      nop
-     17  f4d0					      REPEND
-     18  f4d1		       ea		      nop
-     17  f4d1					      REPEND
-     18  f4d2		       ea		      nop
-     17  f4d2					      REPEND
-     18  f4d3		       ea		      nop
-     17  f4d3					      REPEND
-     18  f4d4		       ea		      nop
-     17  f4d4					      REPEND
-     18  f4d5		       ea		      nop
-     17  f4d5					      REPEND
-     18  f4d6		       ea		      nop
-     17  f4d6					      REPEND
-     18  f4d7		       ea		      nop
-     17  f4d7					      REPEND
-     18  f4d8		       ea		      nop
-     17  f4d8					      REPEND
-     18  f4d9		       ea		      nop
-     17  f4d9					      REPEND
-     18  f4da		       ea		      nop
-     17  f4da					      REPEND
-     18  f4db		       ea		      nop
-     17  f4db					      REPEND
-     18  f4dc		       ea		      nop
-     17  f4dc					      REPEND
-     18  f4dd		       ea		      nop
-     17  f4dd					      REPEND
-     18  f4de		       ea		      nop
-     17  f4de					      REPEND
+      0  f4cf					      include	"kernel_row.s"
+      1  f4cf							; Frame Start
+      2  f4cf
+      3  f4cf							; Macros for calculating sprite values (GRPx).
+      4  f4cf
+      5  f4cf							; Load the player graphics for this scanline using SpriteEnd (3c + 17c)
+      6  f4cf					      mac	kernel_load_player
+      7  f4cf							; expects "lda #SPRITE_HEIGHT" before this ; 3c
+      8  f4cf					      dcp	SpriteEnd	; 5c
+      9  f4cf					      ldy	#0	; 2c
+     10  f4cf							; constant 6c:
+     11  f4cf					      .byte	$b0, $01	; 2c / 3c (taken)  : bcs +01 (skipping 1-byte bit instr)
+     12  f4cf					      .byte	$2c	; 4c / 0c		: bit (skip next two bytes)
+     13  f4cf					      ldy	SpriteEnd
+     14  f4cf							; 4c
+     15  f4cf					      ldx	Frame0,Y
+     16  f4cf					      endm
+     17  f4cf
+     18  f4cf							; mac jet_spritedata_calc
+     19  f4cf							;
+     20  f4cf							; loads the offset from Frame0 in Y, and the sprite value in A, and stores it in
+     21  f4cf							; GRP0.
+     22  f4cf					      mac	jet_spritedata_calc
+     23  f4cf							; loader
+     24  f4cf					      lda	#SPRITE_HEIGHT
+     25  f4cf					      dcp	SpriteEnd
+     26  f4cf					      ldy	SpriteEnd
+     27  f4cf
+     28  f4cf							; 4c
+     29  f4cf							; This must never be 5 cycles This means Frame0 must be aligned and loading
+     30  f4cf							; from Frame0 + Y must never cross a page boundary.
+     31  f4cf					      lda	Frame0,Y
+     32  f4cf							; 6c
+     33  f4cf					      .byte	$b0, $01	;2c / 3c (taken)
+     34  f4cf					      .byte	$2c	; 4c / 0c
+     35  f4cf					      sta	JET_SP	; 0c / 3c
+     36  f4cf					      endm
+     37  f4cf
+     38  f4cf				   row_start
+     39  f4cf
+     40  f4cf							; [scanline 1]
+     41  f4cf				   row_1
+     42  f4cf							; Enter after scanline starts on row "9" and wraps
+      0  f4cf					      ASSERT_RUNTIME	"_scycles == #10"
+      1  f4cf				   .COND      SET	"_scycles == #10"
+ ASSERT: breakif { pc== $f4cf  && !(  _scycles == #10  ) }
+      2  f4cf					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
+     44  f4cf
+      0  f4cf					      jet_spritedata_calc
+      1  f4cf
+      2  f4cf		       a9 09		      lda	#SPRITE_HEIGHT
+      3  f4d1		       c7 85		      dcp	SpriteEnd
+      4  f4d3		       a4 85		      ldy	SpriteEnd
+      5  f4d5
+      6  f4d5
+      7  f4d5
+      8  f4d5
+      9  f4d5		       b9 00 f7 	      lda	Frame0,Y
+     10  f4d8
+     11  f4d8		       b0 01		      .byte.b	$b0, $01
+     12  f4da		       2c		      .byte.b	$2c
+     13  f4db		       85 1b		      sta	JET_SP
+     46  f4dd
+     47  f4dd							; Nibble VM.
+     48  f4dd							; lda KERNEL_TEMP_A
+     49  f4dd							; NIBBLE_gem_kernel
+     50  f4dd							; sta WSYNC
+     51  f4dd
+     52  f4dd							; [[[Nibble VM.]]]
+      0  f4dd					      sleep	41
+      1  f4dd				   .CYCLES    SET	41
+      2  f4dd
+      3  f4dd				  -	      IF	.CYCLES < 2
+      4  f4dd				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  f4dd				  -	      ERR
+      6  f4dd					      ENDIF
+      7  f4dd
+      8  f4dd					      IF	.CYCLES & 1
+      9  f4dd					      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f4dd		       04 00		      nop	0
+     11  f4df				  -	      ELSE
+     12  f4df				  -	      bit	VSYNC
+     13  f4df					      ENDIF
+     14  f4df				   .CYCLES    SET	.CYCLES - 3
+     15  f4df					      ENDIF
+     16  f4df
+     17  f4df					      REPEAT	.CYCLES / 2
      18  f4df		       ea		      nop
      17  f4df					      REPEND
      18  f4e0		       ea		      nop
      17  f4e0					      REPEND
      18  f4e1		       ea		      nop
-     19  f4e2					      REPEND
-     54  f4e2
-     55  f4e2							; Set stack pointer for PHP use from RamKernelPhpTarget.
-     56  f4e2		       a6 95		      ldx	RamKernelPhpTarget
-     57  f4e4		       9a		      txs
-     58  f4e5
-      0  f4e5					      ASSERT_RUNTIME	"_scycles == #0"
-      1  f4e5				   .COND      SET	"_scycles == #0"
- ASSERT: breakif { pc== $f4e5  && !(  _scycles == #0  ) }
-      2  f4e5					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
-     60  f4e5
-     61  f4e5							; [scanline 2]
-     62  f4e5				   row_2
-      0  f4e5					      jet_spritedata_calc
-      1  f4e5
-      2  f4e5		       a9 09		      lda	#SPRITE_HEIGHT
-      3  f4e7		       c7 85		      dcp	SpriteEnd
-      4  f4e9		       a4 85		      ldy	SpriteEnd
-      5  f4eb
-      6  f4eb
-      7  f4eb
-      8  f4eb
-      9  f4eb		       b9 00 f7 	      lda	Frame0,Y
-     10  f4ee
-     11  f4ee		       b0 01		      .byte.b	$b0, $01
-     12  f4f0		       2c		      .byte.b	$2c
-     13  f4f1		       85 1b		      sta	JET_SP
-     64  f4f3
-     65  f4f3							; Black out playfield
-     66  f4f3							; TODO This should be done with playfield pixels, not color.
-     67  f4f3		       a9 00		      lda	#0
-     68  f4f5		       85 08		      sta	COLUPF
-     69  f4f7
-     70  f4f7							; [[[Nibble VM.]]]
-      0  f4f7					      sleep	35
-      1  f4f7				   .CYCLES    SET	35
-      2  f4f7
-      3  f4f7				  -	      IF	.CYCLES < 2
-      4  f4f7				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  f4f7				  -	      ERR
-      6  f4f7					      ENDIF
-      7  f4f7
-      8  f4f7					      IF	.CYCLES & 1
-      9  f4f7					      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f4f7		       04 00		      nop	0
-     11  f4f9				  -	      ELSE
-     12  f4f9				  -	      bit	VSYNC
-     13  f4f9					      ENDIF
-     14  f4f9				   .CYCLES    SET	.CYCLES - 3
-     15  f4f9					      ENDIF
-     16  f4f9
-     17  f4f9					      REPEAT	.CYCLES / 2
-     18  f4f9		       ea		      nop
-     17  f4f9					      REPEND
-     18  f4fa		       ea		      nop
-     17  f4fa					      REPEND
-     18  f4fb		       ea		      nop
-     17  f4fb					      REPEND
-     18  f4fc		       ea		      nop
-     17  f4fc					      REPEND
-     18  f4fd		       ea		      nop
-     17  f4fd					      REPEND
-     18  f4fe		       ea		      nop
-     17  f4fe					      REPEND
-     18  f4ff		       ea		      nop
-     17  f4ff					      REPEND
-     18  f500		       ea		      nop
-     17  f500					      REPEND
-     18  f501		       ea		      nop
-     17  f501					      REPEND
-     18  f502		       ea		      nop
-     17  f502					      REPEND
-     18  f503		       ea		      nop
-     17  f503					      REPEND
-     18  f504		       ea		      nop
-     17  f504					      REPEND
-     18  f505		       ea		      nop
-     17  f505					      REPEND
-     18  f506		       ea		      nop
-     17  f506					      REPEND
-     18  f507		       ea		      nop
-     17  f507					      REPEND
-     18  f508		       ea		      nop
-     19  f509					      REPEND
-     72  f509
-     73  f509		       a9 04		      lda	#4
-     74  f50b		       8d 96 02 	      sta	TIM64T
-     75  f50e
-     76  f50e							; Load PF1 value
-     77  f50e		       a9 a0		      lda	#%10100000
-     78  f510		       85 92		      sta	RamPF1Value
-     79  f512
-     80  f512							; Enable playfield at end of scanline
-     81  f512		       a9 42		      lda	#COL_BG
-     82  f514		       85 08		      sta	COLUPF
-     83  f516
-      0  f516					      ASSERT_RUNTIME	"_scycles == #0"
-      1  f516				   .COND      SET	"_scycles == #0"
- ASSERT: breakif { pc== $f516  && !(  _scycles == #0  ) }
-      2  f516					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
-     85  f516
-     86  f516							; [scanline 3]
-     87  f516				   row_3
-      0  f516					      jet_spritedata_calc
-      1  f516
-      2  f516		       a9 09		      lda	#SPRITE_HEIGHT
-      3  f518		       c7 85		      dcp	SpriteEnd
-      4  f51a		       a4 85		      ldy	SpriteEnd
-      5  f51c
-      6  f51c
-      7  f51c
-      8  f51c
-      9  f51c		       b9 00 f7 	      lda	Frame0,Y
-     10  f51f
-     11  f51f		       b0 01		      .byte.b	$b0, $01
-     12  f521		       2c		      .byte.b	$2c
-     13  f522		       85 1b		      sta	JET_SP
-     89  f524
-     90  f524							; Pre-populate graphics.
-     91  f524		       a9 09		      lda	#SPRITE_HEIGHT
-      0  f526					      KERNEL_LOAD_PLAYER
+     17  f4e1					      REPEND
+     18  f4e2		       ea		      nop
+     17  f4e2					      REPEND
+     18  f4e3		       ea		      nop
+     17  f4e3					      REPEND
+     18  f4e4		       ea		      nop
+     17  f4e4					      REPEND
+     18  f4e5		       ea		      nop
+     17  f4e5					      REPEND
+     18  f4e6		       ea		      nop
+     17  f4e6					      REPEND
+     18  f4e7		       ea		      nop
+     17  f4e7					      REPEND
+     18  f4e8		       ea		      nop
+     17  f4e8					      REPEND
+     18  f4e9		       ea		      nop
+     17  f4e9					      REPEND
+     18  f4ea		       ea		      nop
+     17  f4ea					      REPEND
+     18  f4eb		       ea		      nop
+     17  f4eb					      REPEND
+     18  f4ec		       ea		      nop
+     17  f4ec					      REPEND
+     18  f4ed		       ea		      nop
+     17  f4ed					      REPEND
+     18  f4ee		       ea		      nop
+     17  f4ee					      REPEND
+     18  f4ef		       ea		      nop
+     17  f4ef					      REPEND
+     18  f4f0		       ea		      nop
+     17  f4f0					      REPEND
+     18  f4f1		       ea		      nop
+     19  f4f2					      REPEND
+     54  f4f2
+     55  f4f2							; Set stack pointer for PHP use from RamKernelPhpTarget.
+     56  f4f2		       a6 95		      ldx	RamKernelPhpTarget
+     57  f4f4		       9a		      txs
+     58  f4f5
+      0  f4f5					      ASSERT_RUNTIME	"_scycles == #0"
+      1  f4f5				   .COND      SET	"_scycles == #0"
+ ASSERT: breakif { pc== $f4f5  && !(  _scycles == #0  ) }
+      2  f4f5					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
+     60  f4f5
+     61  f4f5							; [scanline 2]
+     62  f4f5				   row_2
+      0  f4f5					      jet_spritedata_calc
+      1  f4f5
+      2  f4f5		       a9 09		      lda	#SPRITE_HEIGHT
+      3  f4f7		       c7 85		      dcp	SpriteEnd
+      4  f4f9		       a4 85		      ldy	SpriteEnd
+      5  f4fb
+      6  f4fb
+      7  f4fb
+      8  f4fb
+      9  f4fb		       b9 00 f7 	      lda	Frame0,Y
+     10  f4fe
+     11  f4fe		       b0 01		      .byte.b	$b0, $01
+     12  f500		       2c		      .byte.b	$2c
+     13  f501		       85 1b		      sta	JET_SP
+     64  f503
+     65  f503							; Black out playfield
+     66  f503							; TODO This should be done with playfield pixels, not color.
+     67  f503		       a9 00		      lda	#0
+     68  f505		       85 08		      sta	COLUPF
+     69  f507
+     70  f507							; [[[Nibble VM.]]]
+      0  f507					      sleep	35
+      1  f507				   .CYCLES    SET	35
+      2  f507
+      3  f507				  -	      IF	.CYCLES < 2
+      4  f507				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  f507				  -	      ERR
+      6  f507					      ENDIF
+      7  f507
+      8  f507					      IF	.CYCLES & 1
+      9  f507					      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f507		       04 00		      nop	0
+     11  f509				  -	      ELSE
+     12  f509				  -	      bit	VSYNC
+     13  f509					      ENDIF
+     14  f509				   .CYCLES    SET	.CYCLES - 3
+     15  f509					      ENDIF
+     16  f509
+     17  f509					      REPEAT	.CYCLES / 2
+     18  f509		       ea		      nop
+     17  f509					      REPEND
+     18  f50a		       ea		      nop
+     17  f50a					      REPEND
+     18  f50b		       ea		      nop
+     17  f50b					      REPEND
+     18  f50c		       ea		      nop
+     17  f50c					      REPEND
+     18  f50d		       ea		      nop
+     17  f50d					      REPEND
+     18  f50e		       ea		      nop
+     17  f50e					      REPEND
+     18  f50f		       ea		      nop
+     17  f50f					      REPEND
+     18  f510		       ea		      nop
+     17  f510					      REPEND
+     18  f511		       ea		      nop
+     17  f511					      REPEND
+     18  f512		       ea		      nop
+     17  f512					      REPEND
+     18  f513		       ea		      nop
+     17  f513					      REPEND
+     18  f514		       ea		      nop
+     17  f514					      REPEND
+     18  f515		       ea		      nop
+     17  f515					      REPEND
+     18  f516		       ea		      nop
+     17  f516					      REPEND
+     18  f517		       ea		      nop
+     17  f517					      REPEND
+     18  f518		       ea		      nop
+     19  f519					      REPEND
+     72  f519
+     73  f519		       a9 04		      lda	#4
+     74  f51b		       8d 96 02 	      sta	TIM64T
+     75  f51e
+     76  f51e							; Load PF1 value
+     77  f51e		       a9 a0		      lda	#%10100000
+     78  f520		       85 92		      sta	RamPF1Value
+     79  f522
+     80  f522							; Enable playfield at end of scanline
+     81  f522		       a9 42		      lda	#COL_BG
+     82  f524		       85 08		      sta	COLUPF
+     83  f526
+      0  f526					      ASSERT_RUNTIME	"_scycles == #0"
+      1  f526				   .COND      SET	"_scycles == #0"
+ ASSERT: breakif { pc== $f526  && !(  _scycles == #0  ) }
+      2  f526					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
+     85  f526
+     86  f526							; [scanline 3]
+     87  f526				   row_3
+      0  f526					      jet_spritedata_calc
       1  f526
-      2  f526		       c7 85		      dcp	SpriteEnd
-      3  f528		       a0 00		      ldy	#0
-      4  f52a
-      5  f52a		       b0 01		      .byte.b	$b0, $01
-      6  f52c		       2c		      .byte.b	$2c
-      7  f52d		       a4 85		      ldy	SpriteEnd
-      8  f52f
-      9  f52f		       be 00 f7 	      ldx	Frame0,Y
-     93  f532		       86 93		      stx	RamKernelGRP0
-      0  f534					      KERNEL_LOAD_PLAYER
-      1  f534
-      2  f534		       c7 85		      dcp	SpriteEnd
-      3  f536		       a0 00		      ldy	#0
-      4  f538
-      5  f538		       b0 01		      .byte.b	$b0, $01
-      6  f53a		       2c		      .byte.b	$2c
-      7  f53b		       a4 85		      ldy	SpriteEnd
-      8  f53d
-      9  f53d		       be 00 f7 	      ldx	Frame0,Y
-     95  f540		       8e 02 f0 	      stx	[CBSRAM_KERNEL_WRITE + 2]
-     96  f543		       a5 93		      lda	RamKernelGRP0	; Load sprite 2 into A
-     97  f545
-      0  f545					      sleep	3
-      1  f545				   .CYCLES    SET	3
-      2  f545
-      3  f545				  -	      IF	.CYCLES < 2
-      4  f545				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  f545				  -	      ERR
-      6  f545					      ENDIF
-      7  f545
-      8  f545					      IF	.CYCLES & 1
-      9  f545					      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f545		       04 00		      nop	0
-     11  f547				  -	      ELSE
-     12  f547				  -	      bit	VSYNC
-     13  f547					      ENDIF
-     14  f547				   .CYCLES    SET	.CYCLES - 3
-     15  f547					      ENDIF
-     16  f547
-     17  f547				  -	      REPEAT	.CYCLES / 2
-     18  f547				  -	      nop
-     19  f547					      REPEND
-     99  f547
-    100  f547							; [scanlines 4-5]
-    101  f547							; We jump immediately into scanlines 4-5, the "gem kernel"
-    102  f547		       a2 06		      ldx	#%00000110
-    103  f549		       a0 66		      ldy	#%01100110
-      0  f54b					      ASSERT_RUNTIME	"_scycles == #73"
-      1  f54b				   .COND      SET	"_scycles == #73"
- ASSERT: breakif { pc== $f54b  && !(  _scycles == #73  ) }
-      2  f54b					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
-    105  f54b		       4c 03 f1 	      jmp	CBSRAM_KERNEL_ENTRY
-    106  f54e
-    107  f54e							; [scanline 6]
-    108  f54e
-    109  f54e							; Try to avoid page crossing in jet_spritedata_calc
-    110  f54e							; TODO enforce this with ASSERT_RUNTIME instead?
-    111  f550		       00 00		      align	16
-    112  f550
-    113  f550				   row_after_kernel
-    114  f550				   row_6
-      0  f550					      ASSERT_RUNTIME	"_scycles == #0"
-      1  f550				   .COND      SET	"_scycles == #0"
- ASSERT: breakif { pc== $f550  && !(  _scycles == #0  ) }
-      2  f550					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
-    116  f550
-    117  f550							; Cleanup from the kernel.
-    118  f550		       a9 00		      lda	#0
-    119  f552		       85 1e		      sta	EMERALD_MI_ENABLE
-    120  f554		       85 1c		      sta	EMERALD_SP
-    121  f556		       85 08		      sta	COLUPF
-    122  f558
-      0  f558					      jet_spritedata_calc
-      1  f558
-      2  f558		       a9 09		      lda	#SPRITE_HEIGHT
-      3  f55a		       c7 85		      dcp	SpriteEnd
-      4  f55c		       a4 85		      ldy	SpriteEnd
-      5  f55e
-      6  f55e
-      7  f55e
-      8  f55e
-      9  f55e		       b9 00 f7 	      lda	Frame0,Y
-     10  f561
-     11  f561		       b0 01		      .byte.b	$b0, $01
-     12  f563		       2c		      .byte.b	$2c
-     13  f564		       85 1b		      sta	JET_SP
-    124  f566
-    125  f566							; Idle.
-    126  f566		       85 02		      sta	WSYNC
-    127  f568
-    128  f568							; [scanline 7]
-    129  f568				   row_7
+      2  f526		       a9 09		      lda	#SPRITE_HEIGHT
+      3  f528		       c7 85		      dcp	SpriteEnd
+      4  f52a		       a4 85		      ldy	SpriteEnd
+      5  f52c
+      6  f52c
+      7  f52c
+      8  f52c
+      9  f52c		       b9 00 f7 	      lda	Frame0,Y
+     10  f52f
+     11  f52f		       b0 01		      .byte.b	$b0, $01
+     12  f531		       2c		      .byte.b	$2c
+     13  f532		       85 1b		      sta	JET_SP
+     89  f534
+     90  f534							; Pre-populate graphics.
+     91  f534		       a9 09		      lda	#SPRITE_HEIGHT
+      0  f536					      KERNEL_LOAD_PLAYER
+      1  f536
+      2  f536		       c7 85		      dcp	SpriteEnd
+      3  f538		       a0 00		      ldy	#0
+      4  f53a
+      5  f53a		       b0 01		      .byte.b	$b0, $01
+      6  f53c		       2c		      .byte.b	$2c
+      7  f53d		       a4 85		      ldy	SpriteEnd
+      8  f53f
+      9  f53f		       be 00 f7 	      ldx	Frame0,Y
+     93  f542		       86 93		      stx	RamKernelGRP0
+      0  f544					      KERNEL_LOAD_PLAYER
+      1  f544
+      2  f544		       c7 85		      dcp	SpriteEnd
+      3  f546		       a0 00		      ldy	#0
+      4  f548
+      5  f548		       b0 01		      .byte.b	$b0, $01
+      6  f54a		       2c		      .byte.b	$2c
+      7  f54b		       a4 85		      ldy	SpriteEnd
+      8  f54d
+      9  f54d		       be 00 f7 	      ldx	Frame0,Y
+     95  f550		       8e 02 f0 	      stx	[CBSRAM_KERNEL_WRITE + 2]
+     96  f553		       ad 93 00 	      lda.w	RamKernelGRP0	; Load sprite 2 into A
+     97  f556
+     98  f556							; [scanlines 4-5]
+     99  f556							; We jump immediately into scanlines 4-5, the "gem kernel"
+    100  f556		       a6 96		      ldx	RamKernelX
+    101  f558		       a4 97		      ldy	RamKernelY
+      0  f55a					      ASSERT_RUNTIME	"_scycles == #73"
+      1  f55a				   .COND      SET	"_scycles == #73"
+ ASSERT: breakif { pc== $f55a  && !(  _scycles == #73  ) }
+      2  f55a					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
+    103  f55a		       4c 03 f1 	      jmp	CBSRAM_KERNEL_ENTRY
+    104  f55d
+    105  f55d							; [scanline 6]
+    106  f55d
+    107  f55d							; Try to avoid page crossing in jet_spritedata_calc
+    108  f55d							; TODO enforce this with ASSERT_RUNTIME instead?
+    109  f560		       00 00 00 	      align	16
+    110  f560
+    111  f560				   row_after_kernel
+    112  f560				   row_6
+      0  f560					      ASSERT_RUNTIME	"_scycles == #0"
+      1  f560				   .COND      SET	"_scycles == #0"
+ ASSERT: breakif { pc== $f560  && !(  _scycles == #0  ) }
+      2  f560					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
+    114  f560
+    115  f560							; Cleanup from the kernel.
+    116  f560		       a9 00		      lda	#0
+    117  f562		       85 1e		      sta	EMERALD_MI_ENABLE
+    118  f564		       85 1c		      sta	EMERALD_SP
+    119  f566		       85 08		      sta	COLUPF
+    120  f568
       0  f568					      jet_spritedata_calc
       1  f568
       2  f568		       a9 09		      lda	#SPRITE_HEIGHT
@@ -1854,159 +1827,179 @@
      11  f571		       b0 01		      .byte.b	$b0, $01
      12  f573		       2c		      .byte.b	$2c
      13  f574		       85 1b		      sta	JET_SP
-    131  f576
-    132  f576		       a9 42		      lda	#COL_BG
-    133  f578		       85 08		      sta	COLUPF
-    134  f57a
-    135  f57a							; FRAMESWITCH
-    136  f57a		       a9 01		      lda	#01
-    137  f57c		       25 83		      and	FrameCount
-    138  f57e		       d0 13		      bne	loadframe2
-    139  f580
-    140  f580							; Perform gem loading for Kernel A.
-    141  f580
-    142  f580				   loadframe1
-      0  f580					      ASSERT_RUNTIME	"_scycles == #32"
-      1  f580				   .COND      SET	"_scycles == #32"
- ASSERT: breakif { pc== $f580  && !(  _scycles == #32  ) }
-      2  f580					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
-    144  f580
-    145  f580							; Emerald byte setting 1A
-    146  f580							; ldx #0
-    147  f580							; lda KERNEL_STORAGE_R,X
-    148  f580							; sta GEM_00_W
-    149  f580							; inx
-    150  f580							; lda KERNEL_STORAGE_R,X
-    151  f580							; sta GEM_04_W
-    152  f580							; inx
-    153  f580							; lda KERNEL_STORAGE_R,X
-    154  f580							; sta GEM_09_W
-    155  f580							; inx
-    156  f580
-    157  f580		       85 02		      sta	WSYNC
-    158  f582
-    159  f582							; [scanline 8]
-      0  f582					      jet_spritedata_calc
-      1  f582
-      2  f582		       a9 09		      lda	#SPRITE_HEIGHT
-      3  f584		       c7 85		      dcp	SpriteEnd
-      4  f586		       a4 85		      ldy	SpriteEnd
-      5  f588
-      6  f588
-      7  f588
-      8  f588
-      9  f588		       b9 00 f7 	      lda	Frame0,Y
-     10  f58b
-     11  f58b		       b0 01		      .byte.b	$b0, $01
-     12  f58d		       2c		      .byte.b	$2c
-     13  f58e		       85 1b		      sta	JET_SP
-    161  f590
-    162  f590							; Emerald byte setting 1B
-    163  f590							; lda KERNEL_STORAGE_R,X
-    164  f590							; sta GEM_13_W
-    165  f590							; inx
-    166  f590							; lda KERNEL_STORAGE_R,X
-    167  f590							; sta GEM_17_W
-    168  f590							; inx
-    169  f590							; lda KERNEL_STORAGE_R,X
-    170  f590							; sta GEM_18_W
-    171  f590							; inx
-    172  f590							; lda KERNEL_STORAGE_R,X
-    173  f590							; sta GEM_22_W
-    174  f590
-    175  f590		       4c a6 f5 	      jmp	row_8_end
-    176  f593
-    177  f593							; Perform gem loading for Kernel B.
-    178  f593
-    179  f593				   loadframe2
-      0  f593					      ASSERT_RUNTIME	"_scycles == #33"
-      1  f593				   .COND      SET	"_scycles == #33"
- ASSERT: breakif { pc== $f593  && !(  _scycles == #33  ) }
-      2  f593					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
-    181  f593
-    182  f593							; Emerald byte setting 2A
-    183  f593							; ldx #[storage_02 - storage]
-    184  f593							; lda KERNEL_STORAGE_R,X
-    185  f593							; sta GEM_02_W
-    186  f593							; inx
-    187  f593							; lda KERNEL_STORAGE_R,X
-    188  f593							; sta GEM_06_W
-    189  f593							; inx
-    190  f593							; lda KERNEL_STORAGE_R,X
-    191  f593							; sta GEM_08_W
-    192  f593							; inx
-    193  f593
-    194  f593		       85 02		      sta	WSYNC
-    195  f595
-    196  f595							; [scanline 8]
-    197  f595				   row_8
-      0  f595					      jet_spritedata_calc
-      1  f595
-      2  f595		       a9 09		      lda	#SPRITE_HEIGHT
-      3  f597		       c7 85		      dcp	SpriteEnd
-      4  f599		       a4 85		      ldy	SpriteEnd
-      5  f59b
-      6  f59b
-      7  f59b
-      8  f59b
-      9  f59b		       b9 00 f7 	      lda	Frame0,Y
-     10  f59e
-     11  f59e		       b0 01		      .byte.b	$b0, $01
-     12  f5a0		       2c		      .byte.b	$2c
-     13  f5a1		       85 1b		      sta	JET_SP
-    199  f5a3
-    200  f5a3							; Emerald byte setting 2B
-    201  f5a3							; lda KERNEL_STORAGE_R,X
-    202  f5a3							; sta GEM_11_W
-    203  f5a3							; inx
-    204  f5a3							; lda KERNEL_STORAGE_R,X
-    205  f5a3							; sta GEM_15_W
-    206  f5a3							; inx
-    207  f5a3							; lda KERNEL_STORAGE_R,X
-    208  f5a3							; sta GEM_20_W
-    209  f5a3							; inx
-    210  f5a3							; lda KERNEL_STORAGE_R,X
-    211  f5a3							; sta GEM_24_W
-    212  f5a3
-    213  f5a3		       4c a6 f5 	      jmp	row_8_end
-    214  f5a6
-    215  f5a6							; Common row 8 return.
-    216  f5a6
-    217  f5a6				   row_8_end
-    218  f5a6							; Idle.
-    219  f5a6		       85 02		      sta	WSYNC
-    220  f5a8
-    221  f5a8							; [scanline 8]
-    222  f5a8							; Repeat loop until LoopCount < 0
-    223  f5a8		       c6 82		      dec	LoopCount
-    224  f5aa		       30 03		      bmi	row_end
-    225  f5ac		       4c bf f4 	      jmp	row_start
-    226  f5af				   row_end
-    227  f5af		       4c 90 f4 	      jmp	border_bottom
+    122  f576
+    123  f576							; Idle.
+    124  f576		       85 02		      sta	WSYNC
+    125  f578
+    126  f578							; [scanline 7]
+    127  f578				   row_7
+      0  f578					      jet_spritedata_calc
+      1  f578
+      2  f578		       a9 09		      lda	#SPRITE_HEIGHT
+      3  f57a		       c7 85		      dcp	SpriteEnd
+      4  f57c		       a4 85		      ldy	SpriteEnd
+      5  f57e
+      6  f57e
+      7  f57e
+      8  f57e
+      9  f57e		       b9 00 f7 	      lda	Frame0,Y
+     10  f581
+     11  f581		       b0 01		      .byte.b	$b0, $01
+     12  f583		       2c		      .byte.b	$2c
+     13  f584		       85 1b		      sta	JET_SP
+    129  f586
+    130  f586		       a9 42		      lda	#COL_BG
+    131  f588		       85 08		      sta	COLUPF
+    132  f58a
+    133  f58a							; FRAMESWITCH
+    134  f58a		       a9 01		      lda	#01
+    135  f58c		       25 83		      and	FrameCount
+    136  f58e		       d0 13		      bne	loadframe2
+    137  f590
+    138  f590							; Perform gem loading for Kernel A.
+    139  f590
+    140  f590				   loadframe1
+      0  f590					      ASSERT_RUNTIME	"_scycles == #32"
+      1  f590				   .COND      SET	"_scycles == #32"
+ ASSERT: breakif { pc== $f590  && !(  _scycles == #32  ) }
+      2  f590					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
+    142  f590
+    143  f590							; Emerald byte setting 1A
+    144  f590							; ldx #0
+    145  f590							; lda KERNEL_STORAGE_R,X
+    146  f590							; sta GEM_00_W
+    147  f590							; inx
+    148  f590							; lda KERNEL_STORAGE_R,X
+    149  f590							; sta GEM_04_W
+    150  f590							; inx
+    151  f590							; lda KERNEL_STORAGE_R,X
+    152  f590							; sta GEM_09_W
+    153  f590							; inx
+    154  f590
+    155  f590		       85 02		      sta	WSYNC
+    156  f592
+    157  f592							; [scanline 8]
+      0  f592					      jet_spritedata_calc
+      1  f592
+      2  f592		       a9 09		      lda	#SPRITE_HEIGHT
+      3  f594		       c7 85		      dcp	SpriteEnd
+      4  f596		       a4 85		      ldy	SpriteEnd
+      5  f598
+      6  f598
+      7  f598
+      8  f598
+      9  f598		       b9 00 f7 	      lda	Frame0,Y
+     10  f59b
+     11  f59b		       b0 01		      .byte.b	$b0, $01
+     12  f59d		       2c		      .byte.b	$2c
+     13  f59e		       85 1b		      sta	JET_SP
+    159  f5a0
+    160  f5a0							; Emerald byte setting 1B
+    161  f5a0							; lda KERNEL_STORAGE_R,X
+    162  f5a0							; sta GEM_13_W
+    163  f5a0							; inx
+    164  f5a0							; lda KERNEL_STORAGE_R,X
+    165  f5a0							; sta GEM_17_W
+    166  f5a0							; inx
+    167  f5a0							; lda KERNEL_STORAGE_R,X
+    168  f5a0							; sta GEM_18_W
+    169  f5a0							; inx
+    170  f5a0							; lda KERNEL_STORAGE_R,X
+    171  f5a0							; sta GEM_22_W
+    172  f5a0
+    173  f5a0		       4c b6 f5 	      jmp	row_8_end
+    174  f5a3
+    175  f5a3							; Perform gem loading for Kernel B.
+    176  f5a3
+    177  f5a3				   loadframe2
+      0  f5a3					      ASSERT_RUNTIME	"_scycles == #33"
+      1  f5a3				   .COND      SET	"_scycles == #33"
+ ASSERT: breakif { pc== $f5a3  && !(  _scycles == #33  ) }
+      2  f5a3					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
+    179  f5a3
+    180  f5a3							; Emerald byte setting 2A
+    181  f5a3							; ldx #[storage_02 - storage]
+    182  f5a3							; lda KERNEL_STORAGE_R,X
+    183  f5a3							; sta GEM_02_W
+    184  f5a3							; inx
+    185  f5a3							; lda KERNEL_STORAGE_R,X
+    186  f5a3							; sta GEM_06_W
+    187  f5a3							; inx
+    188  f5a3							; lda KERNEL_STORAGE_R,X
+    189  f5a3							; sta GEM_08_W
+    190  f5a3							; inx
+    191  f5a3
+    192  f5a3		       85 02		      sta	WSYNC
+    193  f5a5
+    194  f5a5							; [scanline 8]
+    195  f5a5				   row_8
+      0  f5a5					      jet_spritedata_calc
+      1  f5a5
+      2  f5a5		       a9 09		      lda	#SPRITE_HEIGHT
+      3  f5a7		       c7 85		      dcp	SpriteEnd
+      4  f5a9		       a4 85		      ldy	SpriteEnd
+      5  f5ab
+      6  f5ab
+      7  f5ab
+      8  f5ab
+      9  f5ab		       b9 00 f7 	      lda	Frame0,Y
+     10  f5ae
+     11  f5ae		       b0 01		      .byte.b	$b0, $01
+     12  f5b0		       2c		      .byte.b	$2c
+     13  f5b1		       85 1b		      sta	JET_SP
+    197  f5b3
+    198  f5b3							; Emerald byte setting 2B
+    199  f5b3							; lda KERNEL_STORAGE_R,X
+    200  f5b3							; sta GEM_11_W
+    201  f5b3							; inx
+    202  f5b3							; lda KERNEL_STORAGE_R,X
+    203  f5b3							; sta GEM_15_W
+    204  f5b3							; inx
+    205  f5b3							; lda KERNEL_STORAGE_R,X
+    206  f5b3							; sta GEM_20_W
+    207  f5b3							; inx
+    208  f5b3							; lda KERNEL_STORAGE_R,X
+    209  f5b3							; sta GEM_24_W
+    210  f5b3
+    211  f5b3		       4c b6 f5 	      jmp	row_8_end
+    212  f5b6
+    213  f5b6							; Common row 8 return.
+    214  f5b6
+    215  f5b6				   row_8_end
+    216  f5b6							; Idle.
+    217  f5b6		       85 02		      sta	WSYNC
+    218  f5b8
+    219  f5b8							; [scanline 8]
+    220  f5b8							; Repeat loop until LoopCount < 0
+    221  f5b8		       c6 82		      dec	LoopCount
+    222  f5ba		       30 03		      bmi	row_end
+    223  f5bc		       4c cf f4 	      jmp	row_start
+    224  f5bf				   row_end
+    225  f5bf		       4c a0 f4 	      jmp	border_bottom
 ------- FILE main.s
 ------- FILE kernel_gem.s LEVEL 2 PASS 2
-      0  f5b2					      include	"kernel_gem.s"
-      1  f5b2							;
-      2  f5b2							; Gem Kernels
-      3  f5b2							;
-      4  f5b2							; Gems are displayed in alternating kernels. This chart shows
-      5  f5b2							; which kernel is responsible for which gem, with missiles denoted.
-      6  f5b2							;
-      7  f5b2							;  1:	 |SS  SS  MSS  |SS   SS  SS  |	      kernel 1 (S = Sprite, M = missile)
-      8  f5b2							;  2:	 |  SS	SS   SS|  SSM  SS  SS|	      kernel 2
-      9  f5b2							;  =	 |1122112221122|1122111221122|	      kernel #
-     10  f5b2							;  #	 0^	 8^	  17^	    26^       gem index
-     11  f5b2							;
-     12  f5b2							; The middle bar indicates where the pattern reverses.
-     13  f5b2							;
-     14  f5b2							; Because we can repeat a sprite multiple times, and reset the sprite
-     15  f5b2							; occurance mid-line, we can render close to half of the 26 gems a line
-     16  f5b2							; requires with a single sprite. By alternating sprites each frame with an...
-     17  f5b2							; acceptable amount of flicker (15Hz) we can render almost all the gems on each
-     18  f5b2							; line, except for two. These are instead rendered by the missile, which
-     19  f5b2							; corresponds to the sprite and must have the same color and repeat pattern.
-     20  f5b2
-     21  f5b2							; for copying
+      0  f5c2					      include	"kernel_gem.s"
+      1  f5c2							;
+      2  f5c2							; Gem Kernels
+      3  f5c2							;
+      4  f5c2							; Gems are displayed in alternating kernels. This chart shows
+      5  f5c2							; which kernel is responsible for which gem, with missiles denoted.
+      6  f5c2							;
+      7  f5c2							;  1:	 |SS  SS  MSS  |SS   SS  SS  |	      kernel 1 (S = Sprite, M = missile)
+      8  f5c2							;  2:	 |  SS	SS   SS|  SSM  SS  SS|	      kernel 2
+      9  f5c2							;  =	 |1122112221122|1122111221122|	      kernel #
+     10  f5c2							;  #	 0^	 8^	  17^	    26^       gem index
+     11  f5c2							;
+     12  f5c2							; The middle bar indicates where the pattern reverses.
+     13  f5c2							;
+     14  f5c2							; Because we can repeat a sprite multiple times, and reset the sprite
+     15  f5c2							; occurance mid-line, we can render close to half of the 26 gems a line
+     16  f5c2							; requires with a single sprite. By alternating sprites each frame with an...
+     17  f5c2							; acceptable amount of flicker (15Hz) we can render almost all the gems on each
+     18  f5c2							; line, except for two. These are instead rendered by the missile, which
+     19  f5c2							; corresponds to the sprite and must have the same color and repeat pattern.
+     20  f5c2
+     21  f5c2							; for copying
      22  f600		       00 00 00 00*	      align	256
      23  f600
      24  f600							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -2103,7 +2096,7 @@
      69  f618
      70  f618							; below has one `php` call (by default: RESET)
      71  f618				   KernelA_D
-     72  f618		       84 26		      sty	VDELP1	; Gemini 1A, clear VDELP1
+     72  f618		       84 26		      sty	VDELP1	; Gemini 1A, clear VDELP1. all registers have d0 cleared
      73  f61a				   KernelA_E
      74  f61a		       08		      php		; Reset "medium close" NUSIZ repetition
      75  f61b				   KernelA_F
@@ -2170,23 +2163,24 @@
      18  f62b		       ea		      nop
      19  f62c					      REPEND
     100  f62c
-    101  f62c		       68		      pla		; reset stack pointer
-    102  f62d
-    103  f62d							; End visible line
+    101  f62c							; reset stack pointer
+    102  f62c		       68		      pla
+    103  f62d
+    104  f62d							; End visible line
       0  f62d					      ASSERT_RUNTIME_KERNEL	$A, "_scycles == #67"
       1  f62d				   .KERNEL    SET	$A
       2  f62d				   .COND      SET	"_scycles == #67"
  ASSERT: breakif { pc== $f12d  && ( *$f100 ==  $a   ) && ! (  _scycles == #67  ) }
       3  f62d					      echo	"ASSERT:", "breakif { pc==", ., " && ( *$f100 == ", .KERNEL, "  ) && ! ( ", .COND, " ) }"
-    105  f62d
-    106  f62d				   KernelA_branch
-    107  f62d		       ad 84 02 	      lda	INTIM
-    108  f630		       d0 cf		      bne	KernelA_early
-    109  f632
-    110  f632		       4c 50 f5 	      jmp	row_after_kernel
-    111  f635
-    112  f635					      rend
-    113  f635				   kernel_1_end
+    106  f62d
+    107  f62d				   KernelA_branch
+    108  f62d		       ad 84 02 	      lda	INTIM
+    109  f630		       d0 cf		      bne	KernelA_early
+    110  f632
+    111  f632		       4c 60 f5 	      jmp	row_after_kernel
+    112  f635
+    113  f635					      rend
+    114  f635				   kernel_1_end
       0  f635					      ASSERT_SIZE	kernel_1_start, kernel_1_end, $40
       1  f635				   .STARTA    SET	kernel_1_start
       2  f635				   .ENDA      SET	kernel_1_end
@@ -2195,99 +2189,60 @@
       5  f635				  -	      echo	"Error: Exceeded size limit", [.ENDA - .STARTA], "vs", .LEN
       6  f635				  -	      err
       7  f635					      endif
-    115  f635
-    116  f635							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    117  f635							;
-    118  f635							; GEM KERNEL B
-    119  f635							;
-    120  f635
-    121  f635				   kernel_2_start subroutine
-    122  f635					      rorg	$f100
-    123  f635
-    124  f635							; Kernel Marker
-    125  f635		       0b		      .byte.b	$B
-    126  f636
-    127  f636				   KernelB_early
-    128  f636							; Early code to set next GRP0 image. Value is overwritten
-    129  f636		       a9 ff		      lda	#$ff
-    130  f638
-    131  f638				   KernelB    subroutine
-    132  f638							; VDELP0: to write 0, we use the Y register %01100110, which has D0 always 0
-    133  f638
-    134  f638		       a2 03		      ldx	#%00000011
-    135  f63a		       a0 33		      ldy	#%00110011
-    136  f63c
-    137  f63c							; Write Gemini 0A into delayed sprite register
-    138  f63c		       8c 1c 00 	      sty.w	EMERALD_SP
-    139  f63f							; Write Player from accumulator. When writing to the other sprite, the
-    140  f63f							; TIA will copy Gemini 0A into visible sprite register
-    141  f63f		       85 1b		      sta	JET_SP
-    142  f641							; Write Gemini 1A into delayed sprite register
-    143  f641		       84 1c		      sty	EMERALD_SP
-    144  f643
-    145  f643		       86 1e		      stx	EMERALD_MI_ENABLE	; Enable missile
-    146  f645
-    147  f645							; Playfield
-    148  f645		       a9 60		      lda	#%01100000
-    149  f647
-    150  f647							; Php setup
-    151  f647		       38		      sec
-    152  f648		       2c 90 00 	      bit.w	RamZeroByte
-    153  f64b							; clc
-    154  f64b							; bit.w RamLowerSixByte
-    155  f64b
-    156  f64b							; 25c is critical start of precise GRP0 timing for Kernel B
-      0  f64b					      ASSERT_RUNTIME_KERNEL	$B, "_scycles == #25"
-      1  f64b				   .KERNEL    SET	$B
-      2  f64b				   .COND      SET	"_scycles == #25"
- ASSERT: breakif { pc== $f116  && ( *$f100 ==  $b   ) && ! (  _scycles == #25  ) }
-      3  f64b					      echo	"ASSERT:", "breakif { pc==", ., " && ( *$f100 == ", .KERNEL, "  ) && ! ( ", .COND, " ) }"
-    158  f64b				   KernelB_A
-    159  f64b		       85 11		      sta	EMERALD_SP_RESET
-    160  f64d				   KernelB_B
-      0  f64d					      sleep	3
-      1  f64d				   .CYCLES    SET	3
-      2  f64d
-      3  f64d				  -	      IF	.CYCLES < 2
-      4  f64d				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  f64d				  -	      ERR
-      6  f64d					      ENDIF
-      7  f64d
-      8  f64d					      IF	.CYCLES & 1
-      9  f64d					      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f64d		       04 00		      nop	0
-     11  f64f				  -	      ELSE
-     12  f64f				  -	      bit	VSYNC
-     13  f64f					      ENDIF
-     14  f64f				   .CYCLES    SET	.CYCLES - 3
-     15  f64f					      ENDIF
-     16  f64f
-     17  f64f				  -	      REPEAT	.CYCLES / 2
-     18  f64f				  -	      nop
-     19  f64f					      REPEND
-    162  f64f				   KernelB_C
-      0  f64f					      sleep	3
-      1  f64f				   .CYCLES    SET	3
-      2  f64f
-      3  f64f				  -	      IF	.CYCLES < 2
-      4  f64f				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  f64f				  -	      ERR
-      6  f64f					      ENDIF
-      7  f64f
-      8  f64f					      IF	.CYCLES & 1
-      9  f64f					      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f64f		       04 00		      nop	0
-     11  f651				  -	      ELSE
-     12  f651				  -	      bit	VSYNC
-     13  f651					      ENDIF
-     14  f651				   .CYCLES    SET	.CYCLES - 3
-     15  f651					      ENDIF
-     16  f651
-     17  f651				  -	      REPEAT	.CYCLES / 2
-     18  f651				  -	      nop
-     19  f651					      REPEND
-    164  f651				   KernelB_D
-    165  f651		       84 1c		      sty	EMERALD_SP
+    116  f635
+    117  f635							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    118  f635							;
+    119  f635							; GEM KERNEL B
+    120  f635							;
+    121  f635
+    122  f635				   kernel_2_start subroutine
+    123  f635					      rorg	$f100
+    124  f635
+    125  f635							; Kernel Marker
+    126  f635		       0b		      .byte.b	$B
+    127  f636
+    128  f636				   KernelB_early
+    129  f636							; Early code to set next GRP0 image. Value is overwritten
+    130  f636		       a9 ff		      lda	#$ff
+    131  f638
+    132  f638				   KernelB    subroutine
+    133  f638							; VDELP0: to write 0, we use the Y register %01100110, which has D0 always 0
+    134  f638
+    135  f638							; Write Gemini 0A into delayed sprite register
+    136  f638		       84 1c		      sty	EMERALD_SP
+    137  f63a							; Write Player from accumulator. When writing to the other sprite, the
+    138  f63a							; TIA will copy Gemini 0A into visible sprite register
+    139  f63a		       85 1b		      sta	JET_SP
+    140  f63c							; Write Gemini 1A into delayed sprite register
+    141  f63c		       84 1c		      sty	EMERALD_SP
+    142  f63e
+    143  f63e							; Register config
+    144  f63e		       a9 ff		      lda	#$ff
+    145  f640		       85 1e		      sta	EMERALD_MI_ENABLE	; enable missile
+    146  f642		       85 26		      sta	VDELP1	; enable delayed sprite
+    147  f644							; sleep 3
+    148  f644
+    149  f644							; Playfield
+    150  f644		       a5 92		      lda	RamPF1Value
+    151  f646
+    152  f646							; Clear bits in processor status register for drawing.
+    153  f646		       18		      clc
+    154  f647		       24 91		      bit	RamLowerSixByte
+    155  f649
+    156  f649							; 25c is critical start of precise GRP0 timing for Kernel B
+      0  f649					      ASSERT_RUNTIME_KERNEL	$B, "_scycles == #25"
+      1  f649				   .KERNEL    SET	$B
+      2  f649				   .COND      SET	"_scycles == #25"
+ ASSERT: breakif { pc== $f114  && ( *$f100 ==  $b   ) && ! (  _scycles == #25  ) }
+      3  f649					      echo	"ASSERT:", "breakif { pc==", ., " && ( *$f100 == ", .KERNEL, "  ) && ! ( ", .COND, " ) }"
+    158  f649				   KernelB_A
+    159  f649		       8d 11 00 	      sta.w	EMERALD_SP_RESET
+    160  f64c				   KernelB_B
+    161  f64c				   KernelB_C
+    162  f64c				   KernelB_D
+    163  f64c		       a0 00		      ldy	#0
+    164  f64e		       bb 25 00 	      .byte.b	$bb, VDELP0, $00
+    165  f651		       a0 33		      ldy	#%00110011
     166  f653				   KernelB_E
     167  f653		       85 11		      sta	EMERALD_SP_RESET
     168  f655				   KernelB_F
@@ -2297,7 +2252,7 @@
     172  f659
     173  f659							; below has one php load (could just be RESET)
     174  f659				   KernelB_H
-    175  f659		       08		      php		; Gemini 3B
+    175  f659		       08		      php		; Gemini 3B; write
     176  f65a				   KernelB_I
     177  f65a		       85 11		      sta	EMERALD_SP_RESET
     178  f65c				   KernelB_J
@@ -2330,21 +2285,24 @@
      17  f662					      REPEAT	.CYCLES / 2
      18  f662		       ea		      nop
      19  f663					      REPEND
-    189  f663		       68		      pla		; reset stack pointer
-    190  f664							; End visible line
+    189  f663
+    190  f663							; reset stack pointer
+    191  f663		       68		      pla
+    192  f664
+    193  f664							; End visible line
       0  f664					      ASSERT_RUNTIME_KERNEL	$B, "_scycles == #67"
       1  f664				   .KERNEL    SET	$B
       2  f664				   .COND      SET	"_scycles == #67"
  ASSERT: breakif { pc== $f12f  && ( *$f100 ==  $b   ) && ! (  _scycles == #67  ) }
       3  f664					      echo	"ASSERT:", "breakif { pc==", ., " && ( *$f100 == ", .KERNEL, "  ) && ! ( ", .COND, " ) }"
-    192  f664
-    193  f664				   KernelB_branch
-    194  f664		       ad 84 02 	      lda	INTIM
-    195  f667		       d0 cd		      bne	KernelB_early
-    196  f669		       4c 50 f5 	      jmp	row_after_kernel
-    197  f66c
-    198  f66c					      rend
-    199  f66c				   kernel_2_end
+    195  f664
+    196  f664				   KernelB_branch
+    197  f664		       ad 84 02 	      lda	INTIM
+    198  f667		       d0 cd		      bne	KernelB_early
+    199  f669		       4c 60 f5 	      jmp	row_after_kernel
+    200  f66c
+    201  f66c					      rend
+    202  f66c				   kernel_2_end
       0  f66c					      ASSERT_SIZE	kernel_2_start, kernel_2_end, $40
       1  f66c				   .STARTA    SET	kernel_2_start
       2  f66c				   .ENDA      SET	kernel_2_end

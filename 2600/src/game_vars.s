@@ -35,6 +35,8 @@ RamPF1Value         byte
 RamKernelGRP0       byte ; temp
 RamStackBkp         byte
 RamKernelPhpTarget  byte
+RamKernelX          byte
+RamKernelY          byte
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

@@ -69,7 +69,7 @@ KernelA_C:
 
 ; below has one `php` call (by default: RESET)
 KernelA_D:
-    sty VDELP1 ; Gemini 1A, clear VDELP1
+    sty VDELP1 ; Gemini 1A, clear VDELP1. all registers have d0 cleared
 KernelA_E:
     php ; Reset "medium close" NUSIZ repetition
 KernelA_F:
@@ -98,7 +98,8 @@ KernelA_N:
 KernelA_O:
     sleep 2
 
-    pla ; reset stack pointer
+    ; reset stack pointer
+    pla
 
     ; End visible line
     ASSERT_RUNTIME_KERNEL $A, "_scycles == #67"
@@ -131,38 +132,37 @@ KernelB_early:
 KernelB: subroutine
     ; VDELP0: to write 0, we use the Y register %01100110, which has D0 always 0
 
-    ldx #%00000011
-    ldy #%00110011
-
     ; Write Gemini 0A into delayed sprite register
-    sty.w EMERALD_SP
+    sty EMERALD_SP
     ; Write Player from accumulator. When writing to the other sprite, the
     ; TIA will copy Gemini 0A into visible sprite register
     sta JET_SP
     ; Write Gemini 1A into delayed sprite register
     sty EMERALD_SP
 
-    stx EMERALD_MI_ENABLE ; Enable missile
+    ; Register config
+    lda #$ff
+    sta EMERALD_MI_ENABLE ; enable missile
+    sta VDELP1 ; enable delayed sprite
+    ; sleep 3
 
     ; Playfield
     lda RamPF1Value
 
-    ; Php setup
-    sec
-    bit RamZeroByte
-    ; clc
-    ; bit.w RamLowerSixByte
+    ; Clear bits in processor status register for drawing.
+    clc
+    bit RamLowerSixByte
 
     ; 25c is critical start of precise GRP0 timing for Kernel B
     ASSERT_RUNTIME_KERNEL $B, "_scycles == #25"
 KernelB_A:
-    sta EMERALD_SP_RESET
+    sta.w EMERALD_SP_RESET
 KernelB_B:
-    sleep 3
 KernelB_C:
-    sleep 3
 KernelB_D:
-    sty EMERALD_SP
+    ldy #0
+    .byte $bb, VDELP0, $00
+    ldy #%00110011
 KernelB_E:
     sta EMERALD_SP_RESET
 KernelB_F:
@@ -172,7 +172,7 @@ KernelB_G:
 
 ; below has one php load (could just be RESET)
 KernelB_H:
-    php ; Gemini 3B
+    php ; Gemini 3B; write
 KernelB_I:
     sta EMERALD_SP_RESET
 KernelB_J:
@@ -186,7 +186,10 @@ KernelB_L:
 KernelB_M:
 KernelB_N:
     sleep 2
-    pla ; reset stack pointer
+
+    ; reset stack pointer
+    pla
+
     ; End visible line
     ASSERT_RUNTIME_KERNEL $B, "_scycles == #67"
 

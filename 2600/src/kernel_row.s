@@ -93,14 +93,12 @@ row_3:
     stx RamKernelGRP0
     KERNEL_LOAD_PLAYER
     stx [CBSRAM_KERNEL_WRITE + 2]
-    lda RamKernelGRP0 ; Load sprite 2 into A
-
-    sleep 3
+    lda.w RamKernelGRP0 ; Load sprite 2 into A
 
 ; [scanlines 4-5]
     ; We jump immediately into scanlines 4-5, the "gem kernel"
-    ldx #%00000110
-    ldy #%01100110
+    ldx RamKernelX
+    ldy RamKernelY
     ASSERT_RUNTIME "_scycles == #73"
     jmp CBSRAM_KERNEL_ENTRY
 
