@@ -156,13 +156,12 @@ KernelB: subroutine
     ; 25c is critical start of precise GRP0 timing for Kernel B
     ASSERT_RUNTIME_KERNEL $B, "_scycles == #25"
 KernelB_A:
-    sta.w EMERALD_SP_RESET
+    sta EMERALD_SP_RESET
 KernelB_B:
 KernelB_C:
 KernelB_D:
-    ldy #0
-    .byte $bb, VDELP0, $00
-    ldy #%00110011
+    sleep 4
+    .byte $9F, VDELP1-%00110011, $00 ; this has to get computed or somethinng
 KernelB_E:
     sta EMERALD_SP_RESET
 KernelB_F:

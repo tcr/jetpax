@@ -705,7 +705,7 @@
      14  f268
      15  f268							; Copy Kernel B to CBSRAM
      16  f268				   LoadKernelB subroutine
-     17  f268		       a0 36		      ldy	#(kernel_2_end - kernel_2_start)-1
+     17  f268		       a0 33		      ldy	#(kernel_2_end - kernel_2_start)-1
      18  f26a				   .loop
      19  f26a		       b9 35 f6 	      lda	kernel_2_start,Y
      20  f26d		       99 00 10 	      sta	$1000,Y
@@ -2236,84 +2236,104 @@
  ASSERT: breakif { pc== $f114  && ( *$f100 ==  $b   ) && ! (  _scycles == #25  ) }
       3  f649					      echo	"ASSERT:", "breakif { pc==", ., " && ( *$f100 == ", .KERNEL, "  ) && ! ( ", .COND, " ) }"
     158  f649				   KernelB_A
-    159  f649		       8d 11 00 	      sta.w	EMERALD_SP_RESET
-    160  f64c				   KernelB_B
-    161  f64c				   KernelB_C
-    162  f64c				   KernelB_D
-    163  f64c		       a0 00		      ldy	#0
-    164  f64e		       bb 25 00 	      .byte.b	$bb, VDELP0, $00
-    165  f651		       a0 33		      ldy	#%00110011
-    166  f653				   KernelB_E
-    167  f653		       85 11		      sta	EMERALD_SP_RESET
-    168  f655				   KernelB_F
-    169  f655		       84 1c		      sty	EMERALD_SP
-    170  f657				   KernelB_G
-    171  f657		       85 0e		      sta	PF1
-    172  f659
-    173  f659							; below has one php load (could just be RESET)
-    174  f659				   KernelB_H
-    175  f659		       08		      php		; Gemini 3B; write
-    176  f65a				   KernelB_I
-    177  f65a		       85 11		      sta	EMERALD_SP_RESET
-    178  f65c				   KernelB_J
-    179  f65c		       84 1c		      sty	EMERALD_SP	; Gemini 4B
-    180  f65e				   KernelB_K
-    181  f65e		       85 1e		      sta	EMERALD_MI_ENABLE
-    182  f660				   KernelB_L
-    183  f660		       84 1c		      sty	EMERALD_SP	; Gemini 5B
-    184  f662							; above has one PHP loa
-    185  f662
-    186  f662				   KernelB_M
-    187  f662				   KernelB_N
-      0  f662					      sleep	2
-      1  f662				   .CYCLES    SET	2
-      2  f662
-      3  f662				  -	      IF	.CYCLES < 2
-      4  f662				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  f662				  -	      ERR
-      6  f662					      ENDIF
-      7  f662
-      8  f662				  -	      IF	.CYCLES & 1
-      9  f662				  -	      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f662				  -	      nop	0
-     11  f662				  -	      ELSE
-     12  f662				  -	      bit	VSYNC
-     13  f662				  -	      ENDIF
-     14  f662				  -.CYCLES    SET	.CYCLES - 3
-     15  f662					      ENDIF
-     16  f662
-     17  f662					      REPEAT	.CYCLES / 2
-     18  f662		       ea		      nop
-     19  f663					      REPEND
-    189  f663
-    190  f663							; reset stack pointer
-    191  f663		       68		      pla
-    192  f664
-    193  f664							; End visible line
-      0  f664					      ASSERT_RUNTIME_KERNEL	$B, "_scycles == #67"
-      1  f664				   .KERNEL    SET	$B
-      2  f664				   .COND      SET	"_scycles == #67"
- ASSERT: breakif { pc== $f12f  && ( *$f100 ==  $b   ) && ! (  _scycles == #67  ) }
-      3  f664					      echo	"ASSERT:", "breakif { pc==", ., " && ( *$f100 == ", .KERNEL, "  ) && ! ( ", .COND, " ) }"
-    195  f664
-    196  f664				   KernelB_branch
-    197  f664		       ad 84 02 	      lda	INTIM
-    198  f667		       d0 cd		      bne	KernelB_early
-    199  f669		       4c 60 f5 	      jmp	row_after_kernel
-    200  f66c
-    201  f66c					      rend
-    202  f66c				   kernel_2_end
-      0  f66c					      ASSERT_SIZE	kernel_2_start, kernel_2_end, $40
-      1  f66c				   .STARTA    SET	kernel_2_start
-      2  f66c				   .ENDA      SET	kernel_2_end
-      3  f66c				   .LEN       SET	$40
-      4  f66c				  -	      if	[[.ENDA - .STARTA] >= .LEN]
-      5  f66c				  -	      echo	"Error: Exceeded size limit", [.ENDA - .STARTA], "vs", .LEN
-      6  f66c				  -	      err
-      7  f66c					      endif
+    159  f649		       85 11		      sta	EMERALD_SP_RESET
+    160  f64b				   KernelB_B
+    161  f64b				   KernelB_C
+    162  f64b				   KernelB_D
+      0  f64b					      sleep	4
+      1  f64b				   .CYCLES    SET	4
+      2  f64b
+      3  f64b				  -	      IF	.CYCLES < 2
+      4  f64b				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  f64b				  -	      ERR
+      6  f64b					      ENDIF
+      7  f64b
+      8  f64b				  -	      IF	.CYCLES & 1
+      9  f64b				  -	      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f64b				  -	      nop	0
+     11  f64b				  -	      ELSE
+     12  f64b				  -	      bit	VSYNC
+     13  f64b				  -	      ENDIF
+     14  f64b				  -.CYCLES    SET	.CYCLES - 3
+     15  f64b					      ENDIF
+     16  f64b
+     17  f64b					      REPEAT	.CYCLES / 2
+     18  f64b		       ea		      nop
+     17  f64b					      REPEND
+     18  f64c		       ea		      nop
+     19  f64d					      REPEND
+    164  f64d		       9f f3 00 	      .byte.b	$9F, VDELP1-%00110011, $00	; this has to be computed or somethinng
+    165  f650				   KernelB_E
+    166  f650		       85 11		      sta	EMERALD_SP_RESET
+    167  f652				   KernelB_F
+    168  f652		       84 1c		      sty	EMERALD_SP
+    169  f654				   KernelB_G
+    170  f654		       85 0e		      sta	PF1
+    171  f656
+    172  f656							; below has one php load (could just be RESET)
+    173  f656				   KernelB_H
+    174  f656		       08		      php		; Gemini 3B; write
+    175  f657				   KernelB_I
+    176  f657		       85 11		      sta	EMERALD_SP_RESET
+    177  f659				   KernelB_J
+    178  f659		       84 1c		      sty	EMERALD_SP	; Gemini 4B
+    179  f65b				   KernelB_K
+    180  f65b		       85 1e		      sta	EMERALD_MI_ENABLE
+    181  f65d				   KernelB_L
+    182  f65d		       84 1c		      sty	EMERALD_SP	; Gemini 5B
+    183  f65f							; above has one PHP loa
+    184  f65f
+    185  f65f				   KernelB_M
+    186  f65f				   KernelB_N
+      0  f65f					      sleep	2
+      1  f65f				   .CYCLES    SET	2
+      2  f65f
+      3  f65f				  -	      IF	.CYCLES < 2
+      4  f65f				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  f65f				  -	      ERR
+      6  f65f					      ENDIF
+      7  f65f
+      8  f65f				  -	      IF	.CYCLES & 1
+      9  f65f				  -	      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f65f				  -	      nop	0
+     11  f65f				  -	      ELSE
+     12  f65f				  -	      bit	VSYNC
+     13  f65f				  -	      ENDIF
+     14  f65f				  -.CYCLES    SET	.CYCLES - 3
+     15  f65f					      ENDIF
+     16  f65f
+     17  f65f					      REPEAT	.CYCLES / 2
+     18  f65f		       ea		      nop
+     19  f660					      REPEND
+    188  f660
+    189  f660							; reset stack pointer
+    190  f660		       68		      pla
+    191  f661
+    192  f661							; End visible line
+      0  f661					      ASSERT_RUNTIME_KERNEL	$B, "_scycles == #67"
+      1  f661				   .KERNEL    SET	$B
+      2  f661				   .COND      SET	"_scycles == #67"
+ ASSERT: breakif { pc== $f12c  && ( *$f100 ==  $b   ) && ! (  _scycles == #67  ) }
+      3  f661					      echo	"ASSERT:", "breakif { pc==", ., " && ( *$f100 == ", .KERNEL, "  ) && ! ( ", .COND, " ) }"
+    194  f661
+    195  f661				   KernelB_branch
+    196  f661		       ad 84 02 	      lda	INTIM
+    197  f664		       d0 d0		      bne	KernelB_early
+    198  f666		       4c 60 f5 	      jmp	row_after_kernel
+    199  f669
+    200  f669					      rend
+    201  f669				   kernel_2_end
+      0  f669					      ASSERT_SIZE	kernel_2_start, kernel_2_end, $40
+      1  f669				   .STARTA    SET	kernel_2_start
+      2  f669				   .ENDA      SET	kernel_2_end
+      3  f669				   .LEN       SET	$40
+      4  f669				  -	      if	[[.ENDA - .STARTA] >= .LEN]
+      5  f669				  -	      echo	"Error: Exceeded size limit", [.ENDA - .STARTA], "vs", .LEN
+      6  f669				  -	      err
+      7  f669					      endif
 ------- FILE main.s
 ------- FILE data_sprites.s LEVEL 2 PASS 2
-      0  f66c					      include	"data_sprites.s"
+      0  f669					      include	"data_sprites.s"
       1  f700		       00 00 00 00*	      align	256
       2  f700
       3  f700							; Player
