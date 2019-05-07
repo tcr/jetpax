@@ -146,8 +146,9 @@ KernelB: subroutine
 
     ; sleep 3
     lda #%01100000
-    sec
-    bit.w RamZeroByte
+    ; sec
+    clc
+    bit.w RamFullByte
 
     ; 25c is critical start of precise GRP0 timing for Kernel B
     ASSERT_RUNTIME_KERNEL $B, "_scycles == 25"

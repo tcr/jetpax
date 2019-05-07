@@ -50,6 +50,8 @@ InitSetup:
     ; Store 0 into RamZeroByte
     lda #0
     sta RamZeroByte
+    lda #$ff
+    sta RamFullByte
 
     ; Start with vertical sync (to reset frame)
     jmp VerticalSync
