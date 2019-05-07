@@ -99,7 +99,8 @@ KernelA_P:
     ; TODO load next line's GRP1
 
     ; 6c
-    ASSERT_RUNTIME "RamCurrentKernel != #1 || _scycles == #70"
+KernelA_branch:
+    ASSERT_RUNTIME "*RamCurrentKernel != #1 || _scycles == #70"
     rts
 
     rend
@@ -174,7 +175,8 @@ KernelB_O:
     lda RamKernelGRP0
 
     ; 6c
-    ASSERT_RUNTIME "RamCurrentKernel != #2 || _scycles == #70"
+KernelB_branch:
+    ASSERT_RUNTIME "*RamCurrentKernel != #2 || _scycles == #70"
     rts
 
     rend
