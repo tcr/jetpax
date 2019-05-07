@@ -2007,7 +2007,7 @@
      35  f601				   KernelA_early
      36  f601		       a9 2c		      lda	#44
      37  f603
-     38  f603				   Kernel1    subroutine
+     38  f603				   KernelA    subroutine
      39  f603							; ASSERT_RUNTIME "sp == $f9"
       0  f603					      ASSERT_RUNTIME_KERNEL	$A, "_scycles == 22"
       1  f603				   .KERNEL    SET	$A
@@ -2194,7 +2194,7 @@
     125  f636				   KernelB_early
     126  f636		       a9 2c		      lda	#44
     127  f638
-    128  f638				   Kernel2    subroutine
+    128  f638				   KernelB    subroutine
     129  f638							; Assert: M1 is at position #61
     130  f638
     131  f638							; don't sleep first to make this distinct from Kernel A in debugger, lol
@@ -2239,15 +2239,17 @@
     145  f646		       a9 c0		      lda	#%11000000
     146  f648		       84 1c		      sty	EMERALD_SP
     147  f64a
-    148  f64a							; 25c is critical start of precise GRP0 timing for Kernel B
+    148  f64a
+    149  f64a
+    150  f64a							; 25c is critical start of precise GRP0 timing for Kernel B
       0  f64a					      ASSERT_RUNTIME_KERNEL	$B, "_scycles == 25"
       1  f64a				   .KERNEL    SET	$B
       2  f64a				   .COND      SET	"_scycles == 25"
  ASSERT: breakif { pc== $f115  && !( ( *$f100 == # $b  ) && (  _scycles == 25  ) ) }
       3  f64a					      echo	"ASSERT:", "breakif { pc==", ., " && !( ( *$f100 == #", .KERNEL, " ) && ( ", .COND, " ) ) }"
-    150  f64a				   KernelB_A
-    151  f64a		       85 11		      sta	EMERALD_SP_RESET
-    152  f64c				   KernelB_B
+    152  f64a				   KernelB_A
+    153  f64a		       85 11		      sta	EMERALD_SP_RESET
+    154  f64c				   KernelB_B
       0  f64c					      sleep	3
       1  f64c				   .CYCLES    SET	3
       2  f64c
@@ -2268,7 +2270,7 @@
      17  f64e				  -	      REPEAT	.CYCLES / 2
      18  f64e				  -	      nop
      19  f64e					      REPEND
-    154  f64e				   KernelB_C
+    156  f64e				   KernelB_C
       0  f64e					      sleep	3
       1  f64e				   .CYCLES    SET	3
       2  f64e
@@ -2289,13 +2291,13 @@
      17  f650				  -	      REPEAT	.CYCLES / 2
      18  f650				  -	      nop
      19  f650					      REPEND
-    156  f650				   KernelB_D
-    157  f650		       84 1c		      sty	EMERALD_SP
-    158  f652				   KernelB_E
-    159  f652		       85 11		      sta	EMERALD_SP_RESET
-    160  f654				   KernelB_F
-    161  f654		       84 1c		      sty	EMERALD_SP
-    162  f656				   KernelB_G		; PF1
+    158  f650				   KernelB_D
+    159  f650		       84 1c		      sty	EMERALD_SP
+    160  f652				   KernelB_E
+    161  f652		       85 11		      sta	EMERALD_SP_RESET
+    162  f654				   KernelB_F
+    163  f654		       84 1c		      sty	EMERALD_SP
+    164  f656				   KernelB_G		; PF1
       0  f656					      sleep	3
       1  f656				   .CYCLES    SET	3
       2  f656
@@ -2316,21 +2318,21 @@
      17  f658				  -	      REPEAT	.CYCLES / 2
      18  f658				  -	      nop
      19  f658					      REPEND
-    164  f658
-    165  f658							; below has one php load (RESET?)
-    166  f658				   KernelB_H
-    167  f658		       84 1c		      sty	EMERALD_SP	; Gemini 3B
-    168  f65a				   KernelB_I
-    169  f65a		       85 11		      sta	EMERALD_SP_RESET
-    170  f65c				   KernelB_J
-    171  f65c		       84 1c		      sty	EMERALD_SP	; Gemini 4B
-    172  f65e				   KernelB_K
-    173  f65e		       85 1e		      sta	EMERALD_MI_ENABLE
-    174  f660				   KernelB_L
-    175  f660		       84 1c		      sty	EMERALD_SP	; Gemini 5B
-    176  f662							; above has one PHP loa
-    177  f662
-    178  f662				   KernelB_M
+    166  f658
+    167  f658							; below has one php load (RESET?)
+    168  f658				   KernelB_H
+    169  f658		       84 1c		      sty	EMERALD_SP	; Gemini 3B
+    170  f65a				   KernelB_I
+    171  f65a		       85 11		      sta	EMERALD_SP_RESET
+    172  f65c				   KernelB_J
+    173  f65c		       84 1c		      sty	EMERALD_SP	; Gemini 4B
+    174  f65e				   KernelB_K
+    175  f65e		       85 1e		      sta	EMERALD_MI_ENABLE
+    176  f660				   KernelB_L
+    177  f660		       84 1c		      sty	EMERALD_SP	; Gemini 5B
+    178  f662							; above has one PHP loa
+    179  f662
+    180  f662				   KernelB_M
       0  f662					      sleep	3
       1  f662				   .CYCLES    SET	3
       2  f662
@@ -2351,7 +2353,7 @@
      17  f664				  -	      REPEAT	.CYCLES / 2
      18  f664				  -	      nop
      19  f664					      REPEND
-    180  f664				   KernelB_N
+    182  f664				   KernelB_N
       0  f664					      sleep	3
       1  f664				   .CYCLES    SET	3
       2  f664
@@ -2372,21 +2374,21 @@
      17  f666				  -	      REPEAT	.CYCLES / 2
      18  f666				  -	      nop
      19  f666					      REPEND
-    182  f666
-    183  f666							; 7c
-    184  f666				   KernelB_branch
+    184  f666
+    185  f666							; 7c
+    186  f666				   KernelB_branch
       0  f666					      ASSERT_RUNTIME_KERNEL	$B, "_scycles == #67"
       1  f666				   .KERNEL    SET	$B
       2  f666				   .COND      SET	"_scycles == #67"
  ASSERT: breakif { pc== $f131  && !( ( *$f100 == # $b  ) && (  _scycles == #67  ) ) }
       3  f666					      echo	"ASSERT:", "breakif { pc==", ., " && !( ( *$f100 == #", .KERNEL, " ) && ( ", .COND, " ) ) }"
-    186  f666		       ad 84 02 	      lda	INTIM
-    187  f669		       d0 cb		      bne	KernelB_early
-    188  f66b
-    189  f66b		       4c 40 f5 	      jmp	row_after_kernel
-    190  f66e
-    191  f66e					      rend
-    192  f66e				   kernel_2_end
+    188  f666		       ad 84 02 	      lda	INTIM
+    189  f669		       d0 cb		      bne	KernelB_early
+    190  f66b
+    191  f66b		       4c 40 f5 	      jmp	row_after_kernel
+    192  f66e
+    193  f66e					      rend
+    194  f66e				   kernel_2_end
       0  f66e					      ASSERT_SIZE	kernel_2_start, kernel_2_end, $40
       1  f66e				   .STARTA    SET	kernel_2_start
       2  f66e				   .ENDA      SET	kernel_2_end

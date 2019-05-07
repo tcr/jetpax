@@ -35,7 +35,7 @@ kernel_1_start: subroutine
 KernelA_early:
     lda #44
 
-Kernel1: subroutine
+KernelA: subroutine
     ; ASSERT_RUNTIME "sp == $f9"
     ASSERT_RUNTIME_KERNEL $A, "_scycles == 22"
 
@@ -125,7 +125,7 @@ kernel_2_start: subroutine
 KernelB_early:
     lda #44
 
-Kernel2: subroutine
+KernelB: subroutine
     ; Assert: M1 is at position #61
     
     ; don't sleep first to make this distinct from Kernel A in debugger, lol
@@ -144,6 +144,8 @@ Kernel2: subroutine
 
     lda #%11000000
     sty EMERALD_SP
+
+    
 
     ; 25c is critical start of precise GRP0 timing for Kernel B
     ASSERT_RUNTIME_KERNEL $B, "_scycles == 25"
