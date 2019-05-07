@@ -52,6 +52,9 @@ row_1:
     ; Nibble VM.
     sleep 46
 
+    ldx #RESP1
+    txs
+
     ASSERT_RUNTIME "_scycles == #0"
 
 ; [scanline 2]
