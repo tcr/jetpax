@@ -64,7 +64,10 @@ row_2:
     sta COLUPF
 
     ; Nibble VM.
-    sleep 41
+    sleep 35
+
+    lda #4
+    sta TIM64T
 
     ; Load PF1 value
     lda #%10100000
@@ -80,17 +83,15 @@ row_2:
 row_3:
     jet_spritedata_calc
 
-    ; Set stack pointer.
-    ldx #$fb
-    txs
     ; Pre-populate graphics.
-    ; REFACTOR remove use of the _temp variable?
     lda #SPRITE_HEIGHT
     KERNEL_LOAD_PLAYER
-    stx RamKernelGRP0_temp
-    KERNEL_LOAD_PLAYER
     stx RamKernelGRP0
-    lda RamKernelGRP0_temp ; Load sprite 2 into A
+    KERNEL_LOAD_PLAYER
+    stx [CBSRAM_KERNEL_WRITE + 2]
+    lda RamKernelGRP0 ; Load sprite 2 into A
+
+    sleep 3
 
 ; [scanlines 4-5]
     ; We jump immediately into scanlines 4-5, the "gem kernel"

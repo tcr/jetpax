@@ -29,7 +29,11 @@
 kernel_1_start: subroutine
     rorg $f100
 
-    .byte $01, $01, $01, $01
+    ; Kernel Marker
+    .byte $01
+
+KernelA_early:
+    lda #44
 
 Kernel1: subroutine
     ; ASSERT_RUNTIME "sp == $f9"
@@ -93,15 +97,14 @@ KernelA_N:
     sleep 3
 KernelA_O:
     sleep 3
-KernelA_P:
-    lda RamKernelGRP0
 
-    ; TODO load next line's GRP1
-
-    ; 6c
+    ; 7c
 KernelA_branch:
     ASSERT_RUNTIME "*RamCurrentKernel != #1 || _scycles == #70"
-    rts
+    lda INTIM
+    bne KernelA_early
+
+    jmp row_after_kernel
 
     rend
 kernel_1_end:
@@ -115,7 +118,11 @@ kernel_1_end:
 kernel_2_start: subroutine
     rorg $f100
 
-    .byte $02, $02, $02, $02
+    ; Kernel Marker
+    .byte $02
+
+KernelB_early:
+    lda #44
 
 Kernel2: subroutine
     ; Assert: M1 is at position #61
@@ -171,13 +178,14 @@ KernelB_M:
     sleep 3
 KernelB_N:
     sleep 3
-KernelB_O:
-    lda RamKernelGRP0
 
-    ; 6c
+    ; 7c
 KernelB_branch:
-    ASSERT_RUNTIME "*RamCurrentKernel != #2 || _scycles == #70"
-    rts
+    ASSERT_RUNTIME "*RamCurrentKernel != #2 || _scycles == #67"
+    lda INTIM
+    bne KernelB_early
+
+    jmp row_after_kernel
 
     rend
 kernel_2_end:

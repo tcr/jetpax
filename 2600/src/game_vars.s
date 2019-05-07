@@ -32,8 +32,7 @@ KERNEL_TEMP_A byte
 RamCurrentKernel    byte
 
 RamPF1Value         byte
-RamKernelGRP0       byte
-RamKernelGRP0_temp  byte
+RamKernelGRP0       byte ; temp
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -42,10 +41,9 @@ ROW_COUNT = 16
 SIGNAL_LINE = $02
 
 ; RAM+ memory map
-
-RAMP_KERNEL_W = $f000
-RAMP_KERNEL_R = $f100
-CBSRAM_KERNEL_ENTRY = [RAMP_KERNEL_R + 4]
+CBSRAM_KERNEL_WRITE     = $f000
+CBSRAM_KERNEL_READ      = $f100
+CBSRAM_KERNEL_ENTRY     = [CBSRAM_KERNEL_READ + 3]
 
 RAMP_STORAGE_W = $f040 ; is this just max(frame_1_end, frame_2_end) ?
 RAMP_STORAGE_R = $f140

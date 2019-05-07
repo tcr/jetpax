@@ -128,7 +128,6 @@ VerticalBlankEnd:
     ASSERT_RUNTIME "_scan == #37"
 
     ; Start rendering the kernel.
-    TIMER_SETUP 192
     jmp KernelBorder
 
 FrameEnd: subroutine
@@ -151,6 +150,8 @@ FrameEnd: subroutine
     sta COLUBK
 
     ; TODO Should a timer be necessary for ending the graphics kernel?
+    TIMER_SETUP 25
+    sta WSYNC
     TIMER_WAIT
     ASSERT_RUNTIME "_scan == (#37 + #192)"
 

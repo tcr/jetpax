@@ -49,21 +49,6 @@ border_top:
     sta WSYNC
     sta COLUPF
 
-    ldx #$ff
-    txs
-    ; Push jump table to the stack
-    ASSERT_RUNTIME "sp == $ff"
-    ; final rts to return point of kernel
-    lda #>[row_after_kernel - 1]
-    pha ; $ff
-    lda #<[row_after_kernel - 1] ; exit gem kernel
-    pha ; $fe
-    lda #>[CBSRAM_KERNEL_ENTRY - 1]
-    pha ; $fd
-    lda #<[CBSRAM_KERNEL_ENTRY - 1] ; repeat gem kernel once
-    pha ; $fc
-    ASSERT_RUNTIME "sp == $fb"
-
     sta WSYNC
     ; sta COLUPF
 
