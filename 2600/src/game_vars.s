@@ -29,9 +29,11 @@ ROW_DEMO_INDEX byte
 
 KERNEL_TEMP_A byte
 
+RamZeroByte         byte
 RamPF1Value         byte
 RamKernelGRP0       byte ; temp
 RamStackBkp         byte
+RamKernelPhpTarget  byte
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

@@ -33,7 +33,8 @@ kernel_1_start: subroutine
     .byte $A
 
 KernelA_early:
-    lda #44
+    ; Early code to set next GRP0 image. Value is overwritten
+    lda #$ff
 
 KernelA: subroutine
     ; ASSERT_RUNTIME "sp == $f9"
@@ -123,7 +124,8 @@ kernel_2_start: subroutine
     .byte $B
 
 KernelB_early:
-    lda #44
+    ; Early code to set next GRP0 image. Value is overwritten
+    lda #$ff
 
 KernelB: subroutine
     ; Assert: M1 is at position #61
@@ -132,12 +134,9 @@ KernelB: subroutine
 
     ; Load next Player sprite
     sta GRP0
-    
-    sleep 8
 
-
-    ldx #%00001100
-    ldy #%11001100
+    ldx #%00000011
+    ldy #%00110011
 
     lda #02
     sta EMERALD_MI_ENABLE ; Enable missile
@@ -145,7 +144,10 @@ KernelB: subroutine
     lda #%11000000
     sty EMERALD_SP
 
-    
+    ; sleep 3
+    lda #%01100000
+    sec
+    bit.w RamZeroByte
 
     ; 25c is critical start of precise GRP0 timing for Kernel B
     ASSERT_RUNTIME_KERNEL $B, "_scycles == 25"
@@ -162,7 +164,7 @@ KernelB_E:
 KernelB_F:
     sty EMERALD_SP
 KernelB_G: ; PF1
-    sleep 3
+    sta PF1
 
 ; below has one php load (RESET?)
 KernelB_H:
@@ -170,7 +172,7 @@ KernelB_H:
 KernelB_I:
     sta EMERALD_SP_RESET
 KernelB_J:
-    sty EMERALD_SP ; Gemini 4B
+    php ; Gemini 4B
 KernelB_K:
     sta EMERALD_MI_ENABLE
 KernelB_L:
@@ -178,9 +180,9 @@ KernelB_L:
 ; above has one PHP loa
 
 KernelB_M:
-    sleep 3
+    sleep 2
 KernelB_N:
-    sleep 3
+    pla ; reset stack pointer
 
     ; 7c
 KernelB_branch:

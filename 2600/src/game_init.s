@@ -3,6 +3,9 @@
 Start:
     CLEAN_START
 
+    ; Disable interrupt flag in processor status (it's useless anyway)
+    cli
+
 InitSetup:
     lda #0
     sta FrameCount
@@ -20,7 +23,6 @@ InitSetup:
     lda #0
     sta VDELP0
     sta VDELP1
-
 
     ; Player 0
     ldx #COL_EMERALD
@@ -44,6 +46,10 @@ InitSetup:
 
     lda #0
     sta ROW_DEMO_INDEX
+
+    ; Store 0 into RamZeroByte
+    lda #0
+    sta RamZeroByte
 
     ; Start with vertical sync (to reset frame)
     jmp VerticalSync

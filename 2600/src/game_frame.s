@@ -75,9 +75,13 @@ frame_setup_kernel_a: subroutine
     ldx #COL_EMERALD
     stx EMERALD_SP_COLOR
 
-    ; HACK this doesn't belong here
+    ; Set reflection for Jetpack.
     lda #%11111111
     sta REFP1
+
+    ; Kernel: Set target of PHP instruction.
+    lda #RESP1
+    sta RamKernelPhpTarget
 
     jmp frame_setup_complete
 
@@ -96,8 +100,13 @@ frame_setup_kernel_b: subroutine
     ldx #$e0
     stx EMERALD_SP_COLOR
 
-    lda #0
+    ; Disable reflection for Jetpack.
+    lda #%11111111
     sta REFP1
+
+    ; Kernel: Set target of PHP instruction.
+    lda #GRP1
+    sta RamKernelPhpTarget
 
 frame_setup_complete:
 

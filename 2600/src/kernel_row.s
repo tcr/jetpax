@@ -50,10 +50,10 @@ row_1:
     ; sta WSYNC
 
     ; Nibble VM.
-    sleep 42
+    sleep 41
 
-    ; Set stack pointer for PHP use.
-    ldx #RESP1
+    ; Set stack pointer for PHP use from RamKernelPhpTarget.
+    ldx RamKernelPhpTarget
     txs
 
     ASSERT_RUNTIME "_scycles == #0"
