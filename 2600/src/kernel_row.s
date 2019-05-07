@@ -49,7 +49,7 @@ row_1:
     ; NIBBLE_gem_kernel
     ; sta WSYNC
 
-    ; Nibble VM.
+    ; [[[Nibble VM.]]]
     sleep 41
 
     ; Set stack pointer for PHP use from RamKernelPhpTarget.
@@ -67,7 +67,7 @@ row_2:
     lda #0
     sta COLUPF
 
-    ; Nibble VM.
+    ; [[[Nibble VM.]]]
     sleep 35
 
     lda #4

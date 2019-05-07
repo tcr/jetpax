@@ -38,7 +38,7 @@ KernelA_early:
 
 KernelA: subroutine
     ; ASSERT_RUNTIME "sp == $f9"
-    ASSERT_RUNTIME_KERNEL $A, "_scycles == 22"
+    ASSERT_RUNTIME_KERNEL $A, "_scycles == #0"
 
     ; To disable VDELP0, we use the Y register %01100110, which has D0 always 0
 
@@ -58,7 +58,7 @@ KernelA: subroutine
     stx.w VDELP1 ; enable delayed sprite TODO: save the extra cycle here
 
     ; 22c is critical start of precise GRP0 timing for Kernel A
-    ASSERT_RUNTIME_KERNEL $A, "_scycles == 22"
+    ASSERT_RUNTIME_KERNEL $A, "_scycles == #22"
 KernelA_A:
     sta EMERALD_SP_RESET ; RESPx must be strobed on cycle 25c.
 KernelA_B:
@@ -71,7 +71,7 @@ KernelA_C:
 KernelA_D:
     sty VDELP1 ; Gemini 1A, clear VDELP1
 KernelA_E:
-    sta EMERALD_SP_RESET ; Reset "medium close" NUSIZ repetition
+    php ; Reset "medium close" NUSIZ repetition
 KernelA_F:
     stx EMERALD_MI_ENABLE ; Enable the missile (if we use %0xx00110 pattern)
 KernelA_G:
@@ -83,7 +83,7 @@ KernelA_H:
 
 ; RST4 vvv
 KernelA_I:
-    php ; Reset "medium close" NUSIZ repetition
+    sta EMERALD_SP_RESET ; Reset "medium close" NUSIZ repetition
 KernelA_J: ; unchanging
     sta PF1 ; Write asymmetrical playfield register
 KernelA_K:
@@ -95,14 +95,15 @@ KernelA_L:
 KernelA_M:
     sty EMERALD_SP ; Gemini 5A
 KernelA_N:
+KernelA_O:
     sleep 2
 
-KernelA_O:
     pla ; reset stack pointer
 
-    ; 7c
+    ; End visible line
+    ASSERT_RUNTIME_KERNEL $A, "_scycles == #67"
+
 KernelA_branch:
-    ASSERT_RUNTIME_KERNEL $A, "_scycles == 70"
     lda INTIM
     bne KernelA_early
 
@@ -128,10 +129,6 @@ KernelB_early:
     lda #$ff
 
 KernelB: subroutine
-    ; Assert: M1 is at position #61
-    
-    ; don't sleep first to make this distinct from Kernel A in debugger, lol
-
     ; Load next Player sprite
     sta GRP0
 
@@ -144,14 +141,17 @@ KernelB: subroutine
     lda #%11000000
     sty EMERALD_SP
 
-    ; sleep 3
+    ; Playfield
     lda #%01100000
-    ; sec
-    clc
-    bit.w RamFullByte
+
+    ; Php setup
+    sec
+    bit.w RamZeroByte
+    ; clc
+    ; bit.w RamLowerSixByte
 
     ; 25c is critical start of precise GRP0 timing for Kernel B
-    ASSERT_RUNTIME_KERNEL $B, "_scycles == 25"
+    ASSERT_RUNTIME_KERNEL $B, "_scycles == #25"
 KernelB_A:
     sta EMERALD_SP_RESET
 KernelB_B:
@@ -167,13 +167,13 @@ KernelB_F:
 KernelB_G: ; PF1
     sta PF1
 
-; below has one php load (RESET?)
+; below has one php load (could just be RESET)
 KernelB_H:
-    sty EMERALD_SP ; Gemini 3B
+    php ; Gemini 3B
 KernelB_I:
     sta EMERALD_SP_RESET
 KernelB_J:
-    php ; Gemini 4B
+    sleep 3 ; Gemini 4B
 KernelB_K:
     sta EMERALD_MI_ENABLE
 KernelB_L:
@@ -181,16 +181,15 @@ KernelB_L:
 ; above has one PHP loa
 
 KernelB_M:
-    sleep 2
 KernelB_N:
+    sleep 2
     pla ; reset stack pointer
-
-    ; 7c
-KernelB_branch:
+    ; End visible line
     ASSERT_RUNTIME_KERNEL $B, "_scycles == #67"
+
+KernelB_branch:
     lda INTIM
     bne KernelB_early
-
     jmp row_after_kernel
 
     rend

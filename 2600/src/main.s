@@ -28,7 +28,7 @@
     mac ASSERT_RUNTIME_KERNEL
 .KERNEL SET {1}
 .COND SET {2}
-    echo "ASSERT:", "breakif { pc==", ., " && !( ( *$f100 == #", .KERNEL, " ) && ( ", .COND, " ) ) }"
+    echo "ASSERT:", "breakif { pc==", ., " && ( *$f100 == ", .KERNEL, "  ) && ! ( ", .COND, " ) }"
     endm
 
     ; Static assertions for size
