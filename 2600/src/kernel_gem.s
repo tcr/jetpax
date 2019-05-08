@@ -168,13 +168,13 @@ KernelB_G:
 
 ; below has one php load (could just be RESET)
 KernelB_H:
-    php ; Gemini 3B; write
+    sty EMERALD_SP ; Gemini 3B; TODO write php instead fixed
 KernelB_I:
     sta EMERALD_SP_RESET
 KernelB_J:
     sty EMERALD_SP ; Gemini 4B
 KernelB_K:
-    sty EMERALD_MI_ENABLE
+    stx EMERALD_MI_ENABLE
 KernelB_L:
     sty EMERALD_SP ; Gemini 5B
 ; above has one PHP loa

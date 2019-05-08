@@ -142,14 +142,14 @@ KernelA_H_W EQM [KernelA_H - $100]
             cpx #$00
             NIBBLE_IF cs
                 NIBBLE_WRITE RamKernelPhpTarget, #EMERALD_SP_RESET
-                NIBBLE_WRITE [KernelB_H_W + 0], #BC_STA
-                NIBBLE_WRITE [KernelB_H_W + 1], #EMERALD_SP
-                NIBBLE_WRITE [KernelB_H_W + 2], #BC_PHP
+                ; NIBBLE_WRITE [KernelB_H_W + 0], #BC_STA
+                ; NIBBLE_WRITE [KernelB_H_W + 1], #EMERALD_SP
+                ; NIBBLE_WRITE [KernelB_H_W + 2], #BC_PHP
             NIBBLE_ELSE
                 NIBBLE_WRITE RamKernelPhpTarget, #EMERALD_SP
-                NIBBLE_WRITE [KernelB_H_W + 0], #BC_PHP
-                NIBBLE_WRITE [KernelB_H_W + 1], #BC_STA
-                NIBBLE_WRITE [KernelB_H_W + 2], #EMERALD_SP_RESET
+                ; NIBBLE_WRITE [KernelB_H_W + 0], #BC_PHP
+                ; NIBBLE_WRITE [KernelB_H_W + 1], #BC_STA
+                ; NIBBLE_WRITE [KernelB_H_W + 2], #EMERALD_SP_RESET
             NIBBLE_END_IF
             REPEAT 6
                 rol

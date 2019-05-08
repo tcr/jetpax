@@ -11,8 +11,14 @@
 .if_2:
     rol
     bcc .else_2
+    ; NIBBLE_WRITE [KernelB_H_W + 0], #BC_STA
+    ; NIBBLE_WRITE [KernelB_H_W + 1], #EMERALD_SP
+    ; NIBBLE_WRITE [KernelB_H_W + 2], #BC_PHP
     jmp .endif_2
 .else_2:
+    ; NIBBLE_WRITE [KernelB_H_W + 0], #BC_PHP
+    ; NIBBLE_WRITE [KernelB_H_W + 1], #BC_STA
+    ; NIBBLE_WRITE [KernelB_H_W + 2], #EMERALD_SP_RESET
 .endif_2:
     REPEAT 6
     rol
@@ -44,22 +50,10 @@
     bcc .else_2
     ldx #EMERALD_SP_RESET
     stx [RamKernelPhpTarget + 0]
-    ldx #BC_STA
-    stx [[KernelB_H_W + 0] + 0]
-    ldx #EMERALD_SP
-    stx [[KernelB_H_W + 1] + 0]
-    ldx #BC_PHP
-    stx [[KernelB_H_W + 2] + 0]
     jmp .endif_2
 .else_2:
     ldx #EMERALD_SP
     stx [RamKernelPhpTarget + 0]
-    ldx #BC_PHP
-    stx [[KernelB_H_W + 0] + 0]
-    ldx #BC_STA
-    stx [[KernelB_H_W + 1] + 0]
-    ldx #EMERALD_SP_RESET
-    stx [[KernelB_H_W + 2] + 0]
 .endif_2:
     jmp .endif_1
 .else_1:
