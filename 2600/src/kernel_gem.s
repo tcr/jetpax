@@ -70,7 +70,7 @@ KernelA_D:
 KernelA_E:
     php ; Reset "medium close" NUSIZ repetition
 KernelA_F:
-    stx EMERALD_MI_ENABLE ; Enable the missile (if we use %0xx00110 pattern)
+    sty EMERALD_MI_ENABLE ; Enable the missile (if we use %0xx00110 pattern)
 KernelA_G:
     sty EMERALD_SP ; Gemini 2A
 ; above has php
@@ -174,7 +174,7 @@ KernelB_I:
 KernelB_J:
     sty EMERALD_SP ; Gemini 4B
 KernelB_K:
-    sta EMERALD_MI_ENABLE
+    sty EMERALD_MI_ENABLE
 KernelB_L:
     sty EMERALD_SP ; Gemini 5B
 ; above has one PHP loa
