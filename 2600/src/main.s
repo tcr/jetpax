@@ -2,10 +2,10 @@
 
     ; Nibble null methods
     mac NIBBLE_START_KERNEL
-        lda #0
+        NIBBLE_gem_kernel_BUILD ; todo make generic?
+        seg.U ignoreme ; comment out rest of code
     endm
     mac NIBBLE_IF
-        rol
     endm
     mac NIBBLE_WRITE
     endm
@@ -16,6 +16,7 @@
     mac NIBBLE_END_IF
     endm
     mac NIBBLE_END_KERNEL
+        seg CodeBank3
     endm
 
     ; Dynamic, runtime (Stella) assertions for "make debug"

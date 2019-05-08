@@ -1,4 +1,20 @@
 
+    MAC NIBBLE_gem_kernel_BUILD
+    ldx $f100
+    cpx #$b
+.if_1:
+    bcc .else_1
+    cpx #$ff
+.if_2:
+    bcc .else_2
+    jmp .endif_2
+.else_2:
+.endif_2:
+    jmp .endif_1
+.else_1:
+.endif_1:
+    ENDM
+
     MAC NIBBLE_gem_kernel
 .if_1:
     asl

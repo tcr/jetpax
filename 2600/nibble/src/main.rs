@@ -77,6 +77,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     
     let mut kernel_data = String::new();
     let mut kernel_code = String::new();
+    if_depth = VecDeque::new();
     for line in &lines {
         match line {
             Parse::NibbleStartKernel(name, cycles) => {
@@ -118,7 +119,40 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
     writeln!(&mut kernel_code, "    ENDM")?;
 
+    if_depth = VecDeque::new();
+    let mut kernel_build = String::new();
+    for line in &lines {
+        match line {
+            Parse::NibbleStartKernel(name, cycles) => {
+                // Pass in conditionals in A
+                kernel_name = name.to_string();
+                writeln!(&mut kernel_build, "    MAC NIBBLE_{}_BUILD", name)?;
+            }
+            Parse::NibbleIf(cond) => {
+                if_depth.push_front(cond);
+                writeln!(&mut kernel_build, ".if_{}:", if_depth.len())?;
+                writeln!(&mut kernel_build, "    bcc .else_{}", if_depth.len())?;
+            }
+            Parse::NibbleElse => {
+                writeln!(&mut kernel_build, "    jmp .endif_{}", if_depth.len())?;
+                writeln!(&mut kernel_build, ".else_{}:", if_depth.len())?;
+            }
+            Parse::NibbleEndIf => {
+                writeln!(&mut kernel_build, ".endif_{}:", if_depth.len())?;
+                if_depth.pop_front();
+            }
+            Parse::NibbleEndKernel => {}
+            Parse::NibbleWrite(label, value) => {}
+            Parse::NibbleWriteOpcode(label, len, value) => {},
+            Parse::Opcode(opcode) => {
+                writeln!(&mut kernel_build, "    {}", opcode)?;
+            }
+        }
+    }
+    writeln!(&mut kernel_build, "    ENDM")?;
+
     println!("{}", kernel_data);
+    println!("{}", kernel_build);
     println!("{}", kernel_code);
 
     Ok(())

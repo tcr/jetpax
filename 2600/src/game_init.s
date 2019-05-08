@@ -2,6 +2,8 @@
 
 IFTRACKER SET 1
 
+IFTRACKER SET 2
+
 Start:
     CLEAN_START
 
@@ -54,35 +56,6 @@ InitSetup:
     sta RamZeroByte
     lda #%00111111
     sta RamLowerSixByte
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-    mac OK_IF
-.COND SET {1}
-    IF {1} == "cs"
-        IFTRACKER SET [IFTRACKER + 1]
-        echo "ok"
-        ; bcc "OK_ELSE"+IFTRACKER
-    ELSE
-        err "why"
-    ENDIF
-    endm
-
-    mac OK_ENDIF
-"OK_ENDIF"+IFTRACKER SET .
-    endm
-
-    mac OK_ELSE
-"OK_ELSE"+IFTRACKER SET .
-    endm
-
-    ; testing
-    OK_IF "cs"
-    OK_ELSE
-    OK_ENDIF
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 
     ; Start with vertical sync (to reset frame)
     jmp VerticalSync
