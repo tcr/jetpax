@@ -46,7 +46,7 @@ row_1:
 
     ; [[[Nibble VM.]]]
     lda RamNibbleVar1
-nibble_kernel_1:
+DBG_NIBBLEVM:
     NIBBLE_gem_kernel
     sta WSYNC
     

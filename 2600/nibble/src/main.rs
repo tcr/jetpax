@@ -20,7 +20,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     let re_nibble_if = Regex::new(r"^NIBBLE_IF\s+(.+)\s*")?;
     let re_nibble_else = Regex::new(r"^NIBBLE_ELSE")?;
     let re_nibble_end_if = Regex::new(r"^NIBBLE_END_IF")?;
-    let re_nibble_write = Regex::new(r"^NIBBLE_WRITE\s+(\S.*)(\s*,\s*([^,]+))+")?;
+    let re_nibble_write = Regex::new(r"^NIBBLE_WRITE\s+([^,]+)(?:\s*,\s*([^,]+))+")?;
+    let re_nibble_write_args = Regex::new(r",\s*([^,]+)")?;
     let re_nibble_write_opcode = Regex::new(r"^NIBBLE_WRITE_OPCODE\s+(\S.*),\s*(\S.*)\s*,\s*(\S.*)\s*")?;
     let re_nibble_end_kernel = Regex::new(r"^NIBBLE_END_KERNEL")?;
     
@@ -56,10 +57,15 @@ fn main() -> Result<(), Box<dyn Error>> {
         } else if let Some(_) = re_nibble_end_if.captures(&line) {
             Parse::NibbleEndIf
         } else if let Some(m) = re_nibble_write.captures(&line) {
-            let selection = re_nibble_write.captures_iter(&line).map(|n| n[3].to_string()).collect::<Vec<_>>();
+            eprintln!("line {:?}", line);
+            let selection = re_nibble_write_args.captures_iter(&line).map(|n| {
+                eprintln!("{:?}", n);
+                n
+            }).map(|n| n[1].to_string()).collect::<Vec<_>>();
+            eprintln!("selection {:?}", selection);
             Parse::NibbleWrite(m[1].to_string(), selection)
         } else if let Some(m) = re_nibble_write_opcode.captures(&line) {
-            Parse::NibbleWriteOpcode(m[1].to_string(), m[2].parse()?, m[3].to_string())
+            Parse::NibbleWriteOpcode(m[1].to_string(), m[2].parse()?, m[2].to_string())
         } else if let Some(_) = re_nibble_end_kernel.captures(&line) {
             Parse::NibbleEndKernel
         } else {
@@ -143,6 +149,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 // Pass in conditionals in A
                 kernel_name = name.to_string();
                 writeln!(&mut kernel_build, "    MAC NIBBLE_{}_BUILD", name)?;
+                writeln!(&mut kernel_build, "    lda #0");
             }
             Parse::NibbleIf(cond) => {
                 build_if_counter += 1;
@@ -152,6 +159,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 });
                 let current_if = build_if_depth.front().unwrap();
                 writeln!(&mut kernel_build, ".if_{}:", current_if.number)?;
+                writeln!(&mut kernel_build, "    rol")?;
                 writeln!(&mut kernel_build, "    bcc .else_{}", current_if.number)?;
             }
             Parse::NibbleElse => {

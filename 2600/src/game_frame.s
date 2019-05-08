@@ -122,6 +122,7 @@ gemini_builder:
 .no_vd0:
 
 nibble_precompile_gem_kernel:
+DBG_NIBBLE:
 BC_STA = $85
 BC_STX = $86
 BC_STY = $84
@@ -149,7 +150,7 @@ KernelB_H_W EQM [KernelB_H - $100]
             NIBBLE_END_IF
         NIBBLE_ELSE
             ; Kernel A
-            NIBBLE_WRITE RamKernelPhpTarget, #RESP1
+            ; NIBBLE_WRITE RamKernelPhpTarget, #RESP1
 
             cpx #$00
             NIBBLE_IF cs

@@ -1,12 +1,15 @@
 
     MAC NIBBLE_gem_kernel_BUILD
+    lda #0
     ldx $f100
     cpx #$b
 .if_1:
+    rol
     bcc .else_1
     ; Kernel B
     cpx #$00
 .if_2:
+    rol
     bcc .else_2
     jmp .endif_2
 .else_2:
@@ -14,8 +17,10 @@
     jmp .endif_1
 .else_1:
     ; Kernel A
+    ; NIBBLE_WRITE RamKernelPhpTarget, #RESP1
     cpx #$00
 .if_3:
+    rol
     bcc .else_3
     ; NIBBLE_WRITE RamKernelPhpTarget, #EMERALD_SP_RESET
     jmp .endif_3
@@ -53,16 +58,18 @@
 .endif_2:
     jmp .endif_1
 .else_1:
-    ldx #RESP1
-    stx RamKernelPhpTarget
 .if_3:
     asl
     bcc .else_3
     ldx #BC_STX
     stx [KernelA_D + 0]
+    ldx #GRP1
+    stx [KernelA_D + 0]
     jmp .endif_3
 .else_3:
     ldx #BC_STY
+    stx [KernelA_D + 0]
+    ldx #GRP1
     stx [KernelA_D + 0]
 .endif_3:
 .endif_1:
