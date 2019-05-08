@@ -80,7 +80,7 @@ frame_setup_kernel_a: subroutine
     sta REFP1
 
     ; Kernel: Set X register.
-    lda #%00000110
+    lda #%01100000
     sta RamKernelX
     lda #%01100110
     sta RamKernelY
@@ -129,6 +129,8 @@ BC_STY = $84
 BC_PHP = $08
 
 KernelB_H_W EQM [KernelB_H - $100]
+KernelA_D_W EQM [KernelA_D - $100]
+KernelA_G_W EQM [KernelA_G - $100]
 
     ; Perform kernel Nibble calculations
     NIBBLE_START_KERNEL gem_kernel, 40
@@ -148,28 +150,31 @@ KernelB_H_W EQM [KernelB_H - $100]
                 NIBBLE_WRITE [KernelB_H_W + 1], #BC_STA
                 NIBBLE_WRITE [KernelB_H_W + 2], #EMERALD_SP_RESET
             NIBBLE_END_IF
+            REPEAT 6
+                rol
+            REPEND
         NIBBLE_ELSE
             ; Kernel A
-            ; NIBBLE_WRITE RamKernelPhpTarget, #RESP1
+            NIBBLE_WRITE RamKernelPhpTarget, #RESP1
 
-            cpx #$00
+            cpx #$ff
             NIBBLE_IF cs
-                ; NIBBLE_WRITE RamKernelPhpTarget, #EMERALD_SP_RESET
-                NIBBLE_WRITE [KernelA_D + 0], #BC_STX, #GRP1
+                ; NIBBLE_WRITE [KernelA_D_W + 0], #BC_STA, #RESP1
             NIBBLE_ELSE
-                ; NIBBLE_WRITE RamKernelPhpTarget, #RESP1
-                NIBBLE_WRITE [KernelA_D + 0], #BC_STY, #GRP1
+                NIBBLE_WRITE KernelA_D_W, #BC_STA, #RESP1
+                NIBBLE_WRITE KernelA_G_W, #BC_STY
             NIBBLE_END_IF
-
+            REPEAT 6
+                rol
+            REPEND
         NIBBLE_END_IF
     NIBBLE_END_KERNEL
-    rol
-    rol
-    rol
-    rol
-    rol
-    rol
     sta RamNibbleVar1
+
+    ; TODO move this into kernel
+    lda RamNibbleVar1
+DBG_NIBBLEVM:
+    NIBBLE_gem_kernel
 
 VerticalBlankEnd:
     ; Wait until the end of Vertical blank.
@@ -182,6 +187,8 @@ VerticalBlankEnd:
 
     ; Start rendering the kernel.
     jmp KernelBorder
+
+    align 256 ; TODO why
 
 FrameEnd: subroutine
     sta WSYNC

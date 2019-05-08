@@ -45,9 +45,6 @@ row_1:
     jet_spritedata_calc
 
     ; [[[Nibble VM.]]]
-    lda RamNibbleVar1
-DBG_NIBBLEVM:
-    NIBBLE_gem_kernel
     sta WSYNC
     
     ; sleep 46

@@ -115,9 +115,9 @@ fn main() -> Result<(), Box<dyn Error>> {
             }
             Parse::NibbleEndKernel => {}
             Parse::NibbleWrite(label, values) => {
-                for value in values {
+                for (i, value) in values.iter().enumerate() {
                     writeln!(&mut kernel_code, "    ldx {}", value)?;
-                    writeln!(&mut kernel_code, "    stx {}", label)?;
+                    writeln!(&mut kernel_code, "    stx [{} + {}]", label, i)?;
                 }
             }
             Parse::NibbleWriteOpcode(label, len, value) => {

@@ -14,19 +14,23 @@
     jmp .endif_2
 .else_2:
 .endif_2:
+    REPEAT 6
+    rol
+    REPEND
     jmp .endif_1
 .else_1:
     ; Kernel A
-    ; NIBBLE_WRITE RamKernelPhpTarget, #RESP1
-    cpx #$00
+    cpx #$ff
 .if_3:
     rol
     bcc .else_3
-    ; NIBBLE_WRITE RamKernelPhpTarget, #EMERALD_SP_RESET
+    ; NIBBLE_WRITE [KernelA_D_W + 0], #BC_STA, #RESP1
     jmp .endif_3
 .else_3:
-    ; NIBBLE_WRITE RamKernelPhpTarget, #RESP1
 .endif_3:
+    REPEAT 6
+    rol
+    REPEND
 .endif_1:
     ENDM
 
@@ -38,39 +42,39 @@
     asl
     bcc .else_2
     ldx #EMERALD_SP_RESET
-    stx RamKernelPhpTarget
+    stx [RamKernelPhpTarget + 0]
     ldx #BC_STA
-    stx [KernelB_H_W + 0]
+    stx [[KernelB_H_W + 0] + 0]
     ldx #EMERALD_SP
-    stx [KernelB_H_W + 1]
+    stx [[KernelB_H_W + 1] + 0]
     ldx #BC_PHP
-    stx [KernelB_H_W + 2]
+    stx [[KernelB_H_W + 2] + 0]
     jmp .endif_2
 .else_2:
     ldx #EMERALD_SP
-    stx RamKernelPhpTarget
+    stx [RamKernelPhpTarget + 0]
     ldx #BC_PHP
-    stx [KernelB_H_W + 0]
+    stx [[KernelB_H_W + 0] + 0]
     ldx #BC_STA
-    stx [KernelB_H_W + 1]
+    stx [[KernelB_H_W + 1] + 0]
     ldx #EMERALD_SP_RESET
-    stx [KernelB_H_W + 2]
+    stx [[KernelB_H_W + 2] + 0]
 .endif_2:
     jmp .endif_1
 .else_1:
+    ldx #RESP1
+    stx [RamKernelPhpTarget + 0]
 .if_3:
     asl
     bcc .else_3
-    ldx #BC_STX
-    stx [KernelA_D + 0]
-    ldx #GRP1
-    stx [KernelA_D + 0]
     jmp .endif_3
 .else_3:
-    ldx #BC_STY
-    stx [KernelA_D + 0]
-    ldx #GRP1
-    stx [KernelA_D + 0]
+    ldx #BC_STA
+    stx [KernelA_D_W + 0]
+    ldx #RESP1
+    stx [KernelA_D_W + 1]
+    ldx #BC_STX
+    stx [KernelA_G_W + 0]
 .endif_3:
 .endif_1:
     ENDM
