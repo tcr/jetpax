@@ -10,7 +10,7 @@ enum Parse {
     NibbleElse,
     NibbleEndIf,
     NibbleEndKernel,
-    NibbleWrite(String, String),
+    NibbleWrite(String, Vec<String>),
     NibbleWriteOpcode(String, isize, String),
     Opcode(String),
 }
@@ -20,7 +20,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let re_nibble_if = Regex::new(r"^NIBBLE_IF\s+(.+)\s*")?;
     let re_nibble_else = Regex::new(r"^NIBBLE_ELSE")?;
     let re_nibble_end_if = Regex::new(r"^NIBBLE_END_IF")?;
-    let re_nibble_write = Regex::new(r"^NIBBLE_WRITE\s+(\S.*)\s*,\s*(\S.*)\s*")?;
+    let re_nibble_write = Regex::new(r"^NIBBLE_WRITE\s+(\S.*)(\s*,\s*([^,]+))+")?;
     let re_nibble_write_opcode = Regex::new(r"^NIBBLE_WRITE_OPCODE\s+(\S.*),\s*(\S.*)\s*,\s*(\S.*)\s*")?;
     let re_nibble_end_kernel = Regex::new(r"^NIBBLE_END_KERNEL")?;
     
@@ -56,7 +56,8 @@ fn main() -> Result<(), Box<dyn Error>> {
         } else if let Some(_) = re_nibble_end_if.captures(&line) {
             Parse::NibbleEndIf
         } else if let Some(m) = re_nibble_write.captures(&line) {
-            Parse::NibbleWrite(m[1].to_string(), m[2].to_string())
+            let selection = re_nibble_write.captures_iter(&line).map(|n| n[3].to_string()).collect::<Vec<_>>();
+            Parse::NibbleWrite(m[1].to_string(), selection)
         } else if let Some(m) = re_nibble_write_opcode.captures(&line) {
             Parse::NibbleWriteOpcode(m[1].to_string(), m[2].parse()?, m[3].to_string())
         } else if let Some(_) = re_nibble_end_kernel.captures(&line) {
@@ -73,11 +74,11 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let mut kernel_name = "".to_string();
     let mut opcode_count = 0;
-    let mut if_depth = VecDeque::new();
     
     let mut kernel_data = String::new();
     let mut kernel_code = String::new();
-    if_depth = VecDeque::new();
+    let mut if_counter = 0;
+    let mut if_depth = VecDeque::new();
     for line in &lines {
         match line {
             Parse::NibbleStartKernel(name, cycles) => {
@@ -86,23 +87,32 @@ fn main() -> Result<(), Box<dyn Error>> {
                 writeln!(&mut kernel_code, "    MAC NIBBLE_{}", name)?;
             }
             Parse::NibbleIf(cond) => {
-                if_depth.push_front(cond);
-                writeln!(&mut kernel_code, ".if_{}:", if_depth.len())?;
+                if_counter += 1;
+                if_depth.push_front(IfDepth {
+                    cond: cond.to_string(),
+                    number: if_counter,
+                });
+                let current_if = if_depth.front().unwrap();
+                writeln!(&mut kernel_code, ".if_{}:", current_if.number)?;
                 writeln!(&mut kernel_code, "    asl")?;
-                writeln!(&mut kernel_code, "    bcc .else_{}", if_depth.len())?;
+                writeln!(&mut kernel_code, "    bcc .else_{}", current_if.number)?;
             }
             Parse::NibbleElse => {
-                writeln!(&mut kernel_code, "    jmp .endif_{}", if_depth.len())?;
-                writeln!(&mut kernel_code, ".else_{}:", if_depth.len())?;
+                let current_if = if_depth.front().unwrap();
+                writeln!(&mut kernel_code, "    jmp .endif_{}", current_if.number)?;
+                writeln!(&mut kernel_code, ".else_{}:", current_if.number)?;
             }
             Parse::NibbleEndIf => {
-                writeln!(&mut kernel_code, ".endif_{}:", if_depth.len())?;
+                let current_if = if_depth.front().unwrap();
+                writeln!(&mut kernel_code, ".endif_{}:", current_if.number)?;
                 if_depth.pop_front();
             }
             Parse::NibbleEndKernel => {}
-            Parse::NibbleWrite(label, value) => {
-                writeln!(&mut kernel_code, "    ldx {}", value)?;
-                writeln!(&mut kernel_code, "    stx {}", label)?;
+            Parse::NibbleWrite(label, values) => {
+                for value in values {
+                    writeln!(&mut kernel_code, "    ldx {}", value)?;
+                    writeln!(&mut kernel_code, "    stx {}", label)?;
+                }
             }
             Parse::NibbleWriteOpcode(label, len, value) => {
                 opcode_count += 1;
@@ -119,8 +129,14 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
     writeln!(&mut kernel_code, "    ENDM")?;
 
-    if_depth = VecDeque::new();
+    struct IfDepth {
+        cond: String,
+        number: usize,
+    }
+
     let mut kernel_build = String::new();
+    let mut build_if_counter = 0;
+    let mut build_if_depth = VecDeque::new();
     for line in &lines {
         match line {
             Parse::NibbleStartKernel(name, cycles) => {
@@ -129,20 +145,27 @@ fn main() -> Result<(), Box<dyn Error>> {
                 writeln!(&mut kernel_build, "    MAC NIBBLE_{}_BUILD", name)?;
             }
             Parse::NibbleIf(cond) => {
-                if_depth.push_front(cond);
-                writeln!(&mut kernel_build, ".if_{}:", if_depth.len())?;
-                writeln!(&mut kernel_build, "    bcc .else_{}", if_depth.len())?;
+                build_if_counter += 1;
+                build_if_depth.push_front(IfDepth {
+                    cond: cond.to_string(),
+                    number: build_if_counter,
+                });
+                let current_if = build_if_depth.front().unwrap();
+                writeln!(&mut kernel_build, ".if_{}:", current_if.number)?;
+                writeln!(&mut kernel_build, "    bcc .else_{}", current_if.number)?;
             }
             Parse::NibbleElse => {
-                writeln!(&mut kernel_build, "    jmp .endif_{}", if_depth.len())?;
-                writeln!(&mut kernel_build, ".else_{}:", if_depth.len())?;
+                let current_if = build_if_depth.front().unwrap();
+                writeln!(&mut kernel_build, "    jmp .endif_{}", current_if.number)?;
+                writeln!(&mut kernel_build, ".else_{}:", current_if.number)?;
             }
             Parse::NibbleEndIf => {
-                writeln!(&mut kernel_build, ".endif_{}:", if_depth.len())?;
-                if_depth.pop_front();
+                let current_if = build_if_depth.front().unwrap();
+                writeln!(&mut kernel_build, ".endif_{}:", current_if.number)?;
+                build_if_depth.pop_front();
             }
             Parse::NibbleEndKernel => {}
-            Parse::NibbleWrite(label, value) => {}
+            Parse::NibbleWrite(label, values) => {}
             Parse::NibbleWriteOpcode(label, len, value) => {},
             Parse::Opcode(opcode) => {
                 writeln!(&mut kernel_build, "    {}", opcode)?;

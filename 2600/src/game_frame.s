@@ -79,10 +79,6 @@ frame_setup_kernel_a: subroutine
     lda #%11111111
     sta REFP1
 
-    ; Kernel: Set target of PHP instruction.
-    lda #RESP1
-    sta RamKernelPhpTarget
-
     ; Kernel: Set X register.
     lda #%00000110
     sta RamKernelX
@@ -110,10 +106,6 @@ frame_setup_kernel_b: subroutine
     lda #%11111111
     sta REFP1
 
-    ; Kernel: Set target of PHP instruction.
-    lda #GRP1
-    sta RamKernelPhpTarget
-
     ; Kernel: Set X register.
     lda #%00000011
     sta RamKernelX
@@ -130,25 +122,44 @@ gemini_builder:
 .no_vd0:
 
 nibble_precompile_gem_kernel:
+BC_STA = $85
+BC_STX = $86
+BC_STY = $84
+BC_PHP = $08
+
+KernelB_H_W EQM [KernelB_H - $100]
+
     ; Perform kernel Nibble calculations
     NIBBLE_START_KERNEL gem_kernel, 40
         ldx $f100
         cpx #$b
         NIBBLE_IF cs
-            cpx #$ff
+            ; Kernel B
+            cpx #$00
             NIBBLE_IF cs
                 NIBBLE_WRITE RamKernelPhpTarget, #EMERALD_SP_RESET
-                NIBBLE_WRITE [KernelB_H - $100 + 0], #$85
-                NIBBLE_WRITE [KernelB_H - $100 + 1], #EMERALD_SP
-                NIBBLE_WRITE [KernelB_H - $100 + 2], #$08
+                NIBBLE_WRITE [KernelB_H_W + 0], #BC_STA
+                NIBBLE_WRITE [KernelB_H_W + 1], #EMERALD_SP
+                NIBBLE_WRITE [KernelB_H_W + 2], #BC_PHP
             NIBBLE_ELSE
                 NIBBLE_WRITE RamKernelPhpTarget, #EMERALD_SP
-                NIBBLE_WRITE [KernelB_H - $100 + 0], #$08
-                NIBBLE_WRITE [KernelB_H - $100 + 1], #$85
-                NIBBLE_WRITE [KernelB_H - $100 + 2], #EMERALD_SP_RESET
+                NIBBLE_WRITE [KernelB_H_W + 0], #BC_PHP
+                NIBBLE_WRITE [KernelB_H_W + 1], #BC_STA
+                NIBBLE_WRITE [KernelB_H_W + 2], #EMERALD_SP_RESET
             NIBBLE_END_IF
         NIBBLE_ELSE
+            ; Kernel A
             NIBBLE_WRITE RamKernelPhpTarget, #RESP1
+
+            cpx #$00
+            NIBBLE_IF cs
+                ; NIBBLE_WRITE RamKernelPhpTarget, #EMERALD_SP_RESET
+                NIBBLE_WRITE [KernelA_D + 0], #BC_STX ;, #GRP1
+            NIBBLE_ELSE
+                ; NIBBLE_WRITE RamKernelPhpTarget, #RESP1
+                NIBBLE_WRITE [KernelA_D + 0], #BC_STY ;, #GRP1
+            NIBBLE_END_IF
+
         NIBBLE_END_IF
     NIBBLE_END_KERNEL
     rol
