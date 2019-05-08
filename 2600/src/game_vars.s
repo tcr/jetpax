@@ -27,6 +27,7 @@ JMP_ADDR_2 byte
 
 ROW_DEMO_INDEX byte
 
+RamNibbleTemp       byte
 RamNibbleVar1       byte
 RamZeroByte         byte
 RamLowerSixByte     byte

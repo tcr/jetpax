@@ -5,16 +5,16 @@ use std::fmt::Write;
 
 const INPUT: &str = r#"
     NIBBLE_START_KERNEL gem_kernel, 40
-        lda #01
-        and FrameCount
-        cmp #01
-        NIBBLE_IF cs 
+        ldx $f100
+        cpx #$b
+        NIBBLE_IF cs
+            cpx #$ff
             NIBBLE_IF cs
                 NIBBLE_WRITE_OPCODE [KernelB_D - $100 + 0], 1, php
                 NIBBLE_WRITE_OPCODE [KernelB_D - $100 + 1], 2, sta EMERALD_SP_RESET
             NIBBLE_ELSE
-                NIBBLE_WRITE_OPCODE [KernelB_D - $100 + 0], 2, sty VDELP1
-                NIBBLE_WRITE_OPCODE [KernelB_D - $100 + 2], 1, php
+                NIBBLE_WRITE_OPCODE [KernelB_H - $100 + 0], 1, php
+                NIBBLE_WRITE_OPCODE [KernelB_H - $100 + 1], 2, sta EMERALD_SP_RESET
             NIBBLE_END_IF
         NIBBLE_END_IF
     NIBBLE_END_KERNEL

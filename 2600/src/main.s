@@ -2,9 +2,10 @@
 
     ; Nibble null methods
     mac NIBBLE_START_KERNEL
+        lda #0
     endm
     mac NIBBLE_IF
-        ror
+        rol
     endm
     mac NIBBLE_WRITE
     endm
