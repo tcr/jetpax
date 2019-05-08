@@ -137,8 +137,8 @@ nibble_precompile_gem_kernel:
         NIBBLE_IF cs
             cpx #$ff
             NIBBLE_IF cs
-                NIBBLE_WRITE_OPCODE [KernelB_D - $100 + 0], 1, php
-                NIBBLE_WRITE_OPCODE [KernelB_D - $100 + 1], 2, sta EMERALD_SP_RESET
+                NIBBLE_WRITE_OPCODE [KernelB_H - $100 + 0], 2, sta EMERALD_SP_RESET
+                NIBBLE_WRITE_OPCODE [KernelB_H - $100 + 2], 1, php
             NIBBLE_ELSE
                 NIBBLE_WRITE_OPCODE [KernelB_H - $100 + 0], 1, php
                 NIBBLE_WRITE_OPCODE [KernelB_H - $100 + 1], 2, sta EMERALD_SP_RESET
