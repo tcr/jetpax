@@ -44,19 +44,13 @@ row_1:
 
     jet_spritedata_calc
 
-    ; Set stack pointer for PHP use from RamKernelPhpTarget.
-    ldx RamKernelPhpTarget
-    txs
-
-    ; Nibble VM.
+    ; [[[Nibble VM.]]]
     lda RamNibbleVar1
 nibble_kernel_1:
     NIBBLE_gem_kernel
     sta WSYNC
-
-    ; [[[Nibble VM.]]]
-    ; sleep 41
-
+    
+    ; sleep 46
 
     ASSERT_RUNTIME "_scycles == #0"
 
@@ -69,8 +63,12 @@ row_2:
     lda #0
     sta COLUPF
 
+    ; Set stack pointer for PHP use from RamKernelPhpTarget.
+    ldx RamKernelPhpTarget
+    txs
+
     ; [[[Nibble VM.]]]
-    sleep 35
+    sleep 30
 
     lda #4
     sta TIM64T

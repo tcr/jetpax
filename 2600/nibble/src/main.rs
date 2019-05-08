@@ -3,23 +3,6 @@ use std::error::Error;
 use std::collections::VecDeque;
 use std::fmt::Write;
 
-const INPUT: &str = r#"
-    NIBBLE_START_KERNEL gem_kernel, 40
-        ldx $f100
-        cpx #$b
-        NIBBLE_IF cs
-            cpx #$ff
-            NIBBLE_IF cs
-                NIBBLE_WRITE_OPCODE [KernelB_D - $100 + 0], 1, php
-                NIBBLE_WRITE_OPCODE [KernelB_D - $100 + 1], 2, sta EMERALD_SP_RESET
-            NIBBLE_ELSE
-                NIBBLE_WRITE_OPCODE [KernelB_H - $100 + 0], 1, php
-                NIBBLE_WRITE_OPCODE [KernelB_H - $100 + 1], 2, sta EMERALD_SP_RESET
-            NIBBLE_END_IF
-        NIBBLE_END_IF
-    NIBBLE_END_KERNEL
-"#;
-
 #[derive(Debug, Clone)]
 enum Parse {
     NibbleStartKernel(String, isize),
@@ -43,13 +26,24 @@ fn main() -> Result<(), Box<dyn Error>> {
     
     let re_data = Regex::new(r"^\s*(.+?)\s*(;.*)?$")?;
 
+    let input_file = std::fs::read_to_string("../src/game_frame.s")?;
+
     let mut lines = vec![];
-    for line in INPUT.lines() {
+    let mut active = false;
+    for line in input_file.lines() {
         let line = if let Some(m) = re_data.captures(line) {
             m[1].to_string()
         } else {
             continue;
         };
+
+        if !active {
+            if let Some(_) = re_nibble_start_kernel.captures(&line) {
+                active = true;
+            } else {
+                continue;
+            }
+        }
 
         let parsed = if let Some(m) = re_nibble_start_kernel.captures(&line) {
             Parse::NibbleStartKernel(m[1].to_string(), m[2].parse()?)
@@ -71,6 +65,10 @@ fn main() -> Result<(), Box<dyn Error>> {
             Parse::Opcode(line.to_string())
         };
         lines.push(parsed);
+
+        if let Some(_) = re_nibble_end_kernel.captures(&line) {
+            break;
+        }
     }
 
     let mut kernel_name = "".to_string();
