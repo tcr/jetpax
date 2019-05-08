@@ -154,10 +154,10 @@ KernelB_H_W EQM [KernelB_H - $100]
             cpx #$00
             NIBBLE_IF cs
                 ; NIBBLE_WRITE RamKernelPhpTarget, #EMERALD_SP_RESET
-                NIBBLE_WRITE [KernelA_D + 0], #BC_STX ;, #GRP1
+                NIBBLE_WRITE [KernelA_D + 0], #BC_STX, #GRP1
             NIBBLE_ELSE
                 ; NIBBLE_WRITE RamKernelPhpTarget, #RESP1
-                NIBBLE_WRITE [KernelA_D + 0], #BC_STY ;, #GRP1
+                NIBBLE_WRITE [KernelA_D + 0], #BC_STY, #GRP1
             NIBBLE_END_IF
 
         NIBBLE_END_IF
