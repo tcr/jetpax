@@ -131,6 +131,7 @@ BC_PHP = $08
 KernelB_H_W EQM [KernelB_H - $100]
 KernelA_D_W EQM [KernelA_D - $100]
 KernelA_G_W EQM [KernelA_G - $100]
+KernelA_H_W EQM [KernelA_H - $100]
 
     ; Perform kernel Nibble calculations
     NIBBLE_START_KERNEL gem_kernel, 40
@@ -162,7 +163,9 @@ KernelA_G_W EQM [KernelA_G - $100]
                 ; NIBBLE_WRITE [KernelA_D_W + 0], #BC_STA, #RESP1
             NIBBLE_ELSE
                 NIBBLE_WRITE KernelA_D_W, #BC_STA, #RESP1
-                NIBBLE_WRITE KernelA_G_W, #BC_STY
+                NIBBLE_WRITE KernelA_G_W, #BC_STX
+                NIBBLE_WRITE KernelA_H_W, #BC_STX
+                ; NIBBLE_WRITE KernelA_H_W, #BC_STA, #REFP1
             NIBBLE_END_IF
             REPEAT 6
                 rol

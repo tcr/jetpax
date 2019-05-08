@@ -86,11 +86,11 @@ KernelA_J: ; unchanging
 KernelA_K:
     sty EMERALD_SP ; Gemini 4A
 KernelA_L:
-    sleep 3 ; free
+    lda RamZeroByte ; free
 ; RST4 ^^^
 
 KernelA_M:
-    sty EMERALD_SP ; Gemini 5A
+    sta EMERALD_SP ; Gemini 5A
 KernelA_N:
 KernelA_O:
     sleep 2

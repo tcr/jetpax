@@ -27,6 +27,7 @@
     ; NIBBLE_WRITE [KernelA_D_W + 0], #BC_STA, #RESP1
     jmp .endif_3
 .else_3:
+    ; NIBBLE_WRITE KernelA_H_W, #BC_STA, #REFP1
 .endif_3:
     REPEAT 6
     rol
@@ -75,6 +76,8 @@
     stx [KernelA_D_W + 1]
     ldx #BC_STX
     stx [KernelA_G_W + 0]
+    ldx #BC_STX
+    stx [KernelA_H_W + 0]
 .endif_3:
 .endif_1:
     ENDM
