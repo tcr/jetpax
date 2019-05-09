@@ -74,11 +74,11 @@ condense_program(Prog, Out) :-
     (nth0(RF1Index, Prog, bc_RF1); RF1Index = 0),
     Out = [VD0Index,RSTIndex,RF1Index].
 
-opcode_violation(Prog, cpu(G, V, _, _, _, _, _), bc_VD0) :-
+opcode_violation(Prog, cpu(G, V, _, _, _, _), bc_VD0) :-
     should_occur_once(Prog, bc_VD0) ; % restrict count
     should_follow(Prog, bc_VD1) ; % only follow VD1 (Kernel A)
     (\+ (G == g11 ; G == g01) ; \+ (V == g11 ; V == g01)).
-opcode_violation(Prog, cpu(_, _, D, _, _, _, _), bc_VD1) :-
+opcode_violation(Prog, cpu(_, _, D, _, _, _), bc_VD1) :-
     should_occur_once(Prog, bc_VD1) ; % restrict count
     length(Prog, Len), Len == 1, D == true ;
     % length(Prog, Len), Len == 2, D == true ;
@@ -108,27 +108,27 @@ reflect(true, g00, g00). reflect(true, g01, g10). reflect(true, g10, g01). refle
 
 % Compute GRP0
 vm_grp0(bc_RST, Cpu, g00).
-vm_grp0(Code, cpu(G, _, false, _, _, _, R), Out) :- reflect(R, G, Out).
-vm_grp0(Code, cpu(_, V, true, _, _, _, R), Out) :- reflect(R, V, Out).
+vm_grp0(Code, cpu(G, _, false, _, _, R), Out) :- reflect(R, G, Out).
+vm_grp0(Code, cpu(_, V, true, _, _, R), Out) :- reflect(R, V, Out).
 
-is_cpu(cpu(G, V, D, X, Y, B, R)) :-
+is_cpu(cpu(G, V, D, X, Y, R)) :-
     gem(G), gem(V), gem(X), gem(Y), is_bool(D), is_bool(R).
 
 % Extract Reflect value
-cpu_R(cpu(_, _, _, _, _, _, R), R).
+cpu_R(cpu(_, _, _, _, R), R).
 
-cpu_end_state(cpu(G, V, D, X, Y, B, R)).
+cpu_end_state(cpu(G, V, D, X, Y, R)).
 
 % Bytecode
-cpu_update(cpu(_, V, D, X, Y, B, R), bc_STX, cpu(X, V, D, X, Y, B, R)).
-cpu_update(cpu(_, V, D, X, Y, B, R), bc_STY, cpu(Y, V, D, X, Y, B, R)).
-cpu_update(cpu(_, V, D, X, Y, B, R), bc_P10, cpu(g10, V, D, X, Y, B, R)).
-cpu_update(cpu(_, V, D, X, Y, B, R), bc_P11, cpu(g11, V, D, X, Y, B, R)).
-cpu_update(cpu(G, V, _, X, Y, B, R), bc_VD0, cpu(G, V, false, X, Y, B, R)).
-cpu_update(cpu(G, V, _, X, Y, B, R), bc_VD1, cpu(G, V, true, X, Y, B, R)).
-cpu_update(cpu(G, V, _, X, Y, B, R), bc_VDX, cpu(G, V, true, X, Y, B, R)).
-cpu_update(cpu(G, V, D, X, Y, B, _), bc_RF0, cpu(G, V, D, X, Y, B, false)).
-cpu_update(cpu(G, V, D, X, Y, B, _), bc_RF1, cpu(G, V, D, X, Y, B, true)).
+cpu_update(cpu(_, V, D, X, Y, R), bc_STX, cpu(X, V, D, X, Y, R)).
+cpu_update(cpu(_, V, D, X, Y, R), bc_STY, cpu(Y, V, D, X, Y, R)).
+cpu_update(cpu(_, V, D, X, Y, R), bc_P10, cpu(g10, V, D, X, Y, R)).
+cpu_update(cpu(_, V, D, X, Y, R), bc_P11, cpu(g11, V, D, X, Y, R)).
+cpu_update(cpu(G, V, _, X, Y, R), bc_VD0, cpu(G, V, false, X, Y, R)).
+cpu_update(cpu(G, V, _, X, Y, R), bc_VD1, cpu(G, V, true, X, Y, R)).
+cpu_update(cpu(G, V, _, X, Y, R), bc_VDX, cpu(G, V, true, X, Y, R)).
+cpu_update(cpu(G, V, D, X, Y, _), bc_RF0, cpu(G, V, D, X, Y, false)).
+cpu_update(cpu(G, V, D, X, Y, _), bc_RF1, cpu(G, V, D, X, Y, true)).
 cpu_update(Cpu, bc_NOP, Cpu).
 cpu_update(Cpu, bc_RST, Cpu).
 
