@@ -77,15 +77,15 @@ condense_program(Prog, Out) :-
 opcode_violation(Prog, cpu(G, V, _, _, _, _, _), bc_VD0) :-
     should_occur_once(Prog, bc_VD0) ; % restrict count
     should_follow(Prog, bc_VD1) ; % only follow VD1 (Kernel A)
-    length(Prog, Len), (Len == 2; Len == 4), (\+ (G == g11 ; G == g01) ; \+ (V == g11 ; V == g01)).
+    (\+ (G == g11 ; G == g01) ; \+ (V == g11 ; V == g01)).
 opcode_violation(Prog, cpu(_, _, D, _, _, _, _), bc_VD1) :-
     should_occur_once(Prog, bc_VD1) ; % restrict count
     length(Prog, Len), Len == 1, D == true ;
     % length(Prog, Len), Len == 2, D == true ;
-    should_be_pos(Prog, [1, 2, 3, 4]). % restrict positions (Kernel A)
+    should_be_pos(Prog, [1, 4]). % restrict positions (Kernel A)
 opcode_violation(Prog, _, bc_RST) :-
     % nth0(Index, Prog, bc_RST), Index \= 1 ; % TODO only valid once
-    should_be_pos(Prog, [0, 1, 2, 3, 5]). % only valid positions
+    should_be_pos(Prog, [0, 1, 2, 3]). % only valid positions
 opcode_violation(Prog, _, bc_RF1) :-
     should_occur_once(Prog, bc_RF1) ; % restrict count
     should_be_pos(Prog, [1, 2, 3, 4]). % restrict positions
