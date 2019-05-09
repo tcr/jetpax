@@ -88,7 +88,7 @@ opcode_violation(Prog, _, bc_RST) :-
     should_be_pos(Prog, [0, 1, 2, 3]). % only valid positions
 opcode_violation(Prog, _, bc_RF1) :-
     should_occur_once(Prog, bc_RF1) ; % restrict count
-    should_be_pos(Prog, [1, 2, 3, 4]). % restrict positions
+    should_be_pos(Prog, [1, 2, 3]). % restrict positions
 % opcode_violation(Prog, cpu(_, V, _, _, _, _, _), bc_VDX) :-
 %     % V \= g00 ;
 %     should_be_pos(Prog, [4]). % restrict positions
