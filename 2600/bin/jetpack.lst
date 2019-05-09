@@ -1885,12 +1885,12 @@
      18  f5a8		       ea		      nop
      19  f5a9					      REPEND
      69  f5a9
-     70  f5a9		       a9 04		      lda	#4
-     71  f5ab		       8d 96 02 	      sta	TIM64T
-     72  f5ae
-     73  f5ae							; Load PF1 value
-     74  f5ae		       a9 a0		      lda	#%10100000
-     75  f5b0		       85 93		      sta	RamPF1Value
+     70  f5a9							; Load PF1 value
+     71  f5a9		       a9 a0		      lda	#%10100000
+     72  f5ab		       85 93		      sta	RamPF1Value
+     73  f5ad
+     74  f5ad		       a9 04		      lda	#4
+     75  f5af		       8d 96 02 	      sta	TIM64T
      76  f5b2
      77  f5b2							; Enable playfield at end of scanline
      78  f5b2		       a9 42		      lda	#COL_BG
@@ -2211,33 +2211,33 @@
      61  f714				   KernelA_A
      62  f714		       85 11		      sta	EMERALD_SP_RESET	; RESPx must be strobed on cycle 25c.
      63  f716				   KernelA_B
-      0  f716					      sleep	3
-      1  f716				   .CYCLES    SET	3
-      2  f716
-      3  f716				  -	      IF	.CYCLES < 2
-      4  f716				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  f716				  -	      ERR
-      6  f716					      ENDIF
-      7  f716
-      8  f716					      IF	.CYCLES & 1
-      9  f716					      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f716		       04 00		      nop	0
-     11  f718				  -	      ELSE
-     12  f718				  -	      bit	VSYNC
-     13  f718					      ENDIF
-     14  f718				   .CYCLES    SET	.CYCLES - 3
-     15  f718					      ENDIF
-     16  f718
-     17  f718				  -	      REPEAT	.CYCLES / 2
-     18  f718				  -	      nop
-     19  f718					      REPEND
+     64  f716		       a5 93		      lda	RamPF1Value
      65  f718				   KernelA_C
      66  f718		       84 26		      sty	VDELP1	; disable delayed sprite
      67  f71a
      68  f71a
      69  f71a				   KernelA_D
      70  f71a							; sty VDELP1 ; Gemini 1A, clear VDELP1. all registers have d0 cleared
-     71  f71a		       a5 93		      lda	RamPF1Value	; Load PF1 (TODO asymmetrical playfield)
+      0  f71a					      sleep	3	; Load PF1 (TODO asymmetrical playfield)
+      1  f71a				   .CYCLES    SET	3
+      2  f71a
+      3  f71a				  -	      IF	.CYCLES < 2
+      4  f71a				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  f71a				  -	      ERR
+      6  f71a					      ENDIF
+      7  f71a
+      8  f71a					      IF	.CYCLES & 1
+      9  f71a					      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f71a		       04 00		      nop	0
+     11  f71c				  -	      ELSE
+     12  f71c				  -	      bit	VSYNC
+     13  f71c					      ENDIF
+     14  f71c				   .CYCLES    SET	.CYCLES - 3
+     15  f71c					      ENDIF
+     16  f71c
+     17  f71c				  -	      REPEAT	.CYCLES / 2
+     18  f71c				  -	      nop
+     19  f71c					      REPEND
      72  f71c				   KernelA_E
      73  f71c		       85 11		      sta	EMERALD_SP_RESET	; Reset "medium close" NUSIZ repetition
      74  f71e				   KernelA_F
@@ -2257,7 +2257,7 @@
      88  f727		       84 1c		      sty	EMERALD_SP	; Gemini 4A
      89  f729				   KernelA_L
      90  f729		       87 1c		      sax	EMERALD_SP	; when possible, sta VDELP0
-     91  f72b							; FIXME "sax" can't be used here
+     91  f72b							; FIXME "sax" can't be used here generally
      92  f72b							; RST4 ^^^
      93  f72b
      94  f72b				   KernelA_M

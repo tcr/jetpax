@@ -61,14 +61,14 @@ KernelA: subroutine
 KernelA_A:
     sta EMERALD_SP_RESET ; RESPx must be strobed on cycle 25c.
 KernelA_B:
-    sleep 3
+    lda RamPF1Value
 KernelA_C:
     sty VDELP1 ; disable delayed sprite
 
 
 KernelA_D:
     ; sty VDELP1 ; Gemini 1A, clear VDELP1. all registers have d0 cleared
-    lda RamPF1Value ; Load PF1 (TODO asymmetrical playfield)
+    sleep 3 ; Load PF1 (TODO asymmetrical playfield)
 KernelA_E:
     sta EMERALD_SP_RESET ; Reset "medium close" NUSIZ repetition
 KernelA_F:
@@ -88,7 +88,7 @@ KernelA_K:
     sty EMERALD_SP ; Gemini 4A
 KernelA_L:
     sax EMERALD_SP ; when possible, sta VDELP0
-    ; FIXME "sax" can't be used here
+    ; FIXME "sax" can't be used here generally
 ; RST4 ^^^
 
 KernelA_M:

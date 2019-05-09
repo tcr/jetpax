@@ -67,12 +67,12 @@ row_2:
     ; [[[Nibble VM.]]]
     sleep 30
 
-    lda #4
-    sta TIM64T
-
     ; Load PF1 value
     lda #%10100000
     sta RamPF1Value
+
+    lda #4
+    sta TIM64T
 
     ; Enable playfield at end of scanline
     lda #COL_BG
