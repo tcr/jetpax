@@ -46,7 +46,7 @@ row_1:
 
     ; [[[Nibble VM.]]]
     sta WSYNC
-    
+
     ; sleep 46
 
     ASSERT_RUNTIME "_scycles == #0"

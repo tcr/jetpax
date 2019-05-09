@@ -72,35 +72,36 @@ test(all_gems) :-
         turing(state(q0, Cpu), Gems, Program),
         write_term("cpu:      ", []), print(Cpu), nl,
         append(Prg, [_], Program),
-        write_term("solved:   ", []), print(Prg), nl,
+        write_term("solved:   ", []), print(Prg), nl
+        )).
 
-        condense_program(Program, Shard),   
-        !,
-        (
-            % Skip BLK segments for now
-            length(Program, ProgramLen), (ProgramLen < 6) ;
+        % condense_program(Program, Shard),   
+        % !,
+        % (
+        %     % Skip BLK segments for now
+        %     length(Program, ProgramLen), (ProgramLen < 6) ;
 
-            % print(Shard), nl, nl,
-            Res = [A0, B0, C0, D0, E0, bc_NOP],
-            shard_relation(Gems, Shard, 0, A0),
-            shard_relation(Gems, Shard, 1, B0),
-            shard_relation(Gems, Shard, 2, C0),
-            shard_relation(Gems, Shard, 3, D0),
-            shard_relation(Gems, Shard, 4, E0),
+        %     % print(Shard), nl, nl,
+        %     Res = [A0, B0, C0, D0, E0, bc_NOP],
+        %     shard_relation(Gems, Shard, 0, A0),
+        %     shard_relation(Gems, Shard, 1, B0),
+        %     shard_relation(Gems, Shard, 2, C0),
+        %     shard_relation(Gems, Shard, 3, D0),
+        %     shard_relation(Gems, Shard, 4, E0),
             
-            % print(Res), nl,
-            % print(Program), nl,
-            append(Res2, [_], Res),
-            write_term("SHARD?    ", []), print(Res2), nl,
-            write_term("shard:    ", []), print(Shard), nl,
-            print(Cpu), nl,
-            % NOTE: Cpu here is optional
-            turing_check(state(q0, _), Gems2, Res2),
-            append(Gems2, [_], Gems)
+        %     % print(Res), nl,
+        %     % print(Program), nl,
+        %     append(Res2, [_], Res),
+        %     write_term("SHARD?    ", []), print(Res2), nl,
+        %     write_term("shard:    ", []), print(Shard), nl,
+        %     print(Cpu), nl,
+        %     % NOTE: Cpu here is optional
+        %     turing_check(state(q0, _), Gems2, Res2),
+        %     append(Gems2, [_], Gems)
 
-            % append(Program2, [_], Program)
-            % Res2 == Program2
-        ))).
+        %     % append(Program2, [_], Program)
+        %     % Res2 == Program2
+        % ))).
 
     % print("hello that's the end of that"), nl,
 

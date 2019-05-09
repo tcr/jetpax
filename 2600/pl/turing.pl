@@ -4,8 +4,8 @@
 
 :- nb_setval(enable_reflect, false).
 
-% kernel(ka).
-kernel(kb).
+kernel(ka).
+% kernel(kb).
 
 is_bool(true).
 is_bool(false).
@@ -25,7 +25,7 @@ code(bc_NOP).
 % for Kernel A
 code(bc_RST) :- kernel(ka).
 code(bc_RF1) :- kernel(ka), nb_getval(enable_reflect, Out), Out.
-code(bc_VDX) :- kernel(ka). % Duplicate VD1 reserved for position 4
+% code(bc_VDX) :- kernel(ka). % Duplicate VD1 reserved for position 4
 % % code(bc_RF0).
 
 % for Kernel B
@@ -74,22 +74,24 @@ condense_program(Prog, Out) :-
     (nth0(RF1Index, Prog, bc_RF1); RF1Index = 0),
     Out = [VD0Index,RSTIndex,RF1Index].
 
-opcode_violation(Prog, _, bc_VD0) :-
+opcode_violation(Prog, cpu(G, V, _, _, _, _, _), bc_VD0) :-
     should_occur_once(Prog, bc_VD0) ; % restrict count
-    should_follow(Prog, bc_VD1). % only follow VD1 (Kernel A)
+    should_follow(Prog, bc_VD1) ; % only follow VD1 (Kernel A)
+    length(Prog, Len), (Len == 2; Len == 4), (\+ (G == g11 ; G == g01) ; \+ (V == g11 ; V == g01)).
 opcode_violation(Prog, cpu(_, _, D, _, _, _, _), bc_VD1) :-
     should_occur_once(Prog, bc_VD1) ; % restrict count
     length(Prog, Len), Len == 1, D == true ;
-    should_be_pos(Prog, [0, 1, 2]). % restrict positions (Kernel A)
+    % length(Prog, Len), Len == 2, D == true ;
+    should_be_pos(Prog, [1, 2, 3, 4]). % restrict positions (Kernel A)
 opcode_violation(Prog, _, bc_RST) :-
-    should_occur_once(Prog, bc_RST) ; % only valid once
-    should_be_pos(Prog, [1, 2, 3]). % only valid positions
+    % nth0(Index, Prog, bc_RST), Index \= 1 ; % TODO only valid once
+    should_be_pos(Prog, [0, 1, 2, 3, 5]). % only valid positions
 opcode_violation(Prog, _, bc_RF1) :-
     should_occur_once(Prog, bc_RF1) ; % restrict count
     should_be_pos(Prog, [1, 2, 3, 4]). % restrict positions
-opcode_violation(Prog, cpu(_, V, _, _, _, _, _), bc_VDX) :-
-    V \= g00 ;
-    should_be_pos(Prog, [4]). % restrict positions
+% opcode_violation(Prog, cpu(_, V, _, _, _, _, _), bc_VDX) :-
+%     % V \= g00 ;
+%     should_be_pos(Prog, [4]). % restrict positions
 
 opcode_violation(Prog, _, bc_P11) :-
     member(bc_P11, Prog) ; % only appear once
@@ -115,18 +117,18 @@ is_cpu(cpu(G, V, D, X, Y, B, R)) :-
 % Extract Reflect value
 cpu_R(cpu(_, _, _, _, _, _, R), R).
 
-cpu_end_state(cpu(G, V, D, X, Y, B, false)).
+cpu_end_state(cpu(G, V, D, X, Y, B, R)).
 
 % Bytecode
-cpu_update(cpu(G, V, _, X, Y, B, R), bc_VD0, cpu(G, V, false, X, Y, B, R)).
-cpu_update(cpu(G, V, _, X, Y, B, R), bc_VD1, cpu(G, V, true, X, Y, B, R)).
-cpu_update(cpu(G, V, _, X, Y, B, R), bc_VDX, cpu(G, V, true, X, Y, B, R)).
 cpu_update(cpu(_, V, D, X, Y, B, R), bc_STX, cpu(X, V, D, X, Y, B, R)).
 cpu_update(cpu(_, V, D, X, Y, B, R), bc_STY, cpu(Y, V, D, X, Y, B, R)).
 cpu_update(cpu(_, V, D, X, Y, B, R), bc_P10, cpu(g10, V, D, X, Y, B, R)).
 cpu_update(cpu(_, V, D, X, Y, B, R), bc_P11, cpu(g11, V, D, X, Y, B, R)).
-cpu_update(cpu(G, V, D, X, Y, B, _), bc_RF1, cpu(G, V, D, X, Y, B, true)).
+cpu_update(cpu(G, V, _, X, Y, B, R), bc_VD0, cpu(G, V, false, X, Y, B, R)).
+cpu_update(cpu(G, V, _, X, Y, B, R), bc_VD1, cpu(G, V, true, X, Y, B, R)).
+cpu_update(cpu(G, V, _, X, Y, B, R), bc_VDX, cpu(G, V, true, X, Y, B, R)).
 cpu_update(cpu(G, V, D, X, Y, B, _), bc_RF0, cpu(G, V, D, X, Y, B, false)).
+cpu_update(cpu(G, V, D, X, Y, B, _), bc_RF1, cpu(G, V, D, X, Y, B, true)).
 cpu_update(Cpu, bc_NOP, Cpu).
 cpu_update(Cpu, bc_RST, Cpu).
 
@@ -175,6 +177,8 @@ perform(state(qf, _), Ls, Ls, Rs, Rs) :- !.
 perform(S0, Ls0, Ls, Rs0, Rs) :-
     % Read the symbol to the right of the head (Sym)
     symbol(Rs0, Sym, RsRest),
+
+    % print(Ls0), nl,
 
     % Apply first found matching rule to the current state (Q0)
     % and the current symbol on the right (Sym), resulting in

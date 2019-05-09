@@ -40,57 +40,59 @@ KernelA: subroutine
     ASSERT_RUNTIME_KERNEL $A, "_scycles == #0"
 
     ; Write Gemini 0A into delayed sprite register
+    ldy #%01100110 ; FIXME temporary?
     sty EMERALD_SP
     ; Write Player from accumulator. When writing to the other sprite, the
     ; TIA will copy Gemini 0A into visible sprite register
     sta JET_SP
     ; Write Gemini 1A into delayed sprite register
     ldy #0
-    sty.w EMERALD_SP
-    ldy #%01100110
+    sty EMERALD_SP
+    ldy #%00000110 ; FIXME temporary?
+
+    sec
 
     ; Register config
     lda #$01
     sta EMERALD_MI_ENABLE ; disable missile
-    sta VDELP1 ; enable delayed sprite
+    ; sta VDELP1 ; enable delayed sprite
 
     ; 22c is critical start of precise GRP0 timing for Kernel A
     ASSERT_RUNTIME_KERNEL $A, "_scycles == #22"
 KernelA_A:
     sta EMERALD_SP_RESET ; RESPx must be strobed on cycle 25c.
 KernelA_B:
-    sleep 3
+    sty EMERALD_SP
 KernelA_C:
     lda RamPF1Value ; Load PF1 (TODO asymmetrical playfield)
 
 
-; below has one `php` call (by default: RESET)
 KernelA_D:
-    sty VDELP1 ; Gemini 1A, clear VDELP1. all registers have d0 cleared
+    ; sty VDELP1 ; Gemini 1A, clear VDELP1. all registers have d0 cleared
+    sleep 3
 KernelA_E:
-    php ; Reset "medium close" NUSIZ repetition
+    sta EMERALD_SP_RESET ; Reset "medium close" NUSIZ repetition
 KernelA_F:
     sty EMERALD_MI_ENABLE ; Enable the missile (if we use %0xx00110 pattern)
 KernelA_G:
     sty EMERALD_SP ; Gemini 2A
-; above has php
 
 KernelA_H:
     sty EMERALD_SP ; Gemini 3A, modified for RST2 along with HMM1
 
 ; RST4 vvv
 KernelA_I:
-    sta EMERALD_SP_RESET ; Reset "medium close" NUSIZ repetition
+    php ; Reset "medium close" NUSIZ repetition
 KernelA_J: ; unchanging
     sta PF1 ; Write asymmetrical playfield register
 KernelA_K:
     sty EMERALD_SP ; Gemini 4A
 KernelA_L:
-    lda RamZeroByte ; free
+    sty VDELP1 ; clear VDEL 
 ; RST4 ^^^
 
 KernelA_M:
-    sta EMERALD_SP ; Gemini 5A
+    sta EMERALD_SP_RESET ; Gemini 5A
 KernelA_N:
 KernelA_O:
     sleep 2

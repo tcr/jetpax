@@ -128,30 +128,34 @@ BC_STX = $86
 BC_STY = $84
 BC_PHP = $08
 
-KernelB_H_W EQM [KernelB_H - $100]
 KernelA_D_W EQM [KernelA_D - $100]
 KernelA_G_W EQM [KernelA_G - $100]
 KernelA_H_W EQM [KernelA_H - $100]
+KernelA_I_W EQM [KernelA_I - $100]
+KernelA_J_W EQM [KernelA_J - $100]
+KernelA_K_W EQM [KernelA_K - $100]
+
+KernelB_H_W EQM [KernelB_H - $100]
 
     ; Perform kernel Nibble calculations
     NIBBLE_START_KERNEL gem_kernel, 40
         ldx $f100
         cpx #$a
         NIBBLE_IF eq
+            ; TEST: bc_NOP,bc_RST,bc_STX,bc_STY,bc_VDX, ??
+
             ; Kernel A
-            NIBBLE_WRITE RamKernelPhpTarget, #RESP1
+            NIBBLE_WRITE RamKernelPhpTarget, #VDELP1
 
-            NIBBLE_WRITE KernelA_D_W, #BC_STY, #VDELP1
+            NIBBLE_WRITE KernelA_D_W, #BC_STY, #RESP1   ; 1A RST
+            NIBBLE_WRITE KernelA_G_W, #BC_STX, #GRP1    ; 2A STX
+            NIBBLE_WRITE KernelA_H_W, #BC_STY, #GRP1    ; 3A STY
+            NIBBLE_WRITE KernelA_I_W, #BC_STA, #EMERALD_SP_RESET    ; 4A PHP
+            NIBBLE_WRITE [KernelA_J_W + 1], #BC_STA, #PF1
+            NIBBLE_WRITE [KernelA_K_W + 1], #BC_PHP
 
-            cpx #$ff
-            NIBBLE_IF cs
-                ; NIBBLE_WRITE [KernelA_D_W + 0], #BC_STA, #RESP1
-            NIBBLE_ELSE
-                NIBBLE_WRITE KernelA_G_W, #BC_STX, #GRP1
-                NIBBLE_WRITE KernelA_H_W, #BC_STX, #GRP1
-                ; NIBBLE_WRITE KernelA_H_W, #BC_STA, #REFP1
-            NIBBLE_END_IF
-            REPEAT 6
+            ; End of NIBBLE_IF normalizing
+            REPEAT 7
                 rol
             REPEND
         NIBBLE_ELSE
