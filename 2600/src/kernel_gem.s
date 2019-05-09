@@ -45,14 +45,14 @@ KernelA: subroutine
     ; TIA will copy Gemini 0A into visible sprite register
     sta JET_SP
     ; Write Gemini 1A into delayed sprite register
-    sty EMERALD_SP
-
-    sleep 5
+    ldy #0
+    sty.w EMERALD_SP
+    ldy #%01100110
 
     ; Register config
     lda #$01
     sta EMERALD_MI_ENABLE ; disable missile
-    stx VDELP1 ; enable delayed sprite
+    sta VDELP1 ; enable delayed sprite
 
     ; 22c is critical start of precise GRP0 timing for Kernel A
     ASSERT_RUNTIME_KERNEL $A, "_scycles == #22"

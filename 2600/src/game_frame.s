@@ -136,8 +136,25 @@ KernelA_H_W EQM [KernelA_H - $100]
     ; Perform kernel Nibble calculations
     NIBBLE_START_KERNEL gem_kernel, 40
         ldx $f100
-        cpx #$b
-        NIBBLE_IF cs
+        cpx #$a
+        NIBBLE_IF eq
+            ; Kernel A
+            NIBBLE_WRITE RamKernelPhpTarget, #RESP1
+
+            NIBBLE_WRITE KernelA_D_W, #BC_STY, #VDELP1
+
+            cpx #$ff
+            NIBBLE_IF cs
+                ; NIBBLE_WRITE [KernelA_D_W + 0], #BC_STA, #RESP1
+            NIBBLE_ELSE
+                NIBBLE_WRITE KernelA_G_W, #BC_STX, #GRP1
+                NIBBLE_WRITE KernelA_H_W, #BC_STX, #GRP1
+                ; NIBBLE_WRITE KernelA_H_W, #BC_STA, #REFP1
+            NIBBLE_END_IF
+            REPEAT 6
+                rol
+            REPEND
+        NIBBLE_ELSE
             ; Kernel B
             cpx #$00
             NIBBLE_IF cs
@@ -150,22 +167,6 @@ KernelA_H_W EQM [KernelA_H - $100]
                 ; NIBBLE_WRITE [KernelB_H_W + 0], #BC_PHP
                 ; NIBBLE_WRITE [KernelB_H_W + 1], #BC_STA
                 ; NIBBLE_WRITE [KernelB_H_W + 2], #EMERALD_SP_RESET
-            NIBBLE_END_IF
-            REPEAT 6
-                rol
-            REPEND
-        NIBBLE_ELSE
-            ; Kernel A
-            NIBBLE_WRITE RamKernelPhpTarget, #RESP1
-
-            cpx #$ff
-            NIBBLE_IF cs
-                ; NIBBLE_WRITE [KernelA_D_W + 0], #BC_STA, #RESP1
-            NIBBLE_ELSE
-                NIBBLE_WRITE KernelA_D_W, #BC_STA, #RESP1
-                NIBBLE_WRITE KernelA_G_W, #BC_STX
-                NIBBLE_WRITE KernelA_H_W, #BC_STX
-                ; NIBBLE_WRITE KernelA_H_W, #BC_STA, #REFP1
             NIBBLE_END_IF
             REPEAT 6
                 rol

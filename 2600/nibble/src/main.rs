@@ -15,6 +15,20 @@ enum Parse {
     Opcode(String),
 }
 
+fn invert_cond(cond: &str) -> &'static str {
+    match cond {
+        "cs" => "cc",
+        "cc" => "cs",
+        "ne" => "eq",
+        "eq" => "ne",
+        "pl" => "mi",
+        "mi" => "pl",
+        "vc" => "vs",
+        "vs" => "vc",
+        _ => panic!("unknown {:?}", cond),
+    }
+}
+
 fn main() -> Result<(), Box<dyn Error>> {
     let re_nibble_start_kernel = Regex::new(r"^NIBBLE_START_KERNEL\s+(\S.*)\s*,\s*(\S.*)\s*")?;
     let re_nibble_if = Regex::new(r"^NIBBLE_IF\s+(.+)\s*")?;
@@ -50,7 +64,6 @@ fn main() -> Result<(), Box<dyn Error>> {
             Parse::NibbleStartKernel(m[1].to_string(), m[2].parse()?)
         } else if let Some(m) = re_nibble_if.captures(&line) {
             // Limitation for now until client NIBBLE_IF code figured out
-            assert_eq!(&m[1], "cs");
             Parse::NibbleIf(m[1].to_string())
         } else if let Some(_) = re_nibble_else.captures(&line) {
             Parse::NibbleElse
@@ -159,13 +172,16 @@ fn main() -> Result<(), Box<dyn Error>> {
                 });
                 let current_if = build_if_depth.front().unwrap();
                 writeln!(&mut kernel_build, ".if_{}:", current_if.number)?;
+                writeln!(&mut kernel_build, "    b{} .else_{}", invert_cond(&cond), current_if.number)?;
+                writeln!(&mut kernel_build, "    sec")?;
                 writeln!(&mut kernel_build, "    rol")?;
-                writeln!(&mut kernel_build, "    bcc .else_{}", current_if.number)?;
             }
             Parse::NibbleElse => {
                 let current_if = build_if_depth.front().unwrap();
                 writeln!(&mut kernel_build, "    jmp .endif_{}", current_if.number)?;
                 writeln!(&mut kernel_build, ".else_{}:", current_if.number)?;
+                writeln!(&mut kernel_build, "    clc")?;
+                writeln!(&mut kernel_build, "    rol")?;
             }
             Parse::NibbleEndIf => {
                 let current_if = build_if_depth.front().unwrap();
