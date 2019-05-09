@@ -46,30 +46,29 @@ KernelA: subroutine
     ; TIA will copy Gemini 0A into visible sprite register
     sta JET_SP
     ; Write Gemini 1A into delayed sprite register
-    ldy #0
+    ldy #%01100110
     sty EMERALD_SP
     ldy #%00000110 ; FIXME temporary?
 
     sec
 
     ; Register config
-    lda #$01
+    lda #$00
     sta EMERALD_MI_ENABLE ; disable missile
-    ; sta VDELP1 ; enable delayed sprite
 
     ; 22c is critical start of precise GRP0 timing for Kernel A
     ASSERT_RUNTIME_KERNEL $A, "_scycles == #22"
 KernelA_A:
     sta EMERALD_SP_RESET ; RESPx must be strobed on cycle 25c.
 KernelA_B:
-    sty EMERALD_SP
+    sleep 3
 KernelA_C:
-    lda RamPF1Value ; Load PF1 (TODO asymmetrical playfield)
+    sty VDELP1 ; disable delayed sprite
 
 
 KernelA_D:
     ; sty VDELP1 ; Gemini 1A, clear VDELP1. all registers have d0 cleared
-    sleep 3
+    lda RamPF1Value ; Load PF1 (TODO asymmetrical playfield)
 KernelA_E:
     sta EMERALD_SP_RESET ; Reset "medium close" NUSIZ repetition
 KernelA_F:
@@ -88,11 +87,12 @@ KernelA_J: ; unchanging
 KernelA_K:
     sty EMERALD_SP ; Gemini 4A
 KernelA_L:
-    sty VDELP1 ; clear VDEL 
+    sax EMERALD_SP ; when possible, sta VDELP0
+    ; FIXME "sax" can't be used here
 ; RST4 ^^^
 
 KernelA_M:
-    sta EMERALD_SP_RESET ; Gemini 5A
+    sty VDELP1 ; Gemini 5A ; need a way to skip this vlaue
 KernelA_N:
 KernelA_O:
     sleep 2

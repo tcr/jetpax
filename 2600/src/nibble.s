@@ -7,7 +7,7 @@
     bne .else_1
     sec
     rol
-    ; TEST: bc_NOP,bc_RST,bc_STX,bc_STY,bc_VDX, ??
+    ; TEST: bc_NOP,bc_RST,bc_STX,bc_STY,bc_VD1, ??
     ; Kernel A
     ; End of NIBBLE_IF normalizing
     REPEAT 7

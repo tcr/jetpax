@@ -142,7 +142,7 @@ KernelB_H_W EQM [KernelB_H - $100]
         ldx $f100
         cpx #$a
         NIBBLE_IF eq
-            ; TEST: bc_NOP,bc_RST,bc_STX,bc_STY,bc_VDX, ??
+            ; TEST: bc_NOP,bc_RST,bc_STX,bc_STY,bc_VD1, ??
 
             ; Kernel A
             NIBBLE_WRITE RamKernelPhpTarget, #VDELP1

@@ -148,14 +148,15 @@ sublist_to(List, From, To, SubList) :-
 
 turing(state(Q0, Cpu), Tape0, Tape) :-
     % HACK: Trim first two or last two from selection
-    (append(_, [g00, g00], Tape0) -> sublist(Tape0, 1, 4, Tape1); Tape1 = Tape0),
-    (append([g00, g00], _, Tape1) -> sublist(Tape1, 3, 4, Tape2); Tape2 = Tape1),
+    % Guess it aint needed
+    % (append(_, [g00, g00], Tape0) -> sublist(Tape0, 1, 4, Tape1); Tape1 = Tape0),
+    % (append([g00, g00], _, Tape1) -> sublist(Tape1, 3, 4, Tape2); Tape2 = Tape1),
 
     % HACK: Don't reflect so often.
     (nb_setval(enable_reflect, false),
-        perform(state(Q0, Cpu), [], Ls, Tape2, Rs) ;
+        perform(state(Q0, Cpu), [], Ls, Tape0, Rs) ;
     nb_setval(enable_reflect, true),
-        perform(state(Q0, Cpu), [], Ls, Tape2, Rs)),
+        perform(state(Q0, Cpu), [], Ls, Tape0, Rs)),
 
     is_cpu(Cpu),
     cpu_end_state(Cpu),

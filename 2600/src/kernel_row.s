@@ -114,6 +114,7 @@ row_6:
     sta EMERALD_MI_ENABLE
     sta EMERALD_SP
     sta COLUPF
+    sta VDELP1
 
     jet_spritedata_calc
 

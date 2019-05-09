@@ -732,7 +732,7 @@
       7  f27a					      bne	.else_1
       8  f27a					      sec
       9  f27a					      rol
-     10  f27a							; TEST: bc_NOP,bc_RST,bc_STX,bc_STY,bc_VDX, ??
+     10  f27a							; TEST: bc_NOP,bc_RST,bc_STX,bc_STY,bc_VD1, ??
      11  f27a							; Kernel A
      12  f27a							; End of NIBBLE_IF normalizing
      13  f27a					      REPEAT	7
@@ -1196,7 +1196,7 @@
     142 U0014 ????	       ae 00 f1 	      ldx	$f100
     143 U0017 ????	       e0 0a		      cpx	#$a
       0 U0019 ????				      NIBBLE_IF	eq
-    145 U0019 ????						; TEST: bc_NOP,bc_RST,bc_STX,bc_STY,bc_VDX, ??
+    145 U0019 ????						; TEST: bc_NOP,bc_RST,bc_STX,bc_STY,bc_VD1, ??
     146 U0019 ????
     147 U0019 ????						; Kernel A
       0 U0019 ????				      NIBBLE_WRITE	RamKernelPhpTarget, #VDELP1
@@ -1972,194 +1972,195 @@
     114  f5f2		       85 1e		      sta	EMERALD_MI_ENABLE
     115  f5f4		       85 1c		      sta	EMERALD_SP
     116  f5f6		       85 08		      sta	COLUPF
-    117  f5f8
-      0  f5f8					      jet_spritedata_calc
-      1  f5f8
-      2  f5f8		       a9 09		      lda	#SPRITE_HEIGHT
-      3  f5fa		       c7 85		      dcp	SpriteEnd
-      4  f5fc		       a4 85		      ldy	SpriteEnd
-      5  f5fe
-      6  f5fe
-      7  f5fe
-      8  f5fe
-      9  f5fe		       b9 00 f8 	      lda	Frame0,Y
-     10  f601
-     11  f601		       b0 01		      .byte.b	$b0, $01
-     12  f603		       2c		      .byte.b	$2c
-     13  f604		       85 1b		      sta	JET_SP
-    119  f606
-    120  f606							; Idle.
-    121  f606		       85 02		      sta	WSYNC
-    122  f608
-    123  f608							; [scanline 7]
-    124  f608				   row_7
-      0  f608					      jet_spritedata_calc
-      1  f608
-      2  f608		       a9 09		      lda	#SPRITE_HEIGHT
-      3  f60a		       c7 85		      dcp	SpriteEnd
-      4  f60c		       a4 85		      ldy	SpriteEnd
-      5  f60e
-      6  f60e
-      7  f60e
-      8  f60e
-      9  f60e		       b9 00 f8 	      lda	Frame0,Y
-     10  f611
-     11  f611		       b0 01		      .byte.b	$b0, $01
-     12  f613		       2c		      .byte.b	$2c
-     13  f614		       85 1b		      sta	JET_SP
-    126  f616
-    127  f616		       a9 42		      lda	#COL_BG
-    128  f618		       85 08		      sta	COLUPF
-    129  f61a
-    130  f61a							; FRAMESWITCH
-    131  f61a		       a9 01		      lda	#01
-    132  f61c		       25 83		      and	FrameCount
-    133  f61e		       d0 13		      bne	loadframe2
-    134  f620
-    135  f620							; Perform gem loading for Kernel A.
-    136  f620
-    137  f620				   loadframe1
-      0  f620					      ASSERT_RUNTIME	"_scycles == #32"
-      1  f620				   .COND      SET	"_scycles == #32"
- ASSERT: breakif { pc== $f620  && !(  _scycles == #32  ) }
-      2  f620					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
-    139  f620
-    140  f620							; Emerald byte setting 1A
-    141  f620							; ldx #0
-    142  f620							; lda KERNEL_STORAGE_R,X
-    143  f620							; sta GEM_00_W
-    144  f620							; inx
-    145  f620							; lda KERNEL_STORAGE_R,X
-    146  f620							; sta GEM_04_W
-    147  f620							; inx
-    148  f620							; lda KERNEL_STORAGE_R,X
-    149  f620							; sta GEM_09_W
-    150  f620							; inx
-    151  f620
-    152  f620		       85 02		      sta	WSYNC
-    153  f622
-    154  f622							; [scanline 8]
-      0  f622					      jet_spritedata_calc
-      1  f622
-      2  f622		       a9 09		      lda	#SPRITE_HEIGHT
-      3  f624		       c7 85		      dcp	SpriteEnd
-      4  f626		       a4 85		      ldy	SpriteEnd
-      5  f628
-      6  f628
-      7  f628
-      8  f628
-      9  f628		       b9 00 f8 	      lda	Frame0,Y
-     10  f62b
-     11  f62b		       b0 01		      .byte.b	$b0, $01
-     12  f62d		       2c		      .byte.b	$2c
-     13  f62e		       85 1b		      sta	JET_SP
-    156  f630
-    157  f630							; Emerald byte setting 1B
-    158  f630							; lda KERNEL_STORAGE_R,X
-    159  f630							; sta GEM_13_W
-    160  f630							; inx
-    161  f630							; lda KERNEL_STORAGE_R,X
-    162  f630							; sta GEM_17_W
-    163  f630							; inx
-    164  f630							; lda KERNEL_STORAGE_R,X
-    165  f630							; sta GEM_18_W
-    166  f630							; inx
-    167  f630							; lda KERNEL_STORAGE_R,X
-    168  f630							; sta GEM_22_W
-    169  f630
-    170  f630		       4c 46 f6 	      jmp	row_8_end
-    171  f633
-    172  f633							; Perform gem loading for Kernel B.
-    173  f633
-    174  f633				   loadframe2
-      0  f633					      ASSERT_RUNTIME	"_scycles == #33"
-      1  f633				   .COND      SET	"_scycles == #33"
- ASSERT: breakif { pc== $f633  && !(  _scycles == #33  ) }
-      2  f633					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
-    176  f633
-    177  f633							; Emerald byte setting 2A
-    178  f633							; ldx #[storage_02 - storage]
-    179  f633							; lda KERNEL_STORAGE_R,X
-    180  f633							; sta GEM_02_W
-    181  f633							; inx
-    182  f633							; lda KERNEL_STORAGE_R,X
-    183  f633							; sta GEM_06_W
-    184  f633							; inx
-    185  f633							; lda KERNEL_STORAGE_R,X
-    186  f633							; sta GEM_08_W
-    187  f633							; inx
-    188  f633
-    189  f633		       85 02		      sta	WSYNC
-    190  f635
-    191  f635							; [scanline 8]
-    192  f635				   row_8
-      0  f635					      jet_spritedata_calc
-      1  f635
-      2  f635		       a9 09		      lda	#SPRITE_HEIGHT
-      3  f637		       c7 85		      dcp	SpriteEnd
-      4  f639		       a4 85		      ldy	SpriteEnd
-      5  f63b
-      6  f63b
-      7  f63b
-      8  f63b
-      9  f63b		       b9 00 f8 	      lda	Frame0,Y
-     10  f63e
-     11  f63e		       b0 01		      .byte.b	$b0, $01
-     12  f640		       2c		      .byte.b	$2c
-     13  f641		       85 1b		      sta	JET_SP
-    194  f643
-    195  f643							; Emerald byte setting 2B
-    196  f643							; lda KERNEL_STORAGE_R,X
-    197  f643							; sta GEM_11_W
-    198  f643							; inx
-    199  f643							; lda KERNEL_STORAGE_R,X
-    200  f643							; sta GEM_15_W
-    201  f643							; inx
-    202  f643							; lda KERNEL_STORAGE_R,X
-    203  f643							; sta GEM_20_W
-    204  f643							; inx
-    205  f643							; lda KERNEL_STORAGE_R,X
-    206  f643							; sta GEM_24_W
-    207  f643
-    208  f643		       4c 46 f6 	      jmp	row_8_end
-    209  f646
-    210  f646							; Common row 8 return.
-    211  f646
-    212  f646				   row_8_end
-    213  f646							; Idle.
-    214  f646		       85 02		      sta	WSYNC
-    215  f648
-    216  f648							; [scanline 8]
-    217  f648							; Repeat loop until LoopCount < 0
-    218  f648		       c6 82		      dec	LoopCount
-    219  f64a		       30 03		      bmi	row_end
-    220  f64c		       4c 75 f5 	      jmp	row_start
-    221  f64f				   row_end
-    222  f64f		       4c 46 f5 	      jmp	border_bottom
+    117  f5f8		       85 26		      sta	VDELP1
+    118  f5fa
+      0  f5fa					      jet_spritedata_calc
+      1  f5fa
+      2  f5fa		       a9 09		      lda	#SPRITE_HEIGHT
+      3  f5fc		       c7 85		      dcp	SpriteEnd
+      4  f5fe		       a4 85		      ldy	SpriteEnd
+      5  f600
+      6  f600
+      7  f600
+      8  f600
+      9  f600		       b9 00 f8 	      lda	Frame0,Y
+     10  f603
+     11  f603		       b0 01		      .byte.b	$b0, $01
+     12  f605		       2c		      .byte.b	$2c
+     13  f606		       85 1b		      sta	JET_SP
+    120  f608
+    121  f608							; Idle.
+    122  f608		       85 02		      sta	WSYNC
+    123  f60a
+    124  f60a							; [scanline 7]
+    125  f60a				   row_7
+      0  f60a					      jet_spritedata_calc
+      1  f60a
+      2  f60a		       a9 09		      lda	#SPRITE_HEIGHT
+      3  f60c		       c7 85		      dcp	SpriteEnd
+      4  f60e		       a4 85		      ldy	SpriteEnd
+      5  f610
+      6  f610
+      7  f610
+      8  f610
+      9  f610		       b9 00 f8 	      lda	Frame0,Y
+     10  f613
+     11  f613		       b0 01		      .byte.b	$b0, $01
+     12  f615		       2c		      .byte.b	$2c
+     13  f616		       85 1b		      sta	JET_SP
+    127  f618
+    128  f618		       a9 42		      lda	#COL_BG
+    129  f61a		       85 08		      sta	COLUPF
+    130  f61c
+    131  f61c							; FRAMESWITCH
+    132  f61c		       a9 01		      lda	#01
+    133  f61e		       25 83		      and	FrameCount
+    134  f620		       d0 13		      bne	loadframe2
+    135  f622
+    136  f622							; Perform gem loading for Kernel A.
+    137  f622
+    138  f622				   loadframe1
+      0  f622					      ASSERT_RUNTIME	"_scycles == #32"
+      1  f622				   .COND      SET	"_scycles == #32"
+ ASSERT: breakif { pc== $f622  && !(  _scycles == #32  ) }
+      2  f622					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
+    140  f622
+    141  f622							; Emerald byte setting 1A
+    142  f622							; ldx #0
+    143  f622							; lda KERNEL_STORAGE_R,X
+    144  f622							; sta GEM_00_W
+    145  f622							; inx
+    146  f622							; lda KERNEL_STORAGE_R,X
+    147  f622							; sta GEM_04_W
+    148  f622							; inx
+    149  f622							; lda KERNEL_STORAGE_R,X
+    150  f622							; sta GEM_09_W
+    151  f622							; inx
+    152  f622
+    153  f622		       85 02		      sta	WSYNC
+    154  f624
+    155  f624							; [scanline 8]
+      0  f624					      jet_spritedata_calc
+      1  f624
+      2  f624		       a9 09		      lda	#SPRITE_HEIGHT
+      3  f626		       c7 85		      dcp	SpriteEnd
+      4  f628		       a4 85		      ldy	SpriteEnd
+      5  f62a
+      6  f62a
+      7  f62a
+      8  f62a
+      9  f62a		       b9 00 f8 	      lda	Frame0,Y
+     10  f62d
+     11  f62d		       b0 01		      .byte.b	$b0, $01
+     12  f62f		       2c		      .byte.b	$2c
+     13  f630		       85 1b		      sta	JET_SP
+    157  f632
+    158  f632							; Emerald byte setting 1B
+    159  f632							; lda KERNEL_STORAGE_R,X
+    160  f632							; sta GEM_13_W
+    161  f632							; inx
+    162  f632							; lda KERNEL_STORAGE_R,X
+    163  f632							; sta GEM_17_W
+    164  f632							; inx
+    165  f632							; lda KERNEL_STORAGE_R,X
+    166  f632							; sta GEM_18_W
+    167  f632							; inx
+    168  f632							; lda KERNEL_STORAGE_R,X
+    169  f632							; sta GEM_22_W
+    170  f632
+    171  f632		       4c 48 f6 	      jmp	row_8_end
+    172  f635
+    173  f635							; Perform gem loading for Kernel B.
+    174  f635
+    175  f635				   loadframe2
+      0  f635					      ASSERT_RUNTIME	"_scycles == #33"
+      1  f635				   .COND      SET	"_scycles == #33"
+ ASSERT: breakif { pc== $f635  && !(  _scycles == #33  ) }
+      2  f635					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
+    177  f635
+    178  f635							; Emerald byte setting 2A
+    179  f635							; ldx #[storage_02 - storage]
+    180  f635							; lda KERNEL_STORAGE_R,X
+    181  f635							; sta GEM_02_W
+    182  f635							; inx
+    183  f635							; lda KERNEL_STORAGE_R,X
+    184  f635							; sta GEM_06_W
+    185  f635							; inx
+    186  f635							; lda KERNEL_STORAGE_R,X
+    187  f635							; sta GEM_08_W
+    188  f635							; inx
+    189  f635
+    190  f635		       85 02		      sta	WSYNC
+    191  f637
+    192  f637							; [scanline 8]
+    193  f637				   row_8
+      0  f637					      jet_spritedata_calc
+      1  f637
+      2  f637		       a9 09		      lda	#SPRITE_HEIGHT
+      3  f639		       c7 85		      dcp	SpriteEnd
+      4  f63b		       a4 85		      ldy	SpriteEnd
+      5  f63d
+      6  f63d
+      7  f63d
+      8  f63d
+      9  f63d		       b9 00 f8 	      lda	Frame0,Y
+     10  f640
+     11  f640		       b0 01		      .byte.b	$b0, $01
+     12  f642		       2c		      .byte.b	$2c
+     13  f643		       85 1b		      sta	JET_SP
+    195  f645
+    196  f645							; Emerald byte setting 2B
+    197  f645							; lda KERNEL_STORAGE_R,X
+    198  f645							; sta GEM_11_W
+    199  f645							; inx
+    200  f645							; lda KERNEL_STORAGE_R,X
+    201  f645							; sta GEM_15_W
+    202  f645							; inx
+    203  f645							; lda KERNEL_STORAGE_R,X
+    204  f645							; sta GEM_20_W
+    205  f645							; inx
+    206  f645							; lda KERNEL_STORAGE_R,X
+    207  f645							; sta GEM_24_W
+    208  f645
+    209  f645		       4c 48 f6 	      jmp	row_8_end
+    210  f648
+    211  f648							; Common row 8 return.
+    212  f648
+    213  f648				   row_8_end
+    214  f648							; Idle.
+    215  f648		       85 02		      sta	WSYNC
+    216  f64a
+    217  f64a							; [scanline 8]
+    218  f64a							; Repeat loop until LoopCount < 0
+    219  f64a		       c6 82		      dec	LoopCount
+    220  f64c		       30 03		      bmi	row_end
+    221  f64e		       4c 75 f5 	      jmp	row_start
+    222  f651				   row_end
+    223  f651		       4c 46 f5 	      jmp	border_bottom
 ------- FILE main.s
 ------- FILE kernel_gem.s LEVEL 2 PASS 2
-      0  f652					      include	"kernel_gem.s"
-      1  f652							;
-      2  f652							; Gem Kernels
-      3  f652							;
-      4  f652							; Gems are displayed in alternating kernels. This chart shows
-      5  f652							; which kernel is responsible for which gem, with missiles denoted.
-      6  f652							;
-      7  f652							;  1:	 |SS  SS  MSS  |SS   SS  SS  |	      kernel 1 (S = Sprite, M = missile)
-      8  f652							;  2:	 |  SS	SS   SS|  SSM  SS  SS|	      kernel 2
-      9  f652							;  =	 |1122112221122|1122111221122|	      kernel #
-     10  f652							;  #	 0^	 8^	  17^	    26^       gem index
-     11  f652							;
-     12  f652							; The middle bar indicates where the pattern reverses.
-     13  f652							;
-     14  f652							; Because we can repeat a sprite multiple times, and reset the sprite
-     15  f652							; occurance mid-line, we can render close to half of the 26 gems a line
-     16  f652							; requires with a single sprite. By alternating sprites each frame with an...
-     17  f652							; acceptable amount of flicker (15Hz) we can render almost all the gems on each
-     18  f652							; line, except for two. These are instead rendered by the missile, which
-     19  f652							; corresponds to the sprite and must have the same color and repeat pattern.
-     20  f652
-     21  f652							; for copying
+      0  f654					      include	"kernel_gem.s"
+      1  f654							;
+      2  f654							; Gem Kernels
+      3  f654							;
+      4  f654							; Gems are displayed in alternating kernels. This chart shows
+      5  f654							; which kernel is responsible for which gem, with missiles denoted.
+      6  f654							;
+      7  f654							;  1:	 |SS  SS  MSS  |SS   SS  SS  |	      kernel 1 (S = Sprite, M = missile)
+      8  f654							;  2:	 |  SS	SS   SS|  SSM  SS  SS|	      kernel 2
+      9  f654							;  =	 |1122112221122|1122111221122|	      kernel #
+     10  f654							;  #	 0^	 8^	  17^	    26^       gem index
+     11  f654							;
+     12  f654							; The middle bar indicates where the pattern reverses.
+     13  f654							;
+     14  f654							; Because we can repeat a sprite multiple times, and reset the sprite
+     15  f654							; occurance mid-line, we can render close to half of the 26 gems a line
+     16  f654							; requires with a single sprite. By alternating sprites each frame with an...
+     17  f654							; acceptable amount of flicker (15Hz) we can render almost all the gems on each
+     18  f654							; line, except for two. These are instead rendered by the missile, which
+     19  f654							; corresponds to the sprite and must have the same color and repeat pattern.
+     20  f654
+     21  f654							; for copying
      22  f700		       00 00 00 00*	      align	256
      23  f700
      24  f700							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -2191,76 +2192,76 @@
      46  f707							; TIA will copy Gemini 0A into visible sprite register
      47  f707		       85 1b		      sta	JET_SP
      48  f709							; Write Gemini 1A into delayed sprite register
-     49  f709		       a0 00		      ldy	#0
+     49  f709		       a0 66		      ldy	#%01100110
      50  f70b		       84 1c		      sty	EMERALD_SP
      51  f70d		       a0 06		      ldy	#%00000110	; FIXME temporary?
      52  f70f
      53  f70f		       38		      sec
      54  f710
      55  f710							; Register config
-     56  f710		       a9 01		      lda	#$01
+     56  f710		       a9 00		      lda	#$00
      57  f712		       85 1e		      sta	EMERALD_MI_ENABLE	; disable missile
-     58  f714							; sta VDELP1 ; enable delayed sprite
-     59  f714
-     60  f714							; 22c is critical start of precise GRP0 timing for Kernel A
+     58  f714
+     59  f714							; 22c is critical start of precise GRP0 timing for Kernel A
       0  f714					      ASSERT_RUNTIME_KERNEL	$A, "_scycles == #22"
       1  f714				   .KERNEL    SET	$A
       2  f714				   .COND      SET	"_scycles == #22"
  ASSERT: breakif { pc== $f114  && ( *$f100 ==  $a   ) && ! (  _scycles == #22  ) }
       3  f714					      echo	"ASSERT:", "breakif { pc==", ., " && ( *$f100 == ", .KERNEL, "  ) && ! ( ", .COND, " ) }"
-     62  f714				   KernelA_A
-     63  f714		       85 11		      sta	EMERALD_SP_RESET	; RESPx must be strobed on cycle 25c.
-     64  f716				   KernelA_B
-     65  f716		       84 1c		      sty	EMERALD_SP
-     66  f718				   KernelA_C
-     67  f718		       a5 93		      lda	RamPF1Value	; Load PF1 (TODO asymmetrical playfield)
+     61  f714				   KernelA_A
+     62  f714		       85 11		      sta	EMERALD_SP_RESET	; RESPx must be strobed on cycle 25c.
+     63  f716				   KernelA_B
+      0  f716					      sleep	3
+      1  f716				   .CYCLES    SET	3
+      2  f716
+      3  f716				  -	      IF	.CYCLES < 2
+      4  f716				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  f716				  -	      ERR
+      6  f716					      ENDIF
+      7  f716
+      8  f716					      IF	.CYCLES & 1
+      9  f716					      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f716		       04 00		      nop	0
+     11  f718				  -	      ELSE
+     12  f718				  -	      bit	VSYNC
+     13  f718					      ENDIF
+     14  f718				   .CYCLES    SET	.CYCLES - 3
+     15  f718					      ENDIF
+     16  f718
+     17  f718				  -	      REPEAT	.CYCLES / 2
+     18  f718				  -	      nop
+     19  f718					      REPEND
+     65  f718				   KernelA_C
+     66  f718		       84 26		      sty	VDELP1	; disable delayed sprite
+     67  f71a
      68  f71a
-     69  f71a
-     70  f71a				   KernelA_D
-     71  f71a							; sty VDELP1 ; Gemini 1A, clear VDELP1. all registers have d0 cleared
-      0  f71a					      sleep	3
-      1  f71a				   .CYCLES    SET	3
-      2  f71a
-      3  f71a				  -	      IF	.CYCLES < 2
-      4  f71a				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  f71a				  -	      ERR
-      6  f71a					      ENDIF
-      7  f71a
-      8  f71a					      IF	.CYCLES & 1
-      9  f71a					      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f71a		       04 00		      nop	0
-     11  f71c				  -	      ELSE
-     12  f71c				  -	      bit	VSYNC
-     13  f71c					      ENDIF
-     14  f71c				   .CYCLES    SET	.CYCLES - 3
-     15  f71c					      ENDIF
-     16  f71c
-     17  f71c				  -	      REPEAT	.CYCLES / 2
-     18  f71c				  -	      nop
-     19  f71c					      REPEND
-     73  f71c				   KernelA_E
-     74  f71c		       85 11		      sta	EMERALD_SP_RESET	; Reset "medium close" NUSIZ repetition
-     75  f71e				   KernelA_F
-     76  f71e		       84 1e		      sty	EMERALD_MI_ENABLE	; Enable the missile (if we use %0xx00110 pattern)
-     77  f720				   KernelA_G
-     78  f720		       84 1c		      sty	EMERALD_SP	; Gemini 2A
-     79  f722
-     80  f722				   KernelA_H
-     81  f722		       84 1c		      sty	EMERALD_SP	; Gemini 3A, modified for RST2 along with HMM1
-     82  f724
-     83  f724							; RST4 vvv
-     84  f724				   KernelA_I
-     85  f724		       08		      php		; Reset "medium close" NUSIZ repetition
-     86  f725				   KernelA_J		; unchanging
-     87  f725		       85 0e		      sta	PF1	; Write asymmetrical playfield register
-     88  f727				   KernelA_K
-     89  f727		       84 1c		      sty	EMERALD_SP	; Gemini 4A
-     90  f729				   KernelA_L
-     91  f729		       84 26		      sty	VDELP1	; clear VDEL
+     69  f71a				   KernelA_D
+     70  f71a							; sty VDELP1 ; Gemini 1A, clear VDELP1. all registers have d0 cleared
+     71  f71a		       a5 93		      lda	RamPF1Value	; Load PF1 (TODO asymmetrical playfield)
+     72  f71c				   KernelA_E
+     73  f71c		       85 11		      sta	EMERALD_SP_RESET	; Reset "medium close" NUSIZ repetition
+     74  f71e				   KernelA_F
+     75  f71e		       84 1e		      sty	EMERALD_MI_ENABLE	; Enable the missile (if we use %0xx00110 pattern)
+     76  f720				   KernelA_G
+     77  f720		       84 1c		      sty	EMERALD_SP	; Gemini 2A
+     78  f722
+     79  f722				   KernelA_H
+     80  f722		       84 1c		      sty	EMERALD_SP	; Gemini 3A, modified for RST2 along with HMM1
+     81  f724
+     82  f724							; RST4 vvv
+     83  f724				   KernelA_I
+     84  f724		       08		      php		; Reset "medium close" NUSIZ repetition
+     85  f725				   KernelA_J		; unchanging
+     86  f725		       85 0e		      sta	PF1	; Write asymmetrical playfield register
+     87  f727				   KernelA_K
+     88  f727		       84 1c		      sty	EMERALD_SP	; Gemini 4A
+     89  f729				   KernelA_L
+     90  f729		       87 1c		      sax	EMERALD_SP	; when possible, sta VDELP0
+     91  f72b							; FIXME "sax" can't be used here
      92  f72b							; RST4 ^^^
      93  f72b
      94  f72b				   KernelA_M
-     95  f72b		       85 11		      sta	EMERALD_SP_RESET	; Gemini 5A
+     95  f72b		       84 26		      sty	VDELP1	; Gemini 5A ; need a way to skip this vlaue
      96  f72d				   KernelA_N
      97  f72d				   KernelA_O
       0  f72d					      sleep	2
