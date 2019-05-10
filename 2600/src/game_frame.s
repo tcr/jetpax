@@ -134,26 +134,37 @@ OKOKOK:
         NIBBLE_IF eq
             ; Kernel A
 
-            ; TEST: bc_RST,bc_NOP,bc_STX,bc_STY,bc_VD1, ??
+            ; gems:     [g00,g01,g10,g11,g00,g01]
+            ; cpu:      cpu(g01,g00,false,g10,g11,false)
+            ; solved:   [bc_RST,bc_NOP,bc_STX,bc_STY,bc_VD1]
+            
+            ; gems:     [g01,g10,g11,g00,g01,g10]
+            ; cpu:      cpu(g01,g01,false,g10,g11,false)
+            ; solved:   [bc_NOP,bc_STX,bc_STY,bc_RST,bc_VD1]
+
+            ; TODO implement this, also implement RST2
+            ; gems:     [g10,g11,g00,g01,g10,g11]
+            ; cpu:      cpu(g10,g10,false,g11,g01,false)
+            ; solved:   [bc_NOP,bc_STX,bc_RST,bc_STY,bc_VD1]
 
             ; Special: Encoding RST0
-            ; lda #PF1
-            ldy #BC_LDA_IMM
-            sty [KernelA_B - $100]
-            ldy #%10100000
-            sty [KernelA_B - $100 + 1]
-            ; Gemini 1A is RESPx
-            ldy #EMERALD_SP_RESET
-            sty [KernelA_C - $100 + 1]
-            ; Turn 3-cycle NOP into 4-cycle
-            ldy #$14
-            sty [KernelA_D - $100]
+            ; ; lda #PF1
+            ; ldy #BC_LDA_IMM
+            ; sty [KernelA_B - $100]
+            ; ldy #%10100000
+            ; sty [KernelA_B - $100 + 1]
+            ; ; Gemini 1A is RESPx
+            ; ldy #EMERALD_SP_RESET
+            ; sty [KernelA_C - $100 + 1]
+            ; ; Turn 3-cycle NOP into 4-cycle
+            ; ldy #$14
+            ; sty [KernelA_D - $100]
 
             ; VDEL enabled
-            ldy #%00000000
+            ldy #%01100000
             sty [KernelA_VDEL1 - $100]
             ; Initial GRP0
-            ldy #%11000000 ; NOTE: shifted because of RST0
+            ldy #%01100000 ; NOTE: shifted when RST0
             sty [KernelA_VDEL0 - $100]
             ; Initial X
             ldy #%00000110
@@ -165,9 +176,9 @@ OKOKOK:
             ; PHP will always be VDELP1
             NIBBLE_WRITE RamKernelPhpTarget, #VDELP1
 
-            ; NIBBLE_WRITE KernelA_D_W, #BC_STY, #$79   ; 1A NOP
-            NIBBLE_WRITE KernelA_G_W, #BC_STX, #GRP1    ; 2A STX
-            NIBBLE_WRITE KernelA_H_W, #BC_STY, #GRP1    ; 3A STY
+            NIBBLE_WRITE KernelA_D_W, #BC_STX, #GRP1     ; 1A NOP
+            NIBBLE_WRITE KernelA_G_W, #BC_STY, #GRP1    ; 2A STX
+            NIBBLE_WRITE KernelA_H_W + 1, #RESP1    ; 3A STY
             NIBBLE_WRITE KernelA_I_W, #BC_STA, #EMERALD_SP_RESET    ; 4A PHP
             NIBBLE_WRITE [KernelA_J_W + 1], #BC_STA, #PF1
             NIBBLE_WRITE [KernelA_K_W + 1], #BC_PHP
