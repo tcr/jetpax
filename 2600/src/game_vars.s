@@ -31,12 +31,19 @@ RamNibbleTemp       byte
 RamNibbleVar1       byte
 RamZeroByte         byte
 RamLowerSixByte     byte
+RamStackBkp         byte
+
+; Kernel support
 RamPF1Value         byte
 RamKernelGRP0       byte ; temp
-RamStackBkp         byte
 RamKernelPhpTarget  byte
 RamKernelX          byte
 RamKernelY          byte
+RamKernelGemini1    byte
+RamKernelGemini2    byte
+RamKernelGemini3    byte
+RamKernelGemini4    byte
+RamKernelGemini5    byte
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

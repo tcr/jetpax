@@ -147,52 +147,86 @@ OKOKOK:
             ; cpu:      cpu(g10,g10,false,g11,g01,false)
             ; solved:   [bc_NOP,bc_STX,bc_RST,bc_STY,bc_VD1]
 
-            ; Special: Encoding RST0
-            ; ; lda #PF1
-            ; ldy #BC_LDA_IMM
-            ; sty [KernelA_B - $100]
-            ; ldy #%10100000
-            ; sty [KernelA_B - $100 + 1]
-            ; ; Gemini 1A is RESPx
-            ; ldy #EMERALD_SP_RESET
-            ; sty [KernelA_C - $100 + 1]
-            ; ; Turn 3-cycle NOP into 4-cycle
-            ; ldy #$14
-            ; sty [KernelA_D - $100]
+            ; todo rst2
 
-            ; VDEL enabled
+            ; VDELPx
             ldy #%01100000
             sty [KernelA_VDEL1 - $100]
-            ; Initial GRP0
-            ldy #%01100000 ; NOTE: shifted when RST0
+            ; GRP0
+            ldy #%01100000 ; NOTE: shifted when doing RST0
             sty [KernelA_VDEL0 - $100]
-            ; Initial X
+            ; X
             ldy #%00000110
             sty RamKernelX
-            ; Initial Y
-            ldy #%01100110
-            sty [KernelA_STY - $100]
-
-            ; PHP will always be VDELP1
+            ; Y
+            NIBBLE_WRITE [KernelA_STY - $100], #%01100110
+            ; PHP
             NIBBLE_WRITE RamKernelPhpTarget, #VDELP1
 
-            NIBBLE_WRITE KernelA_D_W, #BC_STX, #GRP1     ; 1A NOP
-            NIBBLE_WRITE KernelA_G_W, #BC_STY, #GRP1    ; 2A STX
-            NIBBLE_WRITE KernelA_H_W + 1, #RESP1    ; 3A STY
-            NIBBLE_WRITE KernelA_I_W, #BC_STA, #EMERALD_SP_RESET    ; 4A PHP
-            NIBBLE_WRITE [KernelA_J_W + 1], #BC_STA, #PF1
-            NIBBLE_WRITE [KernelA_K_W + 1], #BC_PHP
+            ; Gemini 1A
+            NIBBLE_IF vc
+                ; Special: Encoding RST0
+                ; Rewrite lda RamKernelPF1 to be #immediate
+                ldy #BC_LDA_IMM
+                sty [KernelA_B - $100]
+                ldy #%10100000
+                sty [KernelA_B - $100 + 1]
+                ; Gemini 1A is RESPx
+                ldy #EMERALD_SP_RESET
+                sty [KernelA_C - $100 + 1]
+                ; Turn 3-cycle NOP into 4-cycle
+                ldy #$14
+                sty [KernelA_D - $100]
+            NIBBLE_ELSE
+                NIBBLE_IF vs
+                    NIBBLE_WRITE KernelA_D_W + 1, #RESP1 ; RESET
+                NIBBLE_ELSE
+                    ldy #BC_STX
+                    sty RamKernelGemini1
+                    NIBBLE_WRITE KernelA_D_W, RamKernelGemini1, #GRP1 ; STY
+                NIBBLE_END_IF
+            NIBBLE_END_IF
+
+            ; Gemini 2A
+            ldy #BC_STY
+            sty RamKernelGemini2
+            NIBBLE_WRITE KernelA_G_W, RamKernelGemini2, #GRP1 ; STX
+
+            ; Gemini 3A
+            NIBBLE_IF vs
+                NIBBLE_WRITE KernelA_H_W + 1, #RESP1 ; RESET
+            NIBBLE_ELSE
+                ldy #BC_STX
+                sty RamKernelGemini3
+                NIBBLE_WRITE KernelA_H_W, RamKernelGemini3, #GRP1 ; STY
+            NIBBLE_END_IF
+
+            ; Gemini 4A 
+            ; Set VDELPx
+            NIBBLE_IF vs
+                NIBBLE_WRITE [KernelA_I_W + 0], #BC_STA, #EMERALD_SP_RESET
+                NIBBLE_WRITE [KernelA_J_W + 1], #BC_STA, #PF1
+                NIBBLE_WRITE [KernelA_K_W + 1], #BC_PHP
+            NIBBLE_ELSE
+                NIBBLE_WRITE [KernelA_I_W + 0], #BC_PHP
+                NIBBLE_WRITE [KernelA_J_W + 0], #BC_STA, #PF1
+                NIBBLE_WRITE KernelA_K_W, #BC_STY, #EMERALD_SP
+            NIBBLE_END_IF
+
+            ; Gemini 5A
+            ; TODO eventually...?
 
             ; End of NIBBLE_IF normalizing
-            REPEAT 7
+            REPEAT 3
                 rol
             REPEND
         NIBBLE_ELSE
             ; Kernel B
 
-            ; Kernel: Set X register.
+            ; X
             ldy #%00000011
             sty RamKernelX
+            ; Y
             ldy #%00110011
             sty RamKernelY
             
