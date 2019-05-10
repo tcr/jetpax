@@ -7,8 +7,31 @@
     bne .else_1
     sec
     rol
-    ; TEST: bc_NOP,bc_RST,bc_STX,bc_STY,bc_VD1, ??
     ; Kernel A
+    ; TEST: bc_RST,bc_NOP,bc_STX,bc_STY,bc_VD1, ??
+    ; VDEL enabled
+    ldy #%00000000
+    sty [KernelA_VDEL1 - $100]
+    ; Initial GRP0
+    ldy #%11000000
+    sty [KernelA_VDEL0 - $100]
+    ; Initial X
+    ldy #%00000110
+    sty RamKernelX
+    ; Initial Y
+    ldy #%01100110
+    sty [KernelA_STY - $100]
+    ; RST0
+    ; PF1
+    ldy #BC_LDA_IMM
+    sty [KernelA_B - $100]
+    ldy #%10100000
+    sty [KernelA_B - $100 + 1]
+    ldy #EMERALD_SP_RESET
+    sty [KernelA_C - $100 + 1]
+    ldy #$14
+    sty [KernelA_D - $100]
+    ; NIBBLE_WRITE KernelA_D_W, #BC_STY, #$79
     ; End of NIBBLE_IF normalizing
     REPEAT 7
     rol
@@ -18,6 +41,12 @@
     clc
     rol
     ; Kernel B
+    ; Kernel: Set X register.
+    ldy #%00000011
+    sty RamKernelX
+    ldy #%00110011
+    sty RamKernelY
+     
     cpx #$00
 .if_2:
     bcc .else_2
@@ -46,10 +75,6 @@
     bcc .else_1
     ldx #VDELP1
     stx [RamKernelPhpTarget + 0]
-    ldx #BC_STY
-    stx [KernelA_D_W + 0]
-    ldx #RESP1
-    stx [KernelA_D_W + 1]
     ldx #BC_STX
     stx [KernelA_G_W + 0]
     ldx #GRP1

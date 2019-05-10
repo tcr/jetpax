@@ -79,12 +79,6 @@ frame_setup_kernel_a: subroutine
     lda #%11111111
     sta REFP1
 
-    ; Kernel: Set X register.
-    lda #%01100000
-    sta RamKernelX
-    lda #%01100110
-    sta RamKernelY
-
     jmp frame_setup_complete
 
 frame_setup_kernel_b: subroutine
@@ -106,12 +100,6 @@ frame_setup_kernel_b: subroutine
     lda #%11111111
     sta REFP1
 
-    ; Kernel: Set X register.
-    lda #%00000011
-    sta RamKernelX
-    lda #%00110011
-    sta RamKernelY
-
 frame_setup_complete:
 
     lda shard_map
@@ -123,6 +111,7 @@ gemini_builder:
 
 nibble_precompile_gem_kernel:
 DBG_NIBBLE:
+BC_LDA_IMM = $a9
 BC_STA = $85
 BC_STX = $86
 BC_STY = $84
@@ -137,17 +126,46 @@ KernelA_K_W EQM [KernelA_K - $100]
 
 KernelB_H_W EQM [KernelB_H - $100]
 
+OKOKOK:
     ; Perform kernel Nibble calculations
     NIBBLE_START_KERNEL gem_kernel, 40
         ldx $f100
         cpx #$a
         NIBBLE_IF eq
-            ; TEST: bc_NOP,bc_RST,bc_STX,bc_STY,bc_VD1, ??
-
             ; Kernel A
+
+            ; TEST: bc_RST,bc_NOP,bc_STX,bc_STY,bc_VD1, ??
+
+            ; Special: Encoding RST0
+            ; lda #PF1
+            ldy #BC_LDA_IMM
+            sty [KernelA_B - $100]
+            ldy #%10100000
+            sty [KernelA_B - $100 + 1]
+            ; Gemini 1A is RESPx
+            ldy #EMERALD_SP_RESET
+            sty [KernelA_C - $100 + 1]
+            ; Turn 3-cycle NOP into 4-cycle
+            ldy #$14
+            sty [KernelA_D - $100]
+
+            ; VDEL enabled
+            ldy #%00000000
+            sty [KernelA_VDEL1 - $100]
+            ; Initial GRP0
+            ldy #%11000000 ; NOTE: shifted because of RST0
+            sty [KernelA_VDEL0 - $100]
+            ; Initial X
+            ldy #%00000110
+            sty RamKernelX
+            ; Initial Y
+            ldy #%01100110
+            sty [KernelA_STY - $100]
+
+            ; PHP will always be VDELP1
             NIBBLE_WRITE RamKernelPhpTarget, #VDELP1
 
-            NIBBLE_WRITE KernelA_D_W, #BC_STY, #RESP1   ; 1A RST
+            ; NIBBLE_WRITE KernelA_D_W, #BC_STY, #$79   ; 1A NOP
             NIBBLE_WRITE KernelA_G_W, #BC_STX, #GRP1    ; 2A STX
             NIBBLE_WRITE KernelA_H_W, #BC_STY, #GRP1    ; 3A STY
             NIBBLE_WRITE KernelA_I_W, #BC_STA, #EMERALD_SP_RESET    ; 4A PHP
@@ -160,6 +178,13 @@ KernelB_H_W EQM [KernelB_H - $100]
             REPEND
         NIBBLE_ELSE
             ; Kernel B
+
+            ; Kernel: Set X register.
+            ldy #%00000011
+            sty RamKernelX
+            ldy #%00110011
+            sty RamKernelY
+            
             cpx #$00
             NIBBLE_IF cs
                 NIBBLE_WRITE RamKernelPhpTarget, #EMERALD_SP_RESET

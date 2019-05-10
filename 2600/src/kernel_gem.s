@@ -41,14 +41,17 @@ KernelA: subroutine
 
     ; Write Gemini 0A into delayed sprite register
     ldy #%01100110 ; FIXME temporary?
+KernelA_VDEL1 = . - 1
     sty EMERALD_SP
     ; Write Player from accumulator. When writing to the other sprite, the
     ; TIA will copy Gemini 0A into visible sprite register
     sta JET_SP
-    ; Write Gemini 1A into delayed sprite register
+    ; Write Gemini 1A into visible sprite register
     ldy #%01100110
+KernelA_VDEL0 = . - 1
     sty EMERALD_SP
     ldy #%00000110 ; FIXME temporary?
+KernelA_STY = . - 1
 
     sec
 

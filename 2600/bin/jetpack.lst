@@ -732,82 +732,107 @@
       7  f27a					      bne	.else_1
       8  f27a					      sec
       9  f27a					      rol
-     10  f27a							; TEST: bc_NOP,bc_RST,bc_STX,bc_STY,bc_VD1, ??
-     11  f27a							; Kernel A
-     12  f27a							; End of NIBBLE_IF normalizing
-     13  f27a					      REPEAT	7
-     14  f27a					      rol
-     15  f27a					      REPEND
-     16  f27a					      jmp	.endif_1
-     17  f27a				   .else_1
-     18  f27a					      clc
-     19  f27a					      rol
-     20  f27a							; Kernel B
-     21  f27a					      cpx	#$00
-     22  f27a				   .if_2
-     23  f27a					      bcc	.else_2
-     24  f27a					      sec
-     25  f27a					      rol
-     26  f27a							; NIBBLE_WRITE [KernelB_H_W + 0], #BC_STA
-     27  f27a							; NIBBLE_WRITE [KernelB_H_W + 1], #EMERALD_SP
-     28  f27a							; NIBBLE_WRITE [KernelB_H_W + 2], #BC_PHP
-     29  f27a					      jmp	.endif_2
-     30  f27a				   .else_2
-     31  f27a					      clc
-     32  f27a					      rol
-     33  f27a							; NIBBLE_WRITE [KernelB_H_W + 0], #BC_PHP
-     34  f27a							; NIBBLE_WRITE [KernelB_H_W + 1], #BC_STA
-     35  f27a							; NIBBLE_WRITE [KernelB_H_W + 2], #EMERALD_SP_RESET
-     36  f27a				   .endif_2
-     37  f27a					      REPEAT	6
-     38  f27a					      rol
-     39  f27a					      REPEND
-     40  f27a				   .endif_1
-     41  f27a					      ENDM
-     42  f27a
-     43  f27a					      MAC	nibble_gem_kernel
-     44  f27a				   .if_1
-     45  f27a					      asl
-     46  f27a					      bcc	.else_1
-     47  f27a					      ldx	#VDELP1
-     48  f27a					      stx	[RamKernelPhpTarget + 0]
-     49  f27a					      ldx	#BC_STY
-     50  f27a					      stx	[KernelA_D_W + 0]
-     51  f27a					      ldx	#RESP1
-     52  f27a					      stx	[KernelA_D_W + 1]
-     53  f27a					      ldx	#BC_STX
-     54  f27a					      stx	[KernelA_G_W + 0]
-     55  f27a					      ldx	#GRP1
-     56  f27a					      stx	[KernelA_G_W + 1]
-     57  f27a					      ldx	#BC_STY
-     58  f27a					      stx	[KernelA_H_W + 0]
-     59  f27a					      ldx	#GRP1
-     60  f27a					      stx	[KernelA_H_W + 1]
-     61  f27a					      ldx	#BC_STA
-     62  f27a					      stx	[KernelA_I_W + 0]
-     63  f27a					      ldx	#EMERALD_SP_RESET
-     64  f27a					      stx	[KernelA_I_W + 1]
-     65  f27a					      ldx	#BC_STA
-     66  f27a					      stx	[[KernelA_J_W + 1] + 0]
-     67  f27a					      ldx	#PF1
-     68  f27a					      stx	[[KernelA_J_W + 1] + 1]
-     69  f27a					      ldx	#BC_PHP
-     70  f27a					      stx	[[KernelA_K_W + 1] + 0]
-     71  f27a					      jmp	.endif_1
-     72  f27a				   .else_1
-     73  f27a				   .if_2
+     10  f27a							; Kernel A
+     11  f27a							; TEST: bc_RST,bc_NOP,bc_STX,bc_STY,bc_VD1, ??
+     12  f27a							; VDEL enabled
+     13  f27a					      ldy	#%00000000
+     14  f27a					      sty	[KernelA_VDEL1 - $100]
+     15  f27a							; Initial GRP0
+     16  f27a					      ldy	#%11000000
+     17  f27a					      sty	[KernelA_VDEL0 - $100]
+     18  f27a							; Initial X
+     19  f27a					      ldy	#%00000110
+     20  f27a					      sty	RamKernelX
+     21  f27a							; Initial Y
+     22  f27a					      ldy	#%01100110
+     23  f27a					      sty	[KernelA_STY - $100]
+     24  f27a							; RST0
+     25  f27a							; PF1
+     26  f27a					      ldy	#BC_LDA_IMM
+     27  f27a					      sty	[KernelA_B - $100]
+     28  f27a					      ldy	#%10100000
+     29  f27a					      sty	[KernelA_B - $100 + 1]
+     30  f27a					      ldy	#EMERALD_SP_RESET
+     31  f27a					      sty	[KernelA_C - $100 + 1]
+     32  f27a					      ldy	#$14
+     33  f27a					      sty	[KernelA_D - $100]
+     34  f27a							; NIBBLE_WRITE KernelA_D_W, #BC_STY, #$79
+     35  f27a							; End of NIBBLE_IF normalizing
+     36  f27a					      REPEAT	7
+     37  f27a					      rol
+     38  f27a					      REPEND
+     39  f27a					      jmp	.endif_1
+     40  f27a				   .else_1
+     41  f27a					      clc
+     42  f27a					      rol
+     43  f27a							; Kernel B
+     44  f27a							; Kernel: Set X register.
+     45  f27a					      ldy	#%00000011
+     46  f27a					      sty	RamKernelX
+     47  f27a					      ldy	#%00110011
+     48  f27a					      sty	RamKernelY
+     49  f27a
+     50  f27a					      cpx	#$00
+     51  f27a				   .if_2
+     52  f27a					      bcc	.else_2
+     53  f27a					      sec
+     54  f27a					      rol
+     55  f27a							; NIBBLE_WRITE [KernelB_H_W + 0], #BC_STA
+     56  f27a							; NIBBLE_WRITE [KernelB_H_W + 1], #EMERALD_SP
+     57  f27a							; NIBBLE_WRITE [KernelB_H_W + 2], #BC_PHP
+     58  f27a					      jmp	.endif_2
+     59  f27a				   .else_2
+     60  f27a					      clc
+     61  f27a					      rol
+     62  f27a							; NIBBLE_WRITE [KernelB_H_W + 0], #BC_PHP
+     63  f27a							; NIBBLE_WRITE [KernelB_H_W + 1], #BC_STA
+     64  f27a							; NIBBLE_WRITE [KernelB_H_W + 2], #EMERALD_SP_RESET
+     65  f27a				   .endif_2
+     66  f27a					      REPEAT	6
+     67  f27a					      rol
+     68  f27a					      REPEND
+     69  f27a				   .endif_1
+     70  f27a					      ENDM
+     71  f27a
+     72  f27a					      MAC	nibble_gem_kernel
+     73  f27a				   .if_1
      74  f27a					      asl
-     75  f27a					      bcc	.else_2
-     76  f27a					      ldx	#EMERALD_SP_RESET
+     75  f27a					      bcc	.else_1
+     76  f27a					      ldx	#VDELP1
      77  f27a					      stx	[RamKernelPhpTarget + 0]
-     78  f27a					      jmp	.endif_2
-     79  f27a				   .else_2
-     80  f27a					      ldx	#EMERALD_SP
-     81  f27a					      stx	[RamKernelPhpTarget + 0]
-     82  f27a				   .endif_2
-     83  f27a				   .endif_1
-     84  f27a					      ENDM
-     85  f27a
+     78  f27a					      ldx	#BC_STX
+     79  f27a					      stx	[KernelA_G_W + 0]
+     80  f27a					      ldx	#GRP1
+     81  f27a					      stx	[KernelA_G_W + 1]
+     82  f27a					      ldx	#BC_STY
+     83  f27a					      stx	[KernelA_H_W + 0]
+     84  f27a					      ldx	#GRP1
+     85  f27a					      stx	[KernelA_H_W + 1]
+     86  f27a					      ldx	#BC_STA
+     87  f27a					      stx	[KernelA_I_W + 0]
+     88  f27a					      ldx	#EMERALD_SP_RESET
+     89  f27a					      stx	[KernelA_I_W + 1]
+     90  f27a					      ldx	#BC_STA
+     91  f27a					      stx	[[KernelA_J_W + 1] + 0]
+     92  f27a					      ldx	#PF1
+     93  f27a					      stx	[[KernelA_J_W + 1] + 1]
+     94  f27a					      ldx	#BC_PHP
+     95  f27a					      stx	[[KernelA_K_W + 1] + 0]
+     96  f27a					      jmp	.endif_1
+     97  f27a				   .else_1
+     98  f27a				   .if_2
+     99  f27a					      asl
+    100  f27a					      bcc	.else_2
+    101  f27a					      ldx	#EMERALD_SP_RESET
+    102  f27a					      stx	[RamKernelPhpTarget + 0]
+    103  f27a					      jmp	.endif_2
+    104  f27a				   .else_2
+    105  f27a					      ldx	#EMERALD_SP
+    106  f27a					      stx	[RamKernelPhpTarget + 0]
+    107  f27a				   .endif_2
+    108  f27a				   .endif_1
+    109  f27a					      ENDM
+    110  f27a
 ------- FILE main.s
 ------- FILE game_frame.s LEVEL 2 PASS 2
       0  f27a					      include	"game_frame.s"
@@ -940,7 +965,7 @@
      58  f2d1							; Kernel A or B
      59  f2d1		       a9 01		      lda	#01
      60  f2d3		       25 83		      and	FrameCount
-     61  f2d5		       d0 2c		      bne	frame_setup_kernel_b
+     61  f2d5		       d0 24		      bne	frame_setup_kernel_b
      62  f2d7
      63  f2d7				   frame_setup_kernel_a subroutine
      64  f2d7							; Load kernel into CBSRAM
@@ -1006,38 +1031,48 @@
      79  f2f4		       a9 ff		      lda	#%11111111
      80  f2f6		       85 0c		      sta	REFP1
      81  f2f8
-     82  f2f8							; Kernel: Set X register.
-     83  f2f8		       a9 60		      lda	#%01100000
-     84  f2fa		       85 97		      sta	RamKernelX
-     85  f2fc		       a9 66		      lda	#%01100110
-     86  f2fe		       85 98		      sta	RamKernelY
-     87  f300
-     88  f300		       4c 38 f3 	      jmp	frame_setup_complete
-     89  f303
-     90  f303				   frame_setup_kernel_b subroutine
-     91  f303							; Load kernel into CBSRAM
-     92  f303		       20 68 f2 	      jsr	LoadKernelB
-     93  f306
-     94  f306							; Move missile
-     95  f306		       85 02		      sta	WSYNC
-      0  f308					      sleep	KERNEL_B_MISSILE_SLEEP
-      1  f308				   .CYCLES    SET	KERNEL_B_MISSILE_SLEEP
-      2  f308
-      3  f308				  -	      IF	.CYCLES < 2
-      4  f308				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  f308				  -	      ERR
-      6  f308					      ENDIF
-      7  f308
-      8  f308					      IF	.CYCLES & 1
-      9  f308					      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f308		       04 00		      nop	0
-     11  f30a				  -	      ELSE
-     12  f30a				  -	      bit	VSYNC
-     13  f30a					      ENDIF
-     14  f30a				   .CYCLES    SET	.CYCLES - 3
-     15  f30a					      ENDIF
-     16  f30a
-     17  f30a					      REPEAT	.CYCLES / 2
+     82  f2f8		       4c 28 f3 	      jmp	frame_setup_complete
+     83  f2fb
+     84  f2fb				   frame_setup_kernel_b subroutine
+     85  f2fb							; Load kernel into CBSRAM
+     86  f2fb		       20 68 f2 	      jsr	LoadKernelB
+     87  f2fe
+     88  f2fe							; Move missile
+     89  f2fe		       85 02		      sta	WSYNC
+      0  f300					      sleep	KERNEL_B_MISSILE_SLEEP
+      1  f300				   .CYCLES    SET	KERNEL_B_MISSILE_SLEEP
+      2  f300
+      3  f300				  -	      IF	.CYCLES < 2
+      4  f300				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  f300				  -	      ERR
+      6  f300					      ENDIF
+      7  f300
+      8  f300					      IF	.CYCLES & 1
+      9  f300					      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f300		       04 00		      nop	0
+     11  f302				  -	      ELSE
+     12  f302				  -	      bit	VSYNC
+     13  f302					      ENDIF
+     14  f302				   .CYCLES    SET	.CYCLES - 3
+     15  f302					      ENDIF
+     16  f302
+     17  f302					      REPEAT	.CYCLES / 2
+     18  f302		       ea		      nop
+     17  f302					      REPEND
+     18  f303		       ea		      nop
+     17  f303					      REPEND
+     18  f304		       ea		      nop
+     17  f304					      REPEND
+     18  f305		       ea		      nop
+     17  f305					      REPEND
+     18  f306		       ea		      nop
+     17  f306					      REPEND
+     18  f307		       ea		      nop
+     17  f307					      REPEND
+     18  f308		       ea		      nop
+     17  f308					      REPEND
+     18  f309		       ea		      nop
+     17  f309					      REPEND
      18  f30a		       ea		      nop
      17  f30a					      REPEND
      18  f30b		       ea		      nop
@@ -1069,299 +1104,336 @@
      18  f318		       ea		      nop
      17  f318					      REPEND
      18  f319		       ea		      nop
-     17  f319					      REPEND
-     18  f31a		       ea		      nop
-     17  f31a					      REPEND
-     18  f31b		       ea		      nop
-     17  f31b					      REPEND
-     18  f31c		       ea		      nop
-     17  f31c					      REPEND
-     18  f31d		       ea		      nop
-     17  f31d					      REPEND
-     18  f31e		       ea		      nop
-     17  f31e					      REPEND
-     18  f31f		       ea		      nop
-     17  f31f					      REPEND
-     18  f320		       ea		      nop
-     17  f320					      REPEND
-     18  f321		       ea		      nop
-     19  f322					      REPEND
-     97  f322		       85 13		      sta	EMERALD_MI_RESET
-     98  f324		       a9 10		      lda	#KERNEL_B_MISSILE_HMOVE
-     99  f326		       85 23		      sta	EMERALD_MI_HMOVE
-    100  f328
-    101  f328							; DEBUG: Set per-kernel color
-    102  f328		       a2 e0		      ldx	#$e0
-    103  f32a		       86 07		      stx	EMERALD_SP_COLOR
-    104  f32c
-    105  f32c							; Disable reflection for Jetpack.
-    106  f32c		       a9 ff		      lda	#%11111111
-    107  f32e		       85 0c		      sta	REFP1
-    108  f330
-    109  f330							; Kernel: Set X register.
-    110  f330		       a9 03		      lda	#%00000011
-    111  f332		       85 97		      sta	RamKernelX
-    112  f334		       a9 33		      lda	#%00110011
-    113  f336		       85 98		      sta	RamKernelY
-    114  f338
-    115  f338				   frame_setup_complete
-    116  f338
-    117  f338		       ad 7c f8 	      lda	shard_map
-    118  f33b		       a0 01		      ldy	#1	; gemini counter, starting at 1
-    119  f33d				   gemini_builder
-    120  f33d		       c0 01		      cpy	#1	; TODO top two bits of shard_map
-    121  f33f		       d0 00		      bne	.no_vd0
-    122  f341				   .no_vd0
-    123  f341
-    124  f341				   nibble_precompile_gem_kernel
-    125  f341				   DBG_NIBBLE
-    126  f341		       00 85	   BC_STA     =	$85
-    127  f341		       00 86	   BC_STX     =	$86
-    128  f341		       00 84	   BC_STY     =	$84
-    129  f341		       00 08	   BC_PHP     =	$08
-    130  f341
-    131  f341				   KernelA_D_W EQM	[KernelA_D - $100]
-    132  f341				   KernelA_G_W EQM	[KernelA_G - $100]
-    133  f341				   KernelA_H_W EQM	[KernelA_H - $100]
-    134  f341				   KernelA_I_W EQM	[KernelA_I - $100]
-    135  f341				   KernelA_J_W EQM	[KernelA_J - $100]
-    136  f341				   KernelA_K_W EQM	[KernelA_K - $100]
-    137  f341
-    138  f341				   KernelB_H_W EQM	[KernelB_H - $100]
-    139  f341
-    140  f341							; Perform kernel Nibble calculations
-      0  f341					      NIBBLE_START_KERNEL	gem_kernel, 40
-      0  f341					      NIBBLE_gem_kernel_BUILD
-      1  f341		       a9 00		      lda	#0
-      2  f343		       ae 00 f1 	      ldx	$f100
-      3  f346		       e0 0a		      cpx	#$a
-      4  f348				   .if_1
-      5  f348		       d0 0c		      bne	.else_1
-      6  f34a		       38		      sec
-      7  f34b		       2a		      rol
-      8  f34c
-      9  f34c
-     10  f34c
-     11  f34c					      REPEAT	7
-     12  f34c		       2a		      rol
-     11  f34c					      REPEND
-     12  f34d		       2a		      rol
-     11  f34d					      REPEND
-     12  f34e		       2a		      rol
-     11  f34e					      REPEND
-     12  f34f		       2a		      rol
-     11  f34f					      REPEND
-     12  f350		       2a		      rol
-     11  f350					      REPEND
-     12  f351		       2a		      rol
-     11  f351					      REPEND
-     12  f352		       2a		      rol
-     13  f353					      REPEND
-     14  f353		       4c 69 f3 	      jmp	.endif_1
-     15  f356				   .else_1
-     16  f356		       18		      clc
-     17  f357		       2a		      rol
-     18  f358
-     19  f358		       e0 00		      cpx	#$00
-     20  f35a				   .if_2
-     21  f35a		       90 05		      bcc	.else_2
-     22  f35c		       38		      sec
-     23  f35d		       2a		      rol
-     24  f35e
-     25  f35e
-     26  f35e
-     27  f35e		       4c 63 f3 	      jmp	.endif_2
-     28  f361				   .else_2
-     29  f361		       18		      clc
-     30  f362		       2a		      rol
-     31  f363
+     19  f31a					      REPEND
+     91  f31a		       85 13		      sta	EMERALD_MI_RESET
+     92  f31c		       a9 10		      lda	#KERNEL_B_MISSILE_HMOVE
+     93  f31e		       85 23		      sta	EMERALD_MI_HMOVE
+     94  f320
+     95  f320							; DEBUG: Set per-kernel color
+     96  f320		       a2 e0		      ldx	#$e0
+     97  f322		       86 07		      stx	EMERALD_SP_COLOR
+     98  f324
+     99  f324							; Disable reflection for Jetpack.
+    100  f324		       a9 ff		      lda	#%11111111
+    101  f326		       85 0c		      sta	REFP1
+    102  f328
+    103  f328				   frame_setup_complete
+    104  f328
+    105  f328		       ad 7c f8 	      lda	shard_map
+    106  f32b		       a0 01		      ldy	#1	; gemini counter, starting at 1
+    107  f32d				   gemini_builder
+    108  f32d		       c0 01		      cpy	#1	; TODO top two bits of shard_map
+    109  f32f		       d0 00		      bne	.no_vd0
+    110  f331				   .no_vd0
+    111  f331
+    112  f331				   nibble_precompile_gem_kernel
+    113  f331				   DBG_NIBBLE
+    114  f331		       00 a9	   BC_LDA_IMM =	$a9
+    115  f331		       00 85	   BC_STA     =	$85
+    116  f331		       00 86	   BC_STX     =	$86
+    117  f331		       00 84	   BC_STY     =	$84
+    118  f331		       00 08	   BC_PHP     =	$08
+    119  f331
+    120  f331				   KernelA_D_W EQM	[KernelA_D - $100]
+    121  f331				   KernelA_G_W EQM	[KernelA_G - $100]
+    122  f331				   KernelA_H_W EQM	[KernelA_H - $100]
+    123  f331				   KernelA_I_W EQM	[KernelA_I - $100]
+    124  f331				   KernelA_J_W EQM	[KernelA_J - $100]
+    125  f331				   KernelA_K_W EQM	[KernelA_K - $100]
+    126  f331
+    127  f331				   KernelB_H_W EQM	[KernelB_H - $100]
+    128  f331
+    129  f331				   OKOKOK
+    130  f331							; Perform kernel Nibble calculations
+      0  f331					      NIBBLE_START_KERNEL	gem_kernel, 40
+      0  f331					      NIBBLE_gem_kernel_BUILD
+      1  f331		       a9 00		      lda	#0
+      2  f333		       ae 00 f1 	      ldx	$f100
+      3  f336		       e0 0a		      cpx	#$a
+      4  f338				   .if_1
+      5  f338		       d0 33		      bne	.else_1
+      6  f33a		       38		      sec
+      7  f33b		       2a		      rol
+      8  f33c
+      9  f33c
+     10  f33c
+     11  f33c		       a0 00		      ldy	#%00000000
+     12  f33e		       8c 04 f0 	      sty	[KernelA_VDEL1 - $100]
+     13  f341
+     14  f341		       a0 c0		      ldy	#%11000000
+     15  f343		       8c 0a f0 	      sty	[KernelA_VDEL0 - $100]
+     16  f346
+     17  f346		       a0 06		      ldy	#%00000110
+     18  f348		       84 97		      sty	RamKernelX
+     19  f34a
+     20  f34a		       a0 66		      ldy	#%01100110
+     21  f34c		       8c 0e f0 	      sty	[KernelA_STY - $100]
+     22  f34f
+     23  f34f
+     24  f34f		       a0 a9		      ldy	#BC_LDA_IMM
+     25  f351		       8c 16 f0 	      sty	[KernelA_B - $100]
+     26  f354		       a0 a0		      ldy	#%10100000
+     27  f356		       8c 17 f0 	      sty	[KernelA_B - $100 + 1]
+     28  f359		       a0 11		      ldy	#EMERALD_SP_RESET
+     29  f35b		       8c 19 f0 	      sty	[KernelA_C - $100 + 1]
+     30  f35e		       a0 14		      ldy	#$14
+     31  f360		       8c 1a f0 	      sty	[KernelA_D - $100]
      32  f363
      33  f363
-     34  f363				   .endif_2
-     35  f363					      REPEAT	6
-     36  f363		       2a		      rol
-     35  f363					      REPEND
-     36  f364		       2a		      rol
-     35  f364					      REPEND
-     36  f365		       2a		      rol
-     35  f365					      REPEND
-     36  f366		       2a		      rol
-     35  f366					      REPEND
-     36  f367		       2a		      rol
-     35  f367					      REPEND
-     36  f368		       2a		      rol
-     37  f369					      REPEND
-     38  f369				   .endif_1
-      2 U0014 ????				      seg.U	ignoreme
-    142 U0014 ????	       ae 00 f1 	      ldx	$f100
-    143 U0017 ????	       e0 0a		      cpx	#$a
-      0 U0019 ????				      NIBBLE_IF	eq
-    145 U0019 ????						; TEST: bc_NOP,bc_RST,bc_STX,bc_STY,bc_VD1, ??
-    146 U0019 ????
-    147 U0019 ????						; Kernel A
-      0 U0019 ????				      NIBBLE_WRITE	RamKernelPhpTarget, #VDELP1
-    149 U0019 ????
-      0 U0019 ????				      NIBBLE_WRITE	KernelA_D_W, #BC_STY, #RESP1	; 1A RST
-      0 U0019 ????				      NIBBLE_WRITE	KernelA_G_W, #BC_STX, #GRP1	; 2A STX
-      0 U0019 ????				      NIBBLE_WRITE	KernelA_H_W, #BC_STY, #GRP1	; 3A STY
-      0 U0019 ????				      NIBBLE_WRITE	KernelA_I_W, #BC_STA, #EMERALD_SP_RESET	; 4A PHP
-      0 U0019 ????				      NIBBLE_WRITE	[KernelA_J_W + 1], #BC_STA, #PF1
-      0 U0019 ????				      NIBBLE_WRITE	[KernelA_K_W + 1], #BC_PHP
-    156 U0019 ????
-    157 U0019 ????						; End of NIBBLE_IF normalizing
-    158 U0019 ????				      REPEAT	7
-    159 U0019 ????	       2a		      rol
-    158 U0019 ????				      REPEND
-    159 U001a ????	       2a		      rol
-    158 U001a ????				      REPEND
-    159 U001b ????	       2a		      rol
-    158 U001b ????				      REPEND
-    159 U001c ????	       2a		      rol
-    158 U001c ????				      REPEND
-    159 U001d ????	       2a		      rol
-    158 U001d ????				      REPEND
-    159 U001e ????	       2a		      rol
-    158 U001e ????				      REPEND
-    159 U001f ????	       2a		      rol
-    160 U0020 ????				      REPEND
-      0 U0020 ????				      NIBBLE_ELSE
-    162 U0020 ????						; Kernel B
-    163 U0020 ????	       e0 00		      cpx	#$00
-      0 U0022 ????				      NIBBLE_IF	cs
-      0 U0022 ????				      NIBBLE_WRITE	RamKernelPhpTarget, #EMERALD_SP_RESET
-    166 U0022 ????						; NIBBLE_WRITE [KernelB_H_W + 0], #BC_STA
-    167 U0022 ????						; NIBBLE_WRITE [KernelB_H_W + 1], #EMERALD_SP
-    168 U0022 ????						; NIBBLE_WRITE [KernelB_H_W + 2], #BC_PHP
-      0 U0022 ????				      NIBBLE_ELSE
-      0 U0022 ????				      NIBBLE_WRITE	RamKernelPhpTarget, #EMERALD_SP
-    171 U0022 ????						; NIBBLE_WRITE [KernelB_H_W + 0], #BC_PHP
-    172 U0022 ????						; NIBBLE_WRITE [KernelB_H_W + 1], #BC_STA
-    173 U0022 ????						; NIBBLE_WRITE [KernelB_H_W + 2], #EMERALD_SP_RESET
-      0 U0022 ????				      NIBBLE_END_IF
-    175 U0022 ????				      REPEAT	6
-    176 U0022 ????	       2a		      rol
-    175 U0022 ????				      REPEND
-    176 U0023 ????	       2a		      rol
-    175 U0023 ????				      REPEND
-    176 U0024 ????	       2a		      rol
-    175 U0024 ????				      REPEND
-    176 U0025 ????	       2a		      rol
-    175 U0025 ????				      REPEND
-    176 U0026 ????	       2a		      rol
-    175 U0026 ????				      REPEND
-    176 U0027 ????	       2a		      rol
-    177 U0028 ????				      REPEND
-      0 U0028 ????				      NIBBLE_END_IF
-      0 U0028 ????				      NIBBLE_END_KERNEL
-      1  f369					      seg	CodeBank3
-    180  f369		       85 90		      sta	RamNibbleVar1
-    181  f36b
-    182  f36b							; TODO move this into kernel
-    183  f36b		       a5 90		      lda	RamNibbleVar1
-    184  f36d				   DBG_NIBBLEVM
-      0  f36d					      NIBBLE_gem_kernel
-      1  f36d				   .if_1
-      2  f36d		       0a		      asl
-      3  f36e		       90 3e		      bcc	.else_1
-      4  f370		       a2 26		      ldx	#VDELP1
-      5  f372		       86 96		      stx	[RamKernelPhpTarget + 0]
-      6  f374		       a2 84		      ldx	#BC_STY
-      7  f376		       8e 1a f0 	      stx	[KernelA_D_W + 0]
-      8  f379		       a2 11		      ldx	#RESP1
-      9  f37b		       8e 1b f0 	      stx	[KernelA_D_W + 1]
-     10  f37e		       a2 86		      ldx	#BC_STX
-     11  f380		       8e 20 f0 	      stx	[KernelA_G_W + 0]
-     12  f383		       a2 1c		      ldx	#GRP1
-     13  f385		       8e 21 f0 	      stx	[KernelA_G_W + 1]
-     14  f388		       a2 84		      ldx	#BC_STY
-     15  f38a		       8e 22 f0 	      stx	[KernelA_H_W + 0]
-     16  f38d		       a2 1c		      ldx	#GRP1
-     17  f38f		       8e 23 f0 	      stx	[KernelA_H_W + 1]
-     18  f392		       a2 85		      ldx	#BC_STA
-     19  f394		       8e 24 f0 	      stx	[KernelA_I_W + 0]
-     20  f397		       a2 11		      ldx	#EMERALD_SP_RESET
-     21  f399		       8e 25 f0 	      stx	[KernelA_I_W + 1]
-     22  f39c		       a2 85		      ldx	#BC_STA
-     23  f39e		       8e 26 f0 	      stx	[[KernelA_J_W + 1] + 0]
-     24  f3a1		       a2 0e		      ldx	#PF1
-     25  f3a3		       8e 27 f0 	      stx	[[KernelA_J_W + 1] + 1]
-     26  f3a6		       a2 08		      ldx	#BC_PHP
-     27  f3a8		       8e 28 f0 	      stx	[[KernelA_K_W + 1] + 0]
-     28  f3ab		       4c bc f3 	      jmp	.endif_1
-     29  f3ae				   .else_1
-     30  f3ae				   .if_2
-     31  f3ae		       0a		      asl
-     32  f3af		       90 07		      bcc	.else_2
-     33  f3b1		       a2 11		      ldx	#EMERALD_SP_RESET
-     34  f3b3		       86 96		      stx	[RamKernelPhpTarget + 0]
-     35  f3b5		       4c bc f3 	      jmp	.endif_2
-     36  f3b8				   .else_2
-     37  f3b8		       a2 1c		      ldx	#EMERALD_SP
-     38  f3ba		       86 96		      stx	[RamKernelPhpTarget + 0]
-     39  f3bc				   .endif_2
-     40  f3bc				   .endif_1
-    186  f3bc
-    187  f3bc				   VerticalBlankEnd
-    188  f3bc							; Wait until the end of Vertical blank.
-      0  f3bc					      TIMER_WAIT
-      1  f3bc				   .waittimer
-      2  f3bc		       ad 84 02 	      lda	INTIM
-      3  f3bf		       d0 fb		      bne	.waittimer
-      4  f3c1		       85 02		      sta	WSYNC
-      0  f3c3					      ASSERT_RUNTIME	"_scan == #37"
-      1  f3c3				   .COND      SET	"_scan == #37"
- ASSERT: breakif { pc== $f3c3  && !(  _scan == #37  ) }
-      2  f3c3					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
-    191  f3c3
-    192  f3c3							; Save stack pointer
-    193  f3c3		       ba		      tsx
-    194  f3c4		       86 95		      stx	RamStackBkp
-    195  f3c6
-    196  f3c6							; Start rendering the kernel.
-    197  f3c6		       4c ce f4 	      jmp	KernelBorder
-    198  f3c9
-    199  f400		       00 00 00 00*	      align	256	; TODO why
-    200  f400
-    201  f400				   FrameEnd   subroutine
-    202  f400		       85 02		      sta	WSYNC
-    203  f402
-    204  f402							; Blank all background colors.
-    205  f402		       a9 00		      lda	#0
-    206  f404		       85 08		      sta	COLUPF
-    207  f406		       85 0f		      sta	PF2
-    208  f408		       85 0e		      sta	PF1
-    209  f40a		       85 1c		      sta	EMERALD_SP
-    210  f40c
-    211  f40c							; Guide lines (2x)
-    212  f40c		       a9 02		      lda	#SIGNAL_LINE
-    213  f40e		       85 09		      sta	COLUBK
-    214  f410					      REPEAT	6
-    215  f410		       85 02		      sta	WSYNC
-    214  f410					      REPEND
-    215  f412		       85 02		      sta	WSYNC
-    214  f412					      REPEND
-    215  f414		       85 02		      sta	WSYNC
-    214  f414					      REPEND
-    215  f416		       85 02		      sta	WSYNC
-    214  f416					      REPEND
-    215  f418		       85 02		      sta	WSYNC
-    214  f418					      REPEND
-    215  f41a		       85 02		      sta	WSYNC
-    216  f41c					      REPEND
-    217  f41c		       a9 00		      lda	#$00
-    218  f41e		       85 09		      sta	COLUBK
-    219  f420
-    220  f420							; Restore stack pointer
-    221  f420		       a6 95		      ldx	RamStackBkp
-    222  f422		       9a		      txs
-    223  f423
-    224  f423							; Display the rest of the blank screen.
+     34  f363					      REPEAT	7
+     35  f363		       2a		      rol
+     34  f363					      REPEND
+     35  f364		       2a		      rol
+     34  f364					      REPEND
+     35  f365		       2a		      rol
+     34  f365					      REPEND
+     35  f366		       2a		      rol
+     34  f366					      REPEND
+     35  f367		       2a		      rol
+     34  f367					      REPEND
+     35  f368		       2a		      rol
+     34  f368					      REPEND
+     35  f369		       2a		      rol
+     36  f36a					      REPEND
+     37  f36a		       4c 88 f3 	      jmp	.endif_1
+     38  f36d				   .else_1
+     39  f36d		       18		      clc
+     40  f36e		       2a		      rol
+     41  f36f
+     42  f36f
+     43  f36f		       a0 03		      ldy	#%00000011
+     44  f371		       84 97		      sty	RamKernelX
+     45  f373		       a0 33		      ldy	#%00110011
+     46  f375		       84 98		      sty	RamKernelY
+     47  f377
+     48  f377		       e0 00		      cpx	#$00
+     49  f379				   .if_2
+     50  f379		       90 05		      bcc	.else_2
+     51  f37b		       38		      sec
+     52  f37c		       2a		      rol
+     53  f37d
+     54  f37d
+     55  f37d
+     56  f37d		       4c 82 f3 	      jmp	.endif_2
+     57  f380				   .else_2
+     58  f380		       18		      clc
+     59  f381		       2a		      rol
+     60  f382
+     61  f382
+     62  f382
+     63  f382				   .endif_2
+     64  f382					      REPEAT	6
+     65  f382		       2a		      rol
+     64  f382					      REPEND
+     65  f383		       2a		      rol
+     64  f383					      REPEND
+     65  f384		       2a		      rol
+     64  f384					      REPEND
+     65  f385		       2a		      rol
+     64  f385					      REPEND
+     65  f386		       2a		      rol
+     64  f386					      REPEND
+     65  f387		       2a		      rol
+     66  f388					      REPEND
+     67  f388				   .endif_1
+      2 U0043 ????				      seg.U	ignoreme
+    132 U0043 ????	       ae 00 f1 	      ldx	$f100
+    133 U0046 ????	       e0 0a		      cpx	#$a
+      0 U0048 ????				      NIBBLE_IF	eq
+    135 U0048 ????						; Kernel A
+    136 U0048 ????
+    137 U0048 ????						; TEST: bc_RST,bc_NOP,bc_STX,bc_STY,bc_VD1, ??
+    138 U0048 ????
+    139 U0048 ????						; VDEL enabled
+    140 U0048 ????	       a0 00		      ldy	#%00000000
+    141 U004a ????	       8c 04 f0 	      sty	[KernelA_VDEL1 - $100]
+    142 U004d ????						; Initial GRP0
+    143 U004d ????	       a0 c0		      ldy	#%11000000	; NOTE: shifted because of RST0
+    144 U004f ????	       8c 0a f0 	      sty	[KernelA_VDEL0 - $100]
+    145 U0052 ????						; Initial X
+    146 U0052 ????	       a0 06		      ldy	#%00000110
+    147 U0054 ????	       84 97		      sty	RamKernelX
+    148 U0056 ????						; Initial Y
+    149 U0056 ????	       a0 66		      ldy	#%01100110
+    150 U0058 ????	       8c 0e f0 	      sty	[KernelA_STY - $100]
+    151 U005b ????
+    152 U005b ????						; RST0
+    153 U005b ????						; PF1
+    154 U005b ????	       a0 a9		      ldy	#BC_LDA_IMM
+    155 U005d ????	       8c 16 f0 	      sty	[KernelA_B - $100]
+    156 U0060 ????	       a0 a0		      ldy	#%10100000
+    157 U0062 ????	       8c 17 f0 	      sty	[KernelA_B - $100 + 1]
+    158 U0065 ????	       a0 11		      ldy	#EMERALD_SP_RESET
+    159 U0067 ????	       8c 19 f0 	      sty	[KernelA_C - $100 + 1]
+    160 U006a ????	       a0 14		      ldy	#$14
+    161 U006c ????	       8c 1a f0 	      sty	[KernelA_D - $100]
+    162 U006f ????
+      0 U006f ????				      NIBBLE_WRITE	RamKernelPhpTarget, #VDELP1
+    164 U006f ????
+    165 U006f ????						; NIBBLE_WRITE KernelA_D_W, #BC_STY, #$79   ; 1A NOP
+      0 U006f ????				      NIBBLE_WRITE	KernelA_G_W, #BC_STX, #GRP1	; 2A STX
+      0 U006f ????				      NIBBLE_WRITE	KernelA_H_W, #BC_STY, #GRP1	; 3A STY
+      0 U006f ????				      NIBBLE_WRITE	KernelA_I_W, #BC_STA, #EMERALD_SP_RESET	; 4A PHP
+      0 U006f ????				      NIBBLE_WRITE	[KernelA_J_W + 1], #BC_STA, #PF1
+      0 U006f ????				      NIBBLE_WRITE	[KernelA_K_W + 1], #BC_PHP
+    171 U006f ????
+    172 U006f ????						; End of NIBBLE_IF normalizing
+    173 U006f ????				      REPEAT	7
+    174 U006f ????	       2a		      rol
+    173 U006f ????				      REPEND
+    174 U0070 ????	       2a		      rol
+    173 U0070 ????				      REPEND
+    174 U0071 ????	       2a		      rol
+    173 U0071 ????				      REPEND
+    174 U0072 ????	       2a		      rol
+    173 U0072 ????				      REPEND
+    174 U0073 ????	       2a		      rol
+    173 U0073 ????				      REPEND
+    174 U0074 ????	       2a		      rol
+    173 U0074 ????				      REPEND
+    174 U0075 ????	       2a		      rol
+    175 U0076 ????				      REPEND
+      0 U0076 ????				      NIBBLE_ELSE
+    177 U0076 ????						; Kernel B
+    178 U0076 ????
+    179 U0076 ????						; Kernel: Set X register.
+    180 U0076 ????	       a0 03		      ldy	#%00000011
+    181 U0078 ????	       84 97		      sty	RamKernelX
+    182 U007a ????	       a0 33		      ldy	#%00110011
+    183 U007c ????	       84 98		      sty	RamKernelY
+    184 U007e ????
+    185 U007e ????	       e0 00		      cpx	#$00
+      0 U0080 ????				      NIBBLE_IF	cs
+      0 U0080 ????				      NIBBLE_WRITE	RamKernelPhpTarget, #EMERALD_SP_RESET
+    188 U0080 ????						; NIBBLE_WRITE [KernelB_H_W + 0], #BC_STA
+    189 U0080 ????						; NIBBLE_WRITE [KernelB_H_W + 1], #EMERALD_SP
+    190 U0080 ????						; NIBBLE_WRITE [KernelB_H_W + 2], #BC_PHP
+      0 U0080 ????				      NIBBLE_ELSE
+      0 U0080 ????				      NIBBLE_WRITE	RamKernelPhpTarget, #EMERALD_SP
+    193 U0080 ????						; NIBBLE_WRITE [KernelB_H_W + 0], #BC_PHP
+    194 U0080 ????						; NIBBLE_WRITE [KernelB_H_W + 1], #BC_STA
+    195 U0080 ????						; NIBBLE_WRITE [KernelB_H_W + 2], #EMERALD_SP_RESET
+      0 U0080 ????				      NIBBLE_END_IF
+    197 U0080 ????				      REPEAT	6
+    198 U0080 ????	       2a		      rol
+    197 U0080 ????				      REPEND
+    198 U0081 ????	       2a		      rol
+    197 U0081 ????				      REPEND
+    198 U0082 ????	       2a		      rol
+    197 U0082 ????				      REPEND
+    198 U0083 ????	       2a		      rol
+    197 U0083 ????				      REPEND
+    198 U0084 ????	       2a		      rol
+    197 U0084 ????				      REPEND
+    198 U0085 ????	       2a		      rol
+    199 U0086 ????				      REPEND
+      0 U0086 ????				      NIBBLE_END_IF
+      0 U0086 ????				      NIBBLE_END_KERNEL
+      1  f388					      seg	CodeBank3
+    202  f388		       85 90		      sta	RamNibbleVar1
+    203  f38a
+    204  f38a							; TODO move this into kernel
+    205  f38a		       a5 90		      lda	RamNibbleVar1
+    206  f38c				   DBG_NIBBLEVM
+      0  f38c					      NIBBLE_gem_kernel
+      1  f38c				   .if_1
+      2  f38c		       0a		      asl
+      3  f38d		       90 34		      bcc	.else_1
+      4  f38f		       a2 26		      ldx	#VDELP1
+      5  f391		       86 96		      stx	[RamKernelPhpTarget + 0]
+      6  f393		       a2 86		      ldx	#BC_STX
+      7  f395		       8e 20 f0 	      stx	[KernelA_G_W + 0]
+      8  f398		       a2 1c		      ldx	#GRP1
+      9  f39a		       8e 21 f0 	      stx	[KernelA_G_W + 1]
+     10  f39d		       a2 84		      ldx	#BC_STY
+     11  f39f		       8e 22 f0 	      stx	[KernelA_H_W + 0]
+     12  f3a2		       a2 1c		      ldx	#GRP1
+     13  f3a4		       8e 23 f0 	      stx	[KernelA_H_W + 1]
+     14  f3a7		       a2 85		      ldx	#BC_STA
+     15  f3a9		       8e 24 f0 	      stx	[KernelA_I_W + 0]
+     16  f3ac		       a2 11		      ldx	#EMERALD_SP_RESET
+     17  f3ae		       8e 25 f0 	      stx	[KernelA_I_W + 1]
+     18  f3b1		       a2 85		      ldx	#BC_STA
+     19  f3b3		       8e 26 f0 	      stx	[[KernelA_J_W + 1] + 0]
+     20  f3b6		       a2 0e		      ldx	#PF1
+     21  f3b8		       8e 27 f0 	      stx	[[KernelA_J_W + 1] + 1]
+     22  f3bb		       a2 08		      ldx	#BC_PHP
+     23  f3bd		       8e 28 f0 	      stx	[[KernelA_K_W + 1] + 0]
+     24  f3c0		       4c d1 f3 	      jmp	.endif_1
+     25  f3c3				   .else_1
+     26  f3c3				   .if_2
+     27  f3c3		       0a		      asl
+     28  f3c4		       90 07		      bcc	.else_2
+     29  f3c6		       a2 11		      ldx	#EMERALD_SP_RESET
+     30  f3c8		       86 96		      stx	[RamKernelPhpTarget + 0]
+     31  f3ca		       4c d1 f3 	      jmp	.endif_2
+     32  f3cd				   .else_2
+     33  f3cd		       a2 1c		      ldx	#EMERALD_SP
+     34  f3cf		       86 96		      stx	[RamKernelPhpTarget + 0]
+     35  f3d1				   .endif_2
+     36  f3d1				   .endif_1
+    208  f3d1
+    209  f3d1				   VerticalBlankEnd
+    210  f3d1							; Wait until the end of Vertical blank.
+      0  f3d1					      TIMER_WAIT
+      1  f3d1				   .waittimer
+      2  f3d1		       ad 84 02 	      lda	INTIM
+      3  f3d4		       d0 fb		      bne	.waittimer
+      4  f3d6		       85 02		      sta	WSYNC
+      0  f3d8					      ASSERT_RUNTIME	"_scan == #37"
+      1  f3d8				   .COND      SET	"_scan == #37"
+ ASSERT: breakif { pc== $f3d8  && !(  _scan == #37  ) }
+      2  f3d8					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
+    213  f3d8
+    214  f3d8							; Save stack pointer
+    215  f3d8		       ba		      tsx
+    216  f3d9		       86 95		      stx	RamStackBkp
+    217  f3db
+    218  f3db							; Start rendering the kernel.
+    219  f3db		       4c ce f4 	      jmp	KernelBorder
+    220  f3de
+    221  f400		       00 00 00 00*	      align	256	; TODO why
+    222  f400
+    223  f400				   FrameEnd   subroutine
+    224  f400		       85 02		      sta	WSYNC
+    225  f402
+    226  f402							; Blank all background colors.
+    227  f402		       a9 00		      lda	#0
+    228  f404		       85 08		      sta	COLUPF
+    229  f406		       85 0f		      sta	PF2
+    230  f408		       85 0e		      sta	PF1
+    231  f40a		       85 1c		      sta	EMERALD_SP
+    232  f40c
+    233  f40c							; Guide lines (2x)
+    234  f40c		       a9 02		      lda	#SIGNAL_LINE
+    235  f40e		       85 09		      sta	COLUBK
+    236  f410					      REPEAT	6
+    237  f410		       85 02		      sta	WSYNC
+    236  f410					      REPEND
+    237  f412		       85 02		      sta	WSYNC
+    236  f412					      REPEND
+    237  f414		       85 02		      sta	WSYNC
+    236  f414					      REPEND
+    237  f416		       85 02		      sta	WSYNC
+    236  f416					      REPEND
+    237  f418		       85 02		      sta	WSYNC
+    236  f418					      REPEND
+    237  f41a		       85 02		      sta	WSYNC
+    238  f41c					      REPEND
+    239  f41c		       a9 00		      lda	#$00
+    240  f41e		       85 09		      sta	COLUBK
+    241  f420
+    242  f420							; Restore stack pointer
+    243  f420		       a6 95		      ldx	RamStackBkp
+    244  f422		       9a		      txs
+    245  f423
+    246  f423							; Display the rest of the blank screen.
       0  f423					      TIMER_SETUP	25
       1  f423				   .lines     SET	25
       2  f423		       a9 1d		      lda	#(((.lines)*76-14)/64)
       3  f425		       85 02		      sta	WSYNC
       4  f427		       8d 96 02 	      sta	TIM64T
-    226  f42a		       85 02		      sta	WSYNC
+    248  f42a		       85 02		      sta	WSYNC
       0  f42c					      TIMER_WAIT
       1  f42c				   .waittimer
       2  f42c		       ad 84 02 	      lda	INTIM
@@ -1371,19 +1443,19 @@
       1  f433				   .COND      SET	"_scan == (#37 + #192)"
  ASSERT: breakif { pc== $f433  && !(  _scan == (#37 + #192)  ) }
       2  f433					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
-    229  f433
-    230  f433							; Overscan
-    231  f433				   Overscan   subroutine
-    232  f433		       85 01		      sta	VBLANK
+    251  f433
+    252  f433							; Overscan
+    253  f433				   Overscan   subroutine
+    254  f433		       85 01		      sta	VBLANK
       0  f435					      TIMER_SETUP	29
       1  f435				   .lines     SET	29
       2  f435		       a9 22		      lda	#(((.lines)*76-14)/64)
       3  f437		       85 02		      sta	WSYNC
       4  f439		       8d 96 02 	      sta	TIM64T
-    234  f43c
-    235  f43c		       20 4c f4 	      jsr	MoveJoystick
-    236  f43f		       20 83 f4 	      jsr	SpeedCalculation
-    237  f442
+    256  f43c
+    257  f43c		       20 4c f4 	      jsr	MoveJoystick
+    258  f43f		       20 83 f4 	      jsr	SpeedCalculation
+    259  f442
       0  f442					      TIMER_WAIT
       1  f442				   .waittimer
       2  f442		       ad 84 02 	      lda	INTIM
@@ -1393,8 +1465,8 @@
       1  f449				   .COND      SET	"_scan == (#37 + #192 + #29)"
  ASSERT: breakif { pc== $f449  && !(  _scan == (#37 + #192 + #29)  ) }
       2  f449					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
-    240  f449
-    241  f449		       4c 7a f2 	      jmp	VerticalSync
+    262  f449
+    263  f449		       4c 7a f2 	      jmp	VerticalSync
 ------- FILE main.s
 ------- FILE game_input.s LEVEL 2 PASS 2
       0  f44c					      include	"game_input.s"
@@ -2187,37 +2259,40 @@
      41  f703
      42  f703							; Write Gemini 0A into delayed sprite register
      43  f703		       a0 66		      ldy	#%01100110	; FIXME temporary?
-     44  f705		       84 1c		      sty	EMERALD_SP
-     45  f707							; Write Player from accumulator. When writing to the other sprite, the
-     46  f707							; TIA will copy Gemini 0A into visible sprite register
-     47  f707		       85 1b		      sta	JET_SP
-     48  f709							; Write Gemini 1A into delayed sprite register
-     49  f709		       a0 66		      ldy	#%01100110
-     50  f70b		       84 1c		      sty	EMERALD_SP
-     51  f70d		       a0 06		      ldy	#%00000110	; FIXME temporary?
-     52  f70f
-     53  f70f		       38		      sec
-     54  f710
-     55  f710							; Register config
-     56  f710		       a9 00		      lda	#$00
-     57  f712		       85 1e		      sta	EMERALD_MI_ENABLE	; disable missile
-     58  f714
-     59  f714							; 22c is critical start of precise GRP0 timing for Kernel A
+     44  f703		       f1 04	   KernelA_VDEL1 =	. - 1
+     45  f705		       84 1c		      sty	EMERALD_SP
+     46  f707							; Write Player from accumulator. When writing to the other sprite, the
+     47  f707							; TIA will copy Gemini 0A into visible sprite register
+     48  f707		       85 1b		      sta	JET_SP
+     49  f709							; Write Gemini 1A into visible sprite register
+     50  f709		       a0 66		      ldy	#%01100110
+     51  f709		       f1 0a	   KernelA_VDEL0 =	. - 1
+     52  f70b		       84 1c		      sty	EMERALD_SP
+     53  f70d		       a0 06		      ldy	#%00000110	; FIXME temporary?
+     54  f70d		       f1 0e	   KernelA_STY =	. - 1
+     55  f70f
+     56  f70f		       38		      sec
+     57  f710
+     58  f710							; Register config
+     59  f710		       a9 00		      lda	#$00
+     60  f712		       85 1e		      sta	EMERALD_MI_ENABLE	; disable missile
+     61  f714
+     62  f714							; 22c is critical start of precise GRP0 timing for Kernel A
       0  f714					      ASSERT_RUNTIME_KERNEL	$A, "_scycles == #22"
       1  f714				   .KERNEL    SET	$A
       2  f714				   .COND      SET	"_scycles == #22"
  ASSERT: breakif { pc== $f114  && ( *$f100 ==  $a   ) && ! (  _scycles == #22  ) }
       3  f714					      echo	"ASSERT:", "breakif { pc==", ., " && ( *$f100 == ", .KERNEL, "  ) && ! ( ", .COND, " ) }"
-     61  f714				   KernelA_A
-     62  f714		       85 11		      sta	EMERALD_SP_RESET	; RESPx must be strobed on cycle 25c.
-     63  f716				   KernelA_B
-     64  f716		       a5 93		      lda	RamPF1Value
-     65  f718				   KernelA_C
-     66  f718		       84 26		      sty	VDELP1	; disable delayed sprite
-     67  f71a
-     68  f71a
-     69  f71a				   KernelA_D
-     70  f71a							; sty VDELP1 ; Gemini 1A, clear VDELP1. all registers have d0 cleared
+     64  f714				   KernelA_A
+     65  f714		       85 11		      sta	EMERALD_SP_RESET	; RESPx must be strobed on cycle 25c.
+     66  f716				   KernelA_B
+     67  f716		       a5 93		      lda	RamPF1Value
+     68  f718				   KernelA_C
+     69  f718		       84 26		      sty	VDELP1	; disable delayed sprite
+     70  f71a
+     71  f71a
+     72  f71a				   KernelA_D
+     73  f71a							; sty VDELP1 ; Gemini 1A, clear VDELP1. all registers have d0 cleared
       0  f71a					      sleep	3	; Load PF1 (TODO asymmetrical playfield)
       1  f71a				   .CYCLES    SET	3
       2  f71a
@@ -2238,32 +2313,32 @@
      17  f71c				  -	      REPEAT	.CYCLES / 2
      18  f71c				  -	      nop
      19  f71c					      REPEND
-     72  f71c				   KernelA_E
-     73  f71c		       85 11		      sta	EMERALD_SP_RESET	; Reset "medium close" NUSIZ repetition
-     74  f71e				   KernelA_F
-     75  f71e		       84 1e		      sty	EMERALD_MI_ENABLE	; Enable the missile (if we use %0xx00110 pattern)
-     76  f720				   KernelA_G
-     77  f720		       84 1c		      sty	EMERALD_SP	; Gemini 2A
-     78  f722
-     79  f722				   KernelA_H
-     80  f722		       84 1c		      sty	EMERALD_SP	; Gemini 3A, modified for RST2 along with HMM1
-     81  f724
-     82  f724							; RST4 vvv
-     83  f724				   KernelA_I
-     84  f724		       08		      php		; Reset "medium close" NUSIZ repetition
-     85  f725				   KernelA_J		; unchanging
-     86  f725		       85 0e		      sta	PF1	; Write asymmetrical playfield register
-     87  f727				   KernelA_K
-     88  f727		       84 1c		      sty	EMERALD_SP	; Gemini 4A
-     89  f729				   KernelA_L
-     90  f729		       87 1c		      sax	EMERALD_SP	; when possible, sta VDELP0
-     91  f72b							; FIXME "sax" can't be used here generally
-     92  f72b							; RST4 ^^^
-     93  f72b
-     94  f72b				   KernelA_M
-     95  f72b		       84 26		      sty	VDELP1	; Gemini 5A ; need a way to skip this vlaue
-     96  f72d				   KernelA_N
-     97  f72d				   KernelA_O
+     75  f71c				   KernelA_E
+     76  f71c		       85 11		      sta	EMERALD_SP_RESET	; Reset "medium close" NUSIZ repetition
+     77  f71e				   KernelA_F
+     78  f71e		       84 1e		      sty	EMERALD_MI_ENABLE	; Enable the missile (if we use %0xx00110 pattern)
+     79  f720				   KernelA_G
+     80  f720		       84 1c		      sty	EMERALD_SP	; Gemini 2A
+     81  f722
+     82  f722				   KernelA_H
+     83  f722		       84 1c		      sty	EMERALD_SP	; Gemini 3A, modified for RST2 along with HMM1
+     84  f724
+     85  f724							; RST4 vvv
+     86  f724				   KernelA_I
+     87  f724		       08		      php		; Reset "medium close" NUSIZ repetition
+     88  f725				   KernelA_J		; unchanging
+     89  f725		       85 0e		      sta	PF1	; Write asymmetrical playfield register
+     90  f727				   KernelA_K
+     91  f727		       84 1c		      sty	EMERALD_SP	; Gemini 4A
+     92  f729				   KernelA_L
+     93  f729		       87 1c		      sax	EMERALD_SP	; when possible, sta VDELP0
+     94  f72b							; FIXME "sax" can't be used here generally
+     95  f72b							; RST4 ^^^
+     96  f72b
+     97  f72b				   KernelA_M
+     98  f72b		       84 26		      sty	VDELP1	; Gemini 5A ; need a way to skip this vlaue
+     99  f72d				   KernelA_N
+    100  f72d				   KernelA_O
       0  f72d					      sleep	2
       1  f72d				   .CYCLES    SET	2
       2  f72d
@@ -2284,25 +2359,25 @@
      17  f72d					      REPEAT	.CYCLES / 2
      18  f72d		       ea		      nop
      19  f72e					      REPEND
-     99  f72e
-    100  f72e							; reset stack pointer
-    101  f72e		       68		      pla
-    102  f72f
-    103  f72f							; End visible line
+    102  f72e
+    103  f72e							; reset stack pointer
+    104  f72e		       68		      pla
+    105  f72f
+    106  f72f							; End visible line
       0  f72f					      ASSERT_RUNTIME_KERNEL	$A, "_scycles == #67"
       1  f72f				   .KERNEL    SET	$A
       2  f72f				   .COND      SET	"_scycles == #67"
  ASSERT: breakif { pc== $f12f  && ( *$f100 ==  $a   ) && ! (  _scycles == #67  ) }
       3  f72f					      echo	"ASSERT:", "breakif { pc==", ., " && ( *$f100 == ", .KERNEL, "  ) && ! ( ", .COND, " ) }"
-    105  f72f
-    106  f72f				   KernelA_branch
-    107  f72f		       ad 84 02 	      lda	INTIM
-    108  f732		       d0 cd		      bne	KernelA_early
-    109  f734
-    110  f734		       4c f0 f5 	      jmp	row_after_kernel
-    111  f737
-    112  f737					      rend
-    113  f737				   kernel_1_end
+    108  f72f
+    109  f72f				   KernelA_branch
+    110  f72f		       ad 84 02 	      lda	INTIM
+    111  f732		       d0 cd		      bne	KernelA_early
+    112  f734
+    113  f734		       4c f0 f5 	      jmp	row_after_kernel
+    114  f737
+    115  f737					      rend
+    116  f737				   kernel_1_end
       0  f737					      ASSERT_SIZE	kernel_1_start, kernel_1_end, $40
       1  f737				   .STARTA    SET	kernel_1_start
       2  f737				   .ENDA      SET	kernel_1_end
@@ -2311,60 +2386,60 @@
       5  f737				  -	      echo	"Error: Exceeded size limit", [.ENDA - .STARTA], "vs", .LEN
       6  f737				  -	      err
       7  f737					      endif
-    115  f737
-    116  f737							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    117  f737							;
-    118  f737							; GEM KERNEL B
-    119  f737							;
-    120  f737
-    121  f737				   kernel_2_start subroutine
-    122  f737					      rorg	$f100
+    118  f737
+    119  f737							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    120  f737							;
+    121  f737							; GEM KERNEL B
+    122  f737							;
     123  f737
-    124  f737							; Kernel Marker
-    125  f737		       0b		      .byte.b	$B
-    126  f738
-    127  f738				   KernelB_early
-    128  f738							; Early code to set next GRP0 image. Value is overwritten
-    129  f738		       a9 ff		      lda	#$ff
-    130  f73a
-    131  f73a				   KernelB    subroutine
+    124  f737				   kernel_2_start subroutine
+    125  f737					      rorg	$f100
+    126  f737
+    127  f737							; Kernel Marker
+    128  f737		       0b		      .byte.b	$B
+    129  f738
+    130  f738				   KernelB_early
+    131  f738							; Early code to set next GRP0 image. Value is overwritten
+    132  f738		       a9 ff		      lda	#$ff
+    133  f73a
+    134  f73a				   KernelB    subroutine
       0  f73a					      ASSERT_RUNTIME_KERNEL	$B, "_scycles == #0"
       1  f73a				   .KERNEL    SET	$B
       2  f73a				   .COND      SET	"_scycles == #0"
  ASSERT: breakif { pc== $f103  && ( *$f100 ==  $b   ) && ! (  _scycles == #0  ) }
       3  f73a					      echo	"ASSERT:", "breakif { pc==", ., " && ( *$f100 == ", .KERNEL, "  ) && ! ( ", .COND, " ) }"
-    133  f73a
-    134  f73a							; Write Gemini 0A into delayed sprite register
-    135  f73a		       84 1c		      sty	EMERALD_SP
-    136  f73c							; Write Player from accumulator. When writing to the other sprite, the
-    137  f73c							; TIA will copy Gemini 0A into visible sprite register
-    138  f73c		       85 1b		      sta	JET_SP
-    139  f73e							; Write Gemini 1A into delayed sprite register
-    140  f73e		       84 1c		      sty	EMERALD_SP
-    141  f740
-    142  f740							; Register config
-    143  f740		       a9 ff		      lda	#$ff
-    144  f742		       85 1e		      sta	EMERALD_MI_ENABLE	; enable missile
-    145  f744		       85 26		      sta	VDELP1	; enable delayed sprite
-    146  f746
-    147  f746							; Load PF1 value into accumulator
-    148  f746		       a5 93		      lda	RamPF1Value
-    149  f748
-    150  f748							; Clear bits in processor status register for drawing.
-    151  f748		       18		      clc
-    152  f749		       24 92		      bit	RamLowerSixByte
-    153  f74b
-    154  f74b							; 25c is critical start of precise GRP0 timing for Kernel B
+    136  f73a
+    137  f73a							; Write Gemini 0A into delayed sprite register
+    138  f73a		       84 1c		      sty	EMERALD_SP
+    139  f73c							; Write Player from accumulator. When writing to the other sprite, the
+    140  f73c							; TIA will copy Gemini 0A into visible sprite register
+    141  f73c		       85 1b		      sta	JET_SP
+    142  f73e							; Write Gemini 1A into delayed sprite register
+    143  f73e		       84 1c		      sty	EMERALD_SP
+    144  f740
+    145  f740							; Register config
+    146  f740		       a9 ff		      lda	#$ff
+    147  f742		       85 1e		      sta	EMERALD_MI_ENABLE	; enable missile
+    148  f744		       85 26		      sta	VDELP1	; enable delayed sprite
+    149  f746
+    150  f746							; Load PF1 value into accumulator
+    151  f746		       a5 93		      lda	RamPF1Value
+    152  f748
+    153  f748							; Clear bits in processor status register for drawing.
+    154  f748		       18		      clc
+    155  f749		       24 92		      bit	RamLowerSixByte
+    156  f74b
+    157  f74b							; 25c is critical start of precise GRP0 timing for Kernel B
       0  f74b					      ASSERT_RUNTIME_KERNEL	$B, "_scycles == #25"
       1  f74b				   .KERNEL    SET	$B
       2  f74b				   .COND      SET	"_scycles == #25"
  ASSERT: breakif { pc== $f114  && ( *$f100 ==  $b   ) && ! (  _scycles == #25  ) }
       3  f74b					      echo	"ASSERT:", "breakif { pc==", ., " && ( *$f100 == ", .KERNEL, "  ) && ! ( ", .COND, " ) }"
-    156  f74b				   KernelB_A
-    157  f74b		       85 11		      sta	EMERALD_SP_RESET
-    158  f74d				   KernelB_B
-    159  f74d				   KernelB_C
-    160  f74d				   KernelB_D
+    159  f74b				   KernelB_A
+    160  f74b		       85 11		      sta	EMERALD_SP_RESET
+    161  f74d				   KernelB_B
+    162  f74d				   KernelB_C
+    163  f74d				   KernelB_D
       0  f74d					      sleep	4
       1  f74d				   .CYCLES    SET	4
       2  f74d
@@ -2387,30 +2462,30 @@
      17  f74d					      REPEND
      18  f74e		       ea		      nop
      19  f74f					      REPEND
-    162  f74f							; set D0 = 0 without using a register
-    163  f74f		       06 26		      asl	VDELP1
-    164  f751				   KernelB_E
-    165  f751		       85 11		      sta	EMERALD_SP_RESET
-    166  f753				   KernelB_F
-    167  f753		       84 1c		      sty	EMERALD_SP
-    168  f755				   KernelB_G
-    169  f755		       85 0e		      sta	PF1
-    170  f757
-    171  f757							; below has one php load (could just be RESET)
-    172  f757				   KernelB_H
-    173  f757		       84 1c		      sty	EMERALD_SP	; Gemini 3B; TODO write php instead fixed
-    174  f759				   KernelB_I
-    175  f759		       85 11		      sta	EMERALD_SP_RESET
-    176  f75b				   KernelB_J
-    177  f75b		       84 1c		      sty	EMERALD_SP	; Gemini 4B
-    178  f75d				   KernelB_K
-    179  f75d		       86 1e		      stx	EMERALD_MI_ENABLE
-    180  f75f				   KernelB_L
-    181  f75f		       84 1c		      sty	EMERALD_SP	; Gemini 5B
-    182  f761							; above has one PHP loa
-    183  f761
-    184  f761				   KernelB_M
-    185  f761				   KernelB_N
+    165  f74f							; set D0 = 0 without using a register
+    166  f74f		       06 26		      asl	VDELP1
+    167  f751				   KernelB_E
+    168  f751		       85 11		      sta	EMERALD_SP_RESET
+    169  f753				   KernelB_F
+    170  f753		       84 1c		      sty	EMERALD_SP
+    171  f755				   KernelB_G
+    172  f755		       85 0e		      sta	PF1
+    173  f757
+    174  f757							; below has one php load (could just be RESET)
+    175  f757				   KernelB_H
+    176  f757		       84 1c		      sty	EMERALD_SP	; Gemini 3B; TODO write php instead fixed
+    177  f759				   KernelB_I
+    178  f759		       85 11		      sta	EMERALD_SP_RESET
+    179  f75b				   KernelB_J
+    180  f75b		       84 1c		      sty	EMERALD_SP	; Gemini 4B
+    181  f75d				   KernelB_K
+    182  f75d		       86 1e		      stx	EMERALD_MI_ENABLE
+    183  f75f				   KernelB_L
+    184  f75f		       84 1c		      sty	EMERALD_SP	; Gemini 5B
+    185  f761							; above has one PHP loa
+    186  f761
+    187  f761				   KernelB_M
+    188  f761				   KernelB_N
       0  f761					      sleep	2
       1  f761				   .CYCLES    SET	2
       2  f761
@@ -2431,24 +2506,24 @@
      17  f761					      REPEAT	.CYCLES / 2
      18  f761		       ea		      nop
      19  f762					      REPEND
-    187  f762
-    188  f762							; reset stack pointer
-    189  f762		       68		      pla
-    190  f763
-    191  f763							; End visible line
+    190  f762
+    191  f762							; reset stack pointer
+    192  f762		       68		      pla
+    193  f763
+    194  f763							; End visible line
       0  f763					      ASSERT_RUNTIME_KERNEL	$B, "_scycles == #67"
       1  f763				   .KERNEL    SET	$B
       2  f763				   .COND      SET	"_scycles == #67"
  ASSERT: breakif { pc== $f12c  && ( *$f100 ==  $b   ) && ! (  _scycles == #67  ) }
       3  f763					      echo	"ASSERT:", "breakif { pc==", ., " && ( *$f100 == ", .KERNEL, "  ) && ! ( ", .COND, " ) }"
-    193  f763
-    194  f763				   KernelB_branch
-    195  f763		       ad 84 02 	      lda	INTIM
-    196  f766		       d0 d0		      bne	KernelB_early
-    197  f768		       4c f0 f5 	      jmp	row_after_kernel
-    198  f76b
-    199  f76b					      rend
-    200  f76b				   kernel_2_end
+    196  f763
+    197  f763				   KernelB_branch
+    198  f763		       ad 84 02 	      lda	INTIM
+    199  f766		       d0 d0		      bne	KernelB_early
+    200  f768		       4c f0 f5 	      jmp	row_after_kernel
+    201  f76b
+    202  f76b					      rend
+    203  f76b				   kernel_2_end
       0  f76b					      ASSERT_SIZE	kernel_2_start, kernel_2_end, $40
       1  f76b				   .STARTA    SET	kernel_2_start
       2  f76b				   .ENDA      SET	kernel_2_end
