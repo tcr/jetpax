@@ -144,19 +144,19 @@ KernelB_H_W EQM [KernelB_H - $100]
 ; solved:   [bc_STX,bc_RST,bc_RST,bc_STY,bc_VD1]
 
 
-SHARD_RST_0 = 0
-SHARD_RST_1 = 0
-SHARD_RST_3 = 0
-SHARD_1A    = BC_STX
-SHARD_2A    = BC_STX
-SHARD_3A    = BC_STY
-SHARD_VD1_4 = 1
-SHARD_4A    = BC_STY
+SHARD_0A_RST    = 0
+SHARD_1A_RST    = 0
+SHARD_3A_RST    = 0
+SHARD_1A        = BC_STX
+SHARD_2A        = BC_STX
+SHARD_3A        = BC_STY
+SHARD_4A_VD1    = 1
+SHARD_4A        = BC_STY
 ; Sprites (may be reversed)
-SHARD_VD1   = %01100000
-SHARD_GRP0  = %01100000 ; NOTE: shifted when doing RST0
-SHARD_X     = %00000000
-SHARD_Y     = %01100110
+SHARD_VD1       = %01100000
+SHARD_GRP0      = %01100000 ; NOTE: shifted when doing RST0
+SHARD_X         = %00000000
+SHARD_Y         = %01100110
 
 
 OKOKOK:
@@ -182,7 +182,7 @@ OKOKOK:
             NIBBLE_WRITE RamKernelPhpTarget, #VDELP1
 
             ; Gemini 1A
-            ldx #SHARD_RST_0
+            ldx #SHARD_0A_RST
             NIBBLE_IF ne
                 ; Special: Encoding RST0
                 ; Rewrite lda RamKernelPF1 to be #immediate
@@ -197,7 +197,7 @@ OKOKOK:
                 ldy #$14
                 sty [KernelA_D - $100]
             NIBBLE_ELSE
-                ldx #SHARD_RST_1
+                ldx #SHARD_1A_RST
                 NIBBLE_IF ne
                     NIBBLE_WRITE KernelA_D_W + 1, #RESP1 ; RESET
                 NIBBLE_ELSE
@@ -213,7 +213,7 @@ OKOKOK:
             NIBBLE_WRITE KernelA_G_W, RamKernelGemini2, #GRP1 ; STX
 
             ; Gemini 3A
-            ldx #SHARD_RST_3
+            ldx #SHARD_3A_RST
             NIBBLE_IF ne
                 NIBBLE_WRITE KernelA_H_W + 1, #RESP1 ; RESET
             NIBBLE_ELSE
@@ -223,7 +223,7 @@ OKOKOK:
             NIBBLE_END_IF
 
             ; Gemini 4A 
-            ldx #SHARD_VD1_4
+            ldx #SHARD_4A_VD1
             NIBBLE_IF ne
                 ; Set VDELPx
                 NIBBLE_WRITE [KernelA_I_W + 0], #BC_STA, #EMERALD_SP_RESET
