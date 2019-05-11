@@ -89,11 +89,10 @@ KernelA_J: ; unchanging
     sta PF1 ; Write asymmetrical playfield register
 KernelA_K:
     sty EMERALD_SP ; Gemini 4A
-KernelA_L:
-    sax EMERALD_SP ; when possible, sta VDELP0
-    ; FIXME "sax" can't be used here generally
 ; RST4 ^^^
 
+KernelA_L:
+    sleep 3 ; when possible, sta VDELP0
 KernelA_M:
     sty VDELP1 ; Gemini 5A ; need a way to skip this vlaue
 KernelA_N:

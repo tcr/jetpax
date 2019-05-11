@@ -150,20 +150,24 @@ KernelB_H_W EQM [KernelB_H - $100]
 ; cpu:      cpu(g01,g01,false,g00,g11,false)
 ; solved:   [bc_NOP,bc_STX,bc_STX,bc_STY,bc_VD1]
 
+; gems:     [g11,g01,g01,g01,g01,g00]
+; cpu:      cpu(g00,g01,false,g11,g00,false)
+; solved:   [bc_STX,bc_VD1,bc_STX,bc_STX,bc_STX]
+
 SHARD_0A_RST    = 0
 SHARD_1A_RST    = 0
-SHARD_2A_RST    = 1
+SHARD_2A_RST    = 0
 SHARD_3A_RST    = 0
 ; SHARD_0A        = BC_NOP
 SHARD_1A        = BC_STX
 SHARD_2A        = BC_STX
-SHARD_3A        = BC_STY
-SHARD_4A_VD1    = 1
-SHARD_4A        = BC_STY
+SHARD_3A        = BC_STX
+SHARD_4A_VD1    = 0
+SHARD_4A        = BC_STX
 ; Sprites (may be reversed)
 SHARD_VD1       = %01100000
-SHARD_GRP0      = %01100000 ; NOTE: shifted when doing RST0
-SHARD_X         = %00000000
+SHARD_GRP0      = %01100110 ; NOTE: shifted when doing RST0
+SHARD_X         = %01100000
 SHARD_Y         = %01100110
 
 
@@ -186,8 +190,6 @@ OKOKOK:
             sty RamKernelX
             ; Y
             NIBBLE_WRITE [KernelA_STY - $100], #SHARD_Y
-            ; PHP
-            NIBBLE_WRITE RamKernelPhpTarget, #VDELP1
 
             ; DISABLED TO ADDRESS BRANCHING OUT OF RANGE ISSUES
             ; ; Gemini 1A
@@ -241,14 +243,19 @@ OKOKOK:
             ; Gemini 4A 
             ldx #SHARD_4A_VD1
             NIBBLE_IF ne
-                ; Set VDELPx
                 NIBBLE_WRITE [KernelA_I_W + 0], #BC_STA, #EMERALD_SP_RESET
                 NIBBLE_WRITE [KernelA_J_W + 1], #BC_STA, #PF1
                 NIBBLE_WRITE [KernelA_K_W + 1], #BC_PHP
+
+                ; Set PHP
+                NIBBLE_WRITE RamKernelPhpTarget, #VDELP1
             NIBBLE_ELSE
                 NIBBLE_WRITE [KernelA_I_W + 0], #BC_PHP
                 NIBBLE_WRITE [KernelA_J_W + 0], #BC_STA, #PF1
                 NIBBLE_WRITE KernelA_K_W, #SHARD_4A, #EMERALD_SP
+
+                ; Set PHP
+                NIBBLE_WRITE RamKernelPhpTarget, #RESP1
             NIBBLE_END_IF
 
             ; Gemini 5A

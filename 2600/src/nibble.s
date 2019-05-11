@@ -18,7 +18,6 @@
     ldy #SHARD_X
     sty RamKernelX
     ; Y
-    ; PHP
     ; DISABLED TO ADDRESS BRANCHING OUT OF RANGE ISSUES
     ;
     ; ldx #SHARD_0A_RST
@@ -85,13 +84,14 @@
     beq .else_4
     sec
     rol
-    ; Set VDELPx
+    ; Set PHP
     jmp .endif_4
     ; [BIT DEPTH] #4 If-End @ 4
 
 .else_4:
     clc
     rol
+    ; Set PHP
     ; [BIT DEPTH] #4 *If-End @ 4
     ; [BIT DEPTH] #4 Else-End @ 4
 .endif_4:
@@ -149,12 +149,10 @@
     bcc .else_1
     ldx #SHARD_Y
     stx [[KernelA_STY - $100] + 0]
-    ldx #VDELP1
-    stx [RamKernelPhpTarget + 0]
 .if_2:
     asl
     bcc .else_2
-    ldx #$79
+    ldx #NOP_REG
     stx [KernelA_E_W + 1 + 0]
     ldx #RESP1
     stx [KernelA_G_W + 1 + 0]
@@ -192,6 +190,8 @@
     stx [[KernelA_J_W + 1] + 1]
     ldx #BC_PHP
     stx [[KernelA_K_W + 1] + 0]
+    ldx #VDELP1
+    stx [RamKernelPhpTarget + 0]
     jmp .endif_4
 .else_4:
     ldx #BC_PHP
@@ -204,6 +204,8 @@
     stx [KernelA_K_W + 0]
     ldx #EMERALD_SP
     stx [KernelA_K_W + 1]
+    ldx #RESP1
+    stx [RamKernelPhpTarget + 0]
 .endif_4:
     jmp .endif_1
 .else_1:
