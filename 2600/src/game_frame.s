@@ -117,6 +117,8 @@ BC_STX = $86
 BC_STY = $84
 BC_PHP = $08
 
+NOP_REG = $79 ; TODO is there a better reg to write to with NOP effects
+
 KernelA_D_W EQM [KernelA_D - $100]
 KernelA_E_W EQM [KernelA_E - $100]
 KernelA_G_W EQM [KernelA_G - $100]
@@ -217,7 +219,7 @@ OKOKOK:
             ; Gemini 2A
             ldx #SHARD_2A_RST
             NIBBLE_IF ne
-                NIBBLE_WRITE KernelA_E_W + 1, #$79
+                NIBBLE_WRITE KernelA_E_W + 1, #NOP_REG   ; NOP
                 NIBBLE_WRITE KernelA_G_W + 1, #RESP1 ; RESET
             NIBBLE_ELSE
                 NIBBLE_WRITE KernelA_E_W + 1, #RESP1
