@@ -129,6 +129,11 @@ KernelA_K_W EQM [KernelA_K - $100]
 
 KernelB_H_W EQM [KernelB_H - $100]
 
+G00 = %00000000
+G01 = %00000110
+G10 = %01100000
+G11 = %01100110
+
 ; gems:     [g00,g01,g10,g11,g00,g01]
 ; cpu:      cpu(g01,g00,false,g10,g11,false)
 ; solved:   [bc_RST,bc_NOP,bc_STX,bc_STY,bc_VD1]
