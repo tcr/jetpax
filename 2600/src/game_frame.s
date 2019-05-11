@@ -126,6 +126,39 @@ KernelA_K_W EQM [KernelA_K - $100]
 
 KernelB_H_W EQM [KernelB_H - $100]
 
+; gems:     [g00,g01,g10,g11,g00,g01]
+; cpu:      cpu(g01,g00,false,g10,g11,false)
+; solved:   [bc_RST,bc_NOP,bc_STX,bc_STY,bc_VD1]
+
+; gems:     [g01,g10,g11,g00,g01,g10]
+; cpu:      cpu(g01,g01,false,g10,g11,false)
+; solved:   [bc_NOP,bc_STX,bc_STY,bc_RST,bc_VD1]
+
+; TODO implement this, also implement RST2
+; gems:     [g10,g11,g00,g01,g10,g11]
+; cpu:      cpu(g10,g10,false,g11,g01,false)
+; solved:   [bc_NOP,bc_STX,bc_RST,bc_STY,bc_VD1]
+
+; gems:     [g01,g00,g00,g11,g01,g11]
+; cpu:      cpu(g00,g01,false,g01,g11,false)
+; solved:   [bc_STX,bc_RST,bc_RST,bc_STY,bc_VD1]
+
+
+SHARD_RST_0 = 0
+SHARD_RST_1 = 0
+SHARD_RST_3 = 0
+SHARD_1A    = BC_STX
+SHARD_2A    = BC_STX
+SHARD_3A    = BC_STY
+SHARD_VD1_4 = 1
+SHARD_4A    = BC_STY
+; Sprites (may be reversed)
+SHARD_VD1   = %01100000
+SHARD_GRP0  = %01100000 ; NOTE: shifted when doing RST0
+SHARD_X     = %00000000
+SHARD_Y     = %01100110
+
+
 OKOKOK:
     ; Perform kernel Nibble calculations
     NIBBLE_START_KERNEL gem_kernel, 40
@@ -134,37 +167,23 @@ OKOKOK:
         NIBBLE_IF eq
             ; Kernel A
 
-            ; gems:     [g00,g01,g10,g11,g00,g01]
-            ; cpu:      cpu(g01,g00,false,g10,g11,false)
-            ; solved:   [bc_RST,bc_NOP,bc_STX,bc_STY,bc_VD1]
-            
-            ; gems:     [g01,g10,g11,g00,g01,g10]
-            ; cpu:      cpu(g01,g01,false,g10,g11,false)
-            ; solved:   [bc_NOP,bc_STX,bc_STY,bc_RST,bc_VD1]
-
-            ; TODO implement this, also implement RST2
-            ; gems:     [g10,g11,g00,g01,g10,g11]
-            ; cpu:      cpu(g10,g10,false,g11,g01,false)
-            ; solved:   [bc_NOP,bc_STX,bc_RST,bc_STY,bc_VD1]
-
-            ; todo rst2
-
-            ; VDELPx
-            ldy #%01100000
+            ; VD1
+            ldy #SHARD_VD1
             sty [KernelA_VDEL1 - $100]
             ; GRP0
-            ldy #%01100000 ; NOTE: shifted when doing RST0
+            ldy #SHARD_GRP0
             sty [KernelA_VDEL0 - $100]
             ; X
-            ldy #%00000110
+            ldy #SHARD_X
             sty RamKernelX
             ; Y
-            NIBBLE_WRITE [KernelA_STY - $100], #%01100110
+            NIBBLE_WRITE [KernelA_STY - $100], #SHARD_Y
             ; PHP
             NIBBLE_WRITE RamKernelPhpTarget, #VDELP1
 
             ; Gemini 1A
-            NIBBLE_IF vc
+            ldx #SHARD_RST_0
+            NIBBLE_IF ne
                 ; Special: Encoding RST0
                 ; Rewrite lda RamKernelPF1 to be #immediate
                 ldy #BC_LDA_IMM
@@ -178,39 +197,42 @@ OKOKOK:
                 ldy #$14
                 sty [KernelA_D - $100]
             NIBBLE_ELSE
-                NIBBLE_IF vs
+                ldx #SHARD_RST_1
+                NIBBLE_IF ne
                     NIBBLE_WRITE KernelA_D_W + 1, #RESP1 ; RESET
                 NIBBLE_ELSE
-                    ldy #BC_STX
+                    ldy #SHARD_1A
                     sty RamKernelGemini1
                     NIBBLE_WRITE KernelA_D_W, RamKernelGemini1, #GRP1 ; STY
                 NIBBLE_END_IF
             NIBBLE_END_IF
 
             ; Gemini 2A
-            ldy #BC_STY
+            ldy #SHARD_2A
             sty RamKernelGemini2
             NIBBLE_WRITE KernelA_G_W, RamKernelGemini2, #GRP1 ; STX
 
             ; Gemini 3A
-            NIBBLE_IF vs
+            ldx #SHARD_RST_3
+            NIBBLE_IF ne
                 NIBBLE_WRITE KernelA_H_W + 1, #RESP1 ; RESET
             NIBBLE_ELSE
-                ldy #BC_STX
+                ldy #SHARD_3A
                 sty RamKernelGemini3
                 NIBBLE_WRITE KernelA_H_W, RamKernelGemini3, #GRP1 ; STY
             NIBBLE_END_IF
 
             ; Gemini 4A 
-            ; Set VDELPx
-            NIBBLE_IF vs
+            ldx #SHARD_VD1_4
+            NIBBLE_IF ne
+                ; Set VDELPx
                 NIBBLE_WRITE [KernelA_I_W + 0], #BC_STA, #EMERALD_SP_RESET
                 NIBBLE_WRITE [KernelA_J_W + 1], #BC_STA, #PF1
                 NIBBLE_WRITE [KernelA_K_W + 1], #BC_PHP
             NIBBLE_ELSE
                 NIBBLE_WRITE [KernelA_I_W + 0], #BC_PHP
                 NIBBLE_WRITE [KernelA_J_W + 0], #BC_STA, #PF1
-                NIBBLE_WRITE KernelA_K_W, #BC_STY, #EMERALD_SP
+                NIBBLE_WRITE KernelA_K_W, #SHARD_4A, #EMERALD_SP
             NIBBLE_END_IF
 
             ; Gemini 5A

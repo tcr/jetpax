@@ -8,32 +8,21 @@
     sec
     rol
     ; Kernel A
-    ; gems:     [g00,g01,g10,g11,g00,g01]
-    ; cpu:      cpu(g01,g00,false,g10,g11,false)
-    ; solved:   [bc_RST,bc_NOP,bc_STX,bc_STY,bc_VD1]
-     
-    ; gems:     [g01,g10,g11,g00,g01,g10]
-    ; cpu:      cpu(g01,g01,false,g10,g11,false)
-    ; solved:   [bc_NOP,bc_STX,bc_STY,bc_RST,bc_VD1]
-    ; TODO implement this, also implement RST2
-    ; gems:     [g10,g11,g00,g01,g10,g11]
-    ; cpu:      cpu(g10,g10,false,g11,g01,false)
-    ; solved:   [bc_NOP,bc_STX,bc_RST,bc_STY,bc_VD1]
-    ; todo rst2
-    ; VDELPx
-    ldy #%01100000
+    ; VD1
+    ldy #SHARD_VD1
     sty [KernelA_VDEL1 - $100]
     ; GRP0
-    ldy #%01100000
+    ldy #SHARD_GRP0
     sty [KernelA_VDEL0 - $100]
     ; X
-    ldy #%00000110
+    ldy #SHARD_X
     sty RamKernelX
     ; Y
     ; PHP
     ; Gemini 1A
+    ldx #SHARD_RST_0
 .if_2:
-    bvs .else_2
+    beq .else_2
     sec
     rol
     ; Special: Encoding RST0
@@ -52,39 +41,42 @@
 .else_2:
     clc
     rol
+    ldx #SHARD_RST_1
 .if_3:
-    bvc .else_3
+    beq .else_3
     sec
     rol
     jmp .endif_3
 .else_3:
     clc
     rol
-    ldy #BC_STX
+    ldy #SHARD_1A
     sty RamKernelGemini1
 .endif_3:
 .endif_2:
     ; Gemini 2A
-    ldy #BC_STY
+    ldy #SHARD_2A
     sty RamKernelGemini2
     ; Gemini 3A
+    ldx #SHARD_RST_3
 .if_4:
-    bvc .else_4
+    beq .else_4
     sec
     rol
     jmp .endif_4
 .else_4:
     clc
     rol
-    ldy #BC_STX
+    ldy #SHARD_3A
     sty RamKernelGemini3
 .endif_4:
     ; Gemini 4A
-    ; Set VDELPx
+    ldx #SHARD_VD1_4
 .if_5:
-    bvc .else_5
+    beq .else_5
     sec
     rol
+    ; Set VDELPx
     jmp .endif_5
 .else_5:
     clc
@@ -134,7 +126,7 @@
 .if_1:
     asl
     bcc .else_1
-    ldx #%01100110
+    ldx #SHARD_Y
     stx [[KernelA_STY - $100] + 0]
     ldx #VDELP1
     stx [RamKernelPhpTarget + 0]
@@ -193,7 +185,7 @@
     stx [[KernelA_J_W + 0] + 0]
     ldx #PF1
     stx [[KernelA_J_W + 0] + 1]
-    ldx #BC_STY
+    ldx #SHARD_4A
     stx [KernelA_K_W + 0]
     ldx #EMERALD_SP
     stx [KernelA_K_W + 1]
