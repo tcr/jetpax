@@ -170,126 +170,139 @@ SHARD_GRP0      = %01100110 ; NOTE: shifted when doing RST0
 SHARD_X         = %01100000
 SHARD_Y         = %01100110
 
+    ; Nibble Kernel A
+    NIBBLE_START_KERNEL gem_kernel_a, 40
+        ; VD1
+        ldy #SHARD_VD1
+        sty [KernelA_VDEL1 - $100]
+        ; GRP0
+        ldy #SHARD_GRP0
+        sty [KernelA_VDEL0 - $100]
+        ; X
+        ldy #SHARD_X
+        sty RamKernelX
+        ; Y
+        NIBBLE_WRITE [KernelA_STY - $100], #SHARD_Y
 
-OKOKOK:
-    ; Perform kernel Nibble calculations
-    NIBBLE_START_KERNEL gem_kernel, 40
-        ldx $f100
-        cpx #$a
-        NIBBLE_IF eq
-            ; Kernel A
-
-            ; VD1
-            ldy #SHARD_VD1
-            sty [KernelA_VDEL1 - $100]
-            ; GRP0
-            ldy #SHARD_GRP0
-            sty [KernelA_VDEL0 - $100]
-            ; X
-            ldy #SHARD_X
-            sty RamKernelX
-            ; Y
-            NIBBLE_WRITE [KernelA_STY - $100], #SHARD_Y
-
-            ; DISABLED TO ADDRESS BRANCHING OUT OF RANGE ISSUES
-            ; ; Gemini 1A
-            ; ldx #SHARD_0A_RST
-            ; NIBBLE_IF ne
-            ;     ; Special: Encoding RST0
-            ;     ; Rewrite lda RamKernelPF1 to be #immediate
-            ;     ldy #BC_LDA_IMM
-            ;     sty [KernelA_B - $100]
-            ;     ldy #%10100000
-            ;     sty [KernelA_B - $100 + 1]
-            ;     ; Gemini 1A is RESPx
-            ;     ldy #EMERALD_SP_RESET
-            ;     sty [KernelA_C - $100 + 1]
-            ;     ; Turn 3-cycle NOP into 4-cycle
-            ;     ldy #$14
-            ;     sty [KernelA_D - $100]
-            ; NIBBLE_ELSE
-            ;     ldx #SHARD_1A_RST
-            ;     NIBBLE_IF ne
-            ;         NIBBLE_WRITE KernelA_D_W + 1, #RESP1 ; RESET
-            ;     NIBBLE_ELSE
-            ;         ldy #SHARD_1A
-            ;         sty RamKernelGemini1
-            ;         NIBBLE_WRITE KernelA_D_W, RamKernelGemini1, #GRP1 ; STY
-            ;     NIBBLE_END_IF
-            ; NIBBLE_END_IF
-
-            ; Gemini 2A
-            ldx #SHARD_2A_RST
-            NIBBLE_IF ne
-                NIBBLE_WRITE KernelA_E_W + 1, #NOP_REG   ; NOP
-                NIBBLE_WRITE KernelA_G_W + 1, #RESP1 ; RESET
-            NIBBLE_ELSE
-                NIBBLE_WRITE KernelA_E_W + 1, #RESP1
-                ldy #SHARD_2A
-                sty RamKernelGemini2
-                NIBBLE_WRITE KernelA_G_W, RamKernelGemini2, #GRP1 ; STX
-            NIBBLE_END_IF
-
-            ; Gemini 3A
-            ldx #SHARD_3A_RST
-            NIBBLE_IF ne
-                NIBBLE_WRITE KernelA_H_W + 1, #RESP1 ; RESET
-            NIBBLE_ELSE
-                ldy #SHARD_3A
-                sty RamKernelGemini3
-                NIBBLE_WRITE KernelA_H_W, RamKernelGemini3, #GRP1 ; STY
-            NIBBLE_END_IF
-
-            ; Gemini 4A 
-            ldx #SHARD_4A_VD1
-            NIBBLE_IF ne
-                NIBBLE_WRITE [KernelA_I_W + 0], #BC_STA, #EMERALD_SP_RESET
-                NIBBLE_WRITE [KernelA_J_W + 1], #BC_STA, #PF1
-                NIBBLE_WRITE [KernelA_K_W + 1], #BC_PHP
-
-                ; Set PHP
-                NIBBLE_WRITE RamKernelPhpTarget, #VDELP1
-            NIBBLE_ELSE
-                NIBBLE_WRITE [KernelA_I_W + 0], #BC_PHP
-                NIBBLE_WRITE [KernelA_J_W + 0], #BC_STA, #PF1
-                NIBBLE_WRITE KernelA_K_W, #SHARD_4A, #EMERALD_SP
-
-                ; Set PHP
-                NIBBLE_WRITE RamKernelPhpTarget, #RESP1
-            NIBBLE_END_IF
-
-            ; Gemini 5A
-            ; TODO eventually...?
+        ; DISABLED TO ADDRESS BRANCHING OUT OF RANGE ISSUES
+        ; Gemini 1A
+        ldx #SHARD_0A_RST
+        NIBBLE_IF ne
+            ; Special: Encoding RST0
+            ; Rewrite lda RamKernelPF1 to be #immediate
+            ldy #BC_LDA_IMM
+            sty [KernelA_B - $100]
+            ldy #%10100000
+            sty [KernelA_B - $100 + 1]
+            ; Gemini 1A is RESPx
+            ldy #EMERALD_SP_RESET
+            sty [KernelA_C - $100 + 1]
+            ; Turn 3-cycle NOP into 4-cycle
+            ldy #$14
+            sty [KernelA_D - $100]
         NIBBLE_ELSE
-            ; Kernel B
-
-            ; X
-            ldy #%00000011
-            sty RamKernelX
-            ; Y
-            ldy #%00110011
-            sty RamKernelY
-            
-            cpx #$00
-            NIBBLE_IF cs
-                NIBBLE_WRITE RamKernelPhpTarget, #EMERALD_SP_RESET
-                ; NIBBLE_WRITE [KernelB_H_W + 0], #BC_STA
-                ; NIBBLE_WRITE [KernelB_H_W + 1], #EMERALD_SP
-                ; NIBBLE_WRITE [KernelB_H_W + 2], #BC_PHP
+            ldx #SHARD_1A_RST
+            NIBBLE_IF ne
+                NIBBLE_WRITE KernelA_D_W + 1, #RESP1 ; RESET
             NIBBLE_ELSE
-                NIBBLE_WRITE RamKernelPhpTarget, #EMERALD_SP
-                ; NIBBLE_WRITE [KernelB_H_W + 0], #BC_PHP
-                ; NIBBLE_WRITE [KernelB_H_W + 1], #BC_STA
-                ; NIBBLE_WRITE [KernelB_H_W + 2], #EMERALD_SP_RESET
+                ldy #SHARD_1A
+                sty RamKernelGemini1
+                NIBBLE_WRITE KernelA_D_W, RamKernelGemini1, #GRP1 ; STY
             NIBBLE_END_IF
         NIBBLE_END_IF
+
+        ; Gemini 2A
+        ; ldx #SHARD_2A_RST
+        ; NIBBLE_IF ne
+        ;     NIBBLE_WRITE KernelA_E_W + 1, #NOP_REG   ; NOP
+        ;     NIBBLE_WRITE KernelA_G_W + 1, #RESP1 ; RESET
+        ; NIBBLE_ELSE
+        ;     NIBBLE_WRITE KernelA_E_W + 1, #RESP1
+        ;     ldy #SHARD_2A
+        ;     sty RamKernelGemini2
+        ;     NIBBLE_WRITE KernelA_G_W, RamKernelGemini2, #GRP1 ; STX
+        ; NIBBLE_END_IF
+
+        ; Gemini 3A
+        ldx #SHARD_3A_RST
+        NIBBLE_IF ne
+            NIBBLE_WRITE KernelA_H_W + 1, #RESP1 ; RESET
+        NIBBLE_ELSE
+            ldy #SHARD_3A
+            sty RamKernelGemini3
+            NIBBLE_WRITE KernelA_H_W, RamKernelGemini3, #GRP1 ; STY
+        NIBBLE_END_IF
+
+        ; Gemini 4A 
+        ldx #SHARD_4A_VD1
+        NIBBLE_IF ne
+            NIBBLE_WRITE [KernelA_I_W + 0], #BC_STA, #EMERALD_SP_RESET
+            NIBBLE_WRITE [KernelA_J_W + 1], #BC_STA, #PF1
+            NIBBLE_WRITE [KernelA_K_W + 1], #BC_PHP
+
+            ; Set PHP
+            NIBBLE_WRITE RamKernelPhpTarget, #VDELP1
+        NIBBLE_ELSE
+            NIBBLE_WRITE [KernelA_I_W + 0], #BC_PHP
+            NIBBLE_WRITE [KernelA_J_W + 0], #BC_STA, #PF1
+            NIBBLE_WRITE KernelA_K_W, #SHARD_4A, #EMERALD_SP
+
+            ; Set PHP
+            NIBBLE_WRITE RamKernelPhpTarget, #RESP1
+        NIBBLE_END_IF
+
+        ; Gemini 5A
+        ; TODO eventually...?
     NIBBLE_END_KERNEL
+
+    ; Nibble Kernel B
+    NIBBLE_START_KERNEL gem_kernel_b, 40
+        ; X
+        ldy #%00000011
+        sty RamKernelX
+        ; Y
+        ldy #%00110011
+        sty RamKernelY
+        
+        cpx #$00
+        NIBBLE_IF cs
+            NIBBLE_WRITE RamKernelPhpTarget, #EMERALD_SP_RESET
+            ; NIBBLE_WRITE [KernelB_H_W + 0], #BC_STA
+            ; NIBBLE_WRITE [KernelB_H_W + 1], #EMERALD_SP
+            ; NIBBLE_WRITE [KernelB_H_W + 2], #BC_PHP
+        NIBBLE_ELSE
+            NIBBLE_WRITE RamKernelPhpTarget, #EMERALD_SP
+            ; NIBBLE_WRITE [KernelB_H_W + 0], #BC_PHP
+            ; NIBBLE_WRITE [KernelB_H_W + 1], #BC_STA
+            ; NIBBLE_WRITE [KernelB_H_W + 2], #EMERALD_SP_RESET
+        NIBBLE_END_IF
+    NIBBLE_END_KERNEL
+
+    ; TODO do this for all rows
+DBG_NIBBLE_BUILD: subroutine
+    ldx $f100
+    cpx #$a
+    bne .kernel_b
+.kernel_a:
+    NIBBLE_gem_kernel_a_BUILD ; TODO can this be implied
+    jmp .next
+.kernel_b:
+    NIBBLE_gem_kernel_b_BUILD ; TODO can this be implied
+.next:
     sta RamNibbleVar1
 
-    ; TODO move this into kernel
+    ; TODO move this into the row kernel
+DBG_NIBBLE_RUN: subroutine
     lda RamNibbleVar1
-DBG_NIBBLEVM:
-    NIBBLE_gem_kernel
+    ldx $f100
+    cpx #$a
+    bne .kernel_b
+.kernel_a:
+    NIBBLE_gem_kernel_a
+    jmp .next
+.kernel_b:
+    NIBBLE_gem_kernel_b
+.next:
 
 VerticalBlankEnd:
     ; Wait until the end of Vertical blank.

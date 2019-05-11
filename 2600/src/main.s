@@ -2,7 +2,6 @@
 
     ; Nibble null methods
     mac NIBBLE_START_KERNEL
-        NIBBLE_gem_kernel_BUILD ; todo make generic?
         seg.U ignoreme ; comment out rest of code
     endm
     mac NIBBLE_IF
