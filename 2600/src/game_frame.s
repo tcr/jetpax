@@ -143,10 +143,14 @@ KernelB_H_W EQM [KernelB_H - $100]
 ; cpu:      cpu(g00,g01,false,g01,g11,false)
 ; solved:   [bc_STX,bc_RST,bc_RST,bc_STY,bc_VD1]
 
+; gems:     [g01,g00,g00,g11,g01,g11]
+; cpu:      cpu(g01,g01,false,g00,g11,false)
+; solved:   [bc_NOP,bc_STX,bc_STX,bc_STY,bc_VD1]
 
 SHARD_0A_RST    = 0
 SHARD_1A_RST    = 0
 SHARD_3A_RST    = 0
+; SHARD_0A        = BC_NOP
 SHARD_1A        = BC_STX
 SHARD_2A        = BC_STX
 SHARD_3A        = BC_STY
@@ -237,11 +241,6 @@ OKOKOK:
 
             ; Gemini 5A
             ; TODO eventually...?
-
-            ; End of NIBBLE_IF normalizing
-            REPEAT 3
-                rol
-            REPEND
         NIBBLE_ELSE
             ; Kernel B
 
@@ -264,9 +263,6 @@ OKOKOK:
                 ; NIBBLE_WRITE [KernelB_H_W + 1], #BC_STA
                 ; NIBBLE_WRITE [KernelB_H_W + 2], #EMERALD_SP_RESET
             NIBBLE_END_IF
-            REPEAT 6
-                rol
-            REPEND
         NIBBLE_END_IF
     NIBBLE_END_KERNEL
     sta RamNibbleVar1

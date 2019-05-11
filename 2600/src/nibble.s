@@ -20,7 +20,7 @@
     ; Y
     ; PHP
     ; Gemini 1A
-    ldx #SHARD_RST_0
+    ldx #SHARD_0A_RST
 .if_2:
     beq .else_2
     sec
@@ -38,57 +38,72 @@
     ldy #$14
     sty [KernelA_D - $100]
     jmp .endif_2
+    ; [BIT DEPTH] #2 If-End @ 2
+    rol
+
 .else_2:
     clc
     rol
-    ldx #SHARD_RST_1
+    ldx #SHARD_1A_RST
 .if_3:
     beq .else_3
     sec
     rol
     jmp .endif_3
+    ; [BIT DEPTH] #3 If-End @ 3
+
 .else_3:
     clc
     rol
     ldy #SHARD_1A
     sty RamKernelGemini1
+    ; [BIT DEPTH] #3 *If-End @ 3
+    ; [BIT DEPTH] #3 Else-End @ 3
 .endif_3:
+    ; [BIT DEPTH] #2 *If-End @ 2
+    ; [BIT DEPTH] #2 Else-End @ 3
 .endif_2:
     ; Gemini 2A
     ldy #SHARD_2A
     sty RamKernelGemini2
     ; Gemini 3A
-    ldx #SHARD_RST_3
+    ldx #SHARD_3A_RST
 .if_4:
     beq .else_4
     sec
     rol
     jmp .endif_4
+    ; [BIT DEPTH] #4 If-End @ 4
+
 .else_4:
     clc
     rol
     ldy #SHARD_3A
     sty RamKernelGemini3
+    ; [BIT DEPTH] #4 *If-End @ 4
+    ; [BIT DEPTH] #4 Else-End @ 4
 .endif_4:
     ; Gemini 4A
-    ldx #SHARD_VD1_4
+    ldx #SHARD_4A_VD1
 .if_5:
     beq .else_5
     sec
     rol
     ; Set VDELPx
     jmp .endif_5
+    ; [BIT DEPTH] #5 If-End @ 5
+
 .else_5:
     clc
     rol
+    ; [BIT DEPTH] #5 *If-End @ 5
+    ; [BIT DEPTH] #5 Else-End @ 5
 .endif_5:
     ; Gemini 5A
     ; TODO eventually...?
-    ; End of NIBBLE_IF normalizing
-    REPEAT 3
-    rol
-    REPEND
     jmp .endif_1
+    ; [BIT DEPTH] #1 If-End @ 5
+
 .else_1:
     clc
     rol
@@ -109,17 +124,27 @@
     ; NIBBLE_WRITE [KernelB_H_W + 1], #EMERALD_SP
     ; NIBBLE_WRITE [KernelB_H_W + 2], #BC_PHP
     jmp .endif_6
+    ; [BIT DEPTH] #6 If-End @ 2
+
 .else_6:
     clc
     rol
     ; NIBBLE_WRITE [KernelB_H_W + 0], #BC_PHP
     ; NIBBLE_WRITE [KernelB_H_W + 1], #BC_STA
     ; NIBBLE_WRITE [KernelB_H_W + 2], #EMERALD_SP_RESET
+    ; [BIT DEPTH] #6 *If-End @ 2
+    ; [BIT DEPTH] #6 Else-End @ 2
 .endif_6:
-    REPEAT 6
+    ; [BIT DEPTH] #1 *If-End @ 5
+    ; [BIT DEPTH] #1 Else-End @ 2
     rol
-    REPEND
+    rol
+    rol
 .endif_1:
+    ; [BIT DEPTH] Final: 5 (out of 8 bits)
+    rol
+    rol
+    rol
     ENDM
 
     MAC NIBBLE_gem_kernel

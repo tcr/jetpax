@@ -84,6 +84,7 @@ opcode_violation(Prog, cpu(_, _, D, _, _, _), bc_VD1) :-
     % length(Prog, Len), Len == 2, D == true ;
     should_be_pos(Prog, [1, 4]). % restrict positions (Kernel A)
 opcode_violation(Prog, _, bc_RST) :-
+    should_occur_once(Prog, bc_RST) ; % restrict count
     % nth0(Index, Prog, bc_RST), Index \= 1 ; % TODO only valid once
     should_be_pos(Prog, [0, 1, 2, 3]). % only valid positions
 opcode_violation(Prog, _, bc_RF1) :-

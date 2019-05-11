@@ -110,6 +110,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 if_depth.push_front(IfDepth {
                     cond: cond.to_string(),
                     number: if_counter,
+                    bitdepth: 0,
                 });
                 let current_if = if_depth.front().unwrap();
                 writeln!(&mut kernel_code, ".if_{}:", current_if.number)?;
@@ -151,11 +152,13 @@ fn main() -> Result<(), Box<dyn Error>> {
     struct IfDepth {
         cond: String,
         number: usize,
+        bitdepth: usize,
     }
 
     let mut kernel_build = String::new();
     let mut build_if_counter = 0;
-    let mut build_if_depth = VecDeque::new();
+    let mut build_if_depth = VecDeque::<IfDepth>::new();
+    let mut bitdepth = 0;
     for line in &lines {
         match line {
             Parse::NibbleStartKernel(name, cycles) => {
@@ -165,10 +168,13 @@ fn main() -> Result<(), Box<dyn Error>> {
                 writeln!(&mut kernel_build, "    lda #0");
             }
             Parse::NibbleIf(cond) => {
+                bitdepth += 1;
+
                 build_if_counter += 1;
                 build_if_depth.push_front(IfDepth {
                     cond: cond.to_string(),
                     number: build_if_counter,
+                    bitdepth: bitdepth,
                 });
                 let current_if = build_if_depth.front().unwrap();
                 writeln!(&mut kernel_build, ".if_{}:", current_if.number)?;
@@ -177,16 +183,43 @@ fn main() -> Result<(), Box<dyn Error>> {
                 writeln!(&mut kernel_build, "    rol")?;
             }
             Parse::NibbleElse => {
-                let current_if = build_if_depth.front().unwrap();
+                let current_if = build_if_depth.front_mut().unwrap();
                 writeln!(&mut kernel_build, "    jmp .endif_{}", current_if.number)?;
+                std::mem::swap(&mut current_if.bitdepth, &mut bitdepth);
+                writeln!(&mut kernel_build, "    ; [BIT DEPTH] #{} If-End @ {}", current_if.number, current_if.bitdepth)?;
+                writeln!(&mut kernel_build, "<<<{}>>>", current_if.number)?;
                 writeln!(&mut kernel_build, ".else_{}:", current_if.number)?;
                 writeln!(&mut kernel_build, "    clc")?;
                 writeln!(&mut kernel_build, "    rol")?;
             }
             Parse::NibbleEndIf => {
-                let current_if = build_if_depth.front().unwrap();
+                let mut current_if = build_if_depth.pop_front().unwrap();
+                let mut if_token_replacement = String::new();
+                writeln!(&mut kernel_build, "    ; [BIT DEPTH] #{} *If-End @ {}", current_if.number, current_if.bitdepth)?;
+                writeln!(&mut kernel_build, "    ; [BIT DEPTH] #{} Else-End @ {}", current_if.number, bitdepth)?;
+                if bitdepth > current_if.bitdepth {
+                    // if block needs to advance
+                    for _ in current_if.bitdepth..bitdepth {
+                        if_token_replacement.push_str(&"    rol\n");
+                    }
+                } else if current_if.bitdepth > bitdepth {
+                    // else block needs to advance
+                    for _ in bitdepth..current_if.bitdepth {
+                        writeln!(&mut kernel_build, "    rol");
+                    }
+                    
+                }
+                // Replace token
+                kernel_build = kernel_build.replace(&format!("<<<{}>>>", current_if.number), &if_token_replacement);
+                // Advance bitdepth
+                bitdepth = std::cmp::max(bitdepth, current_if.bitdepth);
+
+                // if let Some(previous_if) = build_if_depth.front_mut() {
+                //     previous_if.bitdepth = bitdepth;
+                // }
+
                 writeln!(&mut kernel_build, ".endif_{}:", current_if.number)?;
-                build_if_depth.pop_front();
+
             }
             Parse::NibbleEndKernel => {}
             Parse::NibbleWrite(label, values) => {}
@@ -195,6 +228,13 @@ fn main() -> Result<(), Box<dyn Error>> {
                 writeln!(&mut kernel_build, "    {}", opcode)?;
             }
         }
+    }
+    if bitdepth > 8 {
+        panic!("TOO MANY IFs");
+    }
+    writeln!(&mut kernel_build, "    ; [BIT DEPTH] Final: {} (out of 8 bits)", bitdepth)?;
+    for i in bitdepth..8 {
+        writeln!(&mut kernel_build, "    rol");
     }
     writeln!(&mut kernel_build, "    ENDM")?;
 
