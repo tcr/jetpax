@@ -57,8 +57,8 @@ VerticalBlank: subroutine
 frame_setup: subroutine
     ; Kernel A or B
     lda #01
-    ; and FrameCount
-    ; bne frame_setup_kernel_b
+    and FrameCount
+    bne frame_setup_kernel_b
 
 frame_setup_kernel_a: subroutine
     ; Load kernel into CBSRAM
