@@ -57,8 +57,8 @@ VerticalBlank: subroutine
 frame_setup: subroutine
     ; Kernel A or B
     lda #01
-    and FrameCount
-    bne frame_setup_kernel_b
+    ; and FrameCount
+    ; bne frame_setup_kernel_b
 
 frame_setup_kernel_a: subroutine
     ; Load kernel into CBSRAM
@@ -118,6 +118,7 @@ BC_STY = $84
 BC_PHP = $08
 
 KernelA_D_W EQM [KernelA_D - $100]
+KernelA_E_W EQM [KernelA_E - $100]
 KernelA_G_W EQM [KernelA_G - $100]
 KernelA_H_W EQM [KernelA_H - $100]
 KernelA_I_W EQM [KernelA_I - $100]
@@ -149,6 +150,7 @@ KernelB_H_W EQM [KernelB_H - $100]
 
 SHARD_0A_RST    = 0
 SHARD_1A_RST    = 0
+SHARD_2A_RST    = 1
 SHARD_3A_RST    = 0
 ; SHARD_0A        = BC_NOP
 SHARD_1A        = BC_STX
@@ -185,36 +187,44 @@ OKOKOK:
             ; PHP
             NIBBLE_WRITE RamKernelPhpTarget, #VDELP1
 
-            ; Gemini 1A
-            ldx #SHARD_0A_RST
-            NIBBLE_IF ne
-                ; Special: Encoding RST0
-                ; Rewrite lda RamKernelPF1 to be #immediate
-                ldy #BC_LDA_IMM
-                sty [KernelA_B - $100]
-                ldy #%10100000
-                sty [KernelA_B - $100 + 1]
-                ; Gemini 1A is RESPx
-                ldy #EMERALD_SP_RESET
-                sty [KernelA_C - $100 + 1]
-                ; Turn 3-cycle NOP into 4-cycle
-                ldy #$14
-                sty [KernelA_D - $100]
-            NIBBLE_ELSE
-                ldx #SHARD_1A_RST
-                NIBBLE_IF ne
-                    NIBBLE_WRITE KernelA_D_W + 1, #RESP1 ; RESET
-                NIBBLE_ELSE
-                    ldy #SHARD_1A
-                    sty RamKernelGemini1
-                    NIBBLE_WRITE KernelA_D_W, RamKernelGemini1, #GRP1 ; STY
-                NIBBLE_END_IF
-            NIBBLE_END_IF
+            ; DISABLED TO ADDRESS BRANCHING OUT OF RANGE ISSUES
+            ; ; Gemini 1A
+            ; ldx #SHARD_0A_RST
+            ; NIBBLE_IF ne
+            ;     ; Special: Encoding RST0
+            ;     ; Rewrite lda RamKernelPF1 to be #immediate
+            ;     ldy #BC_LDA_IMM
+            ;     sty [KernelA_B - $100]
+            ;     ldy #%10100000
+            ;     sty [KernelA_B - $100 + 1]
+            ;     ; Gemini 1A is RESPx
+            ;     ldy #EMERALD_SP_RESET
+            ;     sty [KernelA_C - $100 + 1]
+            ;     ; Turn 3-cycle NOP into 4-cycle
+            ;     ldy #$14
+            ;     sty [KernelA_D - $100]
+            ; NIBBLE_ELSE
+            ;     ldx #SHARD_1A_RST
+            ;     NIBBLE_IF ne
+            ;         NIBBLE_WRITE KernelA_D_W + 1, #RESP1 ; RESET
+            ;     NIBBLE_ELSE
+            ;         ldy #SHARD_1A
+            ;         sty RamKernelGemini1
+            ;         NIBBLE_WRITE KernelA_D_W, RamKernelGemini1, #GRP1 ; STY
+            ;     NIBBLE_END_IF
+            ; NIBBLE_END_IF
 
             ; Gemini 2A
-            ldy #SHARD_2A
-            sty RamKernelGemini2
-            NIBBLE_WRITE KernelA_G_W, RamKernelGemini2, #GRP1 ; STX
+            ldx #SHARD_2A_RST
+            NIBBLE_IF ne
+                NIBBLE_WRITE KernelA_E_W + 1, #$79
+                NIBBLE_WRITE KernelA_G_W + 1, #RESP1 ; RESET
+            NIBBLE_ELSE
+                NIBBLE_WRITE KernelA_E_W + 1, #RESP1
+                ldy #SHARD_2A
+                sty RamKernelGemini2
+                NIBBLE_WRITE KernelA_G_W, RamKernelGemini2, #GRP1 ; STX
+            NIBBLE_END_IF
 
             ; Gemini 3A
             ldx #SHARD_3A_RST
