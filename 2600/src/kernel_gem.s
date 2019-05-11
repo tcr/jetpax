@@ -32,9 +32,9 @@ kernel_1_start: subroutine
     ; Kernel Marker
     .byte $A
 
-    ; Early code to set next player (GRP0) image. Value is overwritten
+KernelA_early:
+    ; Early code to set next GRP0 image. Value is overwritten
     lda #$ff
-KernelA_JET_SP = . - 1
 
 KernelA: subroutine
     ASSERT_RUNTIME_KERNEL $A, "_scycles == #0"
@@ -107,7 +107,7 @@ KernelA_O:
 
 KernelA_branch:
     lda INTIM
-    bne KernelA_JET_SP
+    bne KernelA_early
 
     jmp row_after_kernel
 

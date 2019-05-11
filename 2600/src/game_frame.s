@@ -212,16 +212,16 @@ SHARD_Y         = %01100110
         NIBBLE_END_IF
 
         ; Gemini 2A
-        ; ldx #SHARD_2A_RST
-        ; NIBBLE_IF ne
-        ;     NIBBLE_WRITE KernelA_E_W + 1, #NOP_REG   ; NOP
-        ;     NIBBLE_WRITE KernelA_G_W + 1, #RESP1 ; RESET
-        ; NIBBLE_ELSE
-        ;     NIBBLE_WRITE KernelA_E_W + 1, #RESP1
-        ;     ldy #SHARD_2A
-        ;     sty RamKernelGemini2
-        ;     NIBBLE_WRITE KernelA_G_W, RamKernelGemini2, #GRP1 ; STX
-        ; NIBBLE_END_IF
+        ldx #SHARD_2A_RST
+        NIBBLE_IF ne
+            NIBBLE_WRITE KernelA_E_W + 1, #NOP_REG   ; NOP
+            NIBBLE_WRITE KernelA_G_W + 1, #RESP1 ; RESET
+        NIBBLE_ELSE
+            NIBBLE_WRITE KernelA_E_W + 1, #RESP1
+            ldy #SHARD_2A
+            sty RamKernelGemini2
+            NIBBLE_WRITE KernelA_G_W, RamKernelGemini2, #GRP1 ; STX
+        NIBBLE_END_IF
 
         ; Gemini 3A
         ldx #SHARD_3A_RST
@@ -296,7 +296,8 @@ DBG_NIBBLE_RUN: subroutine
     lda RamNibbleVar1
     ldx $f100
     cpx #$a
-    bne .kernel_b
+    beq [. + 5]
+    jmp .kernel_b
 .kernel_a:
     NIBBLE_gem_kernel_a
     jmp .next

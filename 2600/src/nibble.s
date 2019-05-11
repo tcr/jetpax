@@ -57,18 +57,7 @@
     ; [BIT DEPTH] #1 Else-End @ 2
 .endif_1:
     ; Gemini 2A
-    ; ldx #SHARD_2A_RST
-    ; NIBBLE_IF ne
-    ;     NIBBLE_WRITE KernelA_E_W + 1, #NOP_REG
-    ;     NIBBLE_WRITE KernelA_G_W + 1, #RESP1
-    ; NIBBLE_ELSE
-    ;     NIBBLE_WRITE KernelA_E_W + 1, #RESP1
-    ;     ldy #SHARD_2A
-    ;     sty RamKernelGemini2
-    ;     NIBBLE_WRITE KernelA_G_W, RamKernelGemini2, #GRP1
-    ; NIBBLE_END_IF
-    ; Gemini 3A
-    ldx #SHARD_3A_RST
+    ldx #SHARD_2A_RST
 .if_3:
     beq .else_3
     sec
@@ -79,32 +68,48 @@
 .else_3:
     clc
     rol
-    ldy #SHARD_3A
-    sty RamKernelGemini3
+    ldy #SHARD_2A
+    sty RamKernelGemini2
     ; [BIT DEPTH] #3 *If-End @ 3
     ; [BIT DEPTH] #3 Else-End @ 3
 .endif_3:
-    ; Gemini 4A
-    ldx #SHARD_4A_VD1
+    ; Gemini 3A
+    ldx #SHARD_3A_RST
 .if_4:
     beq .else_4
     sec
     rol
-    ; Set PHP
     jmp .endif_4
     ; [BIT DEPTH] #4 If-End @ 4
 
 .else_4:
     clc
     rol
-    ; Set PHP
+    ldy #SHARD_3A
+    sty RamKernelGemini3
     ; [BIT DEPTH] #4 *If-End @ 4
     ; [BIT DEPTH] #4 Else-End @ 4
 .endif_4:
+    ; Gemini 4A
+    ldx #SHARD_4A_VD1
+.if_5:
+    beq .else_5
+    sec
+    rol
+    ; Set PHP
+    jmp .endif_5
+    ; [BIT DEPTH] #5 If-End @ 5
+
+.else_5:
+    clc
+    rol
+    ; Set PHP
+    ; [BIT DEPTH] #5 *If-End @ 5
+    ; [BIT DEPTH] #5 Else-End @ 5
+.endif_5:
     ; Gemini 5A
     ; TODO eventually...?
-    ; [BIT DEPTH] Final: 4 (out of 8 bits)
-    rol
+    ; [BIT DEPTH] Final: 5 (out of 8 bits)
     rol
     rol
     rol
@@ -174,18 +179,34 @@
 .if_3:
     asl
     bcc .else_3
+    ldx #NOP_REG
+    stx [KernelA_E_W + 1 + 0]
     ldx #RESP1
-    stx [KernelA_H_W + 1 + 0]
+    stx [KernelA_G_W + 1 + 0]
     jmp .endif_3
 .else_3:
-    ldx RamKernelGemini3
-    stx [KernelA_H_W + 0]
+    ldx #RESP1
+    stx [KernelA_E_W + 1 + 0]
+    ldx RamKernelGemini2
+    stx [KernelA_G_W + 0]
     ldx #GRP1
-    stx [KernelA_H_W + 1]
+    stx [KernelA_G_W + 1]
 .endif_3:
 .if_4:
     asl
     bcc .else_4
+    ldx #RESP1
+    stx [KernelA_H_W + 1 + 0]
+    jmp .endif_4
+.else_4:
+    ldx RamKernelGemini3
+    stx [KernelA_H_W + 0]
+    ldx #GRP1
+    stx [KernelA_H_W + 1]
+.endif_4:
+.if_5:
+    asl
+    bcc .else_5
     ldx #BC_STA
     stx [[KernelA_I_W + 0] + 0]
     ldx #EMERALD_SP_RESET
@@ -198,8 +219,8 @@
     stx [[KernelA_K_W + 1] + 0]
     ldx #VDELP1
     stx [RamKernelPhpTarget + 0]
-    jmp .endif_4
-.else_4:
+    jmp .endif_5
+.else_5:
     ldx #BC_PHP
     stx [[KernelA_I_W + 0] + 0]
     ldx #BC_STA
@@ -212,7 +233,7 @@
     stx [KernelA_K_W + 1]
     ldx #RESP1
     stx [RamKernelPhpTarget + 0]
-.endif_4:
+.endif_5:
     ENDM
 
     MAC NIBBLE_gem_kernel_b
