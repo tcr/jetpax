@@ -33,14 +33,14 @@ kernel_1_start: subroutine
     .byte $A
 
 KernelA_early:
-    ; Early code to set next GRP0 image. Value is overwritten
+    ; Early code to set next GRP0 image. Immediate value is overwritten
     lda #$ff
 
 KernelA: subroutine
     ASSERT_RUNTIME_KERNEL $A, "_scycles == #0"
 
     ; Write Gemini 0A into delayed sprite register
-    ldy #%01100110 ; FIXME temporary?
+    ldy #%01100110 ; TODO temporary?
 KernelA_VDEL1 = . - 1
     sty EMERALD_SP
     ; Write Player from accumulator. When writing to the other sprite, the
@@ -50,38 +50,42 @@ KernelA_VDEL1 = . - 1
     ldy #%01100110
 KernelA_VDEL0 = . - 1
     sty EMERALD_SP
-    ldy #%00000110 ; FIXME temporary?
+    ldy #%00000110 ; TODO temporary?
 KernelA_STY = . - 1
 
-    sec
+    ; Need D0 for VDELP1 trigger with PHP
+    sleep 2
 
     ; Register config
-    lda #$00
-    sta EMERALD_MI_ENABLE ; disable missile
+    lda #%00001000
+    ; sta EMERALD_MI_ENABLE ; disable missile FIXME this should be uncommented!
+    sta REFP1
 
     ; 22c is critical start of precise GRP0 timing for Kernel A
     ASSERT_RUNTIME_KERNEL $A, "_scycles == #22"
 KernelA_A:
     sta EMERALD_SP_RESET ; RESPx must be strobed on cycle 25c.
+
+; vvv RST0
 KernelA_B:
     lda RamPF1Value
 KernelA_C:
     sty VDELP1 ; disable delayed sprite
-
-
 KernelA_D:
     ; sty VDELP1 ; Gemini 1A, clear VDELP1. all registers have d0 cleared
     sleep 3 ; Load PF1 (TODO asymmetrical playfield)
 KernelA_E:
     sta EMERALD_SP_RESET ; Reset "medium close" NUSIZ repetition
 KernelA_F:
-    sty EMERALD_MI_ENABLE ; Enable the missile (if we use %0xx00110 pattern)
+    ; sty EMERALD_MI_ENABLE ; Enable the missile (if we use %0xx00110 pattern)
+    sleep 3 ; FIXME This should be uncommented!
 KernelA_G:
     sty EMERALD_SP ; Gemini 2A
 
 KernelA_H:
     sty EMERALD_SP ; Gemini 3A, modified for RST2 along with HMM1
 
+    ; ASSERT_RUNTIME_KERNEL $A, "_scycles == #67"
 ; RST4 vvv
 KernelA_I:
     php ; Reset "medium close" NUSIZ repetition
@@ -95,15 +99,15 @@ KernelA_L:
     sleep 3 ; when possible, sta VDELP0
 KernelA_M:
     sty VDELP1 ; Gemini 5A ; need a way to skip this vlaue
+
 KernelA_N:
 KernelA_O:
     sleep 2
-
     ; reset stack pointer
     pla
 
     ; End visible line
-    ASSERT_RUNTIME_KERNEL $A, "_scycles == #67"
+    ASSERT_RUNTIME_KERNEL $A, "c == #1"
 
 KernelA_branch:
     lda INTIM
@@ -144,10 +148,10 @@ KernelB: subroutine
     ; Register config
     lda #$ff
     sta EMERALD_MI_ENABLE ; enable missile
-    sta VDELP1 ; enable delayed sprite
+    sta.w VDELP1 ; enable delayed sprite
 
-    ; Load PF1 value into accumulator
-    lda RamPF1Value
+    ldy #$ff
+KernelB_STY = . - 1
 
     ; Clear bits in processor status register for drawing.
     clc
@@ -160,7 +164,9 @@ KernelB_A:
 KernelB_B:
 KernelB_C:
 KernelB_D:
-    sleep 4
+    ; Load PF1 value into accumulator
+    lda.w RamPF1Value
+    ; sleep 4
     ; set D0 = 0 without using a register
     asl VDELP1
 KernelB_E:

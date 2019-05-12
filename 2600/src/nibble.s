@@ -11,7 +11,6 @@
     ldy #SHARD_X
     sty RamKernelX
     ; Y
-    ; DISABLED TO ADDRESS BRANCHING OUT OF RANGE ISSUES
     ; Gemini 1A
     ldx #SHARD_0A_RST
 .if_1:
@@ -122,7 +121,7 @@
     sty RamKernelX
     ; Y
     ldy #%00110011
-    sty RamKernelY
+    sty [KernelB_STY - $100]
      
     cpx #$00
 .if_1:
@@ -172,7 +171,7 @@
 .else_2:
     ldx RamKernelGemini1
     stx [KernelA_D_W + 0]
-    ldx #GRP1
+    ldx #SHARD_1A_REG
     stx [KernelA_D_W + 1]
 .endif_2:
 .endif_1:
@@ -189,7 +188,7 @@
     stx [KernelA_E_W + 1 + 0]
     ldx RamKernelGemini2
     stx [KernelA_G_W + 0]
-    ldx #GRP1
+    ldx #SHARD_2A_REG
     stx [KernelA_G_W + 1]
 .endif_3:
 .if_4:
@@ -201,7 +200,7 @@
 .else_4:
     ldx RamKernelGemini3
     stx [KernelA_H_W + 0]
-    ldx #GRP1
+    ldx #SHARD_3A_REG
     stx [KernelA_H_W + 1]
 .endif_4:
 .if_5:

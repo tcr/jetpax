@@ -78,6 +78,9 @@ row_2:
     lda #COL_BG
     sta COLUPF
 
+    ; lda #%00001000
+    ; sta REFP1
+
     ASSERT_RUNTIME "_scycles == #0"
 
 ; [scanline 3]
@@ -90,12 +93,13 @@ row_3:
     stx RamKernelGRP0
     KERNEL_LOAD_PLAYER
     stx [CBSRAM_KERNEL_WRITE + 2]
-    lda.w RamKernelGRP0 ; Load sprite 2 into A
+    lda RamKernelGRP0 ; Load sprite 2 into A
+    sleep 2
 
 ; [scanlines 4-5]
     ; We jump immediately into scanlines 4-5, the "gem kernel"
     ldx RamKernelX
-    ldy RamKernelY
+    sec
     ASSERT_RUNTIME "_scycles == #73"
     jmp CBSRAM_KERNEL_ENTRY
 

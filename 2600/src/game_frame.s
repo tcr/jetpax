@@ -129,9 +129,10 @@ KernelA_K_W EQM [KernelA_K - $100]
 
 KernelB_H_W EQM [KernelB_H - $100]
 
+; Reflected for Kernel A
 G00 = %00000000
-G01 = %00000110
-G10 = %01100000
+G01 = %01100000
+G10 = %00000110
 G11 = %01100110
 
 ; gems:     [g00,g01,g10,g11,g00,g01]
@@ -159,21 +160,38 @@ G11 = %01100110
 ; cpu:      cpu(g00,g01,false,g11,g00,false)
 ; solved:   [bc_STX,bc_VD1,bc_STX,bc_STX,bc_STX]
 
+; gems:     [g01,g10,g01,g11,g00,g00]
+; cpu:      cpu(g01,g00,false,g10,g11,false)
+; solved:   [bc_NOP,bc_STX,bc_RF1,bc_STY,bc_VD1]
+
+SHARD_LUT_RF1 = 2
+SHARD_LUT_VD1 = 4
+GEM0 = G01
+GEM1 = G10
+GEM2 = G01
+GEM3 = G11
+GEM4 = G00
+GEM5 = G00
+
 SHARD_0A_RST    = 0
 SHARD_1A_RST    = 0
 SHARD_2A_RST    = 0
 SHARD_3A_RST    = 0
+; Sprites (may be reversed)
+SHARD_VD1       = [SHARD_LUT_VD1 == 4 ? GEM4 - GEM1] + GEM1
+SHARD_GRP0      = [SHARD_0A_RST ? [GEM1 << 1] - GEM0] + GEM0
+SHARD_X         = %00000110
+SHARD_Y         = %01100110
+; Opcodes
 ; SHARD_0A        = BC_NOP
 SHARD_1A        = BC_STX
+SHARD_1A_REG    = [SHARD_LUT_RF1 == 1 ? REFP1 - GRP1] + GRP1
 SHARD_2A        = BC_STX
-SHARD_3A        = BC_STX
-SHARD_4A_VD1    = 0
+SHARD_2A_REG    = [SHARD_LUT_RF1 == 2 ? REFP1 - GRP1] + GRP1
+SHARD_3A        = BC_STY
+SHARD_3A_REG    = [SHARD_LUT_RF1 == 3 ? REFP1 - GRP1] + GRP1
+SHARD_4A_VD1    = [SHARD_LUT_VD1 == 4]
 SHARD_4A        = BC_STX
-; Sprites (may be reversed)
-SHARD_VD1       = %01100000
-SHARD_GRP0      = %01100110 ; NOTE: shifted when doing RST0
-SHARD_X         = %01100000
-SHARD_Y         = %01100110
 
     ; Nibble Kernel A
     NIBBLE_START_KERNEL gem_kernel_a, 40
@@ -189,7 +207,6 @@ SHARD_Y         = %01100110
         ; Y
         NIBBLE_WRITE [KernelA_STY - $100], #SHARD_Y
 
-        ; DISABLED TO ADDRESS BRANCHING OUT OF RANGE ISSUES
         ; Gemini 1A
         ldx #SHARD_0A_RST
         NIBBLE_IF ne
@@ -212,7 +229,7 @@ SHARD_Y         = %01100110
             NIBBLE_ELSE
                 ldy #SHARD_1A
                 sty RamKernelGemini1
-                NIBBLE_WRITE KernelA_D_W, RamKernelGemini1, #GRP1 ; STY
+                NIBBLE_WRITE KernelA_D_W, RamKernelGemini1, #SHARD_1A_REG ; STY
             NIBBLE_END_IF
         NIBBLE_END_IF
 
@@ -225,7 +242,7 @@ SHARD_Y         = %01100110
             NIBBLE_WRITE KernelA_E_W + 1, #RESP1
             ldy #SHARD_2A
             sty RamKernelGemini2
-            NIBBLE_WRITE KernelA_G_W, RamKernelGemini2, #GRP1 ; STX
+            NIBBLE_WRITE KernelA_G_W, RamKernelGemini2, #SHARD_2A_REG ; STX
         NIBBLE_END_IF
 
         ; Gemini 3A
@@ -235,7 +252,7 @@ SHARD_Y         = %01100110
         NIBBLE_ELSE
             ldy #SHARD_3A
             sty RamKernelGemini3
-            NIBBLE_WRITE KernelA_H_W, RamKernelGemini3, #GRP1 ; STY
+            NIBBLE_WRITE KernelA_H_W, RamKernelGemini3, #SHARD_3A_REG ; STY
         NIBBLE_END_IF
 
         ; Gemini 4A 
@@ -267,7 +284,7 @@ SHARD_Y         = %01100110
         sty RamKernelX
         ; Y
         ldy #%00110011
-        sty RamKernelY
+        sty [KernelB_STY - $100]
         
         cpx #$00
         NIBBLE_IF cs

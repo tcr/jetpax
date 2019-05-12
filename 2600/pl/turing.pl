@@ -16,11 +16,11 @@ gem(g10).
 gem(g11).
 
 % all kernels
-code(bc_VD1).
-code(bc_VD0).
 code(bc_STX).
 code(bc_STY).
 code(bc_NOP).
+code(bc_VD1).
+code(bc_VD0).
 
 % for Kernel A
 code(bc_RST) :- kernel(ka).
