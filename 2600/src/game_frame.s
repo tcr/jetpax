@@ -2,6 +2,64 @@
 
 SENTINEL = %010101010
 
+; Reflected for Kernel A
+G00 = %00000000
+G01 = %01100000
+G10 = %00000110
+G11 = %01100110
+
+; gems:     [g01,g10,g01,g11,g00,g00]
+; cpu:      cpu(g01,g00,false,g10,g11,false)
+; solved:   [bc_NOP,bc_STX,bc_RF1,bc_STY,bc_VD1]
+
+; gems:     [g00,g01,g10,g11,g00,g01]
+; cpu:      cpu(g01,g00,false,g10,g11,false)
+; solved:   [bc_RST,bc_NOP,bc_STX,bc_STY,bc_VD1]
+
+; gems:     [g01,g10,g11,g00,g01,g10]
+; cpu:      cpu(g01,g01,false,g10,g11,false)
+; solved:   [bc_NOP,bc_STX,bc_STY,bc_RST,bc_VD1]
+
+; gems:     [g10,g11,g00,g01,g10,g11]
+; cpu:      cpu(g10,g10,false,g11,g01,false)
+; solved:   [bc_NOP,bc_STX,bc_RST,bc_STY,bc_VD1]
+
+; gems:     [g01,g00,g00,g11,g01,g11]
+; cpu:      cpu(g01,g01,false,g00,g11,false)
+; solved:   [bc_NOP,bc_STX,bc_STX,bc_STY,bc_VD1]
+
+; gems:     [g11,g01,g01,g01,g01,g00]
+; cpu:      cpu(g00,g01,false,g11,g00,false)
+; solved:   [bc_STX,bc_VD1,bc_STX,bc_STX,bc_STX]
+
+; gems:     [g10,g10,g11,g00,g11,g01]
+; cpu:      cpu(g00,g00,false,g10,g11,false)
+; solved:   [bc_STX,bc_STX,bc_STY,bc_RST,bc_STY]
+
+; gems:     [g11,g10,g00,g01,g00,g01]
+; cpu:      cpu(g11,g00,false,g10,g01,false)
+; solved:   [bc_NOP,bc_STX,bc_RST,bc_STY,bc_VD1]
+
+; gems:     [g01,g00,g00,g11,g01,g11]
+; cpu:      cpu(g00,g01,false,g01,g11,false)
+; solved:   [bc_STX,bc_RST,bc_RST,bc_STY,bc_VD1]
+
+SHARD_LUT_RF1 = 0
+SHARD_LUT_VD1 = 4
+
+GEM0:
+    .byte G01
+GEM1:
+    .byte G00 
+GEM2:
+    .byte G00
+GEM3:
+    .byte G11
+GEM4:
+    .byte G01
+GEM5:
+    .byte G11
+
 ; Y=Gemini Sprite
 ; processor flag Z=is RST opcode
 KernelA_GenReset: subroutine
@@ -186,57 +244,6 @@ KernelA_K_W EQM [KernelA_K - $100]
 
 KernelB_H_W EQM [KernelB_H - $100]
 
-; Reflected for Kernel A
-G00 = %00000000
-G01 = %01100000
-G10 = %00000110
-G11 = %01100110
-
-; gems:     [g01,g10,g01,g11,g00,g00]
-; cpu:      cpu(g01,g00,false,g10,g11,false)
-; solved:   [bc_NOP,bc_STX,bc_RF1,bc_STY,bc_VD1]
-
-; gems:     [g00,g01,g10,g11,g00,g01]
-; cpu:      cpu(g01,g00,false,g10,g11,false)
-; solved:   [bc_RST,bc_NOP,bc_STX,bc_STY,bc_VD1]
-
-; gems:     [g01,g10,g11,g00,g01,g10]
-; cpu:      cpu(g01,g01,false,g10,g11,false)
-; solved:   [bc_NOP,bc_STX,bc_STY,bc_RST,bc_VD1]
-
-; gems:     [g10,g11,g00,g01,g10,g11]
-; cpu:      cpu(g10,g10,false,g11,g01,false)
-; solved:   [bc_NOP,bc_STX,bc_RST,bc_STY,bc_VD1]
-
-; gems:     [g01,g00,g00,g11,g01,g11]
-; cpu:      cpu(g00,g01,false,g01,g11,false)
-; solved:   [bc_STX,bc_RST,bc_RST,bc_STY,bc_VD1]
-
-; gems:     [g01,g00,g00,g11,g01,g11]
-; cpu:      cpu(g01,g01,false,g00,g11,false)
-; solved:   [bc_NOP,bc_STX,bc_STX,bc_STY,bc_VD1]
-
-; gems:     [g11,g01,g01,g01,g01,g00]
-; cpu:      cpu(g00,g01,false,g11,g00,false)
-; solved:   [bc_STX,bc_VD1,bc_STX,bc_STX,bc_STX]
-
-; gems:     [g10,g10,g11,g00,g11,g01]
-; cpu:      cpu(g00,g00,false,g10,g11,false)
-; solved:   [bc_STX,bc_STX,bc_STY,bc_RST,bc_STY]
-
-; gems:     [g11,g10,g00,g01,g00,g01]
-; cpu:      cpu(g11,g00,false,g10,g01,false)
-; solved:   [bc_NOP,bc_STX,bc_RST,bc_STY,bc_VD1]
-
-SHARD_LUT_RF1 = 0
-SHARD_LUT_VD1 = 4
-GEM0 = G11
-GEM1 = G10
-GEM2 = G00
-GEM3 = G01
-GEM4 = G00
-GEM5 = G01
-
     ; Nibble Kernel A
     NIBBLE_START_KERNEL gem_kernel_a_1, 40
         ldx #SENTINEL ; sentinel
@@ -245,7 +252,7 @@ GEM5 = G01
         stx BuildKernelRST
 
         ; Gemini 1A
-        ldy #GEM0
+        ldy GEM0
         jsr KernelA_GenReset
         NIBBLE_IF eq
             ; Special: Encoding RST0
@@ -255,7 +262,7 @@ GEM5 = G01
             ldy #%10100000
             sty [KernelA_B - $100 + 1]
             ; Store 1A in GRP0
-            ldy #GEM1
+            ldy GEM1
             sty BuildKernelGrp0
             ; Gemini 1A is RESPx
             ldy #EMERALD_SP_RESET
@@ -265,10 +272,10 @@ GEM5 = G01
             sty [KernelA_D - $100]
         NIBBLE_ELSE
             ; Store 0A in GRP0
-            ldy #GEM0
+            ldy GEM0
             sty BuildKernelGrp0
 
-            ldy #GEM1
+            ldy GEM1
             jsr KernelA_GenReset
             NIBBLE_IF eq
                 ; GEM1ASWITCH
@@ -279,7 +286,7 @@ GEM5 = G01
                     ldy #REFP1
                 else
                     ; Set opcode
-                    ldy #GEM1
+                    ldy GEM1
                     jsr KernelA_UpdateRegs
                     sty RamKernelGemini1
 
@@ -293,14 +300,14 @@ GEM5 = G01
         NIBBLE_END_IF
 
         ; Gemini 2A
-        ldy #GEM2
+        ldy GEM2
         jsr KernelA_GenReset
         NIBBLE_IF eq
             NIBBLE_WRITE KernelA_E_W + 1, #NOP_REG   ; NOP
             NIBBLE_WRITE KernelA_G_W + 1, #RESP1 ; RESET
         NIBBLE_ELSE
             ; Set opcode
-            ldy #GEM2
+            ldy GEM2
             jsr KernelA_UpdateRegs
             sty RamKernelGemini2
 
@@ -317,13 +324,13 @@ GEM5 = G01
         NIBBLE_END_IF
 
         ; Gemini 3A
-        ldy #GEM3
+        ldy GEM3
         jsr KernelA_GenReset
         NIBBLE_IF eq
             NIBBLE_WRITE KernelA_H_W + 1, #RESP1 ; RESET
         NIBBLE_ELSE
             ; Set opcode
-            ldy #GEM3
+            ldy GEM3
             jsr KernelA_UpdateRegs
             sty RamKernelGemini3
 
@@ -351,7 +358,7 @@ GEM5 = G01
             NIBBLE_WRITE RamKernelPhpTarget, #VDELP1
         NIBBLE_ELSE
             ; FIXME Calculate the 4A value
-            ldy #GEM4
+            ldy GEM4
             jsr KernelA_UpdateRegs
             sty RamKernelGemini4
 
@@ -366,7 +373,7 @@ GEM5 = G01
         ; VD1
         ; ldy #SHARD_VD1
         ; sty [KernelA_VDEL1 - $100]
-        NIBBLE_WRITE [KernelA_VDEL1 - $100], #[SHARD_LUT_VD1 == 4 ? GEM4 - GEM1] + GEM1
+        NIBBLE_WRITE [KernelA_VDEL1 - $100], [SHARD_LUT_VD1 == 4 ? GEM4 - GEM1] + GEM1
         ; GRP0
         ; ldy #SHARD_GRP0
         ; sty [KernelA_VDEL0 - $100]
