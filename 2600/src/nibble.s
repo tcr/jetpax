@@ -51,9 +51,11 @@
     if SHARD_LUT_RF1
     ldy #REFP1
     else
+    ; Set opcode
     ldy #GEM1
     jsr KernelA_UpdateRegs
     sty RamKernelGemini1
+    ; Set opcode target
     ldy #GRP1
     endif
     sty RamKernelGemini1Reg
@@ -75,10 +77,17 @@
 .else_3:
     clc
     rol
-    ; FIXME Calculate the 2A value
+    ; Set opcode
     ldy #GEM2
     jsr KernelA_UpdateRegs
     sty RamKernelGemini2
+    ; Set opcode target
+    if SHARD_LUT_RF1 == 2
+    ldy #REFP1
+    else
+    ldy #GRP1
+    endif
+    sty RamKernelGemini2Reg
     ; [BIT DEPTH] #3 *If-End @ 3
     ; [BIT DEPTH] #3 Else-End @ 3
 .endif_3:
@@ -95,9 +104,17 @@
     clc
     rol
     ; FIXME Calculate the 3A value
-    ldy #SHARD_3A
+    ; Set opcode
+    ldy #GEM3
     jsr KernelA_UpdateRegs
     sty RamKernelGemini3
+    ; Set opcode target
+    if SHARD_LUT_RF1 == 3
+    ldy #REFP1
+    else
+    ldy #GRP1
+    endif
+    sty RamKernelGemini3Reg
     ; [BIT DEPTH] #4 *If-End @ 4
     ; [BIT DEPTH] #4 Else-End @ 4
 .endif_4:
@@ -111,7 +128,7 @@
     MAC NIBBLE_gem_kernel_a_2_BUILD
     lda #0
     ; Gemini 4A
-    ldx #SHARD_4A_VD1
+    ldx #[SHARD_LUT_VD1 == 4]
 .if_1:
     beq .else_1
     sec
@@ -124,7 +141,7 @@
     clc
     rol
     ; FIXME Calculate the 4A value
-    ldy #SHARD_4A
+    ldy #GEM4
     jsr KernelA_UpdateRegs
     sty RamKernelGemini4
     ; Set PHP
@@ -225,7 +242,7 @@
     stx [KernelA_E_W + 1 + 0]
     ldx RamKernelGemini2
     stx [KernelA_G_W + 0]
-    ldx #SHARD_2A_REG
+    ldx RamKernelGemini2Reg
     stx [KernelA_G_W + 1]
 .endif_3:
 .if_4:
@@ -237,7 +254,7 @@
 .else_4:
     ldx RamKernelGemini3
     stx [KernelA_H_W + 0]
-    ldx #SHARD_3A_REG
+    ldx RamKernelGemini3Reg
     stx [KernelA_H_W + 1]
 .endif_4:
     ENDM
@@ -273,13 +290,13 @@
     ldx #RESP1
     stx [RamKernelPhpTarget + 0]
 .endif_1:
-    ldx #SHARD_VD1
+    ldx #[SHARD_LUT_VD1 == 4 ? GEM4 - GEM1] + GEM1
     stx [[KernelA_VDEL1 - $100] + 0]
-    ldx #SHARD_GRP0
+    ldx BuildKernelGrp0
     stx [[KernelA_VDEL0 - $100] + 0]
-    ldx #SHARD_X
+    ldx BuildKernelX
     stx [RamKernelX + 0]
-    ldx #SHARD_Y
+    ldx BuildKernelY
     stx [[KernelA_STY - $100] + 0]
     ENDM
 

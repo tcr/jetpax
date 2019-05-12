@@ -210,22 +210,6 @@ SHARD_0A_RST    = [GEM0 == G00]
 SHARD_1A_RST    = [!SHARD_0A_RST && GEM1 == G00]
 SHARD_2A_RST    = [!SHARD_0A_RST && !SHARD_1A_RST && GEM2 == G00]
 SHARD_3A_RST    = 0 ; TODO
-; Sprites (may be reversed)
-SHARD_VD1       = [SHARD_LUT_VD1 == 4 ? GEM4 - GEM1] + GEM1
-SHARD_GRP0      = [SHARD_0A_RST ? [GEM1 << 1] - GEM0] + GEM0
-SHARD_X         = %01100110
-SHARD_Y         = %01100000
-; Opcodes
-; SHARD_0A        = BC_NOP
-SHARD_1A        = BC_STX
-SHARD_1A_REG_0  = [SHARD_LUT_RF1 == 1 ? REFP1 - GRP1] + GRP1
-SHARD_1A_REG    = [SHARD_0A_RST ? NOP_REG - SHARD_1A_REG_0] + SHARD_1A_REG_0
-SHARD_2A        = BC_STY
-SHARD_2A_REG    = [SHARD_LUT_RF1 == 2 ? REFP1 - GRP1] + GRP1
-SHARD_3A        = BC_STY
-SHARD_3A_REG    = [SHARD_LUT_RF1 == 3 ? REFP1 - GRP1] + GRP1
-SHARD_4A_VD1    = [SHARD_LUT_VD1 == 4]
-SHARD_4A        = BC_STX
 
 SENTINEL = %010101010
 
@@ -267,10 +251,12 @@ SENTINEL = %010101010
                 if SHARD_LUT_RF1
                     ldy #REFP1
                 else
+                    ; Set opcode
                     ldy #GEM1
                     jsr KernelA_UpdateRegs
                     sty RamKernelGemini1
 
+                    ; Set opcode target
                     ldy #GRP1
                 endif
                 sty RamKernelGemini1Reg
@@ -285,13 +271,21 @@ SENTINEL = %010101010
             NIBBLE_WRITE KernelA_E_W + 1, #NOP_REG   ; NOP
             NIBBLE_WRITE KernelA_G_W + 1, #RESP1 ; RESET
         NIBBLE_ELSE
-            ; FIXME Calculate the 2A value
-
-            NIBBLE_WRITE KernelA_E_W + 1, #RESP1
+            ; Set opcode
             ldy #GEM2
             jsr KernelA_UpdateRegs
             sty RamKernelGemini2
-            NIBBLE_WRITE KernelA_G_W, RamKernelGemini2, #SHARD_2A_REG ; STX
+
+            ; Set opcode target
+            if SHARD_LUT_RF1 == 2
+                ldy #REFP1
+            else
+                ldy #GRP1
+            endif
+            sty RamKernelGemini2Reg
+
+            NIBBLE_WRITE KernelA_E_W + 1, #RESP1
+            NIBBLE_WRITE KernelA_G_W, RamKernelGemini2, RamKernelGemini2Reg ; STX
         NIBBLE_END_IF
 
         ; Gemini 3A
@@ -301,16 +295,26 @@ SENTINEL = %010101010
         NIBBLE_ELSE
             ; FIXME Calculate the 3A value
 
-            ldy #SHARD_3A
+            ; Set opcode
+            ldy #GEM3
             jsr KernelA_UpdateRegs
             sty RamKernelGemini3
-            NIBBLE_WRITE KernelA_H_W, RamKernelGemini3, #SHARD_3A_REG ; STY
+
+            ; Set opcode target
+            if SHARD_LUT_RF1 == 3
+                ldy #REFP1
+            else
+                ldy #GRP1
+            endif
+            sty RamKernelGemini3Reg
+
+            NIBBLE_WRITE KernelA_H_W, RamKernelGemini3, RamKernelGemini3Reg ; STY
         NIBBLE_END_IF
     NIBBLE_END_KERNEL
 
     NIBBLE_START_KERNEL gem_kernel_a_2, 40
         ; Gemini 4A 
-        ldx #SHARD_4A_VD1
+        ldx #[SHARD_LUT_VD1 == 4]
         NIBBLE_IF ne
             NIBBLE_WRITE [KernelA_I_W + 0], #BC_STA, #EMERALD_SP_RESET
             NIBBLE_WRITE [KernelA_J_W + 1], #BC_STA, #PF1
@@ -320,7 +324,7 @@ SENTINEL = %010101010
             NIBBLE_WRITE RamKernelPhpTarget, #VDELP1
         NIBBLE_ELSE
             ; FIXME Calculate the 4A value
-            ldy #SHARD_4A
+            ldy #GEM4
             jsr KernelA_UpdateRegs
             sty RamKernelGemini4
 
@@ -335,17 +339,17 @@ SENTINEL = %010101010
         ; VD1
         ; ldy #SHARD_VD1
         ; sty [KernelA_VDEL1 - $100]
-        NIBBLE_WRITE [KernelA_VDEL1 - $100], #SHARD_VD1
+        NIBBLE_WRITE [KernelA_VDEL1 - $100], #[SHARD_LUT_VD1 == 4 ? GEM4 - GEM1] + GEM1
         ; GRP0
         ; ldy #SHARD_GRP0
         ; sty [KernelA_VDEL0 - $100]
-        NIBBLE_WRITE [KernelA_VDEL0 - $100], #SHARD_GRP0
+        NIBBLE_WRITE [KernelA_VDEL0 - $100], BuildKernelGrp0
         ; X
         ; ldy #SHARD_X
         ; sty RamKernelX
-        NIBBLE_WRITE RamKernelX, #SHARD_X
+        NIBBLE_WRITE RamKernelX, BuildKernelX
         ; Y
-        NIBBLE_WRITE [KernelA_STY - $100], #SHARD_Y
+        NIBBLE_WRITE [KernelA_STY - $100], BuildKernelY
 
         ; Gemini 5A
         ; TODO eventually...?
