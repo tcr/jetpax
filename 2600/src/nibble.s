@@ -6,10 +6,10 @@
     stx BuildKernelY
     stx BuildKernelRST
     ; Gemini 1A
-    ldy #SHARD_0A_RST
+    ldy #GEM0
     ; jsr KernelA_GenReset
 .if_1:
-    beq .else_1
+    bne .else_1
     sec
     rol
     ; Special: Encoding RST0

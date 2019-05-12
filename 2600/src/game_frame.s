@@ -4,16 +4,18 @@
 ; processor flag Z=is RST opcode
 KernelA_GenReset: subroutine
     cpy #$00
-    bne .start
-    rts ; Filter for only #$00 geminis
+    beq .start
+    rts
+    ; Current Gemini = $00
 .start:
     ldx BuildKernelRST
     cpx #SENTINEL
     bne .set_else
-    ; Override gemini with #$ff
+    ; We have found the first (and only) RST on this line, set the marker var
     ldx #$ff
     stx BuildKernelRST
 .set_else
+    ldx #$00
     rts
 
 ; Y=Gemini Sprite
@@ -240,9 +242,9 @@ SENTINEL = %010101010
         stx BuildKernelRST
 
         ; Gemini 1A
-        ldy #SHARD_0A_RST
+        ldy #GEM0
         ; jsr KernelA_GenReset
-        NIBBLE_IF ne
+        NIBBLE_IF eq ; FIXME ne
             ; Special: Encoding RST0
             ; Rewrite lda RamKernelPF1 to be #immediate
             ldy #BC_LDA_IMM
