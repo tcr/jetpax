@@ -135,14 +135,6 @@ G01 = %01100000
 G10 = %00000110
 G11 = %01100110
 
-; gems:     [g00,g01,g10,g11,g00,g01]
-; cpu:      cpu(g01,g00,false,g10,g11,false)
-; solved:   [bc_RST,bc_NOP,bc_STX,bc_STY,bc_VD1]
-
-; gems:     [g01,g10,g11,g00,g01,g10]
-; cpu:      cpu(g01,g01,false,g10,g11,false)
-; solved:   [bc_NOP,bc_STX,bc_STY,bc_RST,bc_VD1]
-
 ; TODO implement this, also implement RST2
 ; gems:     [g10,g11,g00,g01,g10,g11]
 ; cpu:      cpu(g10,g10,false,g11,g01,false)
@@ -164,19 +156,27 @@ G11 = %01100110
 ; cpu:      cpu(g01,g00,false,g10,g11,false)
 ; solved:   [bc_NOP,bc_STX,bc_RF1,bc_STY,bc_VD1]
 
-SHARD_LUT_RF1 = 2
+; gems:     [g00,g01,g10,g11,g00,g01]
+; cpu:      cpu(g01,g00,false,g10,g11,false)
+; solved:   [bc_RST,bc_NOP,bc_STX,bc_STY,bc_VD1]
+
+; gems:     [g01,g10,g11,g00,g01,g10]
+; cpu:      cpu(g01,g01,false,g10,g11,false)
+; solved:   [bc_NOP,bc_STX,bc_STY,bc_RST,bc_VD1]
+
+SHARD_LUT_RF1 = 0
 SHARD_LUT_VD1 = 4
 GEM0 = G01
 GEM1 = G10
-GEM2 = G01
-GEM3 = G11
-GEM4 = G00
-GEM5 = G00
+GEM2 = G11
+GEM3 = G00
+GEM4 = G01
+GEM5 = G10
 
 SHARD_0A_RST    = 0
 SHARD_1A_RST    = 0
 SHARD_2A_RST    = 0
-SHARD_3A_RST    = 0
+SHARD_3A_RST    = 1
 ; Sprites (may be reversed)
 SHARD_VD1       = [SHARD_LUT_VD1 == 4 ? GEM4 - GEM1] + GEM1
 SHARD_GRP0      = [SHARD_0A_RST ? [GEM1 << 1] - GEM0] + GEM0
@@ -185,8 +185,9 @@ SHARD_Y         = %01100110
 ; Opcodes
 ; SHARD_0A        = BC_NOP
 SHARD_1A        = BC_STX
-SHARD_1A_REG    = [SHARD_LUT_RF1 == 1 ? REFP1 - GRP1] + GRP1
-SHARD_2A        = BC_STX
+SHARD_1A_REG_0  = [SHARD_LUT_RF1 == 1 ? REFP1 - GRP1] + GRP1
+SHARD_1A_REG    = [SHARD_0A_RST ? NOP_REG - SHARD_1A_REG_0] + SHARD_1A_REG_0
+SHARD_2A        = BC_STY
 SHARD_2A_REG    = [SHARD_LUT_RF1 == 2 ? REFP1 - GRP1] + GRP1
 SHARD_3A        = BC_STY
 SHARD_3A_REG    = [SHARD_LUT_RF1 == 3 ? REFP1 - GRP1] + GRP1
