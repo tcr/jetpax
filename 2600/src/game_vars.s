@@ -45,6 +45,10 @@ RamKernelGemini3    byte
 RamKernelGemini4    byte
 RamKernelGemini5    byte
 
+BuildKernelX byte
+BuildKernelY byte
+BuildKernelZ byte
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ROW_COUNT = 16

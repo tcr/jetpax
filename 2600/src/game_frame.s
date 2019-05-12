@@ -195,6 +195,11 @@ SHARD_4A        = BC_STX
 
     ; Nibble Kernel A
     NIBBLE_START_KERNEL gem_kernel_a, 40
+        ldx #%0101010101 ; sentinel
+        stx BuildKernelX
+        stx BuildKernelY
+        stx BuildKernelZ
+
         ; Gemini 1A
         ldx #SHARD_0A_RST
         NIBBLE_IF ne
