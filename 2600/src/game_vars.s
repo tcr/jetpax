@@ -52,7 +52,7 @@ RamKernelGemini5    byte
 
 BuildKernelX byte
 BuildKernelY byte
-BuildKernelZ byte
+BuildKernelRST byte
 BuildKernelGrp0 byte
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

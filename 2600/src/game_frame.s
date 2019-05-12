@@ -1,5 +1,21 @@
 ; Frame loop, including calling out to other kernels.
 
+; Y=Gemini Sprite
+; processor flag Z=is RST opcode
+KernelA_GenReset: subroutine
+    cpy #$00
+    bne .start
+    rts ; Filte for #$00 geminis
+.start:
+    ldx BuildKernelRST
+    cpx #SENTINEL
+    bne .set_else
+    ; Override gemini
+    ldx #0
+    stx BuildKernelRST
+.set_else
+
+; Y=Gemini Sprite
 KernelA_UpdateRegs: subroutine
     ; GRP0 returns nop
     ; FIXME GRP0 might not always be up to date
@@ -220,10 +236,11 @@ SENTINEL = %010101010
         ldx #SENTINEL ; sentinel
         stx BuildKernelX
         stx BuildKernelY
-        stx BuildKernelZ
+        stx BuildKernelRST
 
         ; Gemini 1A
-        ldx #SHARD_0A_RST
+        ldy #GEM0
+        jsr KernelA_GenReset
         NIBBLE_IF ne
             ; Special: Encoding RST0
             ; Rewrite lda RamKernelPF1 to be #immediate
@@ -238,7 +255,7 @@ SENTINEL = %010101010
             ldy #EMERALD_SP_RESET
             sty [KernelA_C - $100 + 1]
             ; Turn 3-cycle NOP into 4-cycle
-            ldy #$14
+            ldy #$14 ; TODO what is this
             sty [KernelA_D - $100]
         NIBBLE_ELSE
             ; Store 0A in GRP0
