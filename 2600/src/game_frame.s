@@ -1,5 +1,37 @@
 ; Frame loop, including calling out to other kernels.
 
+KernelA_UpdateRegs: subroutine
+    ; GRP0 returns nop
+    ; FIXME GRP0 might not always be up to date
+    cpy BuildKernelGrp0
+    bne .set_start
+    ldy #BC_NOP
+    rts
+
+.set_start:
+    ldx BuildKernelX
+    cpx #SENTINEL
+    bne .set_else
+    sty BuildKernelX
+    beq .set_end
+.set_else
+    ldx BuildKernelY
+    cpx #SENTINEL
+    bne .set_end
+    sty BuildKernelY
+.set_end:
+
+    cpy BuildKernelX
+    bne .op_else
+    ldy #BC_STX
+    rts
+.op_else:
+    cpy BuildKernelY
+    bne .op_end
+    ldy #BC_STY
+.op_end:
+    rts
+
     ; Vertical Sync
 VerticalSync: subroutine
     VERTICAL_SYNC
@@ -109,6 +141,7 @@ gemini_builder:
     bne .no_vd0
 .no_vd0:
 
+
 nibble_precompile_gem_kernel:
 DBG_NIBBLE:
 BC_LDA_IMM = $a9
@@ -116,6 +149,7 @@ BC_STA = $85
 BC_STX = $86
 BC_STY = $84
 BC_PHP = $08
+BC_NOP = $15
 
 NOP_REG = $79 ; TODO is there a better reg to write to with NOP effects
 
@@ -193,9 +227,11 @@ SHARD_3A_REG    = [SHARD_LUT_RF1 == 3 ? REFP1 - GRP1] + GRP1
 SHARD_4A_VD1    = [SHARD_LUT_VD1 == 4]
 SHARD_4A        = BC_STX
 
+SENTINEL = %010101010
+
     ; Nibble Kernel A
-    NIBBLE_START_KERNEL gem_kernel_a, 40
-        ldx #%0101010101 ; sentinel
+    NIBBLE_START_KERNEL gem_kernel_a_1, 40
+        ldx #SENTINEL ; sentinel
         stx BuildKernelX
         stx BuildKernelY
         stx BuildKernelZ
@@ -209,6 +245,9 @@ SHARD_4A        = BC_STX
             sty [KernelA_B - $100]
             ldy #%10100000
             sty [KernelA_B - $100 + 1]
+            ; Store 1A in GRP0
+            ldy #GEM1
+            sty BuildKernelGrp0
             ; Gemini 1A is RESPx
             ldy #EMERALD_SP_RESET
             sty [KernelA_C - $100 + 1]
@@ -216,15 +255,27 @@ SHARD_4A        = BC_STX
             ldy #$14
             sty [KernelA_D - $100]
         NIBBLE_ELSE
+            ; Store 0A in GRP0
+            ldy #GEM0
+            sty BuildKernelGrp0
+
             ldx #SHARD_1A_RST
             NIBBLE_IF ne
                 NIBBLE_WRITE KernelA_D_W + 1, #RESP1 ; RESET
             NIBBLE_ELSE
-                ; FIXME Calculate the 1A value
+                ; Calculate the 1A value
+                if SHARD_LUT_RF1
+                    ldy #REFP1
+                else
+                    ldy #GEM1
+                    jsr KernelA_UpdateRegs
+                    sty RamKernelGemini1
 
-                ldy #SHARD_1A
-                sty RamKernelGemini1
-                NIBBLE_WRITE KernelA_D_W, RamKernelGemini1, #SHARD_1A_REG ; STY
+                    ldy #GRP1
+                endif
+                sty RamKernelGemini1Reg
+
+                NIBBLE_WRITE KernelA_D_W, RamKernelGemini1, RamKernelGemini1Reg
             NIBBLE_END_IF
         NIBBLE_END_IF
 
@@ -237,7 +288,8 @@ SHARD_4A        = BC_STX
             ; FIXME Calculate the 2A value
 
             NIBBLE_WRITE KernelA_E_W + 1, #RESP1
-            ldy #SHARD_2A
+            ldy #GEM2
+            jsr KernelA_UpdateRegs
             sty RamKernelGemini2
             NIBBLE_WRITE KernelA_G_W, RamKernelGemini2, #SHARD_2A_REG ; STX
         NIBBLE_END_IF
@@ -250,10 +302,13 @@ SHARD_4A        = BC_STX
             ; FIXME Calculate the 3A value
 
             ldy #SHARD_3A
+            jsr KernelA_UpdateRegs
             sty RamKernelGemini3
             NIBBLE_WRITE KernelA_H_W, RamKernelGemini3, #SHARD_3A_REG ; STY
         NIBBLE_END_IF
+    NIBBLE_END_KERNEL
 
+    NIBBLE_START_KERNEL gem_kernel_a_2, 40
         ; Gemini 4A 
         ldx #SHARD_4A_VD1
         NIBBLE_IF ne
@@ -265,24 +320,30 @@ SHARD_4A        = BC_STX
             NIBBLE_WRITE RamKernelPhpTarget, #VDELP1
         NIBBLE_ELSE
             ; FIXME Calculate the 4A value
+            ldy #SHARD_4A
+            jsr KernelA_UpdateRegs
+            sty RamKernelGemini4
 
             NIBBLE_WRITE [KernelA_I_W + 0], #BC_PHP
             NIBBLE_WRITE [KernelA_J_W + 0], #BC_STA, #PF1
-            NIBBLE_WRITE KernelA_K_W, #SHARD_4A, #EMERALD_SP
+            NIBBLE_WRITE KernelA_K_W, RamKernelGemini4, #EMERALD_SP
 
             ; Set PHP
             NIBBLE_WRITE RamKernelPhpTarget, #RESP1
         NIBBLE_END_IF
 
         ; VD1
-        ldy #SHARD_VD1
-        sty [KernelA_VDEL1 - $100]
+        ; ldy #SHARD_VD1
+        ; sty [KernelA_VDEL1 - $100]
+        NIBBLE_WRITE [KernelA_VDEL1 - $100], #SHARD_VD1
         ; GRP0
-        ldy #SHARD_GRP0
-        sty [KernelA_VDEL0 - $100]
+        ; ldy #SHARD_GRP0
+        ; sty [KernelA_VDEL0 - $100]
+        NIBBLE_WRITE [KernelA_VDEL0 - $100], #SHARD_GRP0
         ; X
-        ldy #SHARD_X
-        sty RamKernelX
+        ; ldy #SHARD_X
+        ; sty RamKernelX
+        NIBBLE_WRITE RamKernelX, #SHARD_X
         ; Y
         NIBBLE_WRITE [KernelA_STY - $100], #SHARD_Y
 
@@ -317,26 +378,33 @@ SHARD_4A        = BC_STX
 DBG_NIBBLE_BUILD: subroutine
     ldx $f100
     cpx #$a
-    bne .kernel_b
+    beq [. + 5]
+    jmp .kernel_b 
 .kernel_a:
-    NIBBLE_gem_kernel_a_BUILD ; TODO can this be implied
+    NIBBLE_gem_kernel_a_1_BUILD ; TODO can this be implied
+    sta RamNibbleVar1
+    NIBBLE_gem_kernel_a_2_BUILD ; TODO can this be implied
+    sta RamNibbleVar2
     jmp .next
 .kernel_b:
     NIBBLE_gem_kernel_b_BUILD ; TODO can this be implied
-.next:
     sta RamNibbleVar1
+.next:
 
     ; TODO move this into the row kernel
 DBG_NIBBLE_RUN: subroutine
-    lda RamNibbleVar1
     ldx $f100
     cpx #$a
     beq [. + 5]
     jmp .kernel_b
 .kernel_a:
-    NIBBLE_gem_kernel_a
+    lda RamNibbleVar1
+    NIBBLE_gem_kernel_a_1
+    lda RamNibbleVar2
+    NIBBLE_gem_kernel_a_2
     jmp .next
 .kernel_b:
+    lda RamNibbleVar1
     NIBBLE_gem_kernel_b
 .next:
 

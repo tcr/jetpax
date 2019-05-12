@@ -1,6 +1,10 @@
 
-    MAC NIBBLE_gem_kernel_a_BUILD
+    MAC NIBBLE_gem_kernel_a_1_BUILD
     lda #0
+    ldx #SENTINEL
+    stx BuildKernelX
+    stx BuildKernelY
+    stx BuildKernelZ
     ; Gemini 1A
     ldx #SHARD_0A_RST
 .if_1:
@@ -13,6 +17,9 @@
     sty [KernelA_B - $100]
     ldy #%10100000
     sty [KernelA_B - $100 + 1]
+    ; Store 1A in GRP0
+    ldy #GEM1
+    sty BuildKernelGrp0
     ; Gemini 1A is RESPx
     ldy #EMERALD_SP_RESET
     sty [KernelA_C - $100 + 1]
@@ -26,6 +33,9 @@
 .else_1:
     clc
     rol
+    ; Store 0A in GRP0
+    ldy #GEM0
+    sty BuildKernelGrp0
     ldx #SHARD_1A_RST
 .if_2:
     beq .else_2
@@ -37,9 +47,16 @@
 .else_2:
     clc
     rol
-    ; FIXME Calculate the 1A value
-    ldy #SHARD_1A
+    ; Calculate the 1A value
+    if SHARD_LUT_RF1
+    ldy #REFP1
+    else
+    ldy #GEM1
+    jsr KernelA_UpdateRegs
     sty RamKernelGemini1
+    ldy #GRP1
+    endif
+    sty RamKernelGemini1Reg
     ; [BIT DEPTH] #2 *If-End @ 2
     ; [BIT DEPTH] #2 Else-End @ 2
 .endif_2:
@@ -59,7 +76,8 @@
     clc
     rol
     ; FIXME Calculate the 2A value
-    ldy #SHARD_2A
+    ldy #GEM2
+    jsr KernelA_UpdateRegs
     sty RamKernelGemini2
     ; [BIT DEPTH] #3 *If-End @ 3
     ; [BIT DEPTH] #3 Else-End @ 3
@@ -78,41 +96,58 @@
     rol
     ; FIXME Calculate the 3A value
     ldy #SHARD_3A
+    jsr KernelA_UpdateRegs
     sty RamKernelGemini3
     ; [BIT DEPTH] #4 *If-End @ 4
     ; [BIT DEPTH] #4 Else-End @ 4
 .endif_4:
+    ; [BIT DEPTH] Final: 4 (out of 8 bits)
+    rol
+    rol
+    rol
+    rol
+    ENDM
+
+    MAC NIBBLE_gem_kernel_a_2_BUILD
+    lda #0
     ; Gemini 4A
     ldx #SHARD_4A_VD1
-.if_5:
-    beq .else_5
+.if_1:
+    beq .else_1
     sec
     rol
     ; Set PHP
-    jmp .endif_5
-    ; [BIT DEPTH] #5 If-End @ 5
+    jmp .endif_1
+    ; [BIT DEPTH] #1 If-End @ 1
 
-.else_5:
+.else_1:
     clc
     rol
     ; FIXME Calculate the 4A value
+    ldy #SHARD_4A
+    jsr KernelA_UpdateRegs
+    sty RamKernelGemini4
     ; Set PHP
-    ; [BIT DEPTH] #5 *If-End @ 5
-    ; [BIT DEPTH] #5 Else-End @ 5
-.endif_5:
+    ; [BIT DEPTH] #1 *If-End @ 1
+    ; [BIT DEPTH] #1 Else-End @ 1
+.endif_1:
     ; VD1
-    ldy #SHARD_VD1
-    sty [KernelA_VDEL1 - $100]
+    ; ldy #SHARD_VD1
+    ; sty [KernelA_VDEL1 - $100]
     ; GRP0
-    ldy #SHARD_GRP0
-    sty [KernelA_VDEL0 - $100]
+    ; ldy #SHARD_GRP0
+    ; sty [KernelA_VDEL0 - $100]
     ; X
-    ldy #SHARD_X
-    sty RamKernelX
+    ; ldy #SHARD_X
+    ; sty RamKernelX
     ; Y
     ; Gemini 5A
     ; TODO eventually...?
-    ; [BIT DEPTH] Final: 5 (out of 8 bits)
+    ; [BIT DEPTH] Final: 1 (out of 8 bits)
+    rol
+    rol
+    rol
+    rol
     rol
     rol
     rol
@@ -158,7 +193,7 @@
     ENDM
 
 
-    MAC NIBBLE_gem_kernel_a
+    MAC NIBBLE_gem_kernel_a_1
 .if_1:
     asl
     bcc .else_1
@@ -173,7 +208,7 @@
 .else_2:
     ldx RamKernelGemini1
     stx [KernelA_D_W + 0]
-    ldx #SHARD_1A_REG
+    ldx RamKernelGemini1Reg
     stx [KernelA_D_W + 1]
 .endif_2:
 .endif_1:
@@ -205,9 +240,12 @@
     ldx #SHARD_3A_REG
     stx [KernelA_H_W + 1]
 .endif_4:
-.if_5:
+    ENDM
+
+    MAC NIBBLE_gem_kernel_a_2
+.if_1:
     asl
-    bcc .else_5
+    bcc .else_1
     ldx #BC_STA
     stx [[KernelA_I_W + 0] + 0]
     ldx #EMERALD_SP_RESET
@@ -220,21 +258,27 @@
     stx [[KernelA_K_W + 1] + 0]
     ldx #VDELP1
     stx [RamKernelPhpTarget + 0]
-    jmp .endif_5
-.else_5:
+    jmp .endif_1
+.else_1:
     ldx #BC_PHP
     stx [[KernelA_I_W + 0] + 0]
     ldx #BC_STA
     stx [[KernelA_J_W + 0] + 0]
     ldx #PF1
     stx [[KernelA_J_W + 0] + 1]
-    ldx #SHARD_4A
+    ldx RamKernelGemini4
     stx [KernelA_K_W + 0]
     ldx #EMERALD_SP
     stx [KernelA_K_W + 1]
     ldx #RESP1
     stx [RamKernelPhpTarget + 0]
-.endif_5:
+.endif_1:
+    ldx #SHARD_VD1
+    stx [[KernelA_VDEL1 - $100] + 0]
+    ldx #SHARD_GRP0
+    stx [[KernelA_VDEL0 - $100] + 0]
+    ldx #SHARD_X
+    stx [RamKernelX + 0]
     ldx #SHARD_Y
     stx [[KernelA_STY - $100] + 0]
     ENDM

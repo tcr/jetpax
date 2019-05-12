@@ -29,6 +29,7 @@ ROW_DEMO_INDEX byte
 
 RamNibbleTemp       byte
 RamNibbleVar1       byte
+RamNibbleVar2       byte
 RamZeroByte         byte
 RamLowerSixByte     byte
 RamStackBkp         byte
@@ -40,14 +41,19 @@ RamKernelPhpTarget  byte
 RamKernelX          byte
 RamKernelY          byte
 RamKernelGemini1    byte
+RamKernelGemini1Reg byte
 RamKernelGemini2    byte
+RamKernelGemini2Reg byte
 RamKernelGemini3    byte
+RamKernelGemini3Reg byte
 RamKernelGemini4    byte
+RamKernelGemini4Reg byte
 RamKernelGemini5    byte
 
 BuildKernelX byte
 BuildKernelY byte
 BuildKernelZ byte
+BuildKernelGrp0 byte
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
