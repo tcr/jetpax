@@ -45,7 +45,7 @@ G11 = %01100110
 ; solved:   [bc_STX,bc_RST,bc_RST,bc_STY,bc_VD1]
 
 SHARD_LUT_RF1 = 0
-SHARD_LUT_VD1 = 4
+SHARD_LUT_VD1 = 4 
 
 GEM0:
     .byte G01
