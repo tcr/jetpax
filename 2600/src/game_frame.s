@@ -63,7 +63,8 @@ GEM5:
     .byte G01
 
 ; Y=Gemini Sprite
-; processor flag Z=is RST opcode
+; See if the current Gemini is g00. Allocate an RST to this Gemini if so
+; processor flag Z is TRUE if this is RST.
 KernelA_GenReset: subroutine
     cpy #$00
     beq .start
@@ -81,7 +82,7 @@ KernelA_GenReset: subroutine
     rts
 
 ; Allocates build-time registers for a new Gemini sprite value.
-; Return value (Y) is the storage opcode to use for the next build-time register
+; register Y = the storage opcode to write to the result
 ;
 ; BuildKernelGrp0, BuildKernelX, BuildKernelY are compared in that order.
 ; BuildKernelX, BuildKernelY are upgraded if not set.
