@@ -51,17 +51,20 @@
     clc
     rol
     ; Calculate the 1A value
-    if SHARD_LUT_RF1
-    ldy #REFP1
-    else
+    ldy SHARD_LUT_RF1
+    cpy #1
+    .byte $D0, #3
+    ldy #RESP1
+    .byte $2C
+    ldy #GRP1
+    sty RamKernelGemini1Reg
     ; Set opcode
+    ldx SHARD_LUT_RF1
+    cpx #1
     ldy GEM1
+    .byte $D0, #3
     jsr KernelA_UpdateRegs
     sty RamKernelGemini1
-    ; Set opcode target
-    ldy #GRP1
-    endif
-    sty RamKernelGemini1Reg
     ; [BIT DEPTH] #2 *If-End @ 2
     ; [BIT DEPTH] #2 Else-End @ 2
 .endif_2:
@@ -86,11 +89,12 @@
     jsr KernelA_UpdateRegs
     sty RamKernelGemini2
     ; Set opcode target
-    if SHARD_LUT_RF1 == 2
-    ldy #REFP1
-    else
+    ldy SHARD_LUT_RF1
+    cpy #2
+    .byte $D0, #3
+    ldy #RESP1
+    .byte $2C
     ldy #GRP1
-    endif
     sty RamKernelGemini2Reg
     ; [BIT DEPTH] #3 *If-End @ 3
     ; [BIT DEPTH] #3 Else-End @ 3
@@ -113,11 +117,12 @@
     jsr KernelA_UpdateRegs
     sty RamKernelGemini3
     ; Set opcode target
-    if SHARD_LUT_RF1 == 3
-    ldy #REFP1
-    else
+    ldy SHARD_LUT_RF1
+    cpy #3
+    .byte $D0, #3
+    ldy #RESP1
+    .byte $2C
     ldy #GRP1
-    endif
     sty RamKernelGemini3Reg
     ; [BIT DEPTH] #4 *If-End @ 4
     ; [BIT DEPTH] #4 Else-End @ 4
@@ -131,20 +136,26 @@
 
     MAC NIBBLE_gem_kernel_a_2_BUILD
     lda #0
+    ; VD1 default
+    ldx GEM1
+    stx BuildKernelVdel1
     ; Gemini 4A
-    ldx #[SHARD_LUT_VD1 == 4]
+    ldx SHARD_LUT_VD1
+    cpx #4
 .if_1:
     beq .else_1
     sec
     rol
     ; Set PHP
+    ; Update VDEL1
+    ldx GEM4
+    stx BuildKernelVdel1
     jmp .endif_1
     ; [BIT DEPTH] #1 If-End @ 1
 
 .else_1:
     clc
     rol
-    ; FIXME Calculate the 4A value
     ldy GEM4
     jsr KernelA_UpdateRegs
     sty RamKernelGemini4
@@ -155,6 +166,7 @@
     ; VD1
     ; ldy #SHARD_VD1
     ; sty [KernelA_VDEL1 - $100]
+    ; FIXME read from BuildKernelVdel1
     ; GRP0
     ; ldy #SHARD_GRP0
     ; sty [KernelA_VDEL0 - $100]
@@ -296,7 +308,7 @@
     ldx #RESP1
     stx [RamKernelPhpTarget + 0]
 .endif_1:
-    ldx [SHARD_LUT_VD1 == 4 ? GEM4 - GEM1] + GEM1
+    ldx BuildKernelVdel1
     stx [[KernelA_VDEL1 - $100] + 0]
     ldx BuildKernelGrp0
     stx [[KernelA_VDEL0 - $100] + 0]

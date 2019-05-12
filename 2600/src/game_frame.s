@@ -44,8 +44,10 @@ G11 = %01100110
 ; cpu:      cpu(g00,g01,false,g01,g11,false)
 ; solved:   [bc_STX,bc_RST,bc_RST,bc_STY,bc_VD1]
 
-SHARD_LUT_RF1 = 0
-SHARD_LUT_VD1 = 4 
+SHARD_LUT_RF1:
+    .byte #0
+SHARD_LUT_VD1:
+    .byte #4 
 
 GEM0:
     .byte G01
@@ -282,18 +284,21 @@ KernelB_H_W EQM [KernelB_H - $100]
                 NIBBLE_WRITE KernelA_D_W, #BC_STX, #RESP1 ; RESET
             NIBBLE_ELSE
                 ; Calculate the 1A value
-                if SHARD_LUT_RF1
-                    ldy #REFP1
-                else
-                    ; Set opcode
-                    ldy GEM1
-                    jsr KernelA_UpdateRegs
-                    sty RamKernelGemini1
-
-                    ; Set opcode target
-                    ldy #GRP1
-                endif
+                ldy SHARD_LUT_RF1
+                cpy #1
+                .byte $D0, #3 ; bne +3
+                ldy #RESP1
+                .byte $2C ; .bit (ABS)
+                ldy #GRP1
                 sty RamKernelGemini1Reg
+
+                ; Set opcode
+                ldx SHARD_LUT_RF1
+                cpx #1
+                ldy GEM1
+                .byte $D0, #3 ; bne +3
+                jsr KernelA_UpdateRegs
+                sty RamKernelGemini1
 
                 NIBBLE_WRITE KernelA_D_W, RamKernelGemini1, RamKernelGemini1Reg
             NIBBLE_END_IF
@@ -312,11 +317,12 @@ KernelB_H_W EQM [KernelB_H - $100]
             sty RamKernelGemini2
 
             ; Set opcode target
-            if SHARD_LUT_RF1 == 2
-                ldy #REFP1
-            else
-                ldy #GRP1
-            endif
+            ldy SHARD_LUT_RF1
+            cpy #2
+            .byte $D0, #3 ; bne +3
+            ldy #RESP1
+            .byte $2C ; .bit (ABS)
+            ldy #GRP1
             sty RamKernelGemini2Reg
 
             NIBBLE_WRITE KernelA_E_W + 1, #RESP1
@@ -335,11 +341,12 @@ KernelB_H_W EQM [KernelB_H - $100]
             sty RamKernelGemini3
 
             ; Set opcode target
-            if SHARD_LUT_RF1 == 3
-                ldy #REFP1
-            else
-                ldy #GRP1
-            endif
+            ldy SHARD_LUT_RF1
+            cpy #3
+            .byte $D0, #3 ; bne +3
+            ldy #RESP1
+            .byte $2C ; .bit (ABS)
+            ldy #GRP1
             sty RamKernelGemini3Reg
 
             NIBBLE_WRITE KernelA_H_W, RamKernelGemini3, RamKernelGemini3Reg ; STY
@@ -347,8 +354,13 @@ KernelB_H_W EQM [KernelB_H - $100]
     NIBBLE_END_KERNEL
 
     NIBBLE_START_KERNEL gem_kernel_a_2, 40
+        ; VD1 default
+        ldx GEM1
+        stx BuildKernelVdel1
+
         ; Gemini 4A 
-        ldx #[SHARD_LUT_VD1 == 4]
+        ldx SHARD_LUT_VD1
+        cpx #4
         NIBBLE_IF ne
             NIBBLE_WRITE [KernelA_I_W + 0], #BC_STA, #EMERALD_SP_RESET
             NIBBLE_WRITE [KernelA_J_W + 1], #BC_STA, #PF1
@@ -356,8 +368,11 @@ KernelB_H_W EQM [KernelB_H - $100]
 
             ; Set PHP
             NIBBLE_WRITE RamKernelPhpTarget, #VDELP1
+
+            ; Update VDEL1
+            ldx GEM4
+            stx BuildKernelVdel1
         NIBBLE_ELSE
-            ; FIXME Calculate the 4A value
             ldy GEM4
             jsr KernelA_UpdateRegs
             sty RamKernelGemini4
@@ -373,7 +388,8 @@ KernelB_H_W EQM [KernelB_H - $100]
         ; VD1
         ; ldy #SHARD_VD1
         ; sty [KernelA_VDEL1 - $100]
-        NIBBLE_WRITE [KernelA_VDEL1 - $100], [SHARD_LUT_VD1 == 4 ? GEM4 - GEM1] + GEM1
+        ; FIXME read from BuildKernelVdel1
+        NIBBLE_WRITE [KernelA_VDEL1 - $100], BuildKernelVdel1
         ; GRP0
         ; ldy #SHARD_GRP0
         ; sty [KernelA_VDEL0 - $100]

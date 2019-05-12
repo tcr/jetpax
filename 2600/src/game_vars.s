@@ -54,6 +54,7 @@ BuildKernelX byte
 BuildKernelY byte
 BuildKernelRST byte
 BuildKernelGrp0 byte
+BuildKernelVdel1 byte
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
