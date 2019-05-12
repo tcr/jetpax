@@ -511,7 +511,7 @@
      52 U00a3
      53 U00a3		       00	   BuildKernelX byte.b
      54 U00a4		       00	   BuildKernelY byte.b
-     55 U00a5		       00	   BuildKernelZ byte.b
+     55 U00a5		       00	   BuildKernelRST byte.b
      56 U00a6		       00	   BuildKernelGrp0 byte.b
      57 U00a7
      58 U00a7							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -711,7 +711,7 @@
      58  f251		       85 93		      sta	RamLowerSixByte
      59  f253
      60  f253							; Start with vertical sync (to reset frame)
-     61  f253		       4c a1 f2 	      jmp	VerticalSync
+     61  f253		       4c b1 f2 	      jmp	VerticalSync
 ------- FILE main.s
 ------- FILE kernel_loader.s LEVEL 2 PASS 2
       0  f256					      include	"kernel_loader.s"
@@ -749,455 +749,441 @@
       4  f27a					      ldx	#SENTINEL
       5  f27a					      stx	BuildKernelX
       6  f27a					      stx	BuildKernelY
-      7  f27a					      stx	BuildKernelZ
+      7  f27a					      stx	BuildKernelRST
       8  f27a							; Gemini 1A
-      9  f27a					      ldx	#SHARD_0A_RST
-     10  f27a				   .if_1
-     11  f27a					      beq	.else_1
-     12  f27a					      sec
-     13  f27a					      rol
-     14  f27a							; Special: Encoding RST0
-     15  f27a							; Rewrite lda RamKernelPF1 to be #immediate
-     16  f27a					      ldy	#BC_LDA_IMM
-     17  f27a					      sty	[KernelA_B - $100]
-     18  f27a					      ldy	#%10100000
-     19  f27a					      sty	[KernelA_B - $100 + 1]
-     20  f27a							; Store 1A in GRP0
-     21  f27a					      ldy	#GEM1
-     22  f27a					      sty	BuildKernelGrp0
-     23  f27a							; Gemini 1A is RESPx
-     24  f27a					      ldy	#EMERALD_SP_RESET
-     25  f27a					      sty	[KernelA_C - $100 + 1]
-     26  f27a							; Turn 3-cycle NOP into 4-cycle
-     27  f27a					      ldy	#$14
-     28  f27a					      sty	[KernelA_D - $100]
-     29  f27a					      jmp	.endif_1
-     30  f27a							; [BIT DEPTH] #1 If-End @ 1
-     31  f27a					      rol
-     32  f27a
-     33  f27a				   .else_1
-     34  f27a					      clc
-     35  f27a					      rol
-     36  f27a							; Store 0A in GRP0
-     37  f27a					      ldy	#GEM0
-     38  f27a					      sty	BuildKernelGrp0
-     39  f27a					      ldx	#SHARD_1A_RST
-     40  f27a				   .if_2
-     41  f27a					      beq	.else_2
-     42  f27a					      sec
-     43  f27a					      rol
-     44  f27a							; GEM1ASWITCH
-     45  f27a					      jmp	.endif_2
-     46  f27a							; [BIT DEPTH] #2 If-End @ 2
-     47  f27a
-     48  f27a				   .else_2
-     49  f27a					      clc
-     50  f27a					      rol
-     51  f27a							; Calculate the 1A value
-     52  f27a					      if	SHARD_LUT_RF1
-     53  f27a					      ldy	#REFP1
-     54  f27a					      else
-     55  f27a							; Set opcode
-     56  f27a					      ldy	#GEM1
-     57  f27a					      jsr	KernelA_UpdateRegs
-     58  f27a					      sty	RamKernelGemini1
-     59  f27a							; Set opcode target
-     60  f27a					      ldy	#GRP1
-     61  f27a					      endif
-     62  f27a					      sty	RamKernelGemini1Reg
-     63  f27a							; [BIT DEPTH] #2 *If-End @ 2
-     64  f27a							; [BIT DEPTH] #2 Else-End @ 2
-     65  f27a				   .endif_2
-     66  f27a							; [BIT DEPTH] #1 *If-End @ 1
-     67  f27a							; [BIT DEPTH] #1 Else-End @ 2
-     68  f27a				   .endif_1
-     69  f27a							; Gemini 2A
-     70  f27a					      ldx	#SHARD_2A_RST
-     71  f27a				   .if_3
-     72  f27a					      beq	.else_3
-     73  f27a					      sec
-     74  f27a					      rol
-     75  f27a					      jmp	.endif_3
-     76  f27a							; [BIT DEPTH] #3 If-End @ 3
-     77  f27a
-     78  f27a				   .else_3
-     79  f27a					      clc
-     80  f27a					      rol
-     81  f27a							; Set opcode
-     82  f27a					      ldy	#GEM2
-     83  f27a					      jsr	KernelA_UpdateRegs
-     84  f27a					      sty	RamKernelGemini2
-     85  f27a							; Set opcode target
-     86  f27a					      if	SHARD_LUT_RF1 == 2
-     87  f27a					      ldy	#REFP1
-     88  f27a					      else
-     89  f27a					      ldy	#GRP1
-     90  f27a					      endif
-     91  f27a					      sty	RamKernelGemini2Reg
-     92  f27a							; [BIT DEPTH] #3 *If-End @ 3
-     93  f27a							; [BIT DEPTH] #3 Else-End @ 3
-     94  f27a				   .endif_3
-     95  f27a							; Gemini 3A
-     96  f27a					      ldx	#SHARD_3A_RST
-     97  f27a				   .if_4
-     98  f27a					      beq	.else_4
-     99  f27a					      sec
-    100  f27a					      rol
-    101  f27a					      jmp	.endif_4
-    102  f27a							; [BIT DEPTH] #4 If-End @ 4
-    103  f27a
-    104  f27a				   .else_4
-    105  f27a					      clc
-    106  f27a					      rol
-    107  f27a							; FIXME Calculate the 3A value
-    108  f27a							; Set opcode
-    109  f27a					      ldy	#GEM3
-    110  f27a					      jsr	KernelA_UpdateRegs
-    111  f27a					      sty	RamKernelGemini3
-    112  f27a							; Set opcode target
-    113  f27a					      if	SHARD_LUT_RF1 == 3
-    114  f27a					      ldy	#REFP1
-    115  f27a					      else
-    116  f27a					      ldy	#GRP1
-    117  f27a					      endif
-    118  f27a					      sty	RamKernelGemini3Reg
-    119  f27a							; [BIT DEPTH] #4 *If-End @ 4
-    120  f27a							; [BIT DEPTH] #4 Else-End @ 4
-    121  f27a				   .endif_4
-    122  f27a							; [BIT DEPTH] Final: 4 (out of 8 bits)
-    123  f27a					      rol
+      9  f27a					      ldy	#SHARD_0A_RST
+     10  f27a							; jsr KernelA_GenReset
+     11  f27a				   .if_1
+     12  f27a					      beq	.else_1
+     13  f27a					      sec
+     14  f27a					      rol
+     15  f27a							; Special: Encoding RST0
+     16  f27a							; Rewrite lda RamKernelPF1 to be #immediate
+     17  f27a					      ldy	#BC_LDA_IMM
+     18  f27a					      sty	[KernelA_B - $100]
+     19  f27a					      ldy	#%10100000
+     20  f27a					      sty	[KernelA_B - $100 + 1]
+     21  f27a							; Store 1A in GRP0
+     22  f27a					      ldy	#GEM1
+     23  f27a					      sty	BuildKernelGrp0
+     24  f27a							; Gemini 1A is RESPx
+     25  f27a					      ldy	#EMERALD_SP_RESET
+     26  f27a					      sty	[KernelA_C - $100 + 1]
+     27  f27a							; Turn 3-cycle NOP into 4-cycle
+     28  f27a					      ldy	#$14
+     29  f27a					      sty	[KernelA_D - $100]
+     30  f27a					      jmp	.endif_1
+     31  f27a							; [BIT DEPTH] #1 If-End @ 1
+     32  f27a					      rol
+     33  f27a
+     34  f27a				   .else_1
+     35  f27a					      clc
+     36  f27a					      rol
+     37  f27a							; Store 0A in GRP0
+     38  f27a					      ldy	#GEM0
+     39  f27a					      sty	BuildKernelGrp0
+     40  f27a					      ldx	#SHARD_1A_RST
+     41  f27a				   .if_2
+     42  f27a					      beq	.else_2
+     43  f27a					      sec
+     44  f27a					      rol
+     45  f27a							; GEM1ASWITCH
+     46  f27a					      jmp	.endif_2
+     47  f27a							; [BIT DEPTH] #2 If-End @ 2
+     48  f27a
+     49  f27a				   .else_2
+     50  f27a					      clc
+     51  f27a					      rol
+     52  f27a							; Calculate the 1A value
+     53  f27a					      if	SHARD_LUT_RF1
+     54  f27a					      ldy	#REFP1
+     55  f27a					      else
+     56  f27a							; Set opcode
+     57  f27a					      ldy	#GEM1
+     58  f27a					      jsr	KernelA_UpdateRegs
+     59  f27a					      sty	RamKernelGemini1
+     60  f27a							; Set opcode target
+     61  f27a					      ldy	#GRP1
+     62  f27a					      endif
+     63  f27a					      sty	RamKernelGemini1Reg
+     64  f27a							; [BIT DEPTH] #2 *If-End @ 2
+     65  f27a							; [BIT DEPTH] #2 Else-End @ 2
+     66  f27a				   .endif_2
+     67  f27a							; [BIT DEPTH] #1 *If-End @ 1
+     68  f27a							; [BIT DEPTH] #1 Else-End @ 2
+     69  f27a				   .endif_1
+     70  f27a							; Gemini 2A
+     71  f27a					      ldx	#SHARD_2A_RST
+     72  f27a				   .if_3
+     73  f27a					      beq	.else_3
+     74  f27a					      sec
+     75  f27a					      rol
+     76  f27a					      jmp	.endif_3
+     77  f27a							; [BIT DEPTH] #3 If-End @ 3
+     78  f27a
+     79  f27a				   .else_3
+     80  f27a					      clc
+     81  f27a					      rol
+     82  f27a							; Set opcode
+     83  f27a					      ldy	#GEM2
+     84  f27a					      jsr	KernelA_UpdateRegs
+     85  f27a					      sty	RamKernelGemini2
+     86  f27a							; Set opcode target
+     87  f27a					      if	SHARD_LUT_RF1 == 2
+     88  f27a					      ldy	#REFP1
+     89  f27a					      else
+     90  f27a					      ldy	#GRP1
+     91  f27a					      endif
+     92  f27a					      sty	RamKernelGemini2Reg
+     93  f27a							; [BIT DEPTH] #3 *If-End @ 3
+     94  f27a							; [BIT DEPTH] #3 Else-End @ 3
+     95  f27a				   .endif_3
+     96  f27a							; Gemini 3A
+     97  f27a					      ldx	#SHARD_3A_RST
+     98  f27a				   .if_4
+     99  f27a					      beq	.else_4
+    100  f27a					      sec
+    101  f27a					      rol
+    102  f27a					      jmp	.endif_4
+    103  f27a							; [BIT DEPTH] #4 If-End @ 4
+    104  f27a
+    105  f27a				   .else_4
+    106  f27a					      clc
+    107  f27a					      rol
+    108  f27a							; FIXME Calculate the 3A value
+    109  f27a							; Set opcode
+    110  f27a					      ldy	#GEM3
+    111  f27a					      jsr	KernelA_UpdateRegs
+    112  f27a					      sty	RamKernelGemini3
+    113  f27a							; Set opcode target
+    114  f27a					      if	SHARD_LUT_RF1 == 3
+    115  f27a					      ldy	#REFP1
+    116  f27a					      else
+    117  f27a					      ldy	#GRP1
+    118  f27a					      endif
+    119  f27a					      sty	RamKernelGemini3Reg
+    120  f27a							; [BIT DEPTH] #4 *If-End @ 4
+    121  f27a							; [BIT DEPTH] #4 Else-End @ 4
+    122  f27a				   .endif_4
+    123  f27a							; [BIT DEPTH] Final: 4 (out of 8 bits)
     124  f27a					      rol
     125  f27a					      rol
     126  f27a					      rol
-    127  f27a					      ENDM
-    128  f27a
-    129  f27a					      MAC	nibble_gem_kernel_a_2_build
-    130  f27a					      lda	#0
-    131  f27a							; Gemini 4A
-    132  f27a					      ldx	#[SHARD_LUT_VD1 == 4]
-    133  f27a				   .if_1
-    134  f27a					      beq	.else_1
-    135  f27a					      sec
-    136  f27a					      rol
-    137  f27a							; Set PHP
-    138  f27a					      jmp	.endif_1
-    139  f27a							; [BIT DEPTH] #1 If-End @ 1
-    140  f27a
-    141  f27a				   .else_1
-    142  f27a					      clc
-    143  f27a					      rol
-    144  f27a							; FIXME Calculate the 4A value
-    145  f27a					      ldy	#GEM4
-    146  f27a					      jsr	KernelA_UpdateRegs
-    147  f27a					      sty	RamKernelGemini4
-    148  f27a							; Set PHP
-    149  f27a							; [BIT DEPTH] #1 *If-End @ 1
-    150  f27a							; [BIT DEPTH] #1 Else-End @ 1
-    151  f27a				   .endif_1
-    152  f27a							; VD1
-    153  f27a							; ldy #SHARD_VD1
-    154  f27a							; sty [KernelA_VDEL1 - $100]
-    155  f27a							; GRP0
-    156  f27a							; ldy #SHARD_GRP0
-    157  f27a							; sty [KernelA_VDEL0 - $100]
-    158  f27a							; X
-    159  f27a							; ldy #SHARD_X
-    160  f27a							; sty RamKernelX
-    161  f27a							; Y
-    162  f27a							; Gemini 5A
-    163  f27a							; TODO eventually...?
-    164  f27a							; [BIT DEPTH] Final: 1 (out of 8 bits)
-    165  f27a					      rol
+    127  f27a					      rol
+    128  f27a					      ENDM
+    129  f27a
+    130  f27a					      MAC	nibble_gem_kernel_a_2_build
+    131  f27a					      lda	#0
+    132  f27a							; Gemini 4A
+    133  f27a					      ldx	#[SHARD_LUT_VD1 == 4]
+    134  f27a				   .if_1
+    135  f27a					      beq	.else_1
+    136  f27a					      sec
+    137  f27a					      rol
+    138  f27a							; Set PHP
+    139  f27a					      jmp	.endif_1
+    140  f27a							; [BIT DEPTH] #1 If-End @ 1
+    141  f27a
+    142  f27a				   .else_1
+    143  f27a					      clc
+    144  f27a					      rol
+    145  f27a							; FIXME Calculate the 4A value
+    146  f27a					      ldy	#GEM4
+    147  f27a					      jsr	KernelA_UpdateRegs
+    148  f27a					      sty	RamKernelGemini4
+    149  f27a							; Set PHP
+    150  f27a							; [BIT DEPTH] #1 *If-End @ 1
+    151  f27a							; [BIT DEPTH] #1 Else-End @ 1
+    152  f27a				   .endif_1
+    153  f27a							; VD1
+    154  f27a							; ldy #SHARD_VD1
+    155  f27a							; sty [KernelA_VDEL1 - $100]
+    156  f27a							; GRP0
+    157  f27a							; ldy #SHARD_GRP0
+    158  f27a							; sty [KernelA_VDEL0 - $100]
+    159  f27a							; X
+    160  f27a							; ldy #SHARD_X
+    161  f27a							; sty RamKernelX
+    162  f27a							; Y
+    163  f27a							; Gemini 5A
+    164  f27a							; TODO eventually...?
+    165  f27a							; [BIT DEPTH] Final: 1 (out of 8 bits)
     166  f27a					      rol
     167  f27a					      rol
     168  f27a					      rol
     169  f27a					      rol
     170  f27a					      rol
     171  f27a					      rol
-    172  f27a					      ENDM
-    173  f27a
-    174  f27a					      MAC	nibble_gem_kernel_b_build
-    175  f27a					      lda	#0
-    176  f27a							; X
-    177  f27a					      ldy	#%00000011
-    178  f27a					      sty	RamKernelX
-    179  f27a							; Y
-    180  f27a					      ldy	#%00110011
-    181  f27a					      sty	[KernelB_STY - $100]
-    182  f27a
-    183  f27a					      cpx	#$00
-    184  f27a				   .if_1
-    185  f27a					      bcc	.else_1
-    186  f27a					      sec
-    187  f27a					      rol
-    188  f27a							; NIBBLE_WRITE [KernelB_H_W + 0], #BC_STA
-    189  f27a							; NIBBLE_WRITE [KernelB_H_W + 1], #EMERALD_SP
-    190  f27a							; NIBBLE_WRITE [KernelB_H_W + 2], #BC_PHP
-    191  f27a					      jmp	.endif_1
-    192  f27a							; [BIT DEPTH] #1 If-End @ 1
-    193  f27a
-    194  f27a				   .else_1
-    195  f27a					      clc
-    196  f27a					      rol
-    197  f27a							; NIBBLE_WRITE [KernelB_H_W + 0], #BC_PHP
-    198  f27a							; NIBBLE_WRITE [KernelB_H_W + 1], #BC_STA
-    199  f27a							; NIBBLE_WRITE [KernelB_H_W + 2], #EMERALD_SP_RESET
-    200  f27a							; [BIT DEPTH] #1 *If-End @ 1
-    201  f27a							; [BIT DEPTH] #1 Else-End @ 1
-    202  f27a				   .endif_1
-    203  f27a							; [BIT DEPTH] Final: 1 (out of 8 bits)
-    204  f27a					      rol
+    172  f27a					      rol
+    173  f27a					      ENDM
+    174  f27a
+    175  f27a					      MAC	nibble_gem_kernel_b_build
+    176  f27a					      lda	#0
+    177  f27a							; X
+    178  f27a					      ldy	#%00000011
+    179  f27a					      sty	RamKernelX
+    180  f27a							; Y
+    181  f27a					      ldy	#%00110011
+    182  f27a					      sty	[KernelB_STY - $100]
+    183  f27a
+    184  f27a					      cpx	#$00
+    185  f27a				   .if_1
+    186  f27a					      bcc	.else_1
+    187  f27a					      sec
+    188  f27a					      rol
+    189  f27a							; NIBBLE_WRITE [KernelB_H_W + 0], #BC_STA
+    190  f27a							; NIBBLE_WRITE [KernelB_H_W + 1], #EMERALD_SP
+    191  f27a							; NIBBLE_WRITE [KernelB_H_W + 2], #BC_PHP
+    192  f27a					      jmp	.endif_1
+    193  f27a							; [BIT DEPTH] #1 If-End @ 1
+    194  f27a
+    195  f27a				   .else_1
+    196  f27a					      clc
+    197  f27a					      rol
+    198  f27a							; NIBBLE_WRITE [KernelB_H_W + 0], #BC_PHP
+    199  f27a							; NIBBLE_WRITE [KernelB_H_W + 1], #BC_STA
+    200  f27a							; NIBBLE_WRITE [KernelB_H_W + 2], #EMERALD_SP_RESET
+    201  f27a							; [BIT DEPTH] #1 *If-End @ 1
+    202  f27a							; [BIT DEPTH] #1 Else-End @ 1
+    203  f27a				   .endif_1
+    204  f27a							; [BIT DEPTH] Final: 1 (out of 8 bits)
     205  f27a					      rol
     206  f27a					      rol
     207  f27a					      rol
     208  f27a					      rol
     209  f27a					      rol
     210  f27a					      rol
-    211  f27a					      ENDM
-    212  f27a
+    211  f27a					      rol
+    212  f27a					      ENDM
     213  f27a
-    214  f27a					      MAC	nibble_gem_kernel_a_1
-    215  f27a				   .if_1
-    216  f27a					      asl
-    217  f27a					      bcc	.else_1
-    218  f27a					      jmp	.endif_1
-    219  f27a				   .else_1
-    220  f27a				   .if_2
-    221  f27a					      asl
-    222  f27a					      bcc	.else_2
-    223  f27a					      ldx	#BC_STX
-    224  f27a					      stx	[KernelA_D_W + 0]
-    225  f27a					      ldx	#RESP1
-    226  f27a					      stx	[KernelA_D_W + 1]
-    227  f27a					      jmp	.endif_2
-    228  f27a				   .else_2
-    229  f27a					      ldx	RamKernelGemini1
-    230  f27a					      stx	[KernelA_D_W + 0]
-    231  f27a					      ldx	RamKernelGemini1Reg
-    232  f27a					      stx	[KernelA_D_W + 1]
-    233  f27a				   .endif_2
-    234  f27a				   .endif_1
-    235  f27a				   .if_3
-    236  f27a					      asl
-    237  f27a					      bcc	.else_3
-    238  f27a					      ldx	#NOP_REG
-    239  f27a					      stx	[KernelA_E_W + 1 + 0]
-    240  f27a					      ldx	#RESP1
-    241  f27a					      stx	[KernelA_G_W + 1 + 0]
-    242  f27a					      jmp	.endif_3
-    243  f27a				   .else_3
-    244  f27a					      ldx	#RESP1
-    245  f27a					      stx	[KernelA_E_W + 1 + 0]
-    246  f27a					      ldx	RamKernelGemini2
-    247  f27a					      stx	[KernelA_G_W + 0]
-    248  f27a					      ldx	RamKernelGemini2Reg
-    249  f27a					      stx	[KernelA_G_W + 1]
-    250  f27a				   .endif_3
-    251  f27a				   .if_4
-    252  f27a					      asl
-    253  f27a					      bcc	.else_4
-    254  f27a					      ldx	#RESP1
-    255  f27a					      stx	[KernelA_H_W + 1 + 0]
-    256  f27a					      jmp	.endif_4
-    257  f27a				   .else_4
-    258  f27a					      ldx	RamKernelGemini3
-    259  f27a					      stx	[KernelA_H_W + 0]
-    260  f27a					      ldx	RamKernelGemini3Reg
-    261  f27a					      stx	[KernelA_H_W + 1]
-    262  f27a				   .endif_4
-    263  f27a					      ENDM
-    264  f27a
-    265  f27a					      MAC	nibble_gem_kernel_a_2
-    266  f27a				   .if_1
-    267  f27a					      asl
-    268  f27a					      bcc	.else_1
-    269  f27a					      ldx	#BC_STA
-    270  f27a					      stx	[[KernelA_I_W + 0] + 0]
-    271  f27a					      ldx	#EMERALD_SP_RESET
-    272  f27a					      stx	[[KernelA_I_W + 0] + 1]
-    273  f27a					      ldx	#BC_STA
-    274  f27a					      stx	[[KernelA_J_W + 1] + 0]
-    275  f27a					      ldx	#PF1
-    276  f27a					      stx	[[KernelA_J_W + 1] + 1]
-    277  f27a					      ldx	#BC_PHP
-    278  f27a					      stx	[[KernelA_K_W + 1] + 0]
-    279  f27a					      ldx	#VDELP1
-    280  f27a					      stx	[RamKernelPhpTarget + 0]
-    281  f27a					      jmp	.endif_1
-    282  f27a				   .else_1
-    283  f27a					      ldx	#BC_PHP
-    284  f27a					      stx	[[KernelA_I_W + 0] + 0]
-    285  f27a					      ldx	#BC_STA
-    286  f27a					      stx	[[KernelA_J_W + 0] + 0]
-    287  f27a					      ldx	#PF1
-    288  f27a					      stx	[[KernelA_J_W + 0] + 1]
-    289  f27a					      ldx	RamKernelGemini4
-    290  f27a					      stx	[KernelA_K_W + 0]
-    291  f27a					      ldx	#EMERALD_SP
-    292  f27a					      stx	[KernelA_K_W + 1]
-    293  f27a					      ldx	#RESP1
-    294  f27a					      stx	[RamKernelPhpTarget + 0]
-    295  f27a				   .endif_1
-    296  f27a					      ldx	#[SHARD_LUT_VD1 == 4 ? GEM4 - GEM1] + GEM1
-    297  f27a					      stx	[[KernelA_VDEL1 - $100] + 0]
-    298  f27a					      ldx	BuildKernelGrp0
-    299  f27a					      stx	[[KernelA_VDEL0 - $100] + 0]
-    300  f27a					      ldx	BuildKernelX
-    301  f27a					      stx	[RamKernelX + 0]
-    302  f27a					      ldx	BuildKernelY
-    303  f27a					      stx	[[KernelA_STY - $100] + 0]
-    304  f27a					      ENDM
-    305  f27a
-    306  f27a					      MAC	nibble_gem_kernel_b
-    307  f27a				   .if_1
-    308  f27a					      asl
-    309  f27a					      bcc	.else_1
-    310  f27a					      ldx	#EMERALD_SP_RESET
-    311  f27a					      stx	[RamKernelPhpTarget + 0]
-    312  f27a					      jmp	.endif_1
-    313  f27a				   .else_1
-    314  f27a					      ldx	#EMERALD_SP
-    315  f27a					      stx	[RamKernelPhpTarget + 0]
-    316  f27a				   .endif_1
-    317  f27a					      ENDM
-    318  f27a
+    214  f27a
+    215  f27a					      MAC	nibble_gem_kernel_a_1
+    216  f27a				   .if_1
+    217  f27a					      asl
+    218  f27a					      bcc	.else_1
+    219  f27a					      jmp	.endif_1
+    220  f27a				   .else_1
+    221  f27a				   .if_2
+    222  f27a					      asl
+    223  f27a					      bcc	.else_2
+    224  f27a					      ldx	#BC_STX
+    225  f27a					      stx	[KernelA_D_W + 0]
+    226  f27a					      ldx	#RESP1
+    227  f27a					      stx	[KernelA_D_W + 1]
+    228  f27a					      jmp	.endif_2
+    229  f27a				   .else_2
+    230  f27a					      ldx	RamKernelGemini1
+    231  f27a					      stx	[KernelA_D_W + 0]
+    232  f27a					      ldx	RamKernelGemini1Reg
+    233  f27a					      stx	[KernelA_D_W + 1]
+    234  f27a				   .endif_2
+    235  f27a				   .endif_1
+    236  f27a				   .if_3
+    237  f27a					      asl
+    238  f27a					      bcc	.else_3
+    239  f27a					      ldx	#NOP_REG
+    240  f27a					      stx	[KernelA_E_W + 1 + 0]
+    241  f27a					      ldx	#RESP1
+    242  f27a					      stx	[KernelA_G_W + 1 + 0]
+    243  f27a					      jmp	.endif_3
+    244  f27a				   .else_3
+    245  f27a					      ldx	#RESP1
+    246  f27a					      stx	[KernelA_E_W + 1 + 0]
+    247  f27a					      ldx	RamKernelGemini2
+    248  f27a					      stx	[KernelA_G_W + 0]
+    249  f27a					      ldx	RamKernelGemini2Reg
+    250  f27a					      stx	[KernelA_G_W + 1]
+    251  f27a				   .endif_3
+    252  f27a				   .if_4
+    253  f27a					      asl
+    254  f27a					      bcc	.else_4
+    255  f27a					      ldx	#RESP1
+    256  f27a					      stx	[KernelA_H_W + 1 + 0]
+    257  f27a					      jmp	.endif_4
+    258  f27a				   .else_4
+    259  f27a					      ldx	RamKernelGemini3
+    260  f27a					      stx	[KernelA_H_W + 0]
+    261  f27a					      ldx	RamKernelGemini3Reg
+    262  f27a					      stx	[KernelA_H_W + 1]
+    263  f27a				   .endif_4
+    264  f27a					      ENDM
+    265  f27a
+    266  f27a					      MAC	nibble_gem_kernel_a_2
+    267  f27a				   .if_1
+    268  f27a					      asl
+    269  f27a					      bcc	.else_1
+    270  f27a					      ldx	#BC_STA
+    271  f27a					      stx	[[KernelA_I_W + 0] + 0]
+    272  f27a					      ldx	#EMERALD_SP_RESET
+    273  f27a					      stx	[[KernelA_I_W + 0] + 1]
+    274  f27a					      ldx	#BC_STA
+    275  f27a					      stx	[[KernelA_J_W + 1] + 0]
+    276  f27a					      ldx	#PF1
+    277  f27a					      stx	[[KernelA_J_W + 1] + 1]
+    278  f27a					      ldx	#BC_PHP
+    279  f27a					      stx	[[KernelA_K_W + 1] + 0]
+    280  f27a					      ldx	#VDELP1
+    281  f27a					      stx	[RamKernelPhpTarget + 0]
+    282  f27a					      jmp	.endif_1
+    283  f27a				   .else_1
+    284  f27a					      ldx	#BC_PHP
+    285  f27a					      stx	[[KernelA_I_W + 0] + 0]
+    286  f27a					      ldx	#BC_STA
+    287  f27a					      stx	[[KernelA_J_W + 0] + 0]
+    288  f27a					      ldx	#PF1
+    289  f27a					      stx	[[KernelA_J_W + 0] + 1]
+    290  f27a					      ldx	RamKernelGemini4
+    291  f27a					      stx	[KernelA_K_W + 0]
+    292  f27a					      ldx	#EMERALD_SP
+    293  f27a					      stx	[KernelA_K_W + 1]
+    294  f27a					      ldx	#RESP1
+    295  f27a					      stx	[RamKernelPhpTarget + 0]
+    296  f27a				   .endif_1
+    297  f27a					      ldx	#[SHARD_LUT_VD1 == 4 ? GEM4 - GEM1] + GEM1
+    298  f27a					      stx	[[KernelA_VDEL1 - $100] + 0]
+    299  f27a					      ldx	BuildKernelGrp0
+    300  f27a					      stx	[[KernelA_VDEL0 - $100] + 0]
+    301  f27a					      ldx	BuildKernelX
+    302  f27a					      stx	[RamKernelX + 0]
+    303  f27a					      ldx	BuildKernelY
+    304  f27a					      stx	[[KernelA_STY - $100] + 0]
+    305  f27a					      ENDM
+    306  f27a
+    307  f27a					      MAC	nibble_gem_kernel_b
+    308  f27a				   .if_1
+    309  f27a					      asl
+    310  f27a					      bcc	.else_1
+    311  f27a					      ldx	#EMERALD_SP_RESET
+    312  f27a					      stx	[RamKernelPhpTarget + 0]
+    313  f27a					      jmp	.endif_1
+    314  f27a				   .else_1
+    315  f27a					      ldx	#EMERALD_SP
+    316  f27a					      stx	[RamKernelPhpTarget + 0]
+    317  f27a				   .endif_1
+    318  f27a					      ENDM
     319  f27a
+    320  f27a
 ------- FILE main.s
 ------- FILE game_frame.s LEVEL 2 PASS 2
       0  f27a					      include	"game_frame.s"
       1  f27a							; Frame loop, including calling out to other kernels.
       2  f27a
-      3  f27a				   KernelA_UpdateRegs subroutine
-      4  f27a							; GRP0 returns nop
-      5  f27a							; FIXME GRP0 might not always be up to date
-      6  f27a		       c4 a6		      cpy	BuildKernelGrp0
-      7  f27c		       d0 03		      bne	.set_start
-      8  f27e							; TODO if this is stx + NOP value, then register doesn't have to change as
-      9  f27e							; often in GEM1ASWITCH
-     10  f27e		       a0 15		      ldy	#BC_NOP
-     11  f280		       60		      rts
-     12  f281
-     13  f281				   .set_start
-     14  f281		       a6 a3		      ldx	BuildKernelX
-     15  f283		       e0 aa		      cpx	#SENTINEL
-     16  f285		       d0 04		      bne	.set_else
-     17  f287		       84 a3		      sty	BuildKernelX
-     18  f289		       f0 08		      beq	.set_end
-     19  f28b				   .set_else
-     20  f28b		       a6 a4		      ldx	BuildKernelY
-     21  f28d		       e0 aa		      cpx	#SENTINEL
-     22  f28f		       d0 02		      bne	.set_end
-     23  f291		       84 a4		      sty	BuildKernelY
-     24  f293				   .set_end
-     25  f293
-     26  f293		       c4 a3		      cpy	BuildKernelX
-     27  f295		       d0 03		      bne	.op_else
-     28  f297		       a0 86		      ldy	#BC_STX
-     29  f299		       60		      rts
-     30  f29a				   .op_else
-     31  f29a		       c4 a4		      cpy	BuildKernelY
-     32  f29c		       d0 02		      bne	.op_end
-     33  f29e		       a0 84		      ldy	#BC_STY
-     34  f2a0				   .op_end
-     35  f2a0		       60		      rts
-     36  f2a1
-     37  f2a1							; Vertical Sync
-     38  f2a1				   VerticalSync subroutine
-      0  f2a1					      VERTICAL_SYNC
-      1  f2a1		       a9 0e		      lda	#%1110
-      2  f2a3		       85 02	   .VSLP1     sta	WSYNC
-      3  f2a5		       85 00		      sta	VSYNC
-      4  f2a7		       4a		      lsr
-      5  f2a8		       d0 f9		      bne	.VSLP1
-     40  f2aa
-     41  f2aa				   FrameStart subroutine
-      0  f2aa					      ASSERT_RUNTIME	"_scan == #0"
-      1  f2aa				   .COND      SET	"_scan == #0"
- ASSERT: breakif { pc== $f2aa  && !(  _scan == #0  ) }
-      2  f2aa					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
-     43  f2aa
-     44  f2aa				   VerticalBlank subroutine
-      0  f2aa					      TIMER_SETUP	37
-      1  f2aa				   .lines     SET	37
-      2  f2aa		       a9 2b		      lda	#(((.lines)*76-14)/64)
-      3  f2ac		       85 02		      sta	WSYNC
-      4  f2ae		       8d 96 02 	      sta	TIM64T
-     46  f2b1
-     47  f2b1							; Scanline counter
-     48  f2b1		       a9 10		      lda	#ROW_COUNT
-     49  f2b3		       85 82		      sta	LoopCount
-     50  f2b5
-     51  f2b5							; Frame counter
-     52  f2b5		       e6 83		      inc	FrameCount
-     53  f2b7
-     54  f2b7							; Skip every 8 frames for increasing demo index
-     55  f2b7		       a5 83		      lda	FrameCount
-     56  f2b9		       29 07		      and	#FrameSkip
-     57  f2bb		       c9 07		      cmp	#FrameSkip
-     58  f2bd		       d0 0d		      bne	.next_next_thing
-     59  f2bf
-     60  f2bf		       18		      clc
-     61  f2c0		       a5 8e		      lda	ROW_DEMO_INDEX
-     62  f2c2		       69 04		      adc	#4
-     63  f2c4		       c9 68		      cmp	#[level_01_end - level_01]
-     64  f2c6		       90 02		      bcc	.next_thing_local
-     65  f2c8		       a9 00		      lda	#0
-     66  f2ca				   .next_thing_local
-     67  f2ca		       85 8e		      sta	ROW_DEMO_INDEX
-     68  f2cc				   .next_next_thing
-     69  f2cc		       85 02		      sta	WSYNC
-     70  f2ce
-     71  f2ce							; Positioning
-      0  f2ce					      SLEEP	40
-      1  f2ce				   .CYCLES    SET	40
-      2  f2ce
-      3  f2ce				  -	      IF	.CYCLES < 2
-      4  f2ce				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  f2ce				  -	      ERR
-      6  f2ce					      ENDIF
-      7  f2ce
-      8  f2ce				  -	      IF	.CYCLES & 1
-      9  f2ce				  -	      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f2ce				  -	      nop	0
-     11  f2ce				  -	      ELSE
-     12  f2ce				  -	      bit	VSYNC
-     13  f2ce				  -	      ENDIF
-     14  f2ce				  -.CYCLES    SET	.CYCLES - 3
-     15  f2ce					      ENDIF
-     16  f2ce
-     17  f2ce					      REPEAT	.CYCLES / 2
-     18  f2ce		       ea		      nop
-     17  f2ce					      REPEND
-     18  f2cf		       ea		      nop
-     17  f2cf					      REPEND
-     18  f2d0		       ea		      nop
-     17  f2d0					      REPEND
-     18  f2d1		       ea		      nop
-     17  f2d1					      REPEND
-     18  f2d2		       ea		      nop
-     17  f2d2					      REPEND
-     18  f2d3		       ea		      nop
-     17  f2d3					      REPEND
-     18  f2d4		       ea		      nop
-     17  f2d4					      REPEND
-     18  f2d5		       ea		      nop
-     17  f2d5					      REPEND
-     18  f2d6		       ea		      nop
-     17  f2d6					      REPEND
-     18  f2d7		       ea		      nop
-     17  f2d7					      REPEND
-     18  f2d8		       ea		      nop
-     17  f2d8					      REPEND
-     18  f2d9		       ea		      nop
-     17  f2d9					      REPEND
-     18  f2da		       ea		      nop
-     17  f2da					      REPEND
-     18  f2db		       ea		      nop
-     17  f2db					      REPEND
-     18  f2dc		       ea		      nop
-     17  f2dc					      REPEND
-     18  f2dd		       ea		      nop
-     17  f2dd					      REPEND
+      3  f27a							; Y=Gemini Sprite
+      4  f27a							; processor flag Z=is RST opcode
+      5  f27a				   KernelA_GenReset subroutine
+      6  f27a		       c0 00		      cpy	#$00
+      7  f27c		       d0 01		      bne	.start
+      8  f27e		       60		      rts		; Filter for only #$00 geminis
+      9  f27f				   .start
+     10  f27f		       a6 a5		      ldx	BuildKernelRST
+     11  f281		       e0 aa		      cpx	#SENTINEL
+     12  f283		       d0 04		      bne	.set_else
+     13  f285							; Override gemini with #$ff
+     14  f285		       a2 ff		      ldx	#$ff
+     15  f287		       86 a5		      stx	BuildKernelRST
+     16  f289				   .set_else
+     17  f289		       60		      rts
+     18  f28a
+     19  f28a							; Y=Gemini Sprite
+     20  f28a				   KernelA_UpdateRegs subroutine
+     21  f28a							; GRP0 returns nop
+     22  f28a							; FIXME GRP0 might not always be up to date
+     23  f28a		       c4 a6		      cpy	BuildKernelGrp0
+     24  f28c		       d0 03		      bne	.set_start
+     25  f28e							; TODO if this is stx + NOP value, then register doesn't have to change as
+     26  f28e							; often in GEM1ASWITCH
+     27  f28e		       a0 15		      ldy	#BC_NOP
+     28  f290		       60		      rts
+     29  f291
+     30  f291				   .set_start
+     31  f291		       a6 a3		      ldx	BuildKernelX
+     32  f293		       e0 aa		      cpx	#SENTINEL
+     33  f295		       d0 04		      bne	.set_else
+     34  f297		       84 a3		      sty	BuildKernelX
+     35  f299		       f0 08		      beq	.set_end
+     36  f29b				   .set_else
+     37  f29b		       a6 a4		      ldx	BuildKernelY
+     38  f29d		       e0 aa		      cpx	#SENTINEL
+     39  f29f		       d0 02		      bne	.set_end
+     40  f2a1		       84 a4		      sty	BuildKernelY
+     41  f2a3				   .set_end
+     42  f2a3
+     43  f2a3		       c4 a3		      cpy	BuildKernelX
+     44  f2a5		       d0 03		      bne	.op_else
+     45  f2a7		       a0 86		      ldy	#BC_STX
+     46  f2a9		       60		      rts
+     47  f2aa				   .op_else
+     48  f2aa		       c4 a4		      cpy	BuildKernelY
+     49  f2ac		       d0 02		      bne	.op_end
+     50  f2ae		       a0 84		      ldy	#BC_STY
+     51  f2b0				   .op_end
+     52  f2b0		       60		      rts
+     53  f2b1
+     54  f2b1							; Vertical Sync
+     55  f2b1				   VerticalSync subroutine
+      0  f2b1					      VERTICAL_SYNC
+      1  f2b1		       a9 0e		      lda	#%1110
+      2  f2b3		       85 02	   .VSLP1     sta	WSYNC
+      3  f2b5		       85 00		      sta	VSYNC
+      4  f2b7		       4a		      lsr
+      5  f2b8		       d0 f9		      bne	.VSLP1
+     57  f2ba
+     58  f2ba				   FrameStart subroutine
+      0  f2ba					      ASSERT_RUNTIME	"_scan == #0"
+      1  f2ba				   .COND      SET	"_scan == #0"
+ ASSERT: breakif { pc== $f2ba  && !(  _scan == #0  ) }
+      2  f2ba					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
+     60  f2ba
+     61  f2ba				   VerticalBlank subroutine
+      0  f2ba					      TIMER_SETUP	37
+      1  f2ba				   .lines     SET	37
+      2  f2ba		       a9 2b		      lda	#(((.lines)*76-14)/64)
+      3  f2bc		       85 02		      sta	WSYNC
+      4  f2be		       8d 96 02 	      sta	TIM64T
+     63  f2c1
+     64  f2c1							; Scanline counter
+     65  f2c1		       a9 10		      lda	#ROW_COUNT
+     66  f2c3		       85 82		      sta	LoopCount
+     67  f2c5
+     68  f2c5							; Frame counter
+     69  f2c5		       e6 83		      inc	FrameCount
+     70  f2c7
+     71  f2c7							; Skip every 8 frames for increasing demo index
+     72  f2c7		       a5 83		      lda	FrameCount
+     73  f2c9		       29 07		      and	#FrameSkip
+     74  f2cb		       c9 07		      cmp	#FrameSkip
+     75  f2cd		       d0 0d		      bne	.next_next_thing
+     76  f2cf
+     77  f2cf		       18		      clc
+     78  f2d0		       a5 8e		      lda	ROW_DEMO_INDEX
+     79  f2d2		       69 04		      adc	#4
+     80  f2d4		       c9 68		      cmp	#[level_01_end - level_01]
+     81  f2d6		       90 02		      bcc	.next_thing_local
+     82  f2d8		       a9 00		      lda	#0
+     83  f2da				   .next_thing_local
+     84  f2da		       85 8e		      sta	ROW_DEMO_INDEX
+     85  f2dc				   .next_next_thing
+     86  f2dc		       85 02		      sta	WSYNC
+     87  f2de
+     88  f2de							; Positioning
+      0  f2de					      SLEEP	40
+      1  f2de				   .CYCLES    SET	40
+      2  f2de
+      3  f2de				  -	      IF	.CYCLES < 2
+      4  f2de				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  f2de				  -	      ERR
+      6  f2de					      ENDIF
+      7  f2de
+      8  f2de				  -	      IF	.CYCLES & 1
+      9  f2de				  -	      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f2de				  -	      nop	0
+     11  f2de				  -	      ELSE
+     12  f2de				  -	      bit	VSYNC
+     13  f2de				  -	      ENDIF
+     14  f2de				  -.CYCLES    SET	.CYCLES - 3
+     15  f2de					      ENDIF
+     16  f2de
+     17  f2de					      REPEAT	.CYCLES / 2
      18  f2de		       ea		      nop
      17  f2de					      REPEND
      18  f2df		       ea		      nop
@@ -1205,153 +1191,153 @@
      18  f2e0		       ea		      nop
      17  f2e0					      REPEND
      18  f2e1		       ea		      nop
-     19  f2e2					      REPEND
-     73  f2e2		       85 11		      sta	EMERALD_SP_RESET	; position 1st player
-     74  f2e4		       85 02		      sta	WSYNC
-     75  f2e6
-     76  f2e6							; Misc
-     77  f2e6		       a9 00		      lda	#00
-     78  f2e8		       85 1e		      sta	EMERALD_MI_ENABLE
-     79  f2ea
-     80  f2ea							; Assign dervied SpriteEnd value
-     81  f2ea		       18		      clc
-     82  f2eb		       a9 c8		      lda	#HEIGHT_OFFSET
-     83  f2ed		       e5 89		      sbc	YPos
-     84  f2ef		       85 85		      sta	SpriteEnd
-     85  f2f1
-     86  f2f1							; Player 1
-     87  f2f1		       a5 86		      lda	XPos
-     88  f2f3		       a2 00		      ldx	#0
-     89  f2f5		       20 ba f5 	      jsr	SetHorizPos
-     90  f2f8
-     91  f2f8				   frame_setup subroutine
-     92  f2f8							; Kernel A or B
-     93  f2f8		       a9 01		      lda	#01
-     94  f2fa		       25 83		      and	FrameCount
-     95  f2fc		       d0 24		      bne	frame_setup_kernel_b
-     96  f2fe
-     97  f2fe				   frame_setup_kernel_a subroutine
-     98  f2fe							; Load kernel into CBSRAM
-     99  f2fe		       20 56 f2 	      jsr	LoadKernelA
-    100  f301
-    101  f301							; Move missile
-    102  f301		       85 02		      sta	WSYNC
-      0  f303					      sleep	KERNEL_A_MISSILE_SLEEP
-      1  f303				   .CYCLES    SET	KERNEL_A_MISSILE_SLEEP
-      2  f303
-      3  f303				  -	      IF	.CYCLES < 2
-      4  f303				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  f303				  -	      ERR
-      6  f303					      ENDIF
-      7  f303
-      8  f303				  -	      IF	.CYCLES & 1
-      9  f303				  -	      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f303				  -	      nop	0
-     11  f303				  -	      ELSE
-     12  f303				  -	      bit	VSYNC
-     13  f303				  -	      ENDIF
-     14  f303				  -.CYCLES    SET	.CYCLES - 3
-     15  f303					      ENDIF
-     16  f303
-     17  f303					      REPEAT	.CYCLES / 2
-     18  f303		       ea		      nop
-     17  f303					      REPEND
-     18  f304		       ea		      nop
-     17  f304					      REPEND
-     18  f305		       ea		      nop
-     17  f305					      REPEND
-     18  f306		       ea		      nop
-     17  f306					      REPEND
-     18  f307		       ea		      nop
-     17  f307					      REPEND
-     18  f308		       ea		      nop
-     17  f308					      REPEND
-     18  f309		       ea		      nop
-     17  f309					      REPEND
-     18  f30a		       ea		      nop
-     17  f30a					      REPEND
-     18  f30b		       ea		      nop
-     17  f30b					      REPEND
-     18  f30c		       ea		      nop
-     17  f30c					      REPEND
-     18  f30d		       ea		      nop
-     17  f30d					      REPEND
-     18  f30e		       ea		      nop
-     17  f30e					      REPEND
-     18  f30f		       ea		      nop
-     17  f30f					      REPEND
-     18  f310		       ea		      nop
-     19  f311					      REPEND
-    104  f311		       85 13		      sta	EMERALD_MI_RESET
-    105  f313		       a9 00		      lda	#KERNEL_A_MISSILE_HMOVE
-    106  f315		       85 23		      sta	EMERALD_MI_HMOVE
-    107  f317
-    108  f317							; DEBUG: Set per-kernel color
-    109  f317		       a2 cc		      ldx	#COL_EMERALD
-    110  f319		       86 07		      stx	EMERALD_SP_COLOR
-    111  f31b
-    112  f31b							; Set reflection for Jetpack.
-    113  f31b		       a9 ff		      lda	#%11111111
-    114  f31d		       85 0c		      sta	REFP1
-    115  f31f
-    116  f31f		       4c 4f f3 	      jmp	frame_setup_complete
-    117  f322
-    118  f322				   frame_setup_kernel_b subroutine
-    119  f322							; Load kernel into CBSRAM
-    120  f322		       20 68 f2 	      jsr	LoadKernelB
-    121  f325
-    122  f325							; Move missile
-    123  f325		       85 02		      sta	WSYNC
-      0  f327					      sleep	KERNEL_B_MISSILE_SLEEP
-      1  f327				   .CYCLES    SET	KERNEL_B_MISSILE_SLEEP
-      2  f327
-      3  f327				  -	      IF	.CYCLES < 2
-      4  f327				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  f327				  -	      ERR
-      6  f327					      ENDIF
-      7  f327
-      8  f327					      IF	.CYCLES & 1
-      9  f327					      IFNCONST	NO_ILLEGAL_OPCODES
-     10  f327		       04 00		      nop	0
-     11  f329				  -	      ELSE
-     12  f329				  -	      bit	VSYNC
-     13  f329					      ENDIF
-     14  f329				   .CYCLES    SET	.CYCLES - 3
-     15  f329					      ENDIF
-     16  f329
-     17  f329					      REPEAT	.CYCLES / 2
-     18  f329		       ea		      nop
-     17  f329					      REPEND
-     18  f32a		       ea		      nop
-     17  f32a					      REPEND
-     18  f32b		       ea		      nop
-     17  f32b					      REPEND
-     18  f32c		       ea		      nop
-     17  f32c					      REPEND
-     18  f32d		       ea		      nop
-     17  f32d					      REPEND
-     18  f32e		       ea		      nop
-     17  f32e					      REPEND
-     18  f32f		       ea		      nop
-     17  f32f					      REPEND
-     18  f330		       ea		      nop
-     17  f330					      REPEND
-     18  f331		       ea		      nop
-     17  f331					      REPEND
-     18  f332		       ea		      nop
-     17  f332					      REPEND
-     18  f333		       ea		      nop
-     17  f333					      REPEND
-     18  f334		       ea		      nop
-     17  f334					      REPEND
-     18  f335		       ea		      nop
-     17  f335					      REPEND
-     18  f336		       ea		      nop
-     17  f336					      REPEND
-     18  f337		       ea		      nop
-     17  f337					      REPEND
-     18  f338		       ea		      nop
-     17  f338					      REPEND
+     17  f2e1					      REPEND
+     18  f2e2		       ea		      nop
+     17  f2e2					      REPEND
+     18  f2e3		       ea		      nop
+     17  f2e3					      REPEND
+     18  f2e4		       ea		      nop
+     17  f2e4					      REPEND
+     18  f2e5		       ea		      nop
+     17  f2e5					      REPEND
+     18  f2e6		       ea		      nop
+     17  f2e6					      REPEND
+     18  f2e7		       ea		      nop
+     17  f2e7					      REPEND
+     18  f2e8		       ea		      nop
+     17  f2e8					      REPEND
+     18  f2e9		       ea		      nop
+     17  f2e9					      REPEND
+     18  f2ea		       ea		      nop
+     17  f2ea					      REPEND
+     18  f2eb		       ea		      nop
+     17  f2eb					      REPEND
+     18  f2ec		       ea		      nop
+     17  f2ec					      REPEND
+     18  f2ed		       ea		      nop
+     17  f2ed					      REPEND
+     18  f2ee		       ea		      nop
+     17  f2ee					      REPEND
+     18  f2ef		       ea		      nop
+     17  f2ef					      REPEND
+     18  f2f0		       ea		      nop
+     17  f2f0					      REPEND
+     18  f2f1		       ea		      nop
+     19  f2f2					      REPEND
+     90  f2f2		       85 11		      sta	EMERALD_SP_RESET	; position 1st player
+     91  f2f4		       85 02		      sta	WSYNC
+     92  f2f6
+     93  f2f6							; Misc
+     94  f2f6		       a9 00		      lda	#00
+     95  f2f8		       85 1e		      sta	EMERALD_MI_ENABLE
+     96  f2fa
+     97  f2fa							; Assign dervied SpriteEnd value
+     98  f2fa		       18		      clc
+     99  f2fb		       a9 c8		      lda	#HEIGHT_OFFSET
+    100  f2fd		       e5 89		      sbc	YPos
+    101  f2ff		       85 85		      sta	SpriteEnd
+    102  f301
+    103  f301							; Player 1
+    104  f301		       a5 86		      lda	XPos
+    105  f303		       a2 00		      ldx	#0
+    106  f305		       20 ba f5 	      jsr	SetHorizPos
+    107  f308
+    108  f308				   frame_setup subroutine
+    109  f308							; Kernel A or B
+    110  f308		       a9 01		      lda	#01
+    111  f30a		       25 83		      and	FrameCount
+    112  f30c		       d0 24		      bne	frame_setup_kernel_b
+    113  f30e
+    114  f30e				   frame_setup_kernel_a subroutine
+    115  f30e							; Load kernel into CBSRAM
+    116  f30e		       20 56 f2 	      jsr	LoadKernelA
+    117  f311
+    118  f311							; Move missile
+    119  f311		       85 02		      sta	WSYNC
+      0  f313					      sleep	KERNEL_A_MISSILE_SLEEP
+      1  f313				   .CYCLES    SET	KERNEL_A_MISSILE_SLEEP
+      2  f313
+      3  f313				  -	      IF	.CYCLES < 2
+      4  f313				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  f313				  -	      ERR
+      6  f313					      ENDIF
+      7  f313
+      8  f313				  -	      IF	.CYCLES & 1
+      9  f313				  -	      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f313				  -	      nop	0
+     11  f313				  -	      ELSE
+     12  f313				  -	      bit	VSYNC
+     13  f313				  -	      ENDIF
+     14  f313				  -.CYCLES    SET	.CYCLES - 3
+     15  f313					      ENDIF
+     16  f313
+     17  f313					      REPEAT	.CYCLES / 2
+     18  f313		       ea		      nop
+     17  f313					      REPEND
+     18  f314		       ea		      nop
+     17  f314					      REPEND
+     18  f315		       ea		      nop
+     17  f315					      REPEND
+     18  f316		       ea		      nop
+     17  f316					      REPEND
+     18  f317		       ea		      nop
+     17  f317					      REPEND
+     18  f318		       ea		      nop
+     17  f318					      REPEND
+     18  f319		       ea		      nop
+     17  f319					      REPEND
+     18  f31a		       ea		      nop
+     17  f31a					      REPEND
+     18  f31b		       ea		      nop
+     17  f31b					      REPEND
+     18  f31c		       ea		      nop
+     17  f31c					      REPEND
+     18  f31d		       ea		      nop
+     17  f31d					      REPEND
+     18  f31e		       ea		      nop
+     17  f31e					      REPEND
+     18  f31f		       ea		      nop
+     17  f31f					      REPEND
+     18  f320		       ea		      nop
+     19  f321					      REPEND
+    121  f321		       85 13		      sta	EMERALD_MI_RESET
+    122  f323		       a9 00		      lda	#KERNEL_A_MISSILE_HMOVE
+    123  f325		       85 23		      sta	EMERALD_MI_HMOVE
+    124  f327
+    125  f327							; DEBUG: Set per-kernel color
+    126  f327		       a2 cc		      ldx	#COL_EMERALD
+    127  f329		       86 07		      stx	EMERALD_SP_COLOR
+    128  f32b
+    129  f32b							; Set reflection for Jetpack.
+    130  f32b		       a9 ff		      lda	#%11111111
+    131  f32d		       85 0c		      sta	REFP1
+    132  f32f
+    133  f32f		       4c 5f f3 	      jmp	frame_setup_complete
+    134  f332
+    135  f332				   frame_setup_kernel_b subroutine
+    136  f332							; Load kernel into CBSRAM
+    137  f332		       20 68 f2 	      jsr	LoadKernelB
+    138  f335
+    139  f335							; Move missile
+    140  f335		       85 02		      sta	WSYNC
+      0  f337					      sleep	KERNEL_B_MISSILE_SLEEP
+      1  f337				   .CYCLES    SET	KERNEL_B_MISSILE_SLEEP
+      2  f337
+      3  f337				  -	      IF	.CYCLES < 2
+      4  f337				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  f337				  -	      ERR
+      6  f337					      ENDIF
+      7  f337
+      8  f337					      IF	.CYCLES & 1
+      9  f337					      IFNCONST	NO_ILLEGAL_OPCODES
+     10  f337		       04 00		      nop	0
+     11  f339				  -	      ELSE
+     12  f339				  -	      bit	VSYNC
+     13  f339					      ENDIF
+     14  f339				   .CYCLES    SET	.CYCLES - 3
+     15  f339					      ENDIF
+     16  f339
+     17  f339					      REPEAT	.CYCLES / 2
      18  f339		       ea		      nop
      17  f339					      REPEND
      18  f33a		       ea		      nop
@@ -1367,665 +1353,699 @@
      18  f33f		       ea		      nop
      17  f33f					      REPEND
      18  f340		       ea		      nop
-     19  f341					      REPEND
-    125  f341		       85 13		      sta	EMERALD_MI_RESET
-    126  f343		       a9 10		      lda	#KERNEL_B_MISSILE_HMOVE
-    127  f345		       85 23		      sta	EMERALD_MI_HMOVE
-    128  f347
-    129  f347							; DEBUG: Set per-kernel color
-    130  f347		       a2 e0		      ldx	#$e0
-    131  f349		       86 07		      stx	EMERALD_SP_COLOR
-    132  f34b
-    133  f34b							; Disable reflection for Jetpack.
-    134  f34b		       a9 ff		      lda	#%11111111
-    135  f34d		       85 0c		      sta	REFP1
-    136  f34f
-    137  f34f				   frame_setup_complete
-    138  f34f
-    139  f34f		       ad 7c f9 	      lda	shard_map
-    140  f352		       a0 01		      ldy	#1	; gemini counter, starting at 1
-    141  f354				   gemini_builder
-    142  f354		       c0 01		      cpy	#1	; TODO top two bits of shard_map
-    143  f356		       d0 00		      bne	.no_vd0
-    144  f358				   .no_vd0
-    145  f358
-    146  f358
-    147  f358				   nibble_precompile_gem_kernel
-    148  f358				   DBG_NIBBLE
-    149  f358		       00 a9	   BC_LDA_IMM =	$a9
-    150  f358		       00 85	   BC_STA     =	$85
-    151  f358		       00 86	   BC_STX     =	$86
-    152  f358		       00 84	   BC_STY     =	$84
-    153  f358		       00 08	   BC_PHP     =	$08
-    154  f358		       00 15	   BC_NOP     =	$15
-    155  f358
-    156  f358		       00 79	   NOP_REG    =	$79	; TODO is there a better reg to write to with NOP effects
-    157  f358
-    158  f358				   KernelA_D_W EQM	[KernelA_D - $100]
-    159  f358				   KernelA_E_W EQM	[KernelA_E - $100]
-    160  f358				   KernelA_G_W EQM	[KernelA_G - $100]
-    161  f358				   KernelA_H_W EQM	[KernelA_H - $100]
-    162  f358				   KernelA_I_W EQM	[KernelA_I - $100]
-    163  f358				   KernelA_J_W EQM	[KernelA_J - $100]
-    164  f358				   KernelA_K_W EQM	[KernelA_K - $100]
-    165  f358
-    166  f358				   KernelB_H_W EQM	[KernelB_H - $100]
-    167  f358
-    168  f358							; Reflected for Kernel A
-    169  f358		       00 00	   G00	      =	%00000000
-    170  f358		       00 60	   G01	      =	%01100000
-    171  f358		       00 06	   G10	      =	%00000110
-    172  f358		       00 66	   G11	      =	%01100110
-    173  f358
-    174  f358							; gems:     [g01,g10,g01,g11,g00,g00]
-    175  f358							; cpu:      cpu(g01,g00,false,g10,g11,false)
-    176  f358							; solved:   [bc_NOP,bc_STX,bc_RF1,bc_STY,bc_VD1]
-    177  f358
-    178  f358							; gems:     [g00,g01,g10,g11,g00,g01]
-    179  f358							; cpu:      cpu(g01,g00,false,g10,g11,false)
-    180  f358							; solved:   [bc_RST,bc_NOP,bc_STX,bc_STY,bc_VD1]
-    181  f358
-    182  f358							; gems:     [g01,g10,g11,g00,g01,g10]
-    183  f358							; cpu:      cpu(g01,g01,false,g10,g11,false)
-    184  f358							; solved:   [bc_NOP,bc_STX,bc_STY,bc_RST,bc_VD1]
-    185  f358
-    186  f358							; gems:     [g10,g11,g00,g01,g10,g11]
-    187  f358							; cpu:      cpu(g10,g10,false,g11,g01,false)
-    188  f358							; solved:   [bc_NOP,bc_STX,bc_RST,bc_STY,bc_VD1]
-    189  f358
-    190  f358							; gems:     [g01,g00,g00,g11,g01,g11]
-    191  f358							; cpu:      cpu(g00,g01,false,g01,g11,false)
-    192  f358							; solved:   [bc_STX,bc_RST,bc_RST,bc_STY,bc_VD1]
-    193  f358
-    194  f358							; gems:     [g01,g00,g00,g11,g01,g11]
-    195  f358							; cpu:      cpu(g01,g01,false,g00,g11,false)
-    196  f358							; solved:   [bc_NOP,bc_STX,bc_STX,bc_STY,bc_VD1]
-    197  f358
-    198  f358							; gems:     [g11,g01,g01,g01,g01,g00]
-    199  f358							; cpu:      cpu(g00,g01,false,g11,g00,false)
-    200  f358							; solved:   [bc_STX,bc_VD1,bc_STX,bc_STX,bc_STX]
-    201  f358
-    202  f358		       00 00	   SHARD_LUT_RF1 =	0
-    203  f358		       00 01	   SHARD_LUT_VD1 =	1
-    204  f358		       00 66	   GEM0       =	G11
-    205  f358		       00 60	   GEM1       =	G01
-    206  f358		       00 60	   GEM2       =	G01
-    207  f358		       00 60	   GEM3       =	G01
-    208  f358		       00 60	   GEM4       =	G01
-    209  f358		       00 00	   GEM5       =	G00
-    210  f358
-    211  f358		       00 00	   SHARD_0A_RST =	[GEM0 == G00]
-    212  f358				   SHARD_1A_RST EQM	[GEM1 == G00]
-    213  f358		       00 00	   SHARD_2A_RST =	[!SHARD_0A_RST && !SHARD_1A_RST && GEM2 == G00]
-    214  f358		       00 00	   SHARD_3A_RST =	0	; TODO
-    215  f358
-    216  f358		       00 aa	   SENTINEL   =	%010101010
-    217  f358
-    218  f358							; Nibble Kernel A
-      0  f358					      NIBBLE_START_KERNEL	gem_kernel_a_1, 40
+     17  f340					      REPEND
+     18  f341		       ea		      nop
+     17  f341					      REPEND
+     18  f342		       ea		      nop
+     17  f342					      REPEND
+     18  f343		       ea		      nop
+     17  f343					      REPEND
+     18  f344		       ea		      nop
+     17  f344					      REPEND
+     18  f345		       ea		      nop
+     17  f345					      REPEND
+     18  f346		       ea		      nop
+     17  f346					      REPEND
+     18  f347		       ea		      nop
+     17  f347					      REPEND
+     18  f348		       ea		      nop
+     17  f348					      REPEND
+     18  f349		       ea		      nop
+     17  f349					      REPEND
+     18  f34a		       ea		      nop
+     17  f34a					      REPEND
+     18  f34b		       ea		      nop
+     17  f34b					      REPEND
+     18  f34c		       ea		      nop
+     17  f34c					      REPEND
+     18  f34d		       ea		      nop
+     17  f34d					      REPEND
+     18  f34e		       ea		      nop
+     17  f34e					      REPEND
+     18  f34f		       ea		      nop
+     17  f34f					      REPEND
+     18  f350		       ea		      nop
+     19  f351					      REPEND
+    142  f351		       85 13		      sta	EMERALD_MI_RESET
+    143  f353		       a9 10		      lda	#KERNEL_B_MISSILE_HMOVE
+    144  f355		       85 23		      sta	EMERALD_MI_HMOVE
+    145  f357
+    146  f357							; DEBUG: Set per-kernel color
+    147  f357		       a2 e0		      ldx	#$e0
+    148  f359		       86 07		      stx	EMERALD_SP_COLOR
+    149  f35b
+    150  f35b							; Disable reflection for Jetpack.
+    151  f35b		       a9 ff		      lda	#%11111111
+    152  f35d		       85 0c		      sta	REFP1
+    153  f35f
+    154  f35f				   frame_setup_complete
+    155  f35f
+    156  f35f		       ad 7c f9 	      lda	shard_map
+    157  f362		       a0 01		      ldy	#1	; gemini counter, starting at 1
+    158  f364				   gemini_builder
+    159  f364		       c0 01		      cpy	#1	; TODO top two bits of shard_map
+    160  f366		       d0 00		      bne	.no_vd0
+    161  f368				   .no_vd0
+    162  f368
+    163  f368
+    164  f368				   nibble_precompile_gem_kernel
+    165  f368				   DBG_NIBBLE
+    166  f368		       00 a9	   BC_LDA_IMM =	$a9
+    167  f368		       00 85	   BC_STA     =	$85
+    168  f368		       00 86	   BC_STX     =	$86
+    169  f368		       00 84	   BC_STY     =	$84
+    170  f368		       00 08	   BC_PHP     =	$08
+    171  f368		       00 15	   BC_NOP     =	$15
+    172  f368
+    173  f368		       00 79	   NOP_REG    =	$79	; TODO is there a better reg to write to with NOP effects
+    174  f368
+    175  f368				   KernelA_D_W EQM	[KernelA_D - $100]
+    176  f368				   KernelA_E_W EQM	[KernelA_E - $100]
+    177  f368				   KernelA_G_W EQM	[KernelA_G - $100]
+    178  f368				   KernelA_H_W EQM	[KernelA_H - $100]
+    179  f368				   KernelA_I_W EQM	[KernelA_I - $100]
+    180  f368				   KernelA_J_W EQM	[KernelA_J - $100]
+    181  f368				   KernelA_K_W EQM	[KernelA_K - $100]
+    182  f368
+    183  f368				   KernelB_H_W EQM	[KernelB_H - $100]
+    184  f368
+    185  f368							; Reflected for Kernel A
+    186  f368		       00 00	   G00	      =	%00000000
+    187  f368		       00 60	   G01	      =	%01100000
+    188  f368		       00 06	   G10	      =	%00000110
+    189  f368		       00 66	   G11	      =	%01100110
+    190  f368
+    191  f368							; gems:     [g01,g10,g01,g11,g00,g00]
+    192  f368							; cpu:      cpu(g01,g00,false,g10,g11,false)
+    193  f368							; solved:   [bc_NOP,bc_STX,bc_RF1,bc_STY,bc_VD1]
+    194  f368
+    195  f368							; gems:     [g00,g01,g10,g11,g00,g01]
+    196  f368							; cpu:      cpu(g01,g00,false,g10,g11,false)
+    197  f368							; solved:   [bc_RST,bc_NOP,bc_STX,bc_STY,bc_VD1]
+    198  f368
+    199  f368							; gems:     [g01,g10,g11,g00,g01,g10]
+    200  f368							; cpu:      cpu(g01,g01,false,g10,g11,false)
+    201  f368							; solved:   [bc_NOP,bc_STX,bc_STY,bc_RST,bc_VD1]
+    202  f368
+    203  f368							; gems:     [g10,g11,g00,g01,g10,g11]
+    204  f368							; cpu:      cpu(g10,g10,false,g11,g01,false)
+    205  f368							; solved:   [bc_NOP,bc_STX,bc_RST,bc_STY,bc_VD1]
+    206  f368
+    207  f368							; gems:     [g01,g00,g00,g11,g01,g11]
+    208  f368							; cpu:      cpu(g00,g01,false,g01,g11,false)
+    209  f368							; solved:   [bc_STX,bc_RST,bc_RST,bc_STY,bc_VD1]
+    210  f368
+    211  f368							; gems:     [g01,g00,g00,g11,g01,g11]
+    212  f368							; cpu:      cpu(g01,g01,false,g00,g11,false)
+    213  f368							; solved:   [bc_NOP,bc_STX,bc_STX,bc_STY,bc_VD1]
+    214  f368
+    215  f368							; gems:     [g11,g01,g01,g01,g01,g00]
+    216  f368							; cpu:      cpu(g00,g01,false,g11,g00,false)
+    217  f368							; solved:   [bc_STX,bc_VD1,bc_STX,bc_STX,bc_STX]
+    218  f368
+    219  f368		       00 00	   SHARD_LUT_RF1 =	0
+    220  f368		       00 01	   SHARD_LUT_VD1 =	1
+    221  f368		       00 66	   GEM0       =	G11
+    222  f368		       00 60	   GEM1       =	G01
+    223  f368		       00 60	   GEM2       =	G01
+    224  f368		       00 60	   GEM3       =	G01
+    225  f368		       00 60	   GEM4       =	G01
+    226  f368		       00 00	   GEM5       =	G00
+    227  f368
+    228  f368		       00 00	   SHARD_0A_RST =	[GEM0 == G00]
+    229  f368				   SHARD_1A_RST EQM	[GEM1 == G00]
+    230  f368		       00 00	   SHARD_2A_RST =	[!SHARD_0A_RST && !SHARD_1A_RST && GEM2 == G00]
+    231  f368		       00 00	   SHARD_3A_RST =	0	; TODO
+    232  f368
+    233  f368		       00 aa	   SENTINEL   =	%010101010
+    234  f368
+    235  f368							; Nibble Kernel A
+      0  f368					      NIBBLE_START_KERNEL	gem_kernel_a_1, 40
       1 U0061 ????				      seg.U	ignoreme
-    220 U0061 ????	       a2 aa		      ldx	#SENTINEL	; sentinel
-    221 U0063 ????	       86 a3		      stx	BuildKernelX
-    222 U0065 ????	       86 a4		      stx	BuildKernelY
-    223 U0067 ????	       86 a5		      stx	BuildKernelZ
-    224 U0069 ????
-    225 U0069 ????						; Gemini 1A
-    226 U0069 ????	       a2 00		      ldx	#SHARD_0A_RST
+    237 U0061 ????	       a2 aa		      ldx	#SENTINEL	; sentinel
+    238 U0063 ????	       86 a3		      stx	BuildKernelX
+    239 U0065 ????	       86 a4		      stx	BuildKernelY
+    240 U0067 ????	       86 a5		      stx	BuildKernelRST
+    241 U0069 ????
+    242 U0069 ????						; Gemini 1A
+    243 U0069 ????	       a0 00		      ldy	#SHARD_0A_RST
+    244 U006b ????						; jsr KernelA_GenReset
       0 U006b ????				      NIBBLE_IF	ne
-    228 U006b ????						; Special: Encoding RST0
-    229 U006b ????						; Rewrite lda RamKernelPF1 to be #immediate
-    230 U006b ????	       a0 a9		      ldy	#BC_LDA_IMM
-    231 U006d ????	       8c 16 f0 	      sty	[KernelA_B - $100]
-    232 U0070 ????	       a0 a0		      ldy	#%10100000
-    233 U0072 ????	       8c 17 f0 	      sty	[KernelA_B - $100 + 1]
-    234 U0075 ????						; Store 1A in GRP0
-    235 U0075 ????	       a0 60		      ldy	#GEM1
-    236 U0077 ????	       84 a6		      sty	BuildKernelGrp0
-    237 U0079 ????						; Gemini 1A is RESPx
-    238 U0079 ????	       a0 11		      ldy	#EMERALD_SP_RESET
-    239 U007b ????	       8c 19 f0 	      sty	[KernelA_C - $100 + 1]
-    240 U007e ????						; Turn 3-cycle NOP into 4-cycle
-    241 U007e ????	       a0 14		      ldy	#$14
-    242 U0080 ????	       8c 1a f0 	      sty	[KernelA_D - $100]
+    246 U006b ????						; Special: Encoding RST0
+    247 U006b ????						; Rewrite lda RamKernelPF1 to be #immediate
+    248 U006b ????	       a0 a9		      ldy	#BC_LDA_IMM
+    249 U006d ????	       8c 16 f0 	      sty	[KernelA_B - $100]
+    250 U0070 ????	       a0 a0		      ldy	#%10100000
+    251 U0072 ????	       8c 17 f0 	      sty	[KernelA_B - $100 + 1]
+    252 U0075 ????						; Store 1A in GRP0
+    253 U0075 ????	       a0 60		      ldy	#GEM1
+    254 U0077 ????	       84 a6		      sty	BuildKernelGrp0
+    255 U0079 ????						; Gemini 1A is RESPx
+    256 U0079 ????	       a0 11		      ldy	#EMERALD_SP_RESET
+    257 U007b ????	       8c 19 f0 	      sty	[KernelA_C - $100 + 1]
+    258 U007e ????						; Turn 3-cycle NOP into 4-cycle
+    259 U007e ????	       a0 14		      ldy	#$14	; TODO what is this
+    260 U0080 ????	       8c 1a f0 	      sty	[KernelA_D - $100]
       0 U0083 ????				      NIBBLE_ELSE
-    244 U0083 ????						; Store 0A in GRP0
-    245 U0083 ????	       a0 66		      ldy	#GEM0
-    246 U0085 ????	       84 a6		      sty	BuildKernelGrp0
-    247 U0087 ????
-    248 U0087 ????	       a2 00		      ldx	#SHARD_1A_RST
+    262 U0083 ????						; Store 0A in GRP0
+    263 U0083 ????	       a0 66		      ldy	#GEM0
+    264 U0085 ????	       84 a6		      sty	BuildKernelGrp0
+    265 U0087 ????
+    266 U0087 ????	       a2 00		      ldx	#SHARD_1A_RST
       0 U0089 ????				      NIBBLE_IF	ne
-    250 U0089 ????						; GEM1ASWITCH
+    268 U0089 ????						; GEM1ASWITCH
       0 U0089 ????				      NIBBLE_WRITE	KernelA_D_W, #BC_STX, #RESP1	; RESET
       0 U0089 ????				      NIBBLE_ELSE
-    253 U0089 ????						; Calculate the 1A value
-    254 U0089 ????			  -	      if	SHARD_LUT_RF1
-    255 U0089 ????			  -	      ldy	#REFP1
-    256 U0089 ????				      else
-    257 U0089 ????						; Set opcode
-    258 U0089 ????	       a0 60		      ldy	#GEM1
-    259 U008b ????	       20 7a f2 	      jsr	KernelA_UpdateRegs
-    260 U008e ????	       84 9a		      sty	RamKernelGemini1
-    261 U0090 ????
-    262 U0090 ????						; Set opcode target
-    263 U0090 ????	       a0 1c		      ldy	#GRP1
-    264 U0092 ????				      endif
-    265 U0092 ????	       84 9b		      sty	RamKernelGemini1Reg
-    266 U0094 ????
+    271 U0089 ????						; Calculate the 1A value
+    272 U0089 ????			  -	      if	SHARD_LUT_RF1
+    273 U0089 ????			  -	      ldy	#REFP1
+    274 U0089 ????				      else
+    275 U0089 ????						; Set opcode
+    276 U0089 ????	       a0 60		      ldy	#GEM1
+    277 U008b ????	       20 8a f2 	      jsr	KernelA_UpdateRegs
+    278 U008e ????	       84 9a		      sty	RamKernelGemini1
+    279 U0090 ????
+    280 U0090 ????						; Set opcode target
+    281 U0090 ????	       a0 1c		      ldy	#GRP1
+    282 U0092 ????				      endif
+    283 U0092 ????	       84 9b		      sty	RamKernelGemini1Reg
+    284 U0094 ????
       0 U0094 ????				      NIBBLE_WRITE	KernelA_D_W, RamKernelGemini1, RamKernelGemini1Reg
       0 U0094 ????				      NIBBLE_END_IF
       0 U0094 ????				      NIBBLE_END_IF
-    270 U0094 ????
-    271 U0094 ????						; Gemini 2A
-    272 U0094 ????	       a2 00		      ldx	#SHARD_2A_RST
+    288 U0094 ????
+    289 U0094 ????						; Gemini 2A
+    290 U0094 ????	       a2 00		      ldx	#SHARD_2A_RST
       0 U0096 ????				      NIBBLE_IF	ne
       0 U0096 ????				      NIBBLE_WRITE	KernelA_E_W + 1, #NOP_REG	; NOP
       0 U0096 ????				      NIBBLE_WRITE	KernelA_G_W + 1, #RESP1	; RESET
       0 U0096 ????				      NIBBLE_ELSE
-    277 U0096 ????						; Set opcode
-    278 U0096 ????	       a0 60		      ldy	#GEM2
-    279 U0098 ????	       20 7a f2 	      jsr	KernelA_UpdateRegs
-    280 U009b ????	       84 9c		      sty	RamKernelGemini2
-    281 U009d ????
-    282 U009d ????						; Set opcode target
-    283 U009d ????			  -	      if	SHARD_LUT_RF1 == 2
-    284 U009d ????			  -	      ldy	#REFP1
-    285 U009d ????				      else
-    286 U009d ????	       a0 1c		      ldy	#GRP1
-    287 U009f ????				      endif
-    288 U009f ????	       84 9d		      sty	RamKernelGemini2Reg
-    289 U00a1 ????
+    295 U0096 ????						; Set opcode
+    296 U0096 ????	       a0 60		      ldy	#GEM2
+    297 U0098 ????	       20 8a f2 	      jsr	KernelA_UpdateRegs
+    298 U009b ????	       84 9c		      sty	RamKernelGemini2
+    299 U009d ????
+    300 U009d ????						; Set opcode target
+    301 U009d ????			  -	      if	SHARD_LUT_RF1 == 2
+    302 U009d ????			  -	      ldy	#REFP1
+    303 U009d ????				      else
+    304 U009d ????	       a0 1c		      ldy	#GRP1
+    305 U009f ????				      endif
+    306 U009f ????	       84 9d		      sty	RamKernelGemini2Reg
+    307 U00a1 ????
       0 U00a1 ????				      NIBBLE_WRITE	KernelA_E_W + 1, #RESP1
       0 U00a1 ????				      NIBBLE_WRITE	KernelA_G_W, RamKernelGemini2, RamKernelGemini2Reg	; STX
       0 U00a1 ????				      NIBBLE_END_IF
-    293 U00a1 ????
-    294 U00a1 ????						; Gemini 3A
-    295 U00a1 ????	       a2 00		      ldx	#SHARD_3A_RST
+    311 U00a1 ????
+    312 U00a1 ????						; Gemini 3A
+    313 U00a1 ????	       a2 00		      ldx	#SHARD_3A_RST
       0 U00a3 ????				      NIBBLE_IF	ne
       0 U00a3 ????				      NIBBLE_WRITE	KernelA_H_W + 1, #RESP1	; RESET
       0 U00a3 ????				      NIBBLE_ELSE
-    299 U00a3 ????						; FIXME Calculate the 3A value
-    300 U00a3 ????
-    301 U00a3 ????						; Set opcode
-    302 U00a3 ????	       a0 60		      ldy	#GEM3
-    303 U00a5 ????	       20 7a f2 	      jsr	KernelA_UpdateRegs
-    304 U00a8 ????	       84 9e		      sty	RamKernelGemini3
-    305 U00aa ????
-    306 U00aa ????						; Set opcode target
-    307 U00aa ????			  -	      if	SHARD_LUT_RF1 == 3
-    308 U00aa ????			  -	      ldy	#REFP1
-    309 U00aa ????				      else
-    310 U00aa ????	       a0 1c		      ldy	#GRP1
-    311 U00ac ????				      endif
-    312 U00ac ????	       84 9f		      sty	RamKernelGemini3Reg
-    313 U00ae ????
+    317 U00a3 ????						; FIXME Calculate the 3A value
+    318 U00a3 ????
+    319 U00a3 ????						; Set opcode
+    320 U00a3 ????	       a0 60		      ldy	#GEM3
+    321 U00a5 ????	       20 8a f2 	      jsr	KernelA_UpdateRegs
+    322 U00a8 ????	       84 9e		      sty	RamKernelGemini3
+    323 U00aa ????
+    324 U00aa ????						; Set opcode target
+    325 U00aa ????			  -	      if	SHARD_LUT_RF1 == 3
+    326 U00aa ????			  -	      ldy	#REFP1
+    327 U00aa ????				      else
+    328 U00aa ????	       a0 1c		      ldy	#GRP1
+    329 U00ac ????				      endif
+    330 U00ac ????	       84 9f		      sty	RamKernelGemini3Reg
+    331 U00ae ????
       0 U00ae ????				      NIBBLE_WRITE	KernelA_H_W, RamKernelGemini3, RamKernelGemini3Reg	; STY
       0 U00ae ????				      NIBBLE_END_IF
       0 U00ae ????				      NIBBLE_END_KERNEL
-      1  f358					      seg	CodeBank3
-    317  f358
-      0  f358					      NIBBLE_START_KERNEL	gem_kernel_a_2, 40
+      1  f368					      seg	CodeBank3
+    335  f368
+      0  f368					      NIBBLE_START_KERNEL	gem_kernel_a_2, 40
       1 U00ae ????				      seg.U	ignoreme
-    319 U00ae ????						; Gemini 4A
-    320 U00ae ????	       a2 00		      ldx	#[SHARD_LUT_VD1 == 4]
+    337 U00ae ????						; Gemini 4A
+    338 U00ae ????	       a2 00		      ldx	#[SHARD_LUT_VD1 == 4]
       0 U00b0 ????				      NIBBLE_IF	ne
       0 U00b0 ????				      NIBBLE_WRITE	[KernelA_I_W + 0], #BC_STA, #EMERALD_SP_RESET
       0 U00b0 ????				      NIBBLE_WRITE	[KernelA_J_W + 1], #BC_STA, #PF1
       0 U00b0 ????				      NIBBLE_WRITE	[KernelA_K_W + 1], #BC_PHP
-    325 U00b0 ????
-    326 U00b0 ????						; Set PHP
+    343 U00b0 ????
+    344 U00b0 ????						; Set PHP
       0 U00b0 ????				      NIBBLE_WRITE	RamKernelPhpTarget, #VDELP1
       0 U00b0 ????				      NIBBLE_ELSE
-    329 U00b0 ????						; FIXME Calculate the 4A value
-    330 U00b0 ????	       a0 60		      ldy	#GEM4
-    331 U00b2 ????	       20 7a f2 	      jsr	KernelA_UpdateRegs
-    332 U00b5 ????	       84 a0		      sty	RamKernelGemini4
-    333 U00b7 ????
+    347 U00b0 ????						; FIXME Calculate the 4A value
+    348 U00b0 ????	       a0 60		      ldy	#GEM4
+    349 U00b2 ????	       20 8a f2 	      jsr	KernelA_UpdateRegs
+    350 U00b5 ????	       84 a0		      sty	RamKernelGemini4
+    351 U00b7 ????
       0 U00b7 ????				      NIBBLE_WRITE	[KernelA_I_W + 0], #BC_PHP
       0 U00b7 ????				      NIBBLE_WRITE	[KernelA_J_W + 0], #BC_STA, #PF1
       0 U00b7 ????				      NIBBLE_WRITE	KernelA_K_W, RamKernelGemini4, #EMERALD_SP
-    337 U00b7 ????
-    338 U00b7 ????						; Set PHP
+    355 U00b7 ????
+    356 U00b7 ????						; Set PHP
       0 U00b7 ????				      NIBBLE_WRITE	RamKernelPhpTarget, #RESP1
       0 U00b7 ????				      NIBBLE_END_IF
-    341 U00b7 ????
-    342 U00b7 ????						; VD1
-    343 U00b7 ????						; ldy #SHARD_VD1
-    344 U00b7 ????						; sty [KernelA_VDEL1 - $100]
+    359 U00b7 ????
+    360 U00b7 ????						; VD1
+    361 U00b7 ????						; ldy #SHARD_VD1
+    362 U00b7 ????						; sty [KernelA_VDEL1 - $100]
       0 U00b7 ????				      NIBBLE_WRITE	[KernelA_VDEL1 - $100], #[SHARD_LUT_VD1 == 4 ? GEM4 - GEM1] + GEM1
-    346 U00b7 ????						; GRP0
-    347 U00b7 ????						; ldy #SHARD_GRP0
-    348 U00b7 ????						; sty [KernelA_VDEL0 - $100]
+    364 U00b7 ????						; GRP0
+    365 U00b7 ????						; ldy #SHARD_GRP0
+    366 U00b7 ????						; sty [KernelA_VDEL0 - $100]
       0 U00b7 ????				      NIBBLE_WRITE	[KernelA_VDEL0 - $100], BuildKernelGrp0
-    350 U00b7 ????						; X
-    351 U00b7 ????						; ldy #SHARD_X
-    352 U00b7 ????						; sty RamKernelX
+    368 U00b7 ????						; X
+    369 U00b7 ????						; ldy #SHARD_X
+    370 U00b7 ????						; sty RamKernelX
       0 U00b7 ????				      NIBBLE_WRITE	RamKernelX, BuildKernelX
-    354 U00b7 ????						; Y
+    372 U00b7 ????						; Y
       0 U00b7 ????				      NIBBLE_WRITE	[KernelA_STY - $100], BuildKernelY
-    356 U00b7 ????
-    357 U00b7 ????						; Gemini 5A
-    358 U00b7 ????						; TODO eventually...?
+    374 U00b7 ????
+    375 U00b7 ????						; Gemini 5A
+    376 U00b7 ????						; TODO eventually...?
       0 U00b7 ????				      NIBBLE_END_KERNEL
-      1  f358					      seg	CodeBank3
-    360  f358
-    361  f358							; Nibble Kernel B
-      0  f358					      NIBBLE_START_KERNEL	gem_kernel_b, 40
+      1  f368					      seg	CodeBank3
+    378  f368
+    379  f368							; Nibble Kernel B
+      0  f368					      NIBBLE_START_KERNEL	gem_kernel_b, 40
       1 U00b7 ????				      seg.U	ignoreme
-    363 U00b7 ????						; X
-    364 U00b7 ????	       a0 03		      ldy	#%00000011
-    365 U00b9 ????	       84 98		      sty	RamKernelX
-    366 U00bb ????						; Y
-    367 U00bb ????	       a0 33		      ldy	#%00110011
-    368 U00bd ????	       8c 11 f0 	      sty	[KernelB_STY - $100]
-    369 U00c0 ????
-    370 U00c0 ????	       e0 00		      cpx	#$00
+    381 U00b7 ????						; X
+    382 U00b7 ????	       a0 03		      ldy	#%00000011
+    383 U00b9 ????	       84 98		      sty	RamKernelX
+    384 U00bb ????						; Y
+    385 U00bb ????	       a0 33		      ldy	#%00110011
+    386 U00bd ????	       8c 11 f0 	      sty	[KernelB_STY - $100]
+    387 U00c0 ????
+    388 U00c0 ????	       e0 00		      cpx	#$00
       0 U00c2 ????				      NIBBLE_IF	cs
       0 U00c2 ????				      NIBBLE_WRITE	RamKernelPhpTarget, #EMERALD_SP_RESET
-    373 U00c2 ????						; NIBBLE_WRITE [KernelB_H_W + 0], #BC_STA
-    374 U00c2 ????						; NIBBLE_WRITE [KernelB_H_W + 1], #EMERALD_SP
-    375 U00c2 ????						; NIBBLE_WRITE [KernelB_H_W + 2], #BC_PHP
+    391 U00c2 ????						; NIBBLE_WRITE [KernelB_H_W + 0], #BC_STA
+    392 U00c2 ????						; NIBBLE_WRITE [KernelB_H_W + 1], #EMERALD_SP
+    393 U00c2 ????						; NIBBLE_WRITE [KernelB_H_W + 2], #BC_PHP
       0 U00c2 ????				      NIBBLE_ELSE
       0 U00c2 ????				      NIBBLE_WRITE	RamKernelPhpTarget, #EMERALD_SP
-    378 U00c2 ????						; NIBBLE_WRITE [KernelB_H_W + 0], #BC_PHP
-    379 U00c2 ????						; NIBBLE_WRITE [KernelB_H_W + 1], #BC_STA
-    380 U00c2 ????						; NIBBLE_WRITE [KernelB_H_W + 2], #EMERALD_SP_RESET
+    396 U00c2 ????						; NIBBLE_WRITE [KernelB_H_W + 0], #BC_PHP
+    397 U00c2 ????						; NIBBLE_WRITE [KernelB_H_W + 1], #BC_STA
+    398 U00c2 ????						; NIBBLE_WRITE [KernelB_H_W + 2], #EMERALD_SP_RESET
       0 U00c2 ????				      NIBBLE_END_IF
       0 U00c2 ????				      NIBBLE_END_KERNEL
-      1  f358					      seg	CodeBank3
-    383  f358
-    384  f358							; TODO do this for all rows
-    385  f358				   DBG_NIBBLE_BUILD subroutine
-    386  f358		       ae 00 f1 	      ldx	$f100
-    387  f35b		       e0 0a		      cpx	#$a
-    388  f35d		       f0 03		      beq	[. + 5]
-    389  f35f		       4c fc f3 	      jmp	.kernel_b
-    390  f362				   .kernel_a
-      0  f362					      NIBBLE_gem_kernel_a_1_BUILD		; TODO can this be implied
-      1  f362		       a9 00		      lda	#0
-      2  f364		       a2 aa		      ldx	#SENTINEL
-      3  f366		       86 a3		      stx	BuildKernelX
-      4  f368		       86 a4		      stx	BuildKernelY
-      5  f36a		       86 a5		      stx	BuildKernelZ
-      6  f36c
-      7  f36c		       a2 00		      ldx	#SHARD_0A_RST
-      8  f36e				   .if_1
-      9  f36e		       f0 1e		      beq	.else_1
-     10  f370		       38		      sec
-     11  f371		       2a		      rol
-     12  f372
-     13  f372
-     14  f372		       a0 a9		      ldy	#BC_LDA_IMM
-     15  f374		       8c 16 f0 	      sty	[KernelA_B - $100]
-     16  f377		       a0 a0		      ldy	#%10100000
-     17  f379		       8c 17 f0 	      sty	[KernelA_B - $100 + 1]
-     18  f37c
-     19  f37c		       a0 60		      ldy	#GEM1
-     20  f37e		       84 a6		      sty	BuildKernelGrp0
-     21  f380
-     22  f380		       a0 11		      ldy	#EMERALD_SP_RESET
-     23  f382		       8c 19 f0 	      sty	[KernelA_C - $100 + 1]
-     24  f385
-     25  f385		       a0 14		      ldy	#$14
-     26  f387		       8c 1a f0 	      sty	[KernelA_D - $100]
-     27  f38a		       4c aa f3 	      jmp	.endif_1
-     28  f38d
-     29  f38d		       2a		      rol
-     30  f38e
-     31  f38e				   .else_1
-     32  f38e		       18		      clc
-     33  f38f		       2a		      rol
-     34  f390
-     35  f390		       a0 66		      ldy	#GEM0
-     36  f392		       84 a6		      sty	BuildKernelGrp0
-     37  f394		       a2 00		      ldx	#SHARD_1A_RST
-     38  f396				   .if_2
-     39  f396		       f0 05		      beq	.else_2
-     40  f398		       38		      sec
-     41  f399		       2a		      rol
-     42  f39a
-     43  f39a		       4c aa f3 	      jmp	.endif_2
-     44  f39d
-     45  f39d
-     46  f39d				   .else_2
-     47  f39d		       18		      clc
-     48  f39e		       2a		      rol
-     49  f39f
-     50  f39f				  -	      if	SHARD_LUT_RF1
-     51  f39f				  -	      ldy	#REFP1
-     52  f39f					      else
-     53  f39f
-     54  f39f		       a0 60		      ldy	#GEM1
-     55  f3a1		       20 7a f2 	      jsr	KernelA_UpdateRegs
-     56  f3a4		       84 9a		      sty	RamKernelGemini1
-     57  f3a6
-     58  f3a6		       a0 1c		      ldy	#GRP1
-     59  f3a8					      endif
-     60  f3a8		       84 9b		      sty	RamKernelGemini1Reg
-     61  f3aa
-     62  f3aa
-     63  f3aa				   .endif_2
-     64  f3aa
-     65  f3aa
-     66  f3aa				   .endif_1
-     67  f3aa
-     68  f3aa		       a2 00		      ldx	#SHARD_2A_RST
-     69  f3ac				   .if_3
-     70  f3ac		       f0 05		      beq	.else_3
-     71  f3ae		       38		      sec
-     72  f3af		       2a		      rol
-     73  f3b0		       4c c0 f3 	      jmp	.endif_3
-     74  f3b3
-     75  f3b3
-     76  f3b3				   .else_3
-     77  f3b3		       18		      clc
-     78  f3b4		       2a		      rol
-     79  f3b5
-     80  f3b5		       a0 60		      ldy	#GEM2
-     81  f3b7		       20 7a f2 	      jsr	KernelA_UpdateRegs
-     82  f3ba		       84 9c		      sty	RamKernelGemini2
-     83  f3bc
-     84  f3bc				  -	      if	SHARD_LUT_RF1 == 2
-     85  f3bc				  -	      ldy	#REFP1
-     86  f3bc					      else
-     87  f3bc		       a0 1c		      ldy	#GRP1
-     88  f3be					      endif
-     89  f3be		       84 9d		      sty	RamKernelGemini2Reg
-     90  f3c0
-     91  f3c0
-     92  f3c0				   .endif_3
-     93  f3c0
-     94  f3c0		       a2 00		      ldx	#SHARD_3A_RST
-     95  f3c2				   .if_4
-     96  f3c2		       f0 05		      beq	.else_4
-     97  f3c4		       38		      sec
-     98  f3c5		       2a		      rol
-     99  f3c6		       4c d6 f3 	      jmp	.endif_4
-    100  f3c9
-    101  f3c9
-    102  f3c9				   .else_4
-    103  f3c9		       18		      clc
-    104  f3ca		       2a		      rol
-    105  f3cb
-    106  f3cb
-    107  f3cb		       a0 60		      ldy	#GEM3
-    108  f3cd		       20 7a f2 	      jsr	KernelA_UpdateRegs
-    109  f3d0		       84 9e		      sty	RamKernelGemini3
-    110  f3d2
-    111  f3d2				  -	      if	SHARD_LUT_RF1 == 3
-    112  f3d2				  -	      ldy	#REFP1
-    113  f3d2					      else
-    114  f3d2		       a0 1c		      ldy	#GRP1
-    115  f3d4					      endif
-    116  f3d4		       84 9f		      sty	RamKernelGemini3Reg
-    117  f3d6
-    118  f3d6
-    119  f3d6				   .endif_4
-    120  f3d6
-    121  f3d6		       2a		      rol
-    122  f3d7		       2a		      rol
-    123  f3d8		       2a		      rol
-    124  f3d9		       2a		      rol
-    392  f3da		       85 90		      sta	RamNibbleVar1
-      0  f3dc					      NIBBLE_gem_kernel_a_2_BUILD		; TODO can this be implied
-      1  f3dc		       a9 00		      lda	#0
-      2  f3de
-      3  f3de		       a2 00		      ldx	#[SHARD_LUT_VD1 == 4]
-      4  f3e0				   .if_1
-      5  f3e0		       f0 05		      beq	.else_1
-      6  f3e2		       38		      sec
-      7  f3e3		       2a		      rol
-      8  f3e4
-      9  f3e4		       4c f0 f3 	      jmp	.endif_1
-     10  f3e7
-     11  f3e7
-     12  f3e7				   .else_1
-     13  f3e7		       18		      clc
-     14  f3e8		       2a		      rol
-     15  f3e9
-     16  f3e9		       a0 60		      ldy	#GEM4
-     17  f3eb		       20 7a f2 	      jsr	KernelA_UpdateRegs
-     18  f3ee		       84 a0		      sty	RamKernelGemini4
-     19  f3f0
-     20  f3f0
-     21  f3f0
-     22  f3f0				   .endif_1
-     23  f3f0
-     24  f3f0
-     25  f3f0
-     26  f3f0
-     27  f3f0
-     28  f3f0
-     29  f3f0
-     30  f3f0
-     31  f3f0
-     32  f3f0
-     33  f3f0
-     34  f3f0
-     35  f3f0
-     36  f3f0		       2a		      rol
-     37  f3f1		       2a		      rol
-     38  f3f2		       2a		      rol
-     39  f3f3		       2a		      rol
-     40  f3f4		       2a		      rol
-     41  f3f5		       2a		      rol
-     42  f3f6		       2a		      rol
-    394  f3f7		       85 91		      sta	RamNibbleVar2
-    395  f3f9		       4c 1b f4 	      jmp	.next
-    396  f3fc				   .kernel_b
-      0  f3fc					      NIBBLE_gem_kernel_b_BUILD		; TODO can this be implied
-      1  f3fc		       a9 00		      lda	#0
-      2  f3fe
-      3  f3fe		       a0 03		      ldy	#%00000011
-      4  f400		       84 98		      sty	RamKernelX
-      5  f402
-      6  f402		       a0 33		      ldy	#%00110011
-      7  f404		       8c 11 f0 	      sty	[KernelB_STY - $100]
-      8  f407
-      9  f407		       e0 00		      cpx	#$00
-     10  f409				   .if_1
-     11  f409		       90 05		      bcc	.else_1
-     12  f40b		       38		      sec
-     13  f40c		       2a		      rol
-     14  f40d
-     15  f40d
-     16  f40d
-     17  f40d		       4c 12 f4 	      jmp	.endif_1
-     18  f410
-     19  f410
-     20  f410				   .else_1
-     21  f410		       18		      clc
-     22  f411		       2a		      rol
-     23  f412
-     24  f412
-     25  f412
-     26  f412
-     27  f412
-     28  f412				   .endif_1
-     29  f412
-     30  f412		       2a		      rol
-     31  f413		       2a		      rol
-     32  f414		       2a		      rol
-     33  f415		       2a		      rol
-     34  f416		       2a		      rol
-     35  f417		       2a		      rol
-     36  f418		       2a		      rol
-    398  f419		       85 90		      sta	RamNibbleVar1
-    399  f41b				   .next
-    400  f41b
-    401  f41b							; TODO move this into the row kernel
-    402  f41b				   DBG_NIBBLE_RUN subroutine
-    403  f41b		       ae 00 f1 	      ldx	$f100
-    404  f41e		       e0 0a		      cpx	#$a
-    405  f420		       f0 03		      beq	[. + 5]
-    406  f422		       4c d3 f4 	      jmp	.kernel_b
-    407  f425				   .kernel_a
-    408  f425		       a5 90		      lda	RamNibbleVar1
-      0  f427					      NIBBLE_gem_kernel_a_1
-      1  f427				   .if_1
-      2  f427		       0a		      asl
-      3  f428		       90 03		      bcc	.else_1
-      4  f42a		       4c 47 f4 	      jmp	.endif_1
-      5  f42d				   .else_1
-      6  f42d				   .if_2
-      7  f42d		       0a		      asl
-      8  f42e		       90 0d		      bcc	.else_2
-      9  f430		       a2 86		      ldx	#BC_STX
-     10  f432		       8e 1a f0 	      stx	[KernelA_D_W + 0]
-     11  f435		       a2 11		      ldx	#RESP1
-     12  f437		       8e 1b f0 	      stx	[KernelA_D_W + 1]
-     13  f43a		       4c 47 f4 	      jmp	.endif_2
-     14  f43d				   .else_2
-     15  f43d		       a6 9a		      ldx	RamKernelGemini1
-     16  f43f		       8e 1a f0 	      stx	[KernelA_D_W + 0]
-     17  f442		       a6 9b		      ldx	RamKernelGemini1Reg
-     18  f444		       8e 1b f0 	      stx	[KernelA_D_W + 1]
-     19  f447				   .endif_2
-     20  f447				   .endif_1
-     21  f447				   .if_3
-     22  f447		       0a		      asl
-     23  f448		       90 0d		      bcc	.else_3
-     24  f44a		       a2 79		      ldx	#NOP_REG
-     25  f44c		       8e 1d f0 	      stx	[KernelA_E_W + 1 + 0]
-     26  f44f		       a2 11		      ldx	#RESP1
-     27  f451		       8e 21 f0 	      stx	[KernelA_G_W + 1 + 0]
-     28  f454		       4c 66 f4 	      jmp	.endif_3
-     29  f457				   .else_3
-     30  f457		       a2 11		      ldx	#RESP1
-     31  f459		       8e 1d f0 	      stx	[KernelA_E_W + 1 + 0]
-     32  f45c		       a6 9c		      ldx	RamKernelGemini2
-     33  f45e		       8e 20 f0 	      stx	[KernelA_G_W + 0]
-     34  f461		       a6 9d		      ldx	RamKernelGemini2Reg
-     35  f463		       8e 21 f0 	      stx	[KernelA_G_W + 1]
-     36  f466				   .endif_3
-     37  f466				   .if_4
-     38  f466		       0a		      asl
-     39  f467		       90 08		      bcc	.else_4
-     40  f469		       a2 11		      ldx	#RESP1
-     41  f46b		       8e 23 f0 	      stx	[KernelA_H_W + 1 + 0]
-     42  f46e		       4c 7b f4 	      jmp	.endif_4
-     43  f471				   .else_4
-     44  f471		       a6 9e		      ldx	RamKernelGemini3
-     45  f473		       8e 22 f0 	      stx	[KernelA_H_W + 0]
-     46  f476		       a6 9f		      ldx	RamKernelGemini3Reg
-     47  f478		       8e 23 f0 	      stx	[KernelA_H_W + 1]
-     48  f47b				   .endif_4
-    410  f47b		       a5 91		      lda	RamNibbleVar2
-      0  f47d					      NIBBLE_gem_kernel_a_2
-      1  f47d				   .if_1
-      2  f47d		       0a		      asl
-      3  f47e		       90 20		      bcc	.else_1
-      4  f480		       a2 85		      ldx	#BC_STA
-      5  f482		       8e 24 f0 	      stx	[[KernelA_I_W + 0] + 0]
-      6  f485		       a2 11		      ldx	#EMERALD_SP_RESET
-      7  f487		       8e 25 f0 	      stx	[[KernelA_I_W + 0] + 1]
-      8  f48a		       a2 85		      ldx	#BC_STA
-      9  f48c		       8e 26 f0 	      stx	[[KernelA_J_W + 1] + 0]
-     10  f48f		       a2 0e		      ldx	#PF1
-     11  f491		       8e 27 f0 	      stx	[[KernelA_J_W + 1] + 1]
-     12  f494		       a2 08		      ldx	#BC_PHP
-     13  f496		       8e 28 f0 	      stx	[[KernelA_K_W + 1] + 0]
-     14  f499		       a2 26		      ldx	#VDELP1
-     15  f49b		       86 97		      stx	[RamKernelPhpTarget + 0]
-     16  f49d		       4c bd f4 	      jmp	.endif_1
-     17  f4a0				   .else_1
-     18  f4a0		       a2 08		      ldx	#BC_PHP
-     19  f4a2		       8e 24 f0 	      stx	[[KernelA_I_W + 0] + 0]
-     20  f4a5		       a2 85		      ldx	#BC_STA
-     21  f4a7		       8e 25 f0 	      stx	[[KernelA_J_W + 0] + 0]
-     22  f4aa		       a2 0e		      ldx	#PF1
-     23  f4ac		       8e 26 f0 	      stx	[[KernelA_J_W + 0] + 1]
-     24  f4af		       a6 a0		      ldx	RamKernelGemini4
-     25  f4b1		       8e 27 f0 	      stx	[KernelA_K_W + 0]
-     26  f4b4		       a2 1c		      ldx	#EMERALD_SP
-     27  f4b6		       8e 28 f0 	      stx	[KernelA_K_W + 1]
-     28  f4b9		       a2 11		      ldx	#RESP1
-     29  f4bb		       86 97		      stx	[RamKernelPhpTarget + 0]
-     30  f4bd				   .endif_1
-     31  f4bd		       a2 60		      ldx	#[SHARD_LUT_VD1 == 4 ? GEM4 - GEM1] + GEM1
-     32  f4bf		       8e 04 f0 	      stx	[[KernelA_VDEL1 - $100] + 0]
-     33  f4c2		       a6 a6		      ldx	BuildKernelGrp0
-     34  f4c4		       8e 0a f0 	      stx	[[KernelA_VDEL0 - $100] + 0]
-     35  f4c7		       a6 a3		      ldx	BuildKernelX
-     36  f4c9		       86 98		      stx	[RamKernelX + 0]
-     37  f4cb		       a6 a4		      ldx	BuildKernelY
-     38  f4cd		       8e 0e f0 	      stx	[[KernelA_STY - $100] + 0]
-    412  f4d0		       4c e3 f4 	      jmp	.next
-    413  f4d3				   .kernel_b
-    414  f4d3		       a5 90		      lda	RamNibbleVar1
-      0  f4d5					      NIBBLE_gem_kernel_b
-      1  f4d5				   .if_1
-      2  f4d5		       0a		      asl
-      3  f4d6		       90 07		      bcc	.else_1
-      4  f4d8		       a2 11		      ldx	#EMERALD_SP_RESET
-      5  f4da		       86 97		      stx	[RamKernelPhpTarget + 0]
-      6  f4dc		       4c e3 f4 	      jmp	.endif_1
-      7  f4df				   .else_1
-      8  f4df		       a2 1c		      ldx	#EMERALD_SP
-      9  f4e1		       86 97		      stx	[RamKernelPhpTarget + 0]
-     10  f4e3				   .endif_1
-    416  f4e3				   .next
-    417  f4e3
-    418  f4e3				   VerticalBlankEnd
-    419  f4e3							; Wait until the end of Vertical blank.
-      0  f4e3					      TIMER_WAIT
-      1  f4e3				   .waittimer
-      2  f4e3		       ad 84 02 	      lda	INTIM
-      3  f4e6		       d0 fb		      bne	.waittimer
-      4  f4e8		       85 02		      sta	WSYNC
-      0  f4ea					      ASSERT_RUNTIME	"_scan == #37"
-      1  f4ea				   .COND      SET	"_scan == #37"
- ASSERT: breakif { pc== $f4ea  && !(  _scan == #37  ) }
-      2  f4ea					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
-    422  f4ea
-    423  f4ea							; Save stack pointer
-    424  f4ea		       ba		      tsx
-    425  f4eb		       86 94		      stx	RamStackBkp
-    426  f4ed
-    427  f4ed							; Start rendering the kernel.
-    428  f4ed		       4c ce f5 	      jmp	KernelBorder
-    429  f4f0
-    430  f500		       00 00 00 00*	      align	256	; TODO why
-    431  f500
-    432  f500				   FrameEnd   subroutine
-    433  f500		       85 02		      sta	WSYNC
-    434  f502
-    435  f502							; Blank all background colors.
-    436  f502		       a9 00		      lda	#0
-    437  f504		       85 08		      sta	COLUPF
-    438  f506		       85 0f		      sta	PF2
-    439  f508		       85 0e		      sta	PF1
-    440  f50a		       85 1c		      sta	EMERALD_SP
-    441  f50c
-    442  f50c							; Guide lines (2x)
-    443  f50c		       a9 02		      lda	#SIGNAL_LINE
-    444  f50e		       85 09		      sta	COLUBK
-    445  f510					      REPEAT	6
-    446  f510		       85 02		      sta	WSYNC
-    445  f510					      REPEND
-    446  f512		       85 02		      sta	WSYNC
-    445  f512					      REPEND
-    446  f514		       85 02		      sta	WSYNC
-    445  f514					      REPEND
-    446  f516		       85 02		      sta	WSYNC
-    445  f516					      REPEND
-    446  f518		       85 02		      sta	WSYNC
-    445  f518					      REPEND
-    446  f51a		       85 02		      sta	WSYNC
-    447  f51c					      REPEND
-    448  f51c		       a9 00		      lda	#$00
-    449  f51e		       85 09		      sta	COLUBK
-    450  f520
-    451  f520							; Restore stack pointer
-    452  f520		       a6 94		      ldx	RamStackBkp
-    453  f522		       9a		      txs
-    454  f523
-    455  f523							; Display the rest of the blank screen.
+      1  f368					      seg	CodeBank3
+    401  f368
+    402  f368							; TODO do this for all rows
+    403  f368				   DBG_NIBBLE_BUILD subroutine
+    404  f368		       ae 00 f1 	      ldx	$f100
+    405  f36b		       e0 0a		      cpx	#$a
+    406  f36d		       f0 03		      beq	[. + 5]
+    407  f36f		       4c 0c f4 	      jmp	.kernel_b
+    408  f372				   .kernel_a
+      0  f372					      NIBBLE_gem_kernel_a_1_BUILD		; TODO can this be implied
+      1  f372		       a9 00		      lda	#0
+      2  f374		       a2 aa		      ldx	#SENTINEL
+      3  f376		       86 a3		      stx	BuildKernelX
+      4  f378		       86 a4		      stx	BuildKernelY
+      5  f37a		       86 a5		      stx	BuildKernelRST
+      6  f37c
+      7  f37c		       a0 00		      ldy	#SHARD_0A_RST
+      8  f37e
+      9  f37e				   .if_1
+     10  f37e		       f0 1e		      beq	.else_1
+     11  f380		       38		      sec
+     12  f381		       2a		      rol
+     13  f382
+     14  f382
+     15  f382		       a0 a9		      ldy	#BC_LDA_IMM
+     16  f384		       8c 16 f0 	      sty	[KernelA_B - $100]
+     17  f387		       a0 a0		      ldy	#%10100000
+     18  f389		       8c 17 f0 	      sty	[KernelA_B - $100 + 1]
+     19  f38c
+     20  f38c		       a0 60		      ldy	#GEM1
+     21  f38e		       84 a6		      sty	BuildKernelGrp0
+     22  f390
+     23  f390		       a0 11		      ldy	#EMERALD_SP_RESET
+     24  f392		       8c 19 f0 	      sty	[KernelA_C - $100 + 1]
+     25  f395
+     26  f395		       a0 14		      ldy	#$14
+     27  f397		       8c 1a f0 	      sty	[KernelA_D - $100]
+     28  f39a		       4c ba f3 	      jmp	.endif_1
+     29  f39d
+     30  f39d		       2a		      rol
+     31  f39e
+     32  f39e				   .else_1
+     33  f39e		       18		      clc
+     34  f39f		       2a		      rol
+     35  f3a0
+     36  f3a0		       a0 66		      ldy	#GEM0
+     37  f3a2		       84 a6		      sty	BuildKernelGrp0
+     38  f3a4		       a2 00		      ldx	#SHARD_1A_RST
+     39  f3a6				   .if_2
+     40  f3a6		       f0 05		      beq	.else_2
+     41  f3a8		       38		      sec
+     42  f3a9		       2a		      rol
+     43  f3aa
+     44  f3aa		       4c ba f3 	      jmp	.endif_2
+     45  f3ad
+     46  f3ad
+     47  f3ad				   .else_2
+     48  f3ad		       18		      clc
+     49  f3ae		       2a		      rol
+     50  f3af
+     51  f3af				  -	      if	SHARD_LUT_RF1
+     52  f3af				  -	      ldy	#REFP1
+     53  f3af					      else
+     54  f3af
+     55  f3af		       a0 60		      ldy	#GEM1
+     56  f3b1		       20 8a f2 	      jsr	KernelA_UpdateRegs
+     57  f3b4		       84 9a		      sty	RamKernelGemini1
+     58  f3b6
+     59  f3b6		       a0 1c		      ldy	#GRP1
+     60  f3b8					      endif
+     61  f3b8		       84 9b		      sty	RamKernelGemini1Reg
+     62  f3ba
+     63  f3ba
+     64  f3ba				   .endif_2
+     65  f3ba
+     66  f3ba
+     67  f3ba				   .endif_1
+     68  f3ba
+     69  f3ba		       a2 00		      ldx	#SHARD_2A_RST
+     70  f3bc				   .if_3
+     71  f3bc		       f0 05		      beq	.else_3
+     72  f3be		       38		      sec
+     73  f3bf		       2a		      rol
+     74  f3c0		       4c d0 f3 	      jmp	.endif_3
+     75  f3c3
+     76  f3c3
+     77  f3c3				   .else_3
+     78  f3c3		       18		      clc
+     79  f3c4		       2a		      rol
+     80  f3c5
+     81  f3c5		       a0 60		      ldy	#GEM2
+     82  f3c7		       20 8a f2 	      jsr	KernelA_UpdateRegs
+     83  f3ca		       84 9c		      sty	RamKernelGemini2
+     84  f3cc
+     85  f3cc				  -	      if	SHARD_LUT_RF1 == 2
+     86  f3cc				  -	      ldy	#REFP1
+     87  f3cc					      else
+     88  f3cc		       a0 1c		      ldy	#GRP1
+     89  f3ce					      endif
+     90  f3ce		       84 9d		      sty	RamKernelGemini2Reg
+     91  f3d0
+     92  f3d0
+     93  f3d0				   .endif_3
+     94  f3d0
+     95  f3d0		       a2 00		      ldx	#SHARD_3A_RST
+     96  f3d2				   .if_4
+     97  f3d2		       f0 05		      beq	.else_4
+     98  f3d4		       38		      sec
+     99  f3d5		       2a		      rol
+    100  f3d6		       4c e6 f3 	      jmp	.endif_4
+    101  f3d9
+    102  f3d9
+    103  f3d9				   .else_4
+    104  f3d9		       18		      clc
+    105  f3da		       2a		      rol
+    106  f3db
+    107  f3db
+    108  f3db		       a0 60		      ldy	#GEM3
+    109  f3dd		       20 8a f2 	      jsr	KernelA_UpdateRegs
+    110  f3e0		       84 9e		      sty	RamKernelGemini3
+    111  f3e2
+    112  f3e2				  -	      if	SHARD_LUT_RF1 == 3
+    113  f3e2				  -	      ldy	#REFP1
+    114  f3e2					      else
+    115  f3e2		       a0 1c		      ldy	#GRP1
+    116  f3e4					      endif
+    117  f3e4		       84 9f		      sty	RamKernelGemini3Reg
+    118  f3e6
+    119  f3e6
+    120  f3e6				   .endif_4
+    121  f3e6
+    122  f3e6		       2a		      rol
+    123  f3e7		       2a		      rol
+    124  f3e8		       2a		      rol
+    125  f3e9		       2a		      rol
+    410  f3ea		       85 90		      sta	RamNibbleVar1
+      0  f3ec					      NIBBLE_gem_kernel_a_2_BUILD		; TODO can this be implied
+      1  f3ec		       a9 00		      lda	#0
+      2  f3ee
+      3  f3ee		       a2 00		      ldx	#[SHARD_LUT_VD1 == 4]
+      4  f3f0				   .if_1
+      5  f3f0		       f0 05		      beq	.else_1
+      6  f3f2		       38		      sec
+      7  f3f3		       2a		      rol
+      8  f3f4
+      9  f3f4		       4c 00 f4 	      jmp	.endif_1
+     10  f3f7
+     11  f3f7
+     12  f3f7				   .else_1
+     13  f3f7		       18		      clc
+     14  f3f8		       2a		      rol
+     15  f3f9
+     16  f3f9		       a0 60		      ldy	#GEM4
+     17  f3fb		       20 8a f2 	      jsr	KernelA_UpdateRegs
+     18  f3fe		       84 a0		      sty	RamKernelGemini4
+     19  f400
+     20  f400
+     21  f400
+     22  f400				   .endif_1
+     23  f400
+     24  f400
+     25  f400
+     26  f400
+     27  f400
+     28  f400
+     29  f400
+     30  f400
+     31  f400
+     32  f400
+     33  f400
+     34  f400
+     35  f400
+     36  f400		       2a		      rol
+     37  f401		       2a		      rol
+     38  f402		       2a		      rol
+     39  f403		       2a		      rol
+     40  f404		       2a		      rol
+     41  f405		       2a		      rol
+     42  f406		       2a		      rol
+    412  f407		       85 91		      sta	RamNibbleVar2
+    413  f409		       4c 2b f4 	      jmp	.next
+    414  f40c				   .kernel_b
+      0  f40c					      NIBBLE_gem_kernel_b_BUILD		; TODO can this be implied
+      1  f40c		       a9 00		      lda	#0
+      2  f40e
+      3  f40e		       a0 03		      ldy	#%00000011
+      4  f410		       84 98		      sty	RamKernelX
+      5  f412
+      6  f412		       a0 33		      ldy	#%00110011
+      7  f414		       8c 11 f0 	      sty	[KernelB_STY - $100]
+      8  f417
+      9  f417		       e0 00		      cpx	#$00
+     10  f419				   .if_1
+     11  f419		       90 05		      bcc	.else_1
+     12  f41b		       38		      sec
+     13  f41c		       2a		      rol
+     14  f41d
+     15  f41d
+     16  f41d
+     17  f41d		       4c 22 f4 	      jmp	.endif_1
+     18  f420
+     19  f420
+     20  f420				   .else_1
+     21  f420		       18		      clc
+     22  f421		       2a		      rol
+     23  f422
+     24  f422
+     25  f422
+     26  f422
+     27  f422
+     28  f422				   .endif_1
+     29  f422
+     30  f422		       2a		      rol
+     31  f423		       2a		      rol
+     32  f424		       2a		      rol
+     33  f425		       2a		      rol
+     34  f426		       2a		      rol
+     35  f427		       2a		      rol
+     36  f428		       2a		      rol
+    416  f429		       85 90		      sta	RamNibbleVar1
+    417  f42b				   .next
+    418  f42b
+    419  f42b							; TODO move this into the row kernel
+    420  f42b				   DBG_NIBBLE_RUN subroutine
+    421  f42b		       ae 00 f1 	      ldx	$f100
+    422  f42e		       e0 0a		      cpx	#$a
+    423  f430		       f0 03		      beq	[. + 5]
+    424  f432		       4c e3 f4 	      jmp	.kernel_b
+    425  f435				   .kernel_a
+    426  f435		       a5 90		      lda	RamNibbleVar1
+      0  f437					      NIBBLE_gem_kernel_a_1
+      1  f437				   .if_1
+      2  f437		       0a		      asl
+      3  f438		       90 03		      bcc	.else_1
+      4  f43a		       4c 57 f4 	      jmp	.endif_1
+      5  f43d				   .else_1
+      6  f43d				   .if_2
+      7  f43d		       0a		      asl
+      8  f43e		       90 0d		      bcc	.else_2
+      9  f440		       a2 86		      ldx	#BC_STX
+     10  f442		       8e 1a f0 	      stx	[KernelA_D_W + 0]
+     11  f445		       a2 11		      ldx	#RESP1
+     12  f447		       8e 1b f0 	      stx	[KernelA_D_W + 1]
+     13  f44a		       4c 57 f4 	      jmp	.endif_2
+     14  f44d				   .else_2
+     15  f44d		       a6 9a		      ldx	RamKernelGemini1
+     16  f44f		       8e 1a f0 	      stx	[KernelA_D_W + 0]
+     17  f452		       a6 9b		      ldx	RamKernelGemini1Reg
+     18  f454		       8e 1b f0 	      stx	[KernelA_D_W + 1]
+     19  f457				   .endif_2
+     20  f457				   .endif_1
+     21  f457				   .if_3
+     22  f457		       0a		      asl
+     23  f458		       90 0d		      bcc	.else_3
+     24  f45a		       a2 79		      ldx	#NOP_REG
+     25  f45c		       8e 1d f0 	      stx	[KernelA_E_W + 1 + 0]
+     26  f45f		       a2 11		      ldx	#RESP1
+     27  f461		       8e 21 f0 	      stx	[KernelA_G_W + 1 + 0]
+     28  f464		       4c 76 f4 	      jmp	.endif_3
+     29  f467				   .else_3
+     30  f467		       a2 11		      ldx	#RESP1
+     31  f469		       8e 1d f0 	      stx	[KernelA_E_W + 1 + 0]
+     32  f46c		       a6 9c		      ldx	RamKernelGemini2
+     33  f46e		       8e 20 f0 	      stx	[KernelA_G_W + 0]
+     34  f471		       a6 9d		      ldx	RamKernelGemini2Reg
+     35  f473		       8e 21 f0 	      stx	[KernelA_G_W + 1]
+     36  f476				   .endif_3
+     37  f476				   .if_4
+     38  f476		       0a		      asl
+     39  f477		       90 08		      bcc	.else_4
+     40  f479		       a2 11		      ldx	#RESP1
+     41  f47b		       8e 23 f0 	      stx	[KernelA_H_W + 1 + 0]
+     42  f47e		       4c 8b f4 	      jmp	.endif_4
+     43  f481				   .else_4
+     44  f481		       a6 9e		      ldx	RamKernelGemini3
+     45  f483		       8e 22 f0 	      stx	[KernelA_H_W + 0]
+     46  f486		       a6 9f		      ldx	RamKernelGemini3Reg
+     47  f488		       8e 23 f0 	      stx	[KernelA_H_W + 1]
+     48  f48b				   .endif_4
+    428  f48b		       a5 91		      lda	RamNibbleVar2
+      0  f48d					      NIBBLE_gem_kernel_a_2
+      1  f48d				   .if_1
+      2  f48d		       0a		      asl
+      3  f48e		       90 20		      bcc	.else_1
+      4  f490		       a2 85		      ldx	#BC_STA
+      5  f492		       8e 24 f0 	      stx	[[KernelA_I_W + 0] + 0]
+      6  f495		       a2 11		      ldx	#EMERALD_SP_RESET
+      7  f497		       8e 25 f0 	      stx	[[KernelA_I_W + 0] + 1]
+      8  f49a		       a2 85		      ldx	#BC_STA
+      9  f49c		       8e 26 f0 	      stx	[[KernelA_J_W + 1] + 0]
+     10  f49f		       a2 0e		      ldx	#PF1
+     11  f4a1		       8e 27 f0 	      stx	[[KernelA_J_W + 1] + 1]
+     12  f4a4		       a2 08		      ldx	#BC_PHP
+     13  f4a6		       8e 28 f0 	      stx	[[KernelA_K_W + 1] + 0]
+     14  f4a9		       a2 26		      ldx	#VDELP1
+     15  f4ab		       86 97		      stx	[RamKernelPhpTarget + 0]
+     16  f4ad		       4c cd f4 	      jmp	.endif_1
+     17  f4b0				   .else_1
+     18  f4b0		       a2 08		      ldx	#BC_PHP
+     19  f4b2		       8e 24 f0 	      stx	[[KernelA_I_W + 0] + 0]
+     20  f4b5		       a2 85		      ldx	#BC_STA
+     21  f4b7		       8e 25 f0 	      stx	[[KernelA_J_W + 0] + 0]
+     22  f4ba		       a2 0e		      ldx	#PF1
+     23  f4bc		       8e 26 f0 	      stx	[[KernelA_J_W + 0] + 1]
+     24  f4bf		       a6 a0		      ldx	RamKernelGemini4
+     25  f4c1		       8e 27 f0 	      stx	[KernelA_K_W + 0]
+     26  f4c4		       a2 1c		      ldx	#EMERALD_SP
+     27  f4c6		       8e 28 f0 	      stx	[KernelA_K_W + 1]
+     28  f4c9		       a2 11		      ldx	#RESP1
+     29  f4cb		       86 97		      stx	[RamKernelPhpTarget + 0]
+     30  f4cd				   .endif_1
+     31  f4cd		       a2 60		      ldx	#[SHARD_LUT_VD1 == 4 ? GEM4 - GEM1] + GEM1
+     32  f4cf		       8e 04 f0 	      stx	[[KernelA_VDEL1 - $100] + 0]
+     33  f4d2		       a6 a6		      ldx	BuildKernelGrp0
+     34  f4d4		       8e 0a f0 	      stx	[[KernelA_VDEL0 - $100] + 0]
+     35  f4d7		       a6 a3		      ldx	BuildKernelX
+     36  f4d9		       86 98		      stx	[RamKernelX + 0]
+     37  f4db		       a6 a4		      ldx	BuildKernelY
+     38  f4dd		       8e 0e f0 	      stx	[[KernelA_STY - $100] + 0]
+    430  f4e0		       4c f3 f4 	      jmp	.next
+    431  f4e3				   .kernel_b
+    432  f4e3		       a5 90		      lda	RamNibbleVar1
+      0  f4e5					      NIBBLE_gem_kernel_b
+      1  f4e5				   .if_1
+      2  f4e5		       0a		      asl
+      3  f4e6		       90 07		      bcc	.else_1
+      4  f4e8		       a2 11		      ldx	#EMERALD_SP_RESET
+      5  f4ea		       86 97		      stx	[RamKernelPhpTarget + 0]
+      6  f4ec		       4c f3 f4 	      jmp	.endif_1
+      7  f4ef				   .else_1
+      8  f4ef		       a2 1c		      ldx	#EMERALD_SP
+      9  f4f1		       86 97		      stx	[RamKernelPhpTarget + 0]
+     10  f4f3				   .endif_1
+    434  f4f3				   .next
+    435  f4f3
+    436  f4f3				   VerticalBlankEnd
+    437  f4f3							; Wait until the end of Vertical blank.
+      0  f4f3					      TIMER_WAIT
+      1  f4f3				   .waittimer
+      2  f4f3		       ad 84 02 	      lda	INTIM
+      3  f4f6		       d0 fb		      bne	.waittimer
+      4  f4f8		       85 02		      sta	WSYNC
+      0  f4fa					      ASSERT_RUNTIME	"_scan == #37"
+      1  f4fa				   .COND      SET	"_scan == #37"
+ ASSERT: breakif { pc== $f4fa  && !(  _scan == #37  ) }
+      2  f4fa					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
+    440  f4fa
+    441  f4fa							; Save stack pointer
+    442  f4fa		       ba		      tsx
+    443  f4fb		       86 94		      stx	RamStackBkp
+    444  f4fd
+    445  f4fd							; Start rendering the kernel.
+    446  f4fd		       4c ce f5 	      jmp	KernelBorder
+    447  f500
+    448  f500					      align	256	; TODO why
+    449  f500
+    450  f500				   FrameEnd   subroutine
+    451  f500		       85 02		      sta	WSYNC
+    452  f502
+    453  f502							; Blank all background colors.
+    454  f502		       a9 00		      lda	#0
+    455  f504		       85 08		      sta	COLUPF
+    456  f506		       85 0f		      sta	PF2
+    457  f508		       85 0e		      sta	PF1
+    458  f50a		       85 1c		      sta	EMERALD_SP
+    459  f50c
+    460  f50c							; Guide lines (2x)
+    461  f50c		       a9 02		      lda	#SIGNAL_LINE
+    462  f50e		       85 09		      sta	COLUBK
+    463  f510					      REPEAT	6
+    464  f510		       85 02		      sta	WSYNC
+    463  f510					      REPEND
+    464  f512		       85 02		      sta	WSYNC
+    463  f512					      REPEND
+    464  f514		       85 02		      sta	WSYNC
+    463  f514					      REPEND
+    464  f516		       85 02		      sta	WSYNC
+    463  f516					      REPEND
+    464  f518		       85 02		      sta	WSYNC
+    463  f518					      REPEND
+    464  f51a		       85 02		      sta	WSYNC
+    465  f51c					      REPEND
+    466  f51c		       a9 00		      lda	#$00
+    467  f51e		       85 09		      sta	COLUBK
+    468  f520
+    469  f520							; Restore stack pointer
+    470  f520		       a6 94		      ldx	RamStackBkp
+    471  f522		       9a		      txs
+    472  f523
+    473  f523							; Display the rest of the blank screen.
       0  f523					      TIMER_SETUP	25
       1  f523				   .lines     SET	25
       2  f523		       a9 1d		      lda	#(((.lines)*76-14)/64)
       3  f525		       85 02		      sta	WSYNC
       4  f527		       8d 96 02 	      sta	TIM64T
-    457  f52a		       85 02		      sta	WSYNC
+    475  f52a		       85 02		      sta	WSYNC
       0  f52c					      TIMER_WAIT
       1  f52c				   .waittimer
       2  f52c		       ad 84 02 	      lda	INTIM
@@ -2035,19 +2055,19 @@
       1  f533				   .COND      SET	"_scan == (#37 + #192)"
  ASSERT: breakif { pc== $f533  && !(  _scan == (#37 + #192)  ) }
       2  f533					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
-    460  f533
-    461  f533							; Overscan
-    462  f533				   Overscan   subroutine
-    463  f533		       85 01		      sta	VBLANK
+    478  f533
+    479  f533							; Overscan
+    480  f533				   Overscan   subroutine
+    481  f533		       85 01		      sta	VBLANK
       0  f535					      TIMER_SETUP	29
       1  f535				   .lines     SET	29
       2  f535		       a9 22		      lda	#(((.lines)*76-14)/64)
       3  f537		       85 02		      sta	WSYNC
       4  f539		       8d 96 02 	      sta	TIM64T
-    465  f53c
-    466  f53c		       20 4c f5 	      jsr	MoveJoystick
-    467  f53f		       20 83 f5 	      jsr	SpeedCalculation
-    468  f542
+    483  f53c
+    484  f53c		       20 4c f5 	      jsr	MoveJoystick
+    485  f53f		       20 83 f5 	      jsr	SpeedCalculation
+    486  f542
       0  f542					      TIMER_WAIT
       1  f542				   .waittimer
       2  f542		       ad 84 02 	      lda	INTIM
@@ -2057,8 +2077,8 @@
       1  f549				   .COND      SET	"_scan == (#37 + #192 + #29)"
  ASSERT: breakif { pc== $f549  && !(  _scan == (#37 + #192 + #29)  ) }
       2  f549					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
-    471  f549
-    472  f549		       4c a1 f2 	      jmp	VerticalSync
+    489  f549
+    490  f549		       4c b1 f2 	      jmp	VerticalSync
 ------- FILE main.s
 ------- FILE game_input.s LEVEL 2 PASS 2
       0  f54c					      include	"game_input.s"

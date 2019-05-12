@@ -4,9 +4,10 @@
     ldx #SENTINEL
     stx BuildKernelX
     stx BuildKernelY
-    stx BuildKernelZ
+    stx BuildKernelRST
     ; Gemini 1A
-    ldx #SHARD_0A_RST
+    ldy #SHARD_0A_RST
+    ; jsr KernelA_GenReset
 .if_1:
     beq .else_1
     sec

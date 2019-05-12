@@ -5,15 +5,16 @@
 KernelA_GenReset: subroutine
     cpy #$00
     bne .start
-    rts ; Filte for #$00 geminis
+    rts ; Filter for only #$00 geminis
 .start:
     ldx BuildKernelRST
     cpx #SENTINEL
     bne .set_else
-    ; Override gemini
-    ldx #0
+    ; Override gemini with #$ff
+    ldx #$ff
     stx BuildKernelRST
 .set_else
+    rts
 
 ; Y=Gemini Sprite
 KernelA_UpdateRegs: subroutine
@@ -239,8 +240,8 @@ SENTINEL = %010101010
         stx BuildKernelRST
 
         ; Gemini 1A
-        ldy #GEM0
-        jsr KernelA_GenReset
+        ldy #SHARD_0A_RST
+        ; jsr KernelA_GenReset
         NIBBLE_IF ne
             ; Special: Encoding RST0
             ; Rewrite lda RamKernelPF1 to be #immediate
