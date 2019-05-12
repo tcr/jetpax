@@ -36,13 +36,13 @@ G11 = %01100110
 ; cpu:      cpu(g00,g00,false,g10,g11,false)
 ; solved:   [bc_STX,bc_STX,bc_STY,bc_RST,bc_STY]
 
-; gems:     [g11,g10,g00,g01,g00,g01]
-; cpu:      cpu(g11,g00,false,g10,g01,false)
-; solved:   [bc_NOP,bc_STX,bc_RST,bc_STY,bc_VD1]
-
 ; gems:     [g01,g00,g00,g11,g01,g11]
 ; cpu:      cpu(g00,g01,false,g01,g11,false)
 ; solved:   [bc_STX,bc_RST,bc_RST,bc_STY,bc_VD1]
+
+; gems:     [g11,g10,g00,g01,g00,g01]
+; cpu:      cpu(g11,g00,false,g10,g01,false)
+; solved:   [bc_NOP,bc_STX,bc_RST,bc_STY,bc_VD1]
 
 SHARD_LUT_RF1:
     .byte #0
@@ -50,17 +50,17 @@ SHARD_LUT_VD1:
     .byte #4 
 
 GEM0:
-    .byte G01
+    .byte G11
 GEM1:
-    .byte G00 
+    .byte G10
 GEM2:
     .byte G00
 GEM3:
-    .byte G11
-GEM4:
     .byte G01
+GEM4:
+    .byte G00
 GEM5:
-    .byte G11
+    .byte G01
 
 ; Y=Gemini Sprite
 ; processor flag Z=is RST opcode
@@ -295,8 +295,9 @@ KernelB_H_W EQM [KernelB_H - $100]
                 ; Set opcode
                 ldx SHARD_LUT_RF1
                 cpx #1
+                ldy #BC_STX
+                .byte $D0, #4 ; bne +5
                 ldy GEM1
-                .byte $D0, #3 ; bne +3
                 jsr KernelA_UpdateRegs
                 sty RamKernelGemini1
 

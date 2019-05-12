@@ -61,8 +61,9 @@
     ; Set opcode
     ldx SHARD_LUT_RF1
     cpx #1
+    ldy #BC_STX
+    .byte $D0, #4
     ldy GEM1
-    .byte $D0, #3
     jsr KernelA_UpdateRegs
     sty RamKernelGemini1
     ; [BIT DEPTH] #2 *If-End @ 2
