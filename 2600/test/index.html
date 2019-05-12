@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+
+    <head lang="en">
+
+        <meta charset="UTF-8">
+        <title>Javatari</title>
+        <meta name="description" content="Javatari - The online Atari 2600 emulator">
+
+    </head>
+
+    <body style="font-family: Helvetica Neue, Arial, sans-serif;">
+
+        <div id="javatari" style="text-align: center; margin: 20px auto 0; padding: 0 10px;">
+            <div id="javatari-screen" style="box-shadow: 2px 2px 10px rgba(0, 0, 0, .7);"></div>
+        </div>
+
+        <script src="javatari.js"></script>
+        <script>
+Javatari.CARTRIDGE_URL = "jetpack.bin";
+Javatari.SCREEN_CRT_MODE = 1;
+Javatari.SCREEN_FILTER_MODE = 0;
+Javatari.ALLOW_URL_PARAMETERS = false;
+        </script>
+
+        <canvas id="dest" style="border: 2px solid yellow; transform: scale(2.0) translateX(80px);" width="104" height="136"></canvas>
+
+        <div style="margin: 3em 0; text-align: center;">
+            Embedded emulator is <a href="http://javatari.org">Javatari.</a>
+        </div>
+
+<script>
+
+// TODO inline the binary into memory, modify it, reload test
+// jt.EmbeddedFiles
+
+function average(context, x, y, width, height) {
+    let rgb = {r:102,g:102,b:102}, // Set a base colour as a fallback for non-compliant browsers
+      pixelInterval = 1, // Rather than inspect every single pixel in the image inspect every 5th pixel
+      count = 0;
+
+    let data, length;
+    try {
+        data = context.getImageData(x, y, width, height);
+    } catch(e) {
+        // catch errors - usually due to cross domain security issues
+        alert(e);
+        return rgb;
+    }
+
+    let i = 0;
+    data = data.data;
+    length = data.length;
+    while ((i += pixelInterval * 4) < length) {
+        count++;
+        rgb.r += data[i];
+        rgb.g += data[i+1];
+        rgb.b += data[i+2];
+    }
+  
+    // floor the average values to give correct rgb values (ie: round number values)
+    rgb.r = Math.floor(rgb.r/count);
+    rgb.g = Math.floor(rgb.g/count);
+    rgb.b = Math.floor(rgb.b/count);
+
+    return rgb;
+}
+
+let done = setInterval((function () {
+    const SOURCE = document.querySelector('#jt-screen-canvas');
+    const DEST = document.querySelector('#dest');
+
+    //grab the context from your destination canvas
+    const SOURCE_CTX = SOURCE.getContext('2d');
+    const DEST_CTX = DEST.getContext('2d');
+
+    //call its drawImage() function passing it the source canvas directly
+    DEST_CTX.drawImage(SOURCE, -28, -27);
+
+    let A_whitelist = [0, 1, 4, 5, /*8,*/ 9, 10, 13, 14, 18, 19, 22, 23];
+    let B_whitelist = [2, 3, 6, 7, 11, 12, 15, 16, /*17,*/ 20, 21, 24, 25];
+
+    let row = [];
+    let y = 0;
+    for (let x = 0; x < 26; x++) {
+        if (A_whitelist.indexOf(x) == -1) {
+            continue;
+        }
+        let on = average(DEST_CTX, (x*4)+1, (y*8)+3, 2, 2).g > 200;
+        row.push(on);
+        if (on) {
+            DEST_CTX.rect((x*4)+1, (y*8)+3, 2, 2);
+            DEST_CTX.fillStyle = 'red';
+            DEST_CTX.fill();
+        }
+    }
+
+    console.log(row);
+
+    if (row.some(x => x)) {
+        clearInterval(done);
+    }
+}), 100);
+
+</script>
+
+    </body>
+
+</html>
