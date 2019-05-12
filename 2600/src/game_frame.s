@@ -80,10 +80,17 @@ KernelA_GenReset: subroutine
     ldx #$00
     rts
 
+; Allocates build-time registers for a new Gemini sprite value.
+; Return value (Y) is the storage opcode to use for the next build-time register
+;
+; BuildKernelGrp0, BuildKernelX, BuildKernelY are compared in that order.
+; BuildKernelX, BuildKernelY are upgraded if not set.
 ; Y=Gemini Sprite
 KernelA_UpdateRegs: subroutine
+
     ; If equal to GRP0, return nop
-    ; FIXME GRP0 might not always be up to date
+    ; FIXME GRP0 might not always be up to date (should update each entry?)
+    ; FIXME GOTTA REVERSE THE GRAPHICS ALSO
     cpy BuildKernelGrp0
     bne .set_start
     ; TODO if this is stx + NOP value, then register doesn't have to change as
@@ -96,6 +103,7 @@ KernelA_UpdateRegs: subroutine
     cpx #SENTINEL
     bne .set_else
     sty BuildKernelX
+    ; FIXME like here is where graphics would be reversed savedinto BuidlKernelX
     beq .set_end
 .set_else
     ldx BuildKernelY
@@ -389,7 +397,6 @@ KernelB_H_W EQM [KernelB_H - $100]
         ; VD1
         ; ldy #SHARD_VD1
         ; sty [KernelA_VDEL1 - $100]
-        ; FIXME read from BuildKernelVdel1
         NIBBLE_WRITE [KernelA_VDEL1 - $100], BuildKernelVdel1
         ; GRP0
         ; ldy #SHARD_GRP0
@@ -416,17 +423,24 @@ KernelB_H_W EQM [KernelB_H - $100]
         sty [KernelB_STY - $100]
         
         cpx #$00
-        NIBBLE_IF cs
+        ; NIBBLE_IF cs
             NIBBLE_WRITE RamKernelPhpTarget, #EMERALD_SP_RESET
-            ; NIBBLE_WRITE [KernelB_H_W + 0], #BC_STA
-            ; NIBBLE_WRITE [KernelB_H_W + 1], #EMERALD_SP
-            ; NIBBLE_WRITE [KernelB_H_W + 2], #BC_PHP
-        NIBBLE_ELSE
-            NIBBLE_WRITE RamKernelPhpTarget, #EMERALD_SP
-            ; NIBBLE_WRITE [KernelB_H_W + 0], #BC_PHP
-            ; NIBBLE_WRITE [KernelB_H_W + 1], #BC_STA
-            ; NIBBLE_WRITE [KernelB_H_W + 2], #EMERALD_SP_RESET
-        NIBBLE_END_IF
+        ;     NIBBLE_WRITE [KernelB_E_W + 0], #BC_PHP
+        ;     NIBBLE_WRITE [KernelB_F_W + 0], #BC_STY, #EMERALD_SP ; 2B
+        ;     NIBBLE_WRITE [KernelB_G_W + 0], #BC_STA, #PF1
+        ;     NIBBLE_WRITE [KernelB_H_W + 0], #BC_STY, #EMERALD_SP ; 3B
+        ; NIBBLE_ELSE
+        ;     NIBBLE_WRITE RamKernelPhpTarget, #EMERALD_SP
+        ;     NIBBLE_WRITE [KernelB_F_W + 0], #BC_STY, #EMERALD_SP_RESET ; 2B
+        ;     NIBBLE_WRITE [KernelB_E_W + 0], #BC_PHP
+        ;     NIBBLE_WRITE [KernelB_G_W + 0], #BC_STA, #PF1
+        ;     NIBBLE_WRITE [KernelB_H_W + 0], #BC_STY, #EMERALD_SP ; 3B
+        ; NIBBLE_ELSE
+        ;     NIBBLE_WRITE [KernelB_H_W + 0], #BC_STY, #EMERALD_SP_RESET ; 3B
+        ;     NIBBLE_WRITE [KernelB_F_W + 0], #BC_STY, #EMERALD_SP ; 2B
+        ;     NIBBLE_WRITE [KernelB_G_W + 0], #BC_STA, #PF1
+        ;     NIBBLE_WRITE [KernelB_E_W + 0], #BC_PHP
+        ; NIBBLE_END_IF
     NIBBLE_END_KERNEL
 
     ; TODO do this for all rows

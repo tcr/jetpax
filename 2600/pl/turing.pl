@@ -4,8 +4,8 @@
 
 :- nb_setval(enable_reflect, false).
 
-kernel(ka).
-% kernel(kb).
+% kernel(ka).
+kernel(kb).
 
 is_bool(true).
 is_bool(false).
@@ -82,7 +82,8 @@ opcode_violation(Prog, cpu(_, _, D, _, _, _), bc_VD1) :-
     should_occur_once(Prog, bc_VD1) ; % restrict count
     length(Prog, Len), Len == 1, D == true ;
     % length(Prog, Len), Len == 2, D == true ;
-    should_be_pos(Prog, [1, 4]). % restrict positions (Kernel A)
+    (kernel(ka), should_be_pos(Prog, [1, 4])) ; % restrict positions (Kernel A)
+    (kernel(kb), should_be_pos(Prog, [4])). % restrict positions (Kernel A)
 opcode_violation(Prog, _, bc_RST) :-
     should_occur_once(Prog, bc_RST) ; % restrict count
     % nth0(Index, Prog, bc_RST), Index \= 1 ; % TODO only valid once
@@ -97,11 +98,11 @@ opcode_violation(Prog, _, bc_RF1) :-
 opcode_violation(Prog, _, bc_P11) :-
     member(bc_P11, Prog) ; % only appear once
     member(bc_P10, Prog) ; % don't  mix.
-    should_be_pos(Prog, [2, 3, 4]). % restrict positions
+    should_be_pos(Prog, [2, 3]). % restrict positions ; NOTE could be [2,3] also
 opcode_violation(Prog, _, bc_P10) :-
     member(bc_P11, Prog) ; % only appear once
     member(bc_P10, Prog) ; % don't  mix.
-    should_be_pos(Prog, [2, 3, 4]). % restrict positions
+    should_be_pos(Prog, [2, 3]). % restrict positions ; NOTE could be [2,3] also
 
 % Reflection map
 reflect(false, g00, g00). reflect(false, g01, g01). reflect(false, g10, g10). reflect(false, g11, g11).

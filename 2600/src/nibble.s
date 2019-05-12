@@ -167,7 +167,6 @@
     ; VD1
     ; ldy #SHARD_VD1
     ; sty [KernelA_VDEL1 - $100]
-    ; FIXME read from BuildKernelVdel1
     ; GRP0
     ; ldy #SHARD_GRP0
     ; sty [KernelA_VDEL0 - $100]
@@ -197,26 +196,25 @@
     sty [KernelB_STY - $100]
      
     cpx #$00
-.if_1:
-    bcc .else_1
-    sec
+    ; NIBBLE_IF cs
+    ;     NIBBLE_WRITE [KernelB_E_W + 0], #BC_PHP
+    ;     NIBBLE_WRITE [KernelB_F_W + 0], #BC_STY, #EMERALD_SP
+    ;     NIBBLE_WRITE [KernelB_G_W + 0], #BC_STA, #PF1
+    ;     NIBBLE_WRITE [KernelB_H_W + 0], #BC_STY, #EMERALD_SP
+    ; NIBBLE_ELSE
+    ;     NIBBLE_WRITE RamKernelPhpTarget, #EMERALD_SP
+    ;     NIBBLE_WRITE [KernelB_F_W + 0], #BC_STY, #EMERALD_SP_RESET
+    ;     NIBBLE_WRITE [KernelB_E_W + 0], #BC_PHP
+    ;     NIBBLE_WRITE [KernelB_G_W + 0], #BC_STA, #PF1
+    ;     NIBBLE_WRITE [KernelB_H_W + 0], #BC_STY, #EMERALD_SP
+    ; NIBBLE_ELSE
+    ;     NIBBLE_WRITE [KernelB_H_W + 0], #BC_STY, #EMERALD_SP_RESET
+    ;     NIBBLE_WRITE [KernelB_F_W + 0], #BC_STY, #EMERALD_SP
+    ;     NIBBLE_WRITE [KernelB_G_W + 0], #BC_STA, #PF1
+    ;     NIBBLE_WRITE [KernelB_E_W + 0], #BC_PHP
+    ; NIBBLE_END_IF
+    ; [BIT DEPTH] Final: 0 (out of 8 bits)
     rol
-    ; NIBBLE_WRITE [KernelB_H_W + 0], #BC_STA
-    ; NIBBLE_WRITE [KernelB_H_W + 1], #EMERALD_SP
-    ; NIBBLE_WRITE [KernelB_H_W + 2], #BC_PHP
-    jmp .endif_1
-    ; [BIT DEPTH] #1 If-End @ 1
-
-.else_1:
-    clc
-    rol
-    ; NIBBLE_WRITE [KernelB_H_W + 0], #BC_PHP
-    ; NIBBLE_WRITE [KernelB_H_W + 1], #BC_STA
-    ; NIBBLE_WRITE [KernelB_H_W + 2], #EMERALD_SP_RESET
-    ; [BIT DEPTH] #1 *If-End @ 1
-    ; [BIT DEPTH] #1 Else-End @ 1
-.endif_1:
-    ; [BIT DEPTH] Final: 1 (out of 8 bits)
     rol
     rol
     rol
@@ -320,16 +318,8 @@
     ENDM
 
     MAC NIBBLE_gem_kernel_b
-.if_1:
-    asl
-    bcc .else_1
     ldx #EMERALD_SP_RESET
     stx [RamKernelPhpTarget + 0]
-    jmp .endif_1
-.else_1:
-    ldx #EMERALD_SP
-    stx [RamKernelPhpTarget + 0]
-.endif_1:
     ENDM
 
 

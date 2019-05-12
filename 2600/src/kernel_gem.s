@@ -162,23 +162,24 @@ KernelB_STY = . - 1
 KernelB_A:
     sta EMERALD_SP_RESET
 KernelB_B:
-KernelB_C:
-KernelB_D:
     ; Load PF1 value into accumulator
-    lda.w RamPF1Value
-    ; sleep 4
-    ; set D0 = 0 without using a register
-    asl VDELP1
-KernelB_E:
-    sta EMERALD_SP_RESET
-KernelB_F:
-    sty EMERALD_SP
-KernelB_G:
-    sta PF1
+    lda RamPF1Value
+KernelB_C:
+    sleep 3
+KernelB_D:
+    stx EMERALD_SP ; Gemini 1B
 
 ; below has one php load (could just be RESET)
+KernelB_E:
+    php
+KernelB_F:
+    sty EMERALD_SP ; Gemini 2B
+KernelB_G:
+    sta PF1
 KernelB_H:
     sty EMERALD_SP ; Gemini 3B; TODO write php instead fixed
+; above has one PHP load
+
 KernelB_I:
     sta EMERALD_SP_RESET
 KernelB_J:
@@ -187,7 +188,6 @@ KernelB_K:
     stx EMERALD_MI_ENABLE
 KernelB_L:
     sty EMERALD_SP ; Gemini 5B
-; above has one PHP loa
 
 KernelB_M:
 KernelB_N:
