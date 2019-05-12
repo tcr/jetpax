@@ -195,18 +195,6 @@ SHARD_4A        = BC_STX
 
     ; Nibble Kernel A
     NIBBLE_START_KERNEL gem_kernel_a, 40
-        ; VD1
-        ldy #SHARD_VD1
-        sty [KernelA_VDEL1 - $100]
-        ; GRP0
-        ldy #SHARD_GRP0
-        sty [KernelA_VDEL0 - $100]
-        ; X
-        ldy #SHARD_X
-        sty RamKernelX
-        ; Y
-        NIBBLE_WRITE [KernelA_STY - $100], #SHARD_Y
-
         ; Gemini 1A
         ldx #SHARD_0A_RST
         NIBBLE_IF ne
@@ -227,6 +215,8 @@ SHARD_4A        = BC_STX
             NIBBLE_IF ne
                 NIBBLE_WRITE KernelA_D_W + 1, #RESP1 ; RESET
             NIBBLE_ELSE
+                ; FIXME Calculate the 1A value
+
                 ldy #SHARD_1A
                 sty RamKernelGemini1
                 NIBBLE_WRITE KernelA_D_W, RamKernelGemini1, #SHARD_1A_REG ; STY
@@ -239,6 +229,8 @@ SHARD_4A        = BC_STX
             NIBBLE_WRITE KernelA_E_W + 1, #NOP_REG   ; NOP
             NIBBLE_WRITE KernelA_G_W + 1, #RESP1 ; RESET
         NIBBLE_ELSE
+            ; FIXME Calculate the 2A value
+
             NIBBLE_WRITE KernelA_E_W + 1, #RESP1
             ldy #SHARD_2A
             sty RamKernelGemini2
@@ -250,6 +242,8 @@ SHARD_4A        = BC_STX
         NIBBLE_IF ne
             NIBBLE_WRITE KernelA_H_W + 1, #RESP1 ; RESET
         NIBBLE_ELSE
+            ; FIXME Calculate the 3A value
+
             ldy #SHARD_3A
             sty RamKernelGemini3
             NIBBLE_WRITE KernelA_H_W, RamKernelGemini3, #SHARD_3A_REG ; STY
@@ -265,6 +259,8 @@ SHARD_4A        = BC_STX
             ; Set PHP
             NIBBLE_WRITE RamKernelPhpTarget, #VDELP1
         NIBBLE_ELSE
+            ; FIXME Calculate the 4A value
+
             NIBBLE_WRITE [KernelA_I_W + 0], #BC_PHP
             NIBBLE_WRITE [KernelA_J_W + 0], #BC_STA, #PF1
             NIBBLE_WRITE KernelA_K_W, #SHARD_4A, #EMERALD_SP
@@ -272,6 +268,18 @@ SHARD_4A        = BC_STX
             ; Set PHP
             NIBBLE_WRITE RamKernelPhpTarget, #RESP1
         NIBBLE_END_IF
+
+        ; VD1
+        ldy #SHARD_VD1
+        sty [KernelA_VDEL1 - $100]
+        ; GRP0
+        ldy #SHARD_GRP0
+        sty [KernelA_VDEL0 - $100]
+        ; X
+        ldy #SHARD_X
+        sty RamKernelX
+        ; Y
+        NIBBLE_WRITE [KernelA_STY - $100], #SHARD_Y
 
         ; Gemini 5A
         ; TODO eventually...?
