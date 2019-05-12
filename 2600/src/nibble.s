@@ -41,6 +41,7 @@
     beq .else_2
     sec
     rol
+    ; GEM1ASWITCH
     jmp .endif_2
     ; [BIT DEPTH] #2 If-End @ 2
 
@@ -219,8 +220,10 @@
 .if_2:
     asl
     bcc .else_2
+    ldx #BC_STX
+    stx [KernelA_D_W + 0]
     ldx #RESP1
-    stx [KernelA_D_W + 1 + 0]
+    stx [KernelA_D_W + 1]
     jmp .endif_2
 .else_2:
     ldx RamKernelGemini1

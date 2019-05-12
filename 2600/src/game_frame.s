@@ -5,6 +5,8 @@ KernelA_UpdateRegs: subroutine
     ; FIXME GRP0 might not always be up to date
     cpy BuildKernelGrp0
     bne .set_start
+    ; TODO if this is stx + NOP value, then register doesn't have to change as
+    ; often in GEM1ASWITCH
     ldy #BC_NOP
     rts
 
@@ -169,18 +171,6 @@ G01 = %01100000
 G10 = %00000110
 G11 = %01100110
 
-; gems:     [g01,g00,g00,g11,g01,g11]
-; cpu:      cpu(g00,g01,false,g01,g11,false)
-; solved:   [bc_STX,bc_RST,bc_RST,bc_STY,bc_VD1]
-
-; gems:     [g01,g00,g00,g11,g01,g11]
-; cpu:      cpu(g01,g01,false,g00,g11,false)
-; solved:   [bc_NOP,bc_STX,bc_STX,bc_STY,bc_VD1]
-
-; gems:     [g11,g01,g01,g01,g01,g00]
-; cpu:      cpu(g00,g01,false,g11,g00,false)
-; solved:   [bc_STX,bc_VD1,bc_STX,bc_STX,bc_STX]
-
 ; gems:     [g01,g10,g01,g11,g00,g00]
 ; cpu:      cpu(g01,g00,false,g10,g11,false)
 ; solved:   [bc_NOP,bc_STX,bc_RF1,bc_STY,bc_VD1]
@@ -197,17 +187,29 @@ G11 = %01100110
 ; cpu:      cpu(g10,g10,false,g11,g01,false)
 ; solved:   [bc_NOP,bc_STX,bc_RST,bc_STY,bc_VD1]
 
+; gems:     [g01,g00,g00,g11,g01,g11]
+; cpu:      cpu(g00,g01,false,g01,g11,false)
+; solved:   [bc_STX,bc_RST,bc_RST,bc_STY,bc_VD1]
+
+; gems:     [g01,g00,g00,g11,g01,g11]
+; cpu:      cpu(g01,g01,false,g00,g11,false)
+; solved:   [bc_NOP,bc_STX,bc_STX,bc_STY,bc_VD1]
+
+; gems:     [g11,g01,g01,g01,g01,g00]
+; cpu:      cpu(g00,g01,false,g11,g00,false)
+; solved:   [bc_STX,bc_VD1,bc_STX,bc_STX,bc_STX]
+
 SHARD_LUT_RF1 = 0
-SHARD_LUT_VD1 = 4
-GEM0 = G10
-GEM1 = G11
-GEM2 = G00
+SHARD_LUT_VD1 = 1
+GEM0 = G11
+GEM1 = G01
+GEM2 = G01
 GEM3 = G01
-GEM4 = G10
-GEM5 = G11
+GEM4 = G01
+GEM5 = G00
 
 SHARD_0A_RST    = [GEM0 == G00]
-SHARD_1A_RST    = [!SHARD_0A_RST && GEM1 == G00]
+SHARD_1A_RST    EQM [GEM1 == G00]
 SHARD_2A_RST    = [!SHARD_0A_RST && !SHARD_1A_RST && GEM2 == G00]
 SHARD_3A_RST    = 0 ; TODO
 
@@ -245,7 +247,8 @@ SENTINEL = %010101010
 
             ldx #SHARD_1A_RST
             NIBBLE_IF ne
-                NIBBLE_WRITE KernelA_D_W + 1, #RESP1 ; RESET
+                ; GEM1ASWITCH
+                NIBBLE_WRITE KernelA_D_W, #BC_STX, #RESP1 ; RESET
             NIBBLE_ELSE
                 ; Calculate the 1A value
                 if SHARD_LUT_RF1
