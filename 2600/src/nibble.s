@@ -7,7 +7,7 @@
     stx BuildKernelRST
     ; Gemini 1A
     ldy #GEM0
-    ; jsr KernelA_GenReset
+    jsr KernelA_GenReset
 .if_1:
     bne .else_1
     sec
@@ -37,9 +37,10 @@
     ; Store 0A in GRP0
     ldy #GEM0
     sty BuildKernelGrp0
-    ldx #SHARD_1A_RST
+    ldy #GEM1
+    jsr KernelA_GenReset
 .if_2:
-    beq .else_2
+    bne .else_2
     sec
     rol
     ; GEM1ASWITCH
@@ -68,9 +69,10 @@
     ; [BIT DEPTH] #1 Else-End @ 2
 .endif_1:
     ; Gemini 2A
-    ldx #SHARD_2A_RST
+    ldy #GEM2
+    jsr KernelA_GenReset
 .if_3:
-    beq .else_3
+    bne .else_3
     sec
     rol
     jmp .endif_3
@@ -94,9 +96,10 @@
     ; [BIT DEPTH] #3 Else-End @ 3
 .endif_3:
     ; Gemini 3A
-    ldx #SHARD_3A_RST
+    ldy #GEM3
+    jsr KernelA_GenReset
 .if_4:
-    beq .else_4
+    bne .else_4
     sec
     rol
     jmp .endif_4
@@ -105,7 +108,6 @@
 .else_4:
     clc
     rol
-    ; FIXME Calculate the 3A value
     ; Set opcode
     ldy #GEM3
     jsr KernelA_UpdateRegs

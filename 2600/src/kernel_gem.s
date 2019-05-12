@@ -85,7 +85,7 @@ KernelA_G:
 KernelA_H:
     sty EMERALD_SP ; Gemini 3A, modified for RST2 along with HMM1
 
-    ; ASSERT_RUNTIME_KERNEL $A, "_scycles == #67"
+    ASSERT_RUNTIME_KERNEL $A, "c == #1"
 ; RST4 vvv
 KernelA_I:
     php ; Reset "medium close" NUSIZ repetition
@@ -107,7 +107,7 @@ KernelA_O:
     pla
 
     ; End visible line
-    ASSERT_RUNTIME_KERNEL $A, "c == #1"
+    ASSERT_RUNTIME_KERNEL $A, "_scycles == #67"
 
 KernelA_branch:
     lda INTIM

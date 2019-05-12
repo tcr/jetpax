@@ -1,5 +1,7 @@
 ; Frame loop, including calling out to other kernels.
 
+SENTINEL = %010101010
+
 ; Y=Gemini Sprite
 ; processor flag Z=is RST opcode
 KernelA_GenReset: subroutine
@@ -20,7 +22,7 @@ KernelA_GenReset: subroutine
 
 ; Y=Gemini Sprite
 KernelA_UpdateRegs: subroutine
-    ; GRP0 returns nop
+    ; If equal to GRP0, return nop
     ; FIXME GRP0 might not always be up to date
     cpy BuildKernelGrp0
     bne .set_start
@@ -170,7 +172,7 @@ BC_STA = $85
 BC_STX = $86
 BC_STY = $84
 BC_PHP = $08
-BC_NOP = $15
+BC_NOP = $04
 
 NOP_REG = $79 ; TODO is there a better reg to write to with NOP effects
 
@@ -218,21 +220,22 @@ G11 = %01100110
 ; cpu:      cpu(g00,g01,false,g11,g00,false)
 ; solved:   [bc_STX,bc_VD1,bc_STX,bc_STX,bc_STX]
 
+; gems:     [g10,g10,g11,g00,g11,g01]
+; cpu:      cpu(g00,g00,false,g10,g11,false)
+; solved:   [bc_STX,bc_STX,bc_STY,bc_RST,bc_STY]
+
+; gems:     [g11,g10,g00,g01,g00,g01]
+; cpu:      cpu(g11,g00,false,g10,g01,false)
+; solved:   [bc_NOP,bc_STX,bc_RST,bc_STY,bc_VD1]
+
 SHARD_LUT_RF1 = 0
-SHARD_LUT_VD1 = 1
+SHARD_LUT_VD1 = 4
 GEM0 = G11
-GEM1 = G01
-GEM2 = G01
+GEM1 = G10
+GEM2 = G00
 GEM3 = G01
-GEM4 = G01
-GEM5 = G00
-
-SHARD_0A_RST    = [GEM0 == G00]
-SHARD_1A_RST    EQM [GEM1 == G00]
-SHARD_2A_RST    = [!SHARD_0A_RST && !SHARD_1A_RST && GEM2 == G00]
-SHARD_3A_RST    = 0 ; TODO
-
-SENTINEL = %010101010
+GEM4 = G00
+GEM5 = G01
 
     ; Nibble Kernel A
     NIBBLE_START_KERNEL gem_kernel_a_1, 40
@@ -243,8 +246,8 @@ SENTINEL = %010101010
 
         ; Gemini 1A
         ldy #GEM0
-        ; jsr KernelA_GenReset
-        NIBBLE_IF eq ; FIXME ne
+        jsr KernelA_GenReset
+        NIBBLE_IF eq
             ; Special: Encoding RST0
             ; Rewrite lda RamKernelPF1 to be #immediate
             ldy #BC_LDA_IMM
@@ -265,8 +268,9 @@ SENTINEL = %010101010
             ldy #GEM0
             sty BuildKernelGrp0
 
-            ldx #SHARD_1A_RST
-            NIBBLE_IF ne
+            ldy #GEM1
+            jsr KernelA_GenReset
+            NIBBLE_IF eq
                 ; GEM1ASWITCH
                 NIBBLE_WRITE KernelA_D_W, #BC_STX, #RESP1 ; RESET
             NIBBLE_ELSE
@@ -289,8 +293,9 @@ SENTINEL = %010101010
         NIBBLE_END_IF
 
         ; Gemini 2A
-        ldx #SHARD_2A_RST
-        NIBBLE_IF ne
+        ldy #GEM2
+        jsr KernelA_GenReset
+        NIBBLE_IF eq
             NIBBLE_WRITE KernelA_E_W + 1, #NOP_REG   ; NOP
             NIBBLE_WRITE KernelA_G_W + 1, #RESP1 ; RESET
         NIBBLE_ELSE
@@ -312,12 +317,11 @@ SENTINEL = %010101010
         NIBBLE_END_IF
 
         ; Gemini 3A
-        ldx #SHARD_3A_RST
-        NIBBLE_IF ne
+        ldy #GEM3
+        jsr KernelA_GenReset
+        NIBBLE_IF eq
             NIBBLE_WRITE KernelA_H_W + 1, #RESP1 ; RESET
         NIBBLE_ELSE
-            ; FIXME Calculate the 3A value
-
             ; Set opcode
             ldy #GEM3
             jsr KernelA_UpdateRegs
