@@ -250,6 +250,10 @@
     ;     NIBBLE_WRITE [KernelB_G_W + 0], #BC_STA, #PF1
     ;     NIBBLE_WRITE [KernelB_H_W + 0], #BC_STY, #EMERALD_SP
     ; NIBBLE_END_IF
+    ; Make adjustments for sprites.
+    ror BuildKernelGrp0
+    ror BuildKernelX
+    ror BuildKernelY
     ;
     ; NIBBLE_WRITE [KernelB_VDEL1 - $100], BuildKernelVdel1
     ; GRP0

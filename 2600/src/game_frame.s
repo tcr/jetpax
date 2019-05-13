@@ -8,6 +8,13 @@ G01 = %01100000
 G10 = %00000110
 G11 = %01100110
 
+; Reflected for Kernel A
+G00 = %00000000
+G01 = %01100000
+G10 = %00000110
+G11 = %01100110
+
+
 ; gems:     [g01,g10,g01,g11,g00,g00]
 ; cpu:      cpu(g01,g00,false,g10,g11,false)
 ; solved:   [bc_NOP,bc_STX,bc_RF1,bc_STY,bc_VD1]
@@ -253,6 +260,7 @@ frame_setup_kernel_b: subroutine
 
     ; DEBUG: Set per-kernel color
     ldx #$e0
+    ; ldx #COL_EMERALD
     stx EMERALD_SP_COLOR
 
     ; Disable reflection for Jetpack.
@@ -521,6 +529,11 @@ KernelB_K_W EQM [KernelB_K - $100]
         ;     NIBBLE_WRITE [KernelB_G_W + 0], #BC_STA, #PF1
         ;     NIBBLE_WRITE [KernelB_H_W + 0], #BC_STY, #EMERALD_SP ; 3B
         ; NIBBLE_END_IF
+
+        ; Make adjustments for sprites.
+        ror BuildKernelGrp0
+        ror BuildKernelX
+        ror BuildKernelY
 
         ; ; VD1
         ; NIBBLE_WRITE [KernelB_VDEL1 - $100], BuildKernelVdel1
