@@ -2,6 +2,8 @@
 
     org $80
 
+DebugKernelID byte ; only for debugging
+
 Temp        byte
 
 ; Counters

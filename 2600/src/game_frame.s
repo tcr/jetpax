@@ -268,6 +268,8 @@ frame_setup_kernel_b: subroutine
     sta REFP1
 
 frame_setup_complete:
+    lda $f100
+    sta DebugKernelID
 
     lda shard_map
     ldy #1 ; gemini counter, starting at 1
@@ -466,6 +468,10 @@ KernelB_K_W EQM [KernelB_K - $100]
 
     ; Nibble Kernel B
     NIBBLE_START_KERNEL gem_kernel_b, 40
+        ; Php target default
+        ldx #RESP1
+        stx RamKernelPhpTarget
+
         ldx #SENTINEL ; sentinel
         stx BuildKernelX
         stx BuildKernelY

@@ -188,6 +188,9 @@
 
     MAC NIBBLE_gem_kernel_b_BUILD
     lda #0
+    ; Php target default
+    ldx #RESP1
+    stx RamKernelPhpTarget
     ldx #SENTINEL
     stx BuildKernelX
     stx BuildKernelY
