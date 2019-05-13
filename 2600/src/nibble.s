@@ -203,6 +203,7 @@
     bne .else_1
     sec
     rol
+    ; Write to PHP in 2B
     jmp .endif_1
     ; [BIT DEPTH] #1 If-End @ 1
 
@@ -223,6 +224,7 @@
     bne .else_2
     sec
     rol
+    ; Write to PHP in 3B
     jmp .endif_2
     ; [BIT DEPTH] #2 If-End @ 2
 
@@ -242,6 +244,7 @@
     sty RamKernelGemini4
     ; TODO if no PHP, rewrite previous section:
     ; NIBBLE_IF cs
+    ;
     ;     NIBBLE_WRITE [KernelB_E_W + 0], #BC_PHP
     ;     NIBBLE_WRITE [KernelB_F_W + 0], #BC_STY, #EMERALD_SP
     ;     NIBBLE_WRITE [KernelB_G_W + 0], #BC_STA, #PF1

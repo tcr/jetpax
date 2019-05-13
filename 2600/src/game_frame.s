@@ -127,12 +127,12 @@ KernelA_UpdateRegs: subroutine
     ; If equal to GRP0, return nop
     ; FIXME GRP0 might not always be up to date (should update each entry?)
     ; FIXME GOTTA REVERSE THE GRAPHICS ALSO
-    cpy BuildKernelGrp0
-    bne .set_start
-    ; TODO if this is stx + NOP value, then register doesn't have to change as
-    ; often in GEM1ASWITCH
-    ldy #BC_NOP
-    rts
+    ; cpy BuildKernelGrp0
+    ; bne .set_start
+    ; ; TODO if this is stx + NOP value, then register doesn't have to change as
+    ; ; often in GEM1ASWITCH
+    ; ldy #BC_NOP
+    ; rts
 
 .set_start:
     ldx BuildKernelX
@@ -473,6 +473,7 @@ KernelB_K_W EQM [KernelB_K - $100]
         ldy GEM2B
         jsr KernelB_GenPhp
         NIBBLE_IF eq
+            ; Write to PHP in 2B
             NIBBLE_WRITE RamKernelPhpTarget, #EMERALD_SP
             NIBBLE_WRITE [KernelB_E_W + 0], #BC_STY, #EMERALD_SP_RESET ; 2B
             NIBBLE_WRITE [KernelB_F_W + 1], #BC_PHP
@@ -491,6 +492,7 @@ KernelB_K_W EQM [KernelB_K - $100]
         ldy GEM3B
         jsr KernelB_GenPhp
         NIBBLE_IF eq
+            ; Write to PHP in 3B
             NIBBLE_WRITE RamKernelPhpTarget, #EMERALD_SP
             NIBBLE_WRITE [KernelB_E_W + 0], #BC_STY, #EMERALD_SP_RESET ; 3B
             NIBBLE_WRITE [KernelB_F_W + 1], #BC_STY, #EMERALD_SP ; 2B
@@ -513,6 +515,7 @@ KernelB_K_W EQM [KernelB_K - $100]
 
         ; TODO if no PHP, rewrite previous section:
         ; NIBBLE_IF cs
+        ;     ; Write to PHP in reset command
         ;     NIBBLE_WRITE [KernelB_E_W + 0], #BC_PHP
         ;     NIBBLE_WRITE [KernelB_F_W + 0], #BC_STY, #EMERALD_SP ; 2B
         ;     NIBBLE_WRITE [KernelB_G_W + 0], #BC_STA, #PF1
