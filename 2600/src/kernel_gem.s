@@ -77,8 +77,8 @@ KernelA_D:
 KernelA_E:
     sta EMERALD_SP_RESET ; Reset "medium close" NUSIZ repetition
 KernelA_F:
-    ; sty EMERALD_MI_ENABLE ; Enable the missile (if we use %0xx00110 pattern)
-    sleep 3 ; FIXME This should be uncommented!
+    sty EMERALD_MI_ENABLE ; Enable the missile (if we use %0xx00110 pattern)
+    ; sleep 3 ; FIXME This should be uncommented!
 KernelA_G:
     sty EMERALD_SP ; Gemini 2A
 
@@ -189,7 +189,7 @@ KernelB_J:
 KernelB_K:
     stx EMERALD_MI_ENABLE
 KernelB_L:
-    sty EMERALD_SP ; Gemini 5B
+    stx EMERALD_SP ; Gemini 5B
 
 KernelB_M:
 KernelB_N:
