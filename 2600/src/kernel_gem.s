@@ -142,13 +142,15 @@ KernelB: subroutine
     ; Write Player from accumulator. When writing to the other sprite, the
     ; TIA will copy Gemini 0A into visible sprite register
     sta JET_SP
+    ldy #%10101010
+KernelB_VDEL0 = . - 1
     ; Write Gemini 1A into delayed sprite register
     sty EMERALD_SP
+    sleep 2
 
     ; Register config
     lda #$ff
     sta EMERALD_MI_ENABLE ; enable missile
-    sta.w VDELP1 ; enable delayed sprite
 
     ldy #$ff
 KernelB_STY = . - 1

@@ -6,7 +6,7 @@
     stx BuildKernelY
     stx BuildKernelRST
     ; Gemini 1A
-    ldy GEM0
+    ldy GEM0A
     jsr KernelA_GenReset
 .if_1:
     bne .else_1
@@ -19,7 +19,7 @@
     ldy #%10100000
     sty [KernelA_B - $100 + 1]
     ; Store 1A in GRP0
-    ldy GEM1
+    ldy GEM1A
     sty BuildKernelGrp0
     ; Gemini 1A is RESPx
     ldy #EMERALD_SP_RESET
@@ -35,9 +35,9 @@
     clc
     rol
     ; Store 0A in GRP0
-    ldy GEM0
+    ldy GEM0A
     sty BuildKernelGrp0
-    ldy GEM1
+    ldy GEM1A
     jsr KernelA_GenReset
 .if_2:
     bne .else_2
@@ -63,7 +63,7 @@
     cpx #1
     ldy #BC_STX
     .byte $D0, #4
-    ldy GEM1
+    ldy GEM1A
     jsr KernelA_UpdateRegs
     sty RamKernelGemini1
     ; [BIT DEPTH] #2 *If-End @ 2
@@ -73,7 +73,7 @@
     ; [BIT DEPTH] #1 Else-End @ 2
 .endif_1:
     ; Gemini 2A
-    ldy GEM2
+    ldy GEM2A
     jsr KernelA_GenReset
 .if_3:
     bne .else_3
@@ -86,7 +86,7 @@
     clc
     rol
     ; Set opcode
-    ldy GEM2
+    ldy GEM2A
     jsr KernelA_UpdateRegs
     sty RamKernelGemini2
     ; Set opcode target
@@ -101,7 +101,7 @@
     ; [BIT DEPTH] #3 Else-End @ 3
 .endif_3:
     ; Gemini 3A
-    ldy GEM3
+    ldy GEM3A
     jsr KernelA_GenReset
 .if_4:
     bne .else_4
@@ -114,7 +114,7 @@
     clc
     rol
     ; Set opcode
-    ldy GEM3
+    ldy GEM3A
     jsr KernelA_UpdateRegs
     sty RamKernelGemini3
     ; Set opcode target
@@ -138,7 +138,7 @@
     MAC NIBBLE_gem_kernel_a_2_BUILD
     lda #0
     ; VD1 default
-    ldx GEM1
+    ldx GEM1A
     stx BuildKernelVdel1
     ; Gemini 4A
     ldx SHARD_LUT_VD1
@@ -149,7 +149,7 @@
     rol
     ; Set PHP
     ; Update VDEL1
-    ldx GEM4
+    ldx GEM4A
     stx BuildKernelVdel1
     jmp .endif_1
     ; [BIT DEPTH] #1 If-End @ 1
@@ -157,7 +157,7 @@
 .else_1:
     clc
     rol
-    ldy GEM4
+    ldy GEM4A
     jsr KernelA_UpdateRegs
     sty RamKernelGemini4
     ; Set PHP
@@ -188,34 +188,71 @@
 
     MAC NIBBLE_gem_kernel_b_BUILD
     lda #0
-    ; X
-    ldy #%00000011
-    sty RamKernelX
-    ; Y
-    ldy #%00110011
-    sty [KernelB_STY - $100]
-     
-    cpx #$00
+    ldx #SENTINEL
+    stx BuildKernelX
+    stx BuildKernelY
+    stx BuildKernelRST
+    ; Gemini 1B
+    ldy GEM1B
+    jsr KernelA_UpdateRegs
+    sty RamKernelGemini3
+    ; Gemini 2B
+    ldy GEM2B
+    jsr KernelB_GenPhp
+.if_1:
+    bne .else_1
+    sec
+    rol
+    jmp .endif_1
+    ; [BIT DEPTH] #1 If-End @ 1
+
+.else_1:
+    clc
+    rol
+    ; Calculate the gemini value
+    ldy GEM2B
+    jsr KernelB_UpdateRegs
+    sty RamKernelGemini1
+    ; [BIT DEPTH] #1 *If-End @ 1
+    ; [BIT DEPTH] #1 Else-End @ 1
+.endif_1:
+    ; Gemini 3B
+    ldy GEM3B
+    jsr KernelB_GenPhp
+.if_2:
+    bne .else_2
+    sec
+    rol
+    jmp .endif_2
+    ; [BIT DEPTH] #2 If-End @ 2
+
+.else_2:
+    clc
+    rol
+    ; Calculate the gemini value
+    ldy GEM1B
+    jsr KernelB_UpdateRegs
+    sty RamKernelGemini1
+    ; [BIT DEPTH] #2 *If-End @ 2
+    ; [BIT DEPTH] #2 Else-End @ 2
+.endif_2:
+    ; Gemini 4B
+    ldy GEM4B
+    jsr KernelA_UpdateRegs
+    sty RamKernelGemini4
+    ; TODO if no PHP, rewrite previous section:
     ; NIBBLE_IF cs
     ;     NIBBLE_WRITE [KernelB_E_W + 0], #BC_PHP
     ;     NIBBLE_WRITE [KernelB_F_W + 0], #BC_STY, #EMERALD_SP
     ;     NIBBLE_WRITE [KernelB_G_W + 0], #BC_STA, #PF1
     ;     NIBBLE_WRITE [KernelB_H_W + 0], #BC_STY, #EMERALD_SP
-    ; NIBBLE_ELSE
-    ;     NIBBLE_WRITE RamKernelPhpTarget, #EMERALD_SP
-    ;     NIBBLE_WRITE [KernelB_F_W + 0], #BC_STY, #EMERALD_SP_RESET
-    ;     NIBBLE_WRITE [KernelB_E_W + 0], #BC_PHP
-    ;     NIBBLE_WRITE [KernelB_G_W + 0], #BC_STA, #PF1
-    ;     NIBBLE_WRITE [KernelB_H_W + 0], #BC_STY, #EMERALD_SP
-    ; NIBBLE_ELSE
-    ;     NIBBLE_WRITE [KernelB_H_W + 0], #BC_STY, #EMERALD_SP_RESET
-    ;     NIBBLE_WRITE [KernelB_F_W + 0], #BC_STY, #EMERALD_SP
-    ;     NIBBLE_WRITE [KernelB_G_W + 0], #BC_STA, #PF1
-    ;     NIBBLE_WRITE [KernelB_E_W + 0], #BC_PHP
     ; NIBBLE_END_IF
-    ; [BIT DEPTH] Final: 0 (out of 8 bits)
-    rol
-    rol
+    ;
+    ; NIBBLE_WRITE [KernelB_VDEL1 - $100], BuildKernelVdel1
+    ; GRP0
+    ; X
+    ; Y
+    ; [BIT DEPTH] Final: 2 (out of 8 bits)
     rol
     rol
     rol
@@ -318,8 +355,68 @@
     ENDM
 
     MAC NIBBLE_gem_kernel_b
-    ldx #EMERALD_SP_RESET
+    ldx RamKernelGemini3
+    stx [KernelB_D_W + 0]
+.if_1:
+    asl
+    bcc .else_1
+    ldx #EMERALD_SP
     stx [RamKernelPhpTarget + 0]
+    ldx #BC_STY
+    stx [[KernelB_E_W + 0] + 0]
+    ldx #EMERALD_SP_RESET
+    stx [[KernelB_E_W + 0] + 1]
+    ldx #BC_PHP
+    stx [[KernelB_F_W + 1] + 0]
+    ldx #BC_STA
+    stx [[KernelB_G_W + 0] + 0]
+    ldx #PF1
+    stx [[KernelB_G_W + 0] + 1]
+    ldx #BC_STY
+    stx [[KernelB_H_W + 0] + 0]
+    ldx #EMERALD_SP
+    stx [[KernelB_H_W + 0] + 1]
+    jmp .endif_1
+.else_1:
+    ldx RamKernelGemini1
+    stx [KernelB_F_W + 0]
+    ldx #EMERALD_SP
+    stx [KernelB_F_W + 1]
+.endif_1:
+.if_2:
+    asl
+    bcc .else_2
+    ldx #EMERALD_SP
+    stx [RamKernelPhpTarget + 0]
+    ldx #BC_STY
+    stx [[KernelB_E_W + 0] + 0]
+    ldx #EMERALD_SP_RESET
+    stx [[KernelB_E_W + 0] + 1]
+    ldx #BC_STY
+    stx [[KernelB_F_W + 1] + 0]
+    ldx #EMERALD_SP
+    stx [[KernelB_F_W + 1] + 1]
+    ldx #BC_STA
+    stx [[KernelB_G_W + 1] + 0]
+    ldx #PF1
+    stx [[KernelB_G_W + 1] + 1]
+    ldx #BC_PHP
+    stx [[KernelB_H_W + 1] + 0]
+    jmp .endif_2
+.else_2:
+    ldx RamKernelGemini1
+    stx [KernelA_H_W + 0]
+    ldx #EMERALD_SP
+    stx [KernelA_H_W + 1]
+.endif_2:
+    ldx RamKernelGemini4
+    stx [KernelB_J_W + 0]
+    ldx BuildKernelGrp0
+    stx [[KernelB_VDEL0 - $100] + 0]
+    ldx BuildKernelX
+    stx [RamKernelX + 0]
+    ldx BuildKernelY
+    stx [RamKernelY + 0]
     ENDM
 
 
