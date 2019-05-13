@@ -47,33 +47,33 @@ G11 = %01100110
 SHARD_LUT_RF1:
     .byte #0
 SHARD_LUT_VD1:
-    .byte #4 
+    .byte #0
 
 GEM0A:
     .byte G11
 GEM1A:
-    .byte G10
+    .byte G11
 GEM2A:
-    .byte G00
+    .byte G11
 GEM3A:
-    .byte G01
+    .byte G11
 GEM4A:
-    .byte G00
+    .byte G11
 GEM5A:
-    .byte G01
+    .byte G11
 
 GEM0B:
     .byte G11
 GEM1B:
-    .byte G10
+    .byte G11
 GEM2B:
-    .byte G00
+    .byte G11
 GEM3B:
-    .byte G01
+    .byte G11
 GEM4B:
-    .byte G00
+    .byte G11
 GEM5B:
-    .byte G01
+    .byte G11
 
 ; Y=Gemini Sprite
 ; See if the current Gemini is g00. Allocate an RST to this Gemini if so
