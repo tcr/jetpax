@@ -6,7 +6,7 @@
     stx BuildKernelY
     stx BuildKernelRST
     ; Gemini 1A
-    ldy GEM0A
+    ldy [GEMS_A + 0]
     jsr KernelA_GenReset
 .if_1:
     bne .else_1
@@ -19,7 +19,7 @@
     ldy #%10100000
     sty [KernelA_B - $100 + 1]
     ; Store 1A in GRP0
-    ldy GEM1A
+    ldy [GEMS_A + 1]
     sty BuildKernelGrp0
     ; Gemini 1A is RESPx
     ldy #EMERALD_SP_RESET
@@ -35,9 +35,9 @@
     clc
     rol
     ; Store 0A in GRP0
-    ldy GEM0A
+    ldy [GEMS_A + 0]
     sty BuildKernelGrp0
-    ldy GEM1A
+    ldy [GEMS_A + 1]
     jsr KernelA_GenReset
 .if_2:
     bne .else_2
@@ -63,7 +63,7 @@
     cpx #1
     ldy #BC_STX
     .byte $D0, #4
-    ldy GEM1A
+    ldy [GEMS_A + 1]
     jsr KernelA_UpdateRegs
     sty RamKernelGemini1
     ; [BIT DEPTH] #2 *If-End @ 2
@@ -73,7 +73,7 @@
     ; [BIT DEPTH] #1 Else-End @ 2
 .endif_1:
     ; Gemini 2A
-    ldy GEM2A
+    ldy [GEMS_A + 2]
     jsr KernelA_GenReset
 .if_3:
     bne .else_3
@@ -86,7 +86,7 @@
     clc
     rol
     ; Set opcode
-    ldy GEM2A
+    ldy [GEMS_A + 2]
     jsr KernelA_UpdateRegs
     sty RamKernelGemini2
     ; Set opcode target
@@ -101,7 +101,7 @@
     ; [BIT DEPTH] #3 Else-End @ 3
 .endif_3:
     ; Gemini 3A
-    ldy GEM3A
+    ldy [GEMS_A + 3]
     jsr KernelA_GenReset
 .if_4:
     bne .else_4
@@ -114,7 +114,7 @@
     clc
     rol
     ; Set opcode
-    ldy GEM3A
+    ldy [GEMS_A + 3]
     jsr KernelA_UpdateRegs
     sty RamKernelGemini3
     ; Set opcode target
@@ -138,7 +138,7 @@
     MAC NIBBLE_gem_kernel_a_2_BUILD
     lda #0
     ; VD1 default
-    ldx GEM1A
+    ldx [GEMS_A + 1]
     stx BuildKernelVdel1
     ; Gemini 4A
     ldx SHARD_LUT_VD1
@@ -149,7 +149,7 @@
     rol
     ; Set PHP
     ; Update VDEL1
-    ldx GEM4A
+    ldx [GEMS_A + 4]
     stx BuildKernelVdel1
     jmp .endif_1
     ; [BIT DEPTH] #1 If-End @ 1
@@ -157,7 +157,7 @@
 .else_1:
     clc
     rol
-    ldy GEM4A
+    ldy [GEMS_A + 4]
     jsr KernelA_UpdateRegs
     sty RamKernelGemini4
     ; Set PHP
@@ -196,11 +196,11 @@
     stx BuildKernelY
     stx BuildKernelRST
     ; Gemini 1B
-    ldy GEM1B
+    ldy [GEMS_B + 1]
     jsr KernelA_UpdateRegs
     sty RamKernelGemini3
     ; Gemini 2B
-    ldy GEM2B
+    ldy [GEMS_B + 2]
     jsr KernelB_GenPhp
 .if_1:
     bne .else_1
@@ -214,14 +214,14 @@
     clc
     rol
     ; Calculate the gemini value
-    ldy GEM2B
+    ldy [GEMS_B + 2]
     jsr KernelB_UpdateRegs
     sty RamKernelGemini1
     ; [BIT DEPTH] #1 *If-End @ 1
     ; [BIT DEPTH] #1 Else-End @ 1
 .endif_1:
     ; Gemini 3B
-    ldy GEM3B
+    ldy [GEMS_B + 3]
     jsr KernelB_GenPhp
 .if_2:
     bne .else_2
@@ -235,14 +235,14 @@
     clc
     rol
     ; Calculate the gemini value
-    ldy GEM1B
+    ldy [GEMS_B + 1]
     jsr KernelB_UpdateRegs
     sty RamKernelGemini1
     ; [BIT DEPTH] #2 *If-End @ 2
     ; [BIT DEPTH] #2 Else-End @ 2
 .endif_2:
     ; Gemini 4B
-    ldy GEM4B
+    ldy [GEMS_B + 4]
     jsr KernelA_UpdateRegs
     sty RamKernelGemini4
     ; TODO if no PHP, rewrite previous section:
