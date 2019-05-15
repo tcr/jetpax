@@ -58,6 +58,21 @@ BuildKernelRST byte
 BuildKernelGrp0 byte
 BuildKernelVdel1 byte
 
+DO_MISS_A byte
+DO_MISS_B byte
+DO_GEMS_A byte
+    byte
+    byte
+    byte
+    byte
+    byte
+DO_GEMS_B byte
+    byte
+    byte
+    byte
+    byte
+    byte
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ROW_COUNT = 16

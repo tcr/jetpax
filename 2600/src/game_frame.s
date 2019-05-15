@@ -51,21 +51,6 @@ G11 = %01100110
 ; cpu:      cpu(g11,g00,false,g10,g01,false)
 ; solved:   [bc_NOP,bc_STX,bc_RST,bc_STY,bc_VD1]
 
-    align 16
-
-MISS_B:    .byte                                            #1
-MISS_A:    .byte                     #1
-
-    align 16
-
-GEMS_A:    .byte G01,      G11,         G11,      G11,         G11,      G11
-GEMS_B:    .byte      G10,      G11,         G11,      G11,         G11,      G11
-
-SHARD_LUT_RF1:
-    .byte #0
-SHARD_LUT_VD1:
-    .byte #0
-
 ; Y=Gemini Sprite
 ; See if the current Gemini is g00. Allocate an RST to this Gemini if so
 ; processor flag Z is TRUE if this is RST.
@@ -204,6 +189,9 @@ VerticalBlank: subroutine
     ldx #0
     jsr SetHorizPos
 
+    ; Extract 26-bit string to full Gemini profile
+    jsr gemini_populate
+
 frame_setup: subroutine
     ; Kernel A or B
     lda #01
@@ -299,7 +287,7 @@ KernelB_K_W EQM [KernelB_K - $100]
         stx BuildKernelRST
 
         ; Gemini 1A
-        ldy [GEMS_A + 0]
+        ldy [DO_GEMS_A + 0]
         jsr KernelA_GenReset
         NIBBLE_IF eq
             ; Special: Encoding RST0
@@ -309,7 +297,7 @@ KernelB_K_W EQM [KernelB_K - $100]
             ldy #%10100000
             sty [KernelA_B - $100 + 1]
             ; Store 1A in GRP0
-            ldy [GEMS_A + 1]
+            ldy [DO_GEMS_A + 1]
             sty BuildKernelGrp0
             ; Gemini 1A is RESPx
             ldy #EMERALD_SP_RESET
@@ -319,10 +307,10 @@ KernelB_K_W EQM [KernelB_K - $100]
             sty [KernelA_D - $100]
         NIBBLE_ELSE
             ; Store 0A in GRP0
-            ldy [GEMS_A + 0]
+            ldy [DO_GEMS_A + 0]
             sty BuildKernelGrp0
 
-            ldy [GEMS_A + 1]
+            ldy [DO_GEMS_A + 1]
             jsr KernelA_GenReset
             NIBBLE_IF eq
                 ; GEM1ASWITCH
@@ -341,8 +329,8 @@ KernelB_K_W EQM [KernelB_K - $100]
                 ldx SHARD_LUT_RF1
                 cpx #1
                 ldy #BC_STX
-                .byte $D0, #4 ; bne +5
-                ldy [GEMS_A + 1]
+                .byte $D0, #5 ; bne +4
+                ldy [DO_GEMS_A + 1]
                 jsr KernelA_UpdateRegs
                 sty RamKernelGemini1
 
@@ -351,14 +339,14 @@ KernelB_K_W EQM [KernelB_K - $100]
         NIBBLE_END_IF
 
         ; Gemini 2A
-        ldy [GEMS_A + 2]
+        ldy [DO_GEMS_A + 2]
         jsr KernelA_GenReset
         NIBBLE_IF eq
             NIBBLE_WRITE KernelA_E_W + 1, #NOP_REG   ; NOP
             NIBBLE_WRITE KernelA_G_W + 1, #RESP1 ; RESET
         NIBBLE_ELSE
             ; Set opcode
-            ldy [GEMS_A + 2]
+            ldy [DO_GEMS_A + 2]
             jsr KernelA_UpdateRegs
             sty RamKernelGemini2
 
@@ -376,13 +364,13 @@ KernelB_K_W EQM [KernelB_K - $100]
         NIBBLE_END_IF
 
         ; Gemini 3A
-        ldy [GEMS_A + 3]
+        ldy [DO_GEMS_A + 3]
         jsr KernelA_GenReset
         NIBBLE_IF eq
             NIBBLE_WRITE KernelA_H_W + 1, #RESP1 ; RESET
         NIBBLE_ELSE
             ; Set opcode
-            ldy [GEMS_A + 3]
+            ldy [DO_GEMS_A + 3]
             jsr KernelA_UpdateRegs
             sty RamKernelGemini3
 
@@ -401,7 +389,7 @@ KernelB_K_W EQM [KernelB_K - $100]
 
     NIBBLE_START_KERNEL gem_kernel_a_2, 40
         ; VD1 default
-        ldx [GEMS_A + 1]
+        ldx [DO_GEMS_A + 1]
         stx BuildKernelVdel1
 
         ; Gemini 4A 
@@ -416,10 +404,10 @@ KernelB_K_W EQM [KernelB_K - $100]
             NIBBLE_WRITE RamKernelPhpTarget, #VDELP1
 
             ; Update VDEL1
-            ldx [GEMS_A + 4]
+            ldx [DO_GEMS_A + 4]
             stx BuildKernelVdel1
         NIBBLE_ELSE
-            ldy [GEMS_A + 4]
+            ldy [DO_GEMS_A + 4]
             jsr KernelA_UpdateRegs
             sty RamKernelGemini4
 
@@ -462,13 +450,13 @@ KernelB_K_W EQM [KernelB_K - $100]
         stx BuildKernelRST
 
         ; Gemini 1B
-        ldy [GEMS_B + 1]
+        ldy [DO_GEMS_B + 1]
         jsr KernelA_UpdateRegs
         sty RamKernelGemini3
         NIBBLE_WRITE KernelB_D_W, RamKernelGemini3
 
         ; Gemini 2B
-        ldy [GEMS_B + 2]
+        ldy [DO_GEMS_B + 2]
         jsr KernelB_GenPhp
         NIBBLE_IF eq
             ; Write to PHP in 2B
@@ -479,7 +467,7 @@ KernelB_K_W EQM [KernelB_K - $100]
             NIBBLE_WRITE [KernelB_H_W + 0], #BC_STY, #EMERALD_SP ; 3B
         NIBBLE_ELSE
             ; Calculate the gemini value
-            ldy [GEMS_B + 2]
+            ldy [DO_GEMS_B + 2]
             jsr KernelB_UpdateRegs
             sty RamKernelGemini1
 
@@ -487,7 +475,7 @@ KernelB_K_W EQM [KernelB_K - $100]
         NIBBLE_END_IF
 
         ; Gemini 3B
-        ldy [GEMS_B + 3]
+        ldy [DO_GEMS_B + 3]
         jsr KernelB_GenPhp
         NIBBLE_IF eq
             ; Write to PHP in 3B
@@ -498,7 +486,7 @@ KernelB_K_W EQM [KernelB_K - $100]
             NIBBLE_WRITE [KernelB_H_W + 1], #BC_PHP
         NIBBLE_ELSE
             ; Calculate the gemini value
-            ldy [GEMS_B + 1]
+            ldy [DO_GEMS_B + 1]
             jsr KernelB_UpdateRegs
             sty RamKernelGemini1
 
@@ -506,7 +494,7 @@ KernelB_K_W EQM [KernelB_K - $100]
         NIBBLE_END_IF
 
         ; Gemini 4B
-        ldy [GEMS_B + 4]
+        ldy [DO_GEMS_B + 4]
         jsr KernelA_UpdateRegs
         sty RamKernelGemini4
         NIBBLE_WRITE KernelB_J_W, RamKernelGemini4
@@ -625,3 +613,93 @@ Overscan: subroutine
     ASSERT_RUNTIME "_scan == (#37 + #192 + #29)"
 
     jmp VerticalSync
+
+
+
+    align 256
+
+    mac GEMINI_POPULATE
+.TARGET SET {1}
+    lda RamNibbleTemp
+    and #%00000011
+    tay
+    lda GEMINI_LOOKUP,y
+    sta .TARGET
+    endm
+
+    mac GEMINI_POPULATE_MISSILE
+.TARGET SET {1}
+    txa
+    and #%00000001
+    sta .TARGET
+    endm
+
+gemini_populate:
+    ldx level_for_game + 3
+    stx RamNibbleTemp
+    GEMINI_POPULATE DO_GEMS_B + 5
+    ror RamNibbleTemp
+    ror RamNibbleTemp
+    GEMINI_POPULATE DO_GEMS_A + 5
+    ror RamNibbleTemp
+    ror RamNibbleTemp
+    GEMINI_POPULATE DO_GEMS_B + 4
+    ror RamNibbleTemp
+    ror RamNibbleTemp
+    GEMINI_POPULATE DO_GEMS_A + 4
+    ror RamNibbleTemp
+    ror RamNibbleTemp
+
+    ldx level_for_game + 2
+    stx RamNibbleTemp
+    GEMINI_POPULATE_MISSILE DO_MISS_B
+    ror RamNibbleTemp
+    GEMINI_POPULATE DO_GEMS_B + 3
+    ror RamNibbleTemp
+    ror RamNibbleTemp
+    GEMINI_POPULATE DO_GEMS_A + 3
+    ror RamNibbleTemp
+    ror RamNibbleTemp
+    GEMINI_POPULATE DO_GEMS_B + 2
+    ror RamNibbleTemp
+    ror RamNibbleTemp
+
+    ldx level_for_game + 1
+    stx RamNibbleTemp
+    GEMINI_POPULATE DO_GEMS_A + 2
+    ror RamNibbleTemp
+    ror RamNibbleTemp
+    GEMINI_POPULATE_MISSILE DO_MISS_A
+    ror RamNibbleTemp
+    GEMINI_POPULATE DO_GEMS_B + 1
+    ror RamNibbleTemp
+    ror RamNibbleTemp
+    GEMINI_POPULATE DO_GEMS_A + 1
+    ror RamNibbleTemp
+    ror RamNibbleTemp
+
+    ldx level_for_game + 0
+    stx RamNibbleTemp
+    GEMINI_POPULATE DO_GEMS_B + 0
+    ror RamNibbleTemp
+    ror RamNibbleTemp
+    GEMINI_POPULATE DO_GEMS_A + 0
+    ror RamNibbleTemp
+    ror RamNibbleTemp
+
+    rts
+gemini_populate_end:
+
+    align 16
+
+GEMINI_LOOKUP:
+    .byte G00, G01, G10, G11
+
+level_for_game:
+    .byte %0101, %1111111, %1111111, %11111111
+
+SHARD_LUT_RF1:
+    .byte #0
+SHARD_LUT_VD1:
+    .byte #0
+
