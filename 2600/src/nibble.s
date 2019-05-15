@@ -195,6 +195,10 @@
     stx BuildKernelX
     stx BuildKernelY
     stx BuildKernelRST
+    ; Gemini 0B
+    ldy [DO_GEMS_B + 0]
+    sty BuildKernelGrp0
+    ; NIBBLE_WRITE KernelB_D_W, RamKernelGemini3
     ; Gemini 1B
     ldy [DO_GEMS_B + 1]
     jsr KernelA_UpdateRegs

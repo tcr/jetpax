@@ -95,7 +95,7 @@ KernelA_K:
 ; RST4 ^^^
 
 KernelA_L:
-    sta EMERALD_MI_ENABLE ; disable missile FIXME this should be uncommented!
+    sta EMERALD_MI_ENABLE ; disable missile FIXME this should be in prelude
 KernelA_M:
     sty VDELP1 ; Gemini 5A ; need a way to skip this vlaue
 
