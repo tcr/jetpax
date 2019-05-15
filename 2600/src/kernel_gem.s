@@ -50,7 +50,7 @@ KernelA_VDEL1 = . - 1
     ldy #%01100110
 KernelA_VDEL0 = . - 1
     sty EMERALD_SP
-    ldy #%00000110 ; TODO temporary?
+    ldy #%00000110
 KernelA_STY = . - 1
 
     ; Need D0 for VDELP1 trigger with PHP
@@ -58,7 +58,6 @@ KernelA_STY = . - 1
 
     ; Register config
     lda #%00001000
-    ; sta EMERALD_MI_ENABLE ; disable missile FIXME this should be uncommented!
     sta REFP1
 
     ; 22c is critical start of precise GRP0 timing for Kernel A
@@ -96,7 +95,7 @@ KernelA_K:
 ; RST4 ^^^
 
 KernelA_L:
-    sleep 3 ; when possible, sta VDELP0
+    sta EMERALD_MI_ENABLE ; disable missile FIXME this should be uncommented!
 KernelA_M:
     sty VDELP1 ; Gemini 5A ; need a way to skip this vlaue
 
