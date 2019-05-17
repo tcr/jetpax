@@ -6,6 +6,7 @@
     stx BuildKernelY
     stx BuildKernelRST
     ; Gemini 1A
+.K_1A:
     ldy [DO_GEMS_A + 0]
     jsr KernelA_GenReset
 .if_1:
@@ -62,7 +63,7 @@
     ldx SHARD_LUT_RF1
     cpx #1
     ldy #BC_STX
-    .byte $D0, #5
+    .byte $F0, #5
     ldy [DO_GEMS_A + 1]
     jsr KernelA_UpdateRegs
     sty RamKernelGemini1
@@ -72,6 +73,7 @@
     ; [BIT DEPTH] #1 *If-End @ 1
     ; [BIT DEPTH] #1 Else-End @ 2
 .endif_1:
+    ; BuildKernelX, BuildKernelY are upgraded if not set
     ; Gemini 2A
     ldy [DO_GEMS_A + 2]
     jsr KernelA_GenReset
@@ -198,12 +200,21 @@
     ; Gemini 0B
     ldy [DO_GEMS_B + 0]
     sty BuildKernelGrp0
-    ; NIBBLE_WRITE KernelB_D_W, RamKernelGemini3
+    ; NIBBLE_WRITE KernelB_D_W, RamKernelGemini0
     ; Gemini 1B
     ldy [DO_GEMS_B + 1]
     jsr KernelA_UpdateRegs
+    sty RamKernelGemini1
+    ; Calculate Gemini 2B
+    ldy [DO_GEMS_B + 2]
+    jsr KernelB_UpdateRegs
+    sty RamKernelGemini2
+    ; Calculate Gemini 3B
+    ldy [DO_GEMS_B + 3]
+    jsr KernelB_UpdateRegs
     sty RamKernelGemini3
     ; Gemini 2B
+.K_2B:
     ldy [DO_GEMS_B + 2]
     jsr KernelB_GenPhp
 .if_1:
@@ -217,10 +228,6 @@
 .else_1:
     clc
     rol
-    ; Calculate the gemini value
-    ldy [DO_GEMS_B + 2]
-    jsr KernelB_UpdateRegs
-    sty RamKernelGemini1
     ; [BIT DEPTH] #1 *If-End @ 1
     ; [BIT DEPTH] #1 Else-End @ 1
 .endif_1:
@@ -238,16 +245,13 @@
 .else_2:
     clc
     rol
-    ; Calculate the gemini value
-    ldy [DO_GEMS_B + 1]
-    jsr KernelB_UpdateRegs
-    sty RamKernelGemini1
     ; [BIT DEPTH] #2 *If-End @ 2
     ; [BIT DEPTH] #2 Else-End @ 2
 .endif_2:
     ; Gemini 4B
     ldy [DO_GEMS_B + 4]
     jsr KernelA_UpdateRegs
+.K_4B:
     sty RamKernelGemini4
     ; TODO if no PHP, rewrite previous section:
     ; NIBBLE_IF cs
@@ -369,7 +373,7 @@
     ENDM
 
     MAC NIBBLE_gem_kernel_b
-    ldx RamKernelGemini3
+    ldx RamKernelGemini1
     stx [KernelB_D_W + 0]
 .if_1:
     asl
@@ -386,13 +390,13 @@
     stx [[KernelB_G_W + 0] + 0]
     ldx #PF1
     stx [[KernelB_G_W + 0] + 1]
-    ldx #BC_STY
+    ldx RamKernelGemini3
     stx [[KernelB_H_W + 0] + 0]
     ldx #EMERALD_SP
     stx [[KernelB_H_W + 0] + 1]
     jmp .endif_1
 .else_1:
-    ldx RamKernelGemini1
+    ldx RamKernelGemini2
     stx [KernelB_F_W + 0]
     ldx #EMERALD_SP
     stx [KernelB_F_W + 1]
@@ -406,7 +410,7 @@
     stx [[KernelB_E_W + 0] + 0]
     ldx #EMERALD_SP_RESET
     stx [[KernelB_E_W + 0] + 1]
-    ldx #BC_STY
+    ldx RamKernelGemini2
     stx [[KernelB_F_W + 1] + 0]
     ldx #EMERALD_SP
     stx [[KernelB_F_W + 1] + 1]
@@ -418,7 +422,7 @@
     stx [[KernelB_H_W + 1] + 0]
     jmp .endif_2
 .else_2:
-    ldx RamKernelGemini1
+    ldx RamKernelGemini3
     stx [KernelA_H_W + 0]
     ldx #EMERALD_SP
     stx [KernelA_H_W + 1]
@@ -430,7 +434,7 @@
     ldx BuildKernelX
     stx [RamKernelX + 0]
     ldx BuildKernelY
-    stx [RamKernelY + 0]
+    stx [[KernelB_STY - $100] + 0]
     ENDM
 
 

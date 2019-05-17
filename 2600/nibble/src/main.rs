@@ -179,7 +179,11 @@ fn gen_kernel_build(lines: &[Parse], kernel_build: &mut String) -> Result<(), Bo
             Parse::NibbleWrite(label, values) => {}
             Parse::NibbleWriteOpcode(label, len, value) => {},
             Parse::Opcode(opcode) => {
-                writeln!(kernel_build, "    {}", opcode)?;
+                if opcode.starts_with(".") && !opcode.starts_with(".byte") {
+                    writeln!(kernel_build, "{}", opcode)?;
+                } else {
+                    writeln!(kernel_build, "    {}", opcode)?;
+                }
             }
             Parse::NibbleEndKernel => {
                 if bitdepth > 8 {

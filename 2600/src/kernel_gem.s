@@ -76,8 +76,8 @@ KernelA_D:
 KernelA_E:
     sta EMERALD_SP_RESET ; Reset "medium close" NUSIZ repetition
 KernelA_F:
-    sty EMERALD_MI_ENABLE ; Enable the missile (if we use %0xx00110 pattern)
-    ; sleep 3 ; FIXME This should be uncommented!
+    sta EMERALD_MI_ENABLE ; Enable the missile (if we use %0xx00110 pattern)
+    ; sleep 3 ; FIXME This should be a "sleep 3" and the missile enabled should be moved
 KernelA_G:
     sty EMERALD_SP ; Gemini 2A
 
@@ -154,17 +154,20 @@ KernelB_VDEL0 = . - 1
     ldy #$ff
 KernelB_STY = . - 1
 
+    ; Load PF1 value into accumulator
+    lda RamPF1Value
+
     ; Clear bits in processor status register for drawing.
-    clc
-    bit RamLowerSixByte
+    ; clc
+    ; bit RamLowerSixByte
+    sec
 
     ; 25c is critical start of precise GRP0 timing for Kernel B
     ASSERT_RUNTIME_KERNEL $B, "_scycles == #25"
 KernelB_A:
     sta EMERALD_SP_RESET
 KernelB_B:
-    ; Load PF1 value into accumulator
-    lda RamPF1Value
+    bit RamZeroByte
 KernelB_C:
     sleep 3
 KernelB_D:

@@ -74,9 +74,9 @@ KernelA_GenReset: subroutine
 ; See if the current Gemini is g00. Allocate an RST to this Gemini if so
 ; processor flag Z is TRUE if this is RST.
 KernelB_GenPhp: subroutine
-    cpy #$10
+    cpy #G10
     beq .start
-    cpy #$11
+    cpy #G11
     beq .start
     rts
     ; Current Gemini = $00
@@ -87,8 +87,8 @@ KernelB_GenPhp: subroutine
     ; We have found the first (and only) RST on this line, set the marker var
     ldx #$ff
     stx BuildKernelRST
-.set_else
     ldx #$00
+.set_else
     rts
 
 ; Allocates build-time registers for a new Gemini sprite value.
@@ -110,20 +110,6 @@ KernelA_UpdateRegs: subroutine
     ; ldy #BC_NOP
     ; rts
 
-.set_start:
-    ldx BuildKernelX
-    cpx #SENTINEL
-    bne .set_else
-    sty BuildKernelX
-    ; FIXME like here is where graphics would be reversed savedinto BuidlKernelX
-    beq .set_end
-.set_else
-    ldx BuildKernelY
-    cpx #SENTINEL
-    bne .set_end
-    sty BuildKernelY
-.set_end:
-
     cpy BuildKernelX
     bne .op_else
     ldy #BC_STX
@@ -132,7 +118,26 @@ KernelA_UpdateRegs: subroutine
     cpy BuildKernelY
     bne .op_end
     ldy #BC_STY
+    rts
 .op_end:
+
+.set_start:
+    ldx BuildKernelX
+    cpx #SENTINEL
+    bne .set_else
+    sty BuildKernelX
+    ldy #BC_STX
+    rts
+.set_else
+    ldx BuildKernelY
+    cpx #SENTINEL
+    bne .set_end
+    sty BuildKernelY
+    ldy #BC_STY
+    rts
+.set_end:
+    ; Failed all
+    ASSERT_RUNTIME "0"
     rts
 
     ; Vertical Sync
@@ -231,8 +236,8 @@ frame_setup_kernel_b: subroutine
     sta EMERALD_MI_HMOVE
 
     ; DEBUG: Set per-kernel color
-    ; ldx #$e0
-    ldx #COL_EMERALD
+    ldx #$e0
+    ; ldx #COL_EMERALD
     stx EMERALD_SP_COLOR
 
     ; Disable reflection for Jetpack.
@@ -287,6 +292,7 @@ KernelB_K_W EQM [KernelB_K - $100]
         stx BuildKernelRST
 
         ; Gemini 1A
+.K_1A:
         ldy [DO_GEMS_A + 0]
         jsr KernelA_GenReset
         NIBBLE_IF eq
@@ -328,8 +334,8 @@ KernelB_K_W EQM [KernelB_K - $100]
                 ; Set opcode
                 ldx SHARD_LUT_RF1
                 cpx #1
-                ldy #BC_STX
-                .byte $D0, #5 ; bne +4
+                ldy #BC_STX ; Don't allocate
+                .byte $F0, #5 ; beq +4
                 ldy [DO_GEMS_A + 1]
                 jsr KernelA_UpdateRegs
                 sty RamKernelGemini1
@@ -338,6 +344,7 @@ KernelB_K_W EQM [KernelB_K - $100]
             NIBBLE_END_IF
         NIBBLE_END_IF
 
+        ; BuildKernelX, BuildKernelY are upgraded if not set
         ; Gemini 2A
         ldy [DO_GEMS_A + 2]
         jsr KernelA_GenReset
@@ -452,15 +459,25 @@ KernelB_K_W EQM [KernelB_K - $100]
         ; Gemini 0B
         ldy [DO_GEMS_B + 0]
         sty BuildKernelGrp0
-        ; NIBBLE_WRITE KernelB_D_W, RamKernelGemini3
+        ; NIBBLE_WRITE KernelB_D_W, RamKernelGemini0
 
         ; Gemini 1B
         ldy [DO_GEMS_B + 1]
         jsr KernelA_UpdateRegs
+        sty RamKernelGemini1
+        NIBBLE_WRITE KernelB_D_W, RamKernelGemini1
+
+        ; Calculate Gemini 2B
+        ldy [DO_GEMS_B + 2]
+        jsr KernelB_UpdateRegs
+        sty RamKernelGemini2
+        ; Calculate Gemini 3B
+        ldy [DO_GEMS_B + 3]
+        jsr KernelB_UpdateRegs
         sty RamKernelGemini3
-        NIBBLE_WRITE KernelB_D_W, RamKernelGemini3
 
         ; Gemini 2B
+.K_2B:
         ldy [DO_GEMS_B + 2]
         jsr KernelB_GenPhp
         NIBBLE_IF eq
@@ -469,14 +486,9 @@ KernelB_K_W EQM [KernelB_K - $100]
             NIBBLE_WRITE [KernelB_E_W + 0], #BC_STY, #EMERALD_SP_RESET ; 2B
             NIBBLE_WRITE [KernelB_F_W + 1], #BC_PHP
             NIBBLE_WRITE [KernelB_G_W + 0], #BC_STA, #PF1
-            NIBBLE_WRITE [KernelB_H_W + 0], #BC_STY, #EMERALD_SP ; 3B
+            NIBBLE_WRITE [KernelB_H_W + 0], RamKernelGemini3, #EMERALD_SP ; 3B
         NIBBLE_ELSE
-            ; Calculate the gemini value
-            ldy [DO_GEMS_B + 2]
-            jsr KernelB_UpdateRegs
-            sty RamKernelGemini1
-
-            NIBBLE_WRITE KernelB_F_W, RamKernelGemini1, #EMERALD_SP
+            NIBBLE_WRITE KernelB_F_W, RamKernelGemini2, #EMERALD_SP
         NIBBLE_END_IF
 
         ; Gemini 3B
@@ -485,22 +497,18 @@ KernelB_K_W EQM [KernelB_K - $100]
         NIBBLE_IF eq
             ; Write to PHP in 3B
             NIBBLE_WRITE RamKernelPhpTarget, #EMERALD_SP
-            NIBBLE_WRITE [KernelB_E_W + 0], #BC_STY, #EMERALD_SP_RESET ; 3B
-            NIBBLE_WRITE [KernelB_F_W + 1], #BC_STY, #EMERALD_SP ; 2B
+            NIBBLE_WRITE [KernelB_E_W + 0], #BC_STY, #EMERALD_SP_RESET
+            NIBBLE_WRITE [KernelB_F_W + 1], RamKernelGemini2, #EMERALD_SP ; 2B
             NIBBLE_WRITE [KernelB_G_W + 1], #BC_STA, #PF1
-            NIBBLE_WRITE [KernelB_H_W + 1], #BC_PHP
+            NIBBLE_WRITE [KernelB_H_W + 1], #BC_PHP ; 3B
         NIBBLE_ELSE
-            ; Calculate the gemini value
-            ldy [DO_GEMS_B + 1]
-            jsr KernelB_UpdateRegs
-            sty RamKernelGemini1
-
-            NIBBLE_WRITE KernelA_H_W, RamKernelGemini1, #EMERALD_SP
+            NIBBLE_WRITE KernelA_H_W, RamKernelGemini3, #EMERALD_SP
         NIBBLE_END_IF
 
         ; Gemini 4B
         ldy [DO_GEMS_B + 4]
         jsr KernelA_UpdateRegs
+.K_4B:
         sty RamKernelGemini4
         NIBBLE_WRITE KernelB_J_W, RamKernelGemini4
 
@@ -525,7 +533,7 @@ KernelB_K_W EQM [KernelB_K - $100]
         ; X
         NIBBLE_WRITE RamKernelX, BuildKernelX
         ; Y
-        NIBBLE_WRITE RamKernelY, BuildKernelY
+        NIBBLE_WRITE [KernelB_STY - $100], BuildKernelY
 
     NIBBLE_END_KERNEL
 
@@ -701,7 +709,7 @@ GEMINI_LOOKUP:
     .byte G00, G01, G10, G11
 
 level_for_game:
-    .byte %0111, %1111111, %1111111, %11111111
+    .byte %1111, %1111111, %0111111, %11111111
 
 SHARD_LUT_RF1:
     .byte #0
