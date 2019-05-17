@@ -622,6 +622,16 @@ Overscan: subroutine
     jsr MoveJoystick
     jsr SpeedCalculation
 
+    ; Calculate GemAnimation.
+    ; TODO DIVIDE BY A THING
+    lda FrameCount
+    and #%111
+    bne .skiprotate
+    lda level_for_game + 3
+    rol
+    _ROL32 level_for_game, level_for_game
+.skiprotate:
+
     TIMER_WAIT
     ASSERT_RUNTIME "_scan == (#37 + #192 + #29)"
 
@@ -707,9 +717,6 @@ gemini_populate_end:
 
 GEMINI_LOOKUP:
     .byte G00, G01, G10, G11
-
-level_for_game:
-    .byte %1111, %1111111, %0111111, %11111111
 
 SHARD_LUT_RF1:
     .byte #0

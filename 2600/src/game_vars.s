@@ -58,6 +58,11 @@ BuildKernelRST byte
 BuildKernelGrp0 byte
 BuildKernelVdel1 byte
 
+level_for_game byte
+    byte
+    byte
+    byte
+
 DO_MISS_A byte
 DO_MISS_B byte
 DO_GEMS_A byte

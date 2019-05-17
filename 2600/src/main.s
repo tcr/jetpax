@@ -18,6 +18,39 @@
         seg CodeBank3
     endm
 
+
+; Perform a left rotation on the 32 bit number at
+; location VLA and store the result at location
+; RES. If VLA and RES are the same then the
+; operation is applied directly to the memory,
+; otherwise it is done in the accumulator.
+;
+; On exit: A = ??, X & Y are unchanged.
+
+	mac _ROL32
+VLA EQU {1}
+RES EQU {2}
+		IF VLA != RES
+		 LDA VLA+0
+		 ROL A
+		 STA RES+0
+		 LDA VLA+1
+		 ROL A
+		 STA RES+1
+		 LDA VLA+2
+		 ROL A
+		 STA RES+2
+		 LDA VLA+3
+		 ROL A
+		 STA RES+3
+		ELSE
+		 ROL VLA+0
+		 ROL VLA+1
+		 ROL VLA+2
+		 ROL VLA+3
+		ENDIF
+		ENDM
+
     ; Dynamic, runtime (Stella) assertions for "make debug"
     mac ASSERT_RUNTIME
 .COND SET {1}
