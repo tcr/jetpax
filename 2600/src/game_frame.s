@@ -623,14 +623,13 @@ Overscan: subroutine
     jsr SpeedCalculation
 
     ; Calculate GemAnimation.
-    ; TODO DIVIDE BY A THING
     lda FrameCount
-    and #%1111
+    and #%11111
     bne .skiprotate
-    lda level_for_game + 0
-    asl
+    lda level_for_game + 3
+    ror
 .rollall:
-    _ROL32 level_for_game, level_for_game
+    _ROR32 level_for_game, level_for_game
 .skiprotate:
 
     TIMER_WAIT
@@ -688,10 +687,13 @@ gemini_populate:
     ror RamNibbleTemp
     ror RamNibbleTemp
 
+    ror
+    ldx level_for_game + 1
+    asl
+    GEMINI_POPULATE DO_GEMS_A + 2
+
     ldx level_for_game + 1
     stx RamNibbleTemp
-    GEMINI_POPULATE DO_GEMS_A + 2
-    ror RamNibbleTemp
     ror RamNibbleTemp
     GEMINI_POPULATE_MISSILE DO_MISS_A
     ror RamNibbleTemp
@@ -701,12 +703,12 @@ gemini_populate:
     GEMINI_POPULATE DO_GEMS_A + 1
     ror RamNibbleTemp
     ror RamNibbleTemp
-
-    ldx level_for_game + 0
-    stx RamNibbleTemp
     GEMINI_POPULATE DO_GEMS_B + 0
     ror RamNibbleTemp
     ror RamNibbleTemp
+    
+    ldx level_for_game + 0
+    stx RamNibbleTemp
     GEMINI_POPULATE DO_GEMS_A + 0
     ror RamNibbleTemp
     ror RamNibbleTemp

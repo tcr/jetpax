@@ -28,27 +28,27 @@
 ; On exit: A = ??, X & Y are unchanged.
 
 ;http://www.obelisk.me.uk/6502/maclib.inc but reversed
-	mac _ROL32
+	mac _ROR32
 VLA EQU {1}
 RES EQU {2}
 		IF VLA != RES
-		 LDA VLA+3
-		 ROL A
-		 STA RES+3
-		 LDA VLA+2
-		 ROL A
-		 STA RES+2
-		 LDA VLA+1
-		 ROL A
-		 STA RES+1
 		 LDA VLA+0
-		 ROL A
+		 ROR A
 		 STA RES+0
+		 LDA VLA+1
+		 ROR A
+		 STA RES+1
+		 LDA VLA+2
+		 ROR A
+		 STA RES+2
+		 LDA VLA+3
+		 ROR A
+		 STA RES+3
 		ELSE
-		 ROL VLA+3
-		 ROL VLA+2
-		 ROL VLA+1
-		 ROL VLA+0
+		 ROR VLA+0
+		 ROR VLA+1
+		 ROR VLA+2
+		 ROR VLA+3
 		ENDIF
 		ENDM
 

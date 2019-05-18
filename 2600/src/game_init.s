@@ -59,12 +59,12 @@ InitSetup:
 
     ; Set all the bits in a silly manner
 .setallbits:
-    lda #%11111110
-    sta [level_for_game + 3]
-    lda #%11111111
-    sta [level_for_game + 2]
-    sta [level_for_game + 1]
+    lda #%11111011
     sta [level_for_game + 0]
+    lda #%11111111
+    sta [level_for_game + 1]
+    sta [level_for_game + 2]
+    sta [level_for_game + 3]
 
     ; Start with vertical sync (to reset frame)
     jmp VerticalSync

@@ -29,27 +29,27 @@
      28  10000 ????						; On exit: A = ??, X & Y are unchanged.
      29  10000 ????
      30  10000 ????						;http://www.obelisk.me.uk/6502/maclib.inc but reversed
-     31  10000 ????				       mac	_rol32
+     31  10000 ????				       mac	_ror32
      32  10000 ????			    VLA        EQU	{1}
      33  10000 ????			    RES        EQU	{2}
      34  10000 ????				       IF	VLA != RES
-     35  10000 ????				       LDA	VLA+3
-     36  10000 ????				       ROL	A
-     37  10000 ????				       STA	RES+3
-     38  10000 ????				       LDA	VLA+2
-     39  10000 ????				       ROL	A
-     40  10000 ????				       STA	RES+2
-     41  10000 ????				       LDA	VLA+1
-     42  10000 ????				       ROL	A
-     43  10000 ????				       STA	RES+1
-     44  10000 ????				       LDA	VLA+0
-     45  10000 ????				       ROL	A
-     46  10000 ????				       STA	RES+0
+     35  10000 ????				       LDA	VLA+0
+     36  10000 ????				       ROR	A
+     37  10000 ????				       STA	RES+0
+     38  10000 ????				       LDA	VLA+1
+     39  10000 ????				       ROR	A
+     40  10000 ????				       STA	RES+1
+     41  10000 ????				       LDA	VLA+2
+     42  10000 ????				       ROR	A
+     43  10000 ????				       STA	RES+2
+     44  10000 ????				       LDA	VLA+3
+     45  10000 ????				       ROR	A
+     46  10000 ????				       STA	RES+3
      47  10000 ????				       ELSE
-     48  10000 ????				       ROL	VLA+3
-     49  10000 ????				       ROL	VLA+2
-     50  10000 ????				       ROL	VLA+1
-     51  10000 ????				       ROL	VLA+0
+     48  10000 ????				       ROR	VLA+0
+     49  10000 ????				       ROR	VLA+1
+     50  10000 ????				       ROR	VLA+2
+     51  10000 ????				       ROR	VLA+3
      52  10000 ????				       ENDIF
      53  10000 ????				       ENDM
      54  10000 ????
@@ -769,12 +769,12 @@
      59  f253
      60  f253							; Set all the bits in a silly manner
      61  f253				   .setallbits
-     62  f253		       a9 fe		      lda	#%11111110
-     63  f255		       85 ac		      sta	[level_for_game + 3]
+     62  f253		       a9 fb		      lda	#%11111011
+     63  f255		       85 a9		      sta	[level_for_game + 0]
      64  f257		       a9 ff		      lda	#%11111111
-     65  f259		       85 ab		      sta	[level_for_game + 2]
-     66  f25b		       85 aa		      sta	[level_for_game + 1]
-     67  f25d		       85 a9		      sta	[level_for_game + 0]
+     65  f259		       85 aa		      sta	[level_for_game + 1]
+     66  f25b		       85 ab		      sta	[level_for_game + 2]
+     67  f25d		       85 ac		      sta	[level_for_game + 3]
      68  f25f
      69  f25f							; Start with vertical sync (to reset frame)
      70  f25f		       4c 4d f4 	      jmp	VerticalSync
@@ -2792,37 +2792,36 @@
     623  f83f		       20 0d fa 	      jsr	SpeedCalculation
     624  f842
     625  f842							; Calculate GemAnimation.
-    626  f842							; TODO DIVIDE BY A THING
-    627  f842		       a5 84		      lda	FrameCount
-    628  f844		       29 0f		      and	#%1111
-    629  f846		       d0 0b		      bne	.skiprotate
-    630  f848		       a5 a9		      lda	level_for_game + 0
-    631  f84a		       0a		      asl
-    632  f84b				   .rollall
-      0  f84b					      _ROL32	level_for_game, level_for_game
+    626  f842		       a5 84		      lda	FrameCount
+    627  f844		       29 1f		      and	#%11111
+    628  f846		       d0 0b		      bne	.skiprotate
+    629  f848		       a5 ac		      lda	level_for_game + 3
+    630  f84a		       6a		      ror
+    631  f84b				   .rollall
+      0  f84b					      _ROR32	level_for_game, level_for_game
       1  f84b		       00 a9	   VLA	      EQU	level_for_game
       2  f84b		       00 a9	   RES	      EQU	level_for_game
       3  f84b				  -	      IF	VLA != RES
-      4  f84b				  -	      LDA	VLA+3
-      5  f84b				  -	      ROL	A
-      6  f84b				  -	      STA	RES+3
-      7  f84b				  -	      LDA	VLA+2
-      8  f84b				  -	      ROL	A
-      9  f84b				  -	      STA	RES+2
-     10  f84b				  -	      LDA	VLA+1
-     11  f84b				  -	      ROL	A
-     12  f84b				  -	      STA	RES+1
-     13  f84b				  -	      LDA	VLA+0
-     14  f84b				  -	      ROL	A
-     15  f84b				  -	      STA	RES+0
+      4  f84b				  -	      LDA	VLA+0
+      5  f84b				  -	      ROR	A
+      6  f84b				  -	      STA	RES+0
+      7  f84b				  -	      LDA	VLA+1
+      8  f84b				  -	      ROR	A
+      9  f84b				  -	      STA	RES+1
+     10  f84b				  -	      LDA	VLA+2
+     11  f84b				  -	      ROR	A
+     12  f84b				  -	      STA	RES+2
+     13  f84b				  -	      LDA	VLA+3
+     14  f84b				  -	      ROR	A
+     15  f84b				  -	      STA	RES+3
      16  f84b					      ELSE
-     17  f84b		       26 ac		      ROL	VLA+3
-     18  f84d		       26 ab		      ROL	VLA+2
-     19  f84f		       26 aa		      ROL	VLA+1
-     20  f851		       26 a9		      ROL	VLA+0
+     17  f84b		       66 a9		      ROR	VLA+0
+     18  f84d		       66 aa		      ROR	VLA+1
+     19  f84f		       66 ab		      ROR	VLA+2
+     20  f851		       66 ac		      ROR	VLA+3
      21  f853					      ENDIF
-    634  f853				   .skiprotate
-    635  f853
+    633  f853				   .skiprotate
+    634  f853
       0  f853					      TIMER_WAIT
       1  f853				   .waittimer
       2  f853		       ad 84 02 	      lda	INTIM
@@ -2832,32 +2831,32 @@
       1  f85a				   .COND      SET	"_scan == (#37 + #192 + #29)"
  ASSERT: breakif { pc== $f85a  && !(  _scan == (#37 + #192 + #29)  ) }
       2  f85a					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
-    638  f85a
-    639  f85a		       4c 4d f4 	      jmp	VerticalSync
+    637  f85a
+    638  f85a		       4c 4d f4 	      jmp	VerticalSync
+    639  f85d
     640  f85d
     641  f85d
-    642  f85d
-    643  f900		       00 00 00 00*	      align	256
-    644  f900
-    645  f900					      mac	gemini_populate
-    646  f900				   .TARGET    SET	{1}
-    647  f900					      lda	RamNibbleTemp
-    648  f900					      and	#%00000011
-    649  f900					      tay
-    650  f900					      lda	GEMINI_LOOKUP,y
-    651  f900					      sta	.TARGET
-    652  f900					      endm
-    653  f900
-    654  f900					      mac	gemini_populate_missile
-    655  f900				   .TARGET    SET	{1}
-    656  f900					      txa
-    657  f900					      and	#%00000001
-    658  f900					      sta	.TARGET
-    659  f900					      endm
-    660  f900
-    661  f900				   gemini_populate
-    662  f900		       a6 ac		      ldx	level_for_game + 3
-    663  f902		       86 90		      stx	RamNibbleTemp
+    642  f900		       00 00 00 00*	      align	256
+    643  f900
+    644  f900					      mac	gemini_populate
+    645  f900				   .TARGET    SET	{1}
+    646  f900					      lda	RamNibbleTemp
+    647  f900					      and	#%00000011
+    648  f900					      tay
+    649  f900					      lda	GEMINI_LOOKUP,y
+    650  f900					      sta	.TARGET
+    651  f900					      endm
+    652  f900
+    653  f900					      mac	gemini_populate_missile
+    654  f900				   .TARGET    SET	{1}
+    655  f900					      txa
+    656  f900					      and	#%00000001
+    657  f900					      sta	.TARGET
+    658  f900					      endm
+    659  f900
+    660  f900				   gemini_populate
+    661  f900		       a6 ac		      ldx	level_for_game + 3
+    662  f902		       86 90		      stx	RamNibbleTemp
       0  f904					      GEMINI_POPULATE	DO_GEMS_B + 5
       1  f904				   .TARGET    SET	DO_GEMS_B + 5
       2  f904		       a5 90		      lda	RamNibbleTemp
@@ -2865,8 +2864,8 @@
       4  f908		       a8		      tay
       5  f909		       b9 d0 f9 	      lda	GEMINI_LOOKUP,y
       6  f90c		       85 ba		      sta	.TARGET
-    665  f90e		       66 90		      ror	RamNibbleTemp
-    666  f910		       66 90		      ror	RamNibbleTemp
+    664  f90e		       66 90		      ror	RamNibbleTemp
+    665  f910		       66 90		      ror	RamNibbleTemp
       0  f912					      GEMINI_POPULATE	DO_GEMS_A + 5
       1  f912				   .TARGET    SET	DO_GEMS_A + 5
       2  f912		       a5 90		      lda	RamNibbleTemp
@@ -2874,8 +2873,8 @@
       4  f916		       a8		      tay
       5  f917		       b9 d0 f9 	      lda	GEMINI_LOOKUP,y
       6  f91a		       85 b4		      sta	.TARGET
-    668  f91c		       66 90		      ror	RamNibbleTemp
-    669  f91e		       66 90		      ror	RamNibbleTemp
+    667  f91c		       66 90		      ror	RamNibbleTemp
+    668  f91e		       66 90		      ror	RamNibbleTemp
       0  f920					      GEMINI_POPULATE	DO_GEMS_B + 4
       1  f920				   .TARGET    SET	DO_GEMS_B + 4
       2  f920		       a5 90		      lda	RamNibbleTemp
@@ -2883,8 +2882,8 @@
       4  f924		       a8		      tay
       5  f925		       b9 d0 f9 	      lda	GEMINI_LOOKUP,y
       6  f928		       85 b9		      sta	.TARGET
-    671  f92a		       66 90		      ror	RamNibbleTemp
-    672  f92c		       66 90		      ror	RamNibbleTemp
+    670  f92a		       66 90		      ror	RamNibbleTemp
+    671  f92c		       66 90		      ror	RamNibbleTemp
       0  f92e					      GEMINI_POPULATE	DO_GEMS_A + 4
       1  f92e				   .TARGET    SET	DO_GEMS_A + 4
       2  f92e		       a5 90		      lda	RamNibbleTemp
@@ -2892,17 +2891,17 @@
       4  f932		       a8		      tay
       5  f933		       b9 d0 f9 	      lda	GEMINI_LOOKUP,y
       6  f936		       85 b3		      sta	.TARGET
-    674  f938		       66 90		      ror	RamNibbleTemp
-    675  f93a		       66 90		      ror	RamNibbleTemp
-    676  f93c
-    677  f93c		       a6 ab		      ldx	level_for_game + 2
-    678  f93e		       86 90		      stx	RamNibbleTemp
+    673  f938		       66 90		      ror	RamNibbleTemp
+    674  f93a		       66 90		      ror	RamNibbleTemp
+    675  f93c
+    676  f93c		       a6 ab		      ldx	level_for_game + 2
+    677  f93e		       86 90		      stx	RamNibbleTemp
       0  f940					      GEMINI_POPULATE_MISSILE	DO_MISS_B
       1  f940				   .TARGET    SET	DO_MISS_B
       2  f940		       8a		      txa
       3  f941		       29 01		      and	#%00000001
       4  f943		       85 ae		      sta	.TARGET
-    680  f945		       66 90		      ror	RamNibbleTemp
+    679  f945		       66 90		      ror	RamNibbleTemp
       0  f947					      GEMINI_POPULATE	DO_GEMS_B + 3
       1  f947				   .TARGET    SET	DO_GEMS_B + 3
       2  f947		       a5 90		      lda	RamNibbleTemp
@@ -2910,8 +2909,8 @@
       4  f94b		       a8		      tay
       5  f94c		       b9 d0 f9 	      lda	GEMINI_LOOKUP,y
       6  f94f		       85 b8		      sta	.TARGET
-    682  f951		       66 90		      ror	RamNibbleTemp
-    683  f953		       66 90		      ror	RamNibbleTemp
+    681  f951		       66 90		      ror	RamNibbleTemp
+    682  f953		       66 90		      ror	RamNibbleTemp
       0  f955					      GEMINI_POPULATE	DO_GEMS_A + 3
       1  f955				   .TARGET    SET	DO_GEMS_A + 3
       2  f955		       a5 90		      lda	RamNibbleTemp
@@ -2919,8 +2918,8 @@
       4  f959		       a8		      tay
       5  f95a		       b9 d0 f9 	      lda	GEMINI_LOOKUP,y
       6  f95d		       85 b2		      sta	.TARGET
-    685  f95f		       66 90		      ror	RamNibbleTemp
-    686  f961		       66 90		      ror	RamNibbleTemp
+    684  f95f		       66 90		      ror	RamNibbleTemp
+    685  f961		       66 90		      ror	RamNibbleTemp
       0  f963					      GEMINI_POPULATE	DO_GEMS_B + 2
       1  f963				   .TARGET    SET	DO_GEMS_B + 2
       2  f963		       a5 90		      lda	RamNibbleTemp
@@ -2928,11 +2927,12 @@
       4  f967		       a8		      tay
       5  f968		       b9 d0 f9 	      lda	GEMINI_LOOKUP,y
       6  f96b		       85 b7		      sta	.TARGET
-    688  f96d		       66 90		      ror	RamNibbleTemp
-    689  f96f		       66 90		      ror	RamNibbleTemp
-    690  f971
-    691  f971		       a6 aa		      ldx	level_for_game + 1
-    692  f973		       86 90		      stx	RamNibbleTemp
+    687  f96d		       66 90		      ror	RamNibbleTemp
+    688  f96f		       66 90		      ror	RamNibbleTemp
+    689  f971
+    690  f971		       6a		      ror
+    691  f972		       a6 aa		      ldx	level_for_game + 1
+    692  f974		       0a		      asl
       0  f975					      GEMINI_POPULATE	DO_GEMS_A + 2
       1  f975				   .TARGET    SET	DO_GEMS_A + 2
       2  f975		       a5 90		      lda	RamNibbleTemp
@@ -2940,67 +2940,69 @@
       4  f979		       a8		      tay
       5  f97a		       b9 d0 f9 	      lda	GEMINI_LOOKUP,y
       6  f97d		       85 b1		      sta	.TARGET
-    694  f97f		       66 90		      ror	RamNibbleTemp
-    695  f981		       66 90		      ror	RamNibbleTemp
-      0  f983					      GEMINI_POPULATE_MISSILE	DO_MISS_A
-      1  f983				   .TARGET    SET	DO_MISS_A
-      2  f983		       8a		      txa
-      3  f984		       29 01		      and	#%00000001
-      4  f986		       85 ad		      sta	.TARGET
-    697  f988		       66 90		      ror	RamNibbleTemp
-      0  f98a					      GEMINI_POPULATE	DO_GEMS_B + 1
-      1  f98a				   .TARGET    SET	DO_GEMS_B + 1
-      2  f98a		       a5 90		      lda	RamNibbleTemp
-      3  f98c		       29 03		      and	#%00000011
-      4  f98e		       a8		      tay
-      5  f98f		       b9 d0 f9 	      lda	GEMINI_LOOKUP,y
-      6  f992		       85 b6		      sta	.TARGET
-    699  f994		       66 90		      ror	RamNibbleTemp
-    700  f996		       66 90		      ror	RamNibbleTemp
-      0  f998					      GEMINI_POPULATE	DO_GEMS_A + 1
-      1  f998				   .TARGET    SET	DO_GEMS_A + 1
-      2  f998		       a5 90		      lda	RamNibbleTemp
-      3  f99a		       29 03		      and	#%00000011
-      4  f99c		       a8		      tay
-      5  f99d		       b9 d0 f9 	      lda	GEMINI_LOOKUP,y
-      6  f9a0		       85 b0		      sta	.TARGET
-    702  f9a2		       66 90		      ror	RamNibbleTemp
-    703  f9a4		       66 90		      ror	RamNibbleTemp
-    704  f9a6
-    705  f9a6		       a6 a9		      ldx	level_for_game + 0
-    706  f9a8		       86 90		      stx	RamNibbleTemp
-      0  f9aa					      GEMINI_POPULATE	DO_GEMS_B + 0
-      1  f9aa				   .TARGET    SET	DO_GEMS_B + 0
-      2  f9aa		       a5 90		      lda	RamNibbleTemp
-      3  f9ac		       29 03		      and	#%00000011
-      4  f9ae		       a8		      tay
-      5  f9af		       b9 d0 f9 	      lda	GEMINI_LOOKUP,y
-      6  f9b2		       85 b5		      sta	.TARGET
+    694  f97f
+    695  f97f		       a6 aa		      ldx	level_for_game + 1
+    696  f981		       86 90		      stx	RamNibbleTemp
+    697  f983		       66 90		      ror	RamNibbleTemp
+      0  f985					      GEMINI_POPULATE_MISSILE	DO_MISS_A
+      1  f985				   .TARGET    SET	DO_MISS_A
+      2  f985		       8a		      txa
+      3  f986		       29 01		      and	#%00000001
+      4  f988		       85 ad		      sta	.TARGET
+    699  f98a		       66 90		      ror	RamNibbleTemp
+      0  f98c					      GEMINI_POPULATE	DO_GEMS_B + 1
+      1  f98c				   .TARGET    SET	DO_GEMS_B + 1
+      2  f98c		       a5 90		      lda	RamNibbleTemp
+      3  f98e		       29 03		      and	#%00000011
+      4  f990		       a8		      tay
+      5  f991		       b9 d0 f9 	      lda	GEMINI_LOOKUP,y
+      6  f994		       85 b6		      sta	.TARGET
+    701  f996		       66 90		      ror	RamNibbleTemp
+    702  f998		       66 90		      ror	RamNibbleTemp
+      0  f99a					      GEMINI_POPULATE	DO_GEMS_A + 1
+      1  f99a				   .TARGET    SET	DO_GEMS_A + 1
+      2  f99a		       a5 90		      lda	RamNibbleTemp
+      3  f99c		       29 03		      and	#%00000011
+      4  f99e		       a8		      tay
+      5  f99f		       b9 d0 f9 	      lda	GEMINI_LOOKUP,y
+      6  f9a2		       85 b0		      sta	.TARGET
+    704  f9a4		       66 90		      ror	RamNibbleTemp
+    705  f9a6		       66 90		      ror	RamNibbleTemp
+      0  f9a8					      GEMINI_POPULATE	DO_GEMS_B + 0
+      1  f9a8				   .TARGET    SET	DO_GEMS_B + 0
+      2  f9a8		       a5 90		      lda	RamNibbleTemp
+      3  f9aa		       29 03		      and	#%00000011
+      4  f9ac		       a8		      tay
+      5  f9ad		       b9 d0 f9 	      lda	GEMINI_LOOKUP,y
+      6  f9b0		       85 b5		      sta	.TARGET
+    707  f9b2		       66 90		      ror	RamNibbleTemp
     708  f9b4		       66 90		      ror	RamNibbleTemp
-    709  f9b6		       66 90		      ror	RamNibbleTemp
-      0  f9b8					      GEMINI_POPULATE	DO_GEMS_A + 0
-      1  f9b8				   .TARGET    SET	DO_GEMS_A + 0
-      2  f9b8		       a5 90		      lda	RamNibbleTemp
-      3  f9ba		       29 03		      and	#%00000011
-      4  f9bc		       a8		      tay
-      5  f9bd		       b9 d0 f9 	      lda	GEMINI_LOOKUP,y
-      6  f9c0		       85 af		      sta	.TARGET
-    711  f9c2		       66 90		      ror	RamNibbleTemp
-    712  f9c4		       66 90		      ror	RamNibbleTemp
-    713  f9c6
-    714  f9c6		       60		      rts
-    715  f9c7				   gemini_populate_end
-    716  f9c7
-    717  f9d0		       00 00 00 00*	      align	16
-    718  f9d0
-    719  f9d0				   GEMINI_LOOKUP
-    720  f9d0		       00 60 06 66	      .byte.b	G00, G01, G10, G11
-    721  f9d4
-    722  f9d4				   SHARD_LUT_RF1
-    723  f9d4		       00		      .byte.b	#0
-    724  f9d5				   SHARD_LUT_VD1
-    725  f9d5		       00		      .byte.b	#0
-    726  f9d6
+    709  f9b6
+    710  f9b6		       a6 a9		      ldx	level_for_game + 0
+    711  f9b8		       86 90		      stx	RamNibbleTemp
+      0  f9ba					      GEMINI_POPULATE	DO_GEMS_A + 0
+      1  f9ba				   .TARGET    SET	DO_GEMS_A + 0
+      2  f9ba		       a5 90		      lda	RamNibbleTemp
+      3  f9bc		       29 03		      and	#%00000011
+      4  f9be		       a8		      tay
+      5  f9bf		       b9 d0 f9 	      lda	GEMINI_LOOKUP,y
+      6  f9c2		       85 af		      sta	.TARGET
+    713  f9c4		       66 90		      ror	RamNibbleTemp
+    714  f9c6		       66 90		      ror	RamNibbleTemp
+    715  f9c8
+    716  f9c8		       60		      rts
+    717  f9c9				   gemini_populate_end
+    718  f9c9
+    719  f9d0		       00 00 00 00*	      align	16
+    720  f9d0
+    721  f9d0				   GEMINI_LOOKUP
+    722  f9d0		       00 60 06 66	      .byte.b	G00, G01, G10, G11
+    723  f9d4
+    724  f9d4				   SHARD_LUT_RF1
+    725  f9d4		       00		      .byte.b	#0
+    726  f9d5				   SHARD_LUT_VD1
+    727  f9d5		       00		      .byte.b	#0
+    728  f9d6
 ------- FILE main.s
 ------- FILE game_input.s LEVEL 2 PASS 2
       0  f9d6					      include	"game_input.s"
