@@ -58,6 +58,7 @@ InitSetup:
     sta RamLowerSixByte
 
     ; Set all the bits in a silly manner
+.setallbits:
     lda #%11111110
     sta [level_for_game + 3]
     lda #%11111111

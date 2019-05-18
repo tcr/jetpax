@@ -625,10 +625,11 @@ Overscan: subroutine
     ; Calculate GemAnimation.
     ; TODO DIVIDE BY A THING
     lda FrameCount
-    and #%111
+    and #%1111
     bne .skiprotate
-    lda level_for_game + 3
-    rol
+    lda level_for_game + 0
+    asl
+.rollall:
     _ROL32 level_for_game, level_for_game
 .skiprotate:
 
