@@ -147,13 +147,13 @@ KernelB_VDEL0 = . - 1
     sty EMERALD_SP
     sleep 2
 
-    ; Register config
-    lda #$ff
-    sta EMERALD_MI_ENABLE ; enable missile
-
     ldy #$ff
 KernelB_STY = . - 1
 
+    ; Register config
+    lda #$ff
+
+    sta EMERALD_MI_ENABLE ; enable missile
     ; Load PF1 value into accumulator
     lda RamPF1Value
 
@@ -161,6 +161,8 @@ KernelB_STY = . - 1
     ; clc
     ; bit RamLowerSixByte
     sec
+KernelB_P11_C = . - 1
+    ; sleep 2
 
     ; 25c is critical start of precise GRP0 timing for Kernel B
     ASSERT_RUNTIME_KERNEL $B, "_scycles == #25"

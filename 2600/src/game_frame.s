@@ -74,7 +74,7 @@ KernelA_GenReset: subroutine
 ; See if the current Gemini is g00. Allocate an RST to this Gemini if so
 ; processor flag Z is TRUE if this is RST.
 KernelB_GenPhp: subroutine
-    cpy #G10
+    cpy #G01
     beq .start
     cpy #G11
     beq .start
@@ -236,8 +236,8 @@ frame_setup_kernel_b: subroutine
     sta EMERALD_MI_HMOVE
 
     ; DEBUG: Set per-kernel color
-    ; ldx #$e0
-    ldx #COL_EMERALD
+    ldx #$e0
+    ; ldx #COL_EMERALD
     stx EMERALD_SP_COLOR
 
     ; Disable reflection for Jetpack.
@@ -487,6 +487,15 @@ KernelB_K_W EQM [KernelB_K - $100]
             NIBBLE_WRITE [KernelB_F_W + 1], #BC_PHP
             NIBBLE_WRITE [KernelB_G_W + 0], #BC_STA, #PF1
             NIBBLE_WRITE [KernelB_H_W + 0], RamKernelGemini3, #EMERALD_SP ; 3B
+
+            cpy G11
+            NIBBLE_IF ne
+                NIBBLE_WRITE [KernelB_P11_C - $100], #$38 ; sec
+                NIBBLE_WRITE [KernelB_B + 1 - $100], #RamZeroByte
+            NIBBLE_ELSE
+                NIBBLE_WRITE [KernelB_P11_C - $100], #$18 ; clc
+                NIBBLE_WRITE [KernelB_B + 1 - $100], #RamLowerSixByte
+            NIBBLE_END_IF
         NIBBLE_ELSE
             NIBBLE_WRITE KernelB_F_W, RamKernelGemini2, #EMERALD_SP
         NIBBLE_END_IF
@@ -494,13 +503,23 @@ KernelB_K_W EQM [KernelB_K - $100]
         ; Gemini 3B
         ldy [DO_GEMS_B + 3]
         jsr KernelB_GenPhp
-        NIBBLE_IF eq
+        NIBBLE_IF ne
             ; Write to PHP in 3B
             NIBBLE_WRITE RamKernelPhpTarget, #EMERALD_SP
             NIBBLE_WRITE [KernelB_E_W + 0], #BC_STY, #EMERALD_SP_RESET
             NIBBLE_WRITE [KernelB_F_W + 1], RamKernelGemini2, #EMERALD_SP ; 2B
             NIBBLE_WRITE [KernelB_G_W + 1], #BC_STA, #PF1
             NIBBLE_WRITE [KernelB_H_W + 1], #BC_PHP ; 3B
+
+            ; TODO compare this in the outside by checking KernelB_GenPhp value
+            cpy G11
+            NIBBLE_IF eq
+                NIBBLE_WRITE [KernelB_P11_C - $100], #$38 ; sec
+                NIBBLE_WRITE [KernelB_B + 1 - $100], #RamZeroByte
+            NIBBLE_ELSE
+                NIBBLE_WRITE [KernelB_P11_C - $100], #$18 ; clc
+                NIBBLE_WRITE [KernelB_B + 1 - $100], #RamLowerSixByte
+            NIBBLE_END_IF
         NIBBLE_ELSE
             NIBBLE_WRITE KernelA_H_W, RamKernelGemini3, #EMERALD_SP
         NIBBLE_END_IF
