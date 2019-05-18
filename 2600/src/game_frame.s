@@ -706,9 +706,11 @@ gemini_populate:
     ror RamNibbleTemp
     ror RamNibbleTemp
 
-    ror
+.HELLO:
+    ror RamNibbleTemp
     ldx level_for_game + 1
-    asl
+    stx RamNibbleTemp
+    rol RamNibbleTemp
     GEMINI_POPULATE DO_GEMS_A + 2
 
     ldx level_for_game + 1
