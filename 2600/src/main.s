@@ -27,27 +27,28 @@
 ;
 ; On exit: A = ??, X & Y are unchanged.
 
+;http://www.obelisk.me.uk/6502/maclib.inc but reversed
 	mac _ROL32
 VLA EQU {1}
 RES EQU {2}
 		IF VLA != RES
-		 LDA VLA+0
-		 ROL A
-		 STA RES+0
-		 LDA VLA+1
-		 ROL A
-		 STA RES+1
-		 LDA VLA+2
-		 ROL A
-		 STA RES+2
 		 LDA VLA+3
 		 ROL A
 		 STA RES+3
+		 LDA VLA+2
+		 ROL A
+		 STA RES+2
+		 LDA VLA+1
+		 ROL A
+		 STA RES+1
+		 LDA VLA+0
+		 ROL A
+		 STA RES+0
 		ELSE
-		 ROL VLA+0
-		 ROL VLA+1
-		 ROL VLA+2
 		 ROL VLA+3
+		 ROL VLA+2
+		 ROL VLA+1
+		 ROL VLA+0
 		ENDIF
 		ENDM
 
@@ -148,6 +149,7 @@ Bank3Start:
     include "game_init.s"
     include "kernel_loader.s"
     include "nibble.s"
+    include "nibble_shard.s"
     include "game_frame.s"
     include "game_input.s"
     include "kernel_border.s"

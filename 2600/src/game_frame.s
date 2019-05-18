@@ -236,8 +236,8 @@ frame_setup_kernel_b: subroutine
     sta EMERALD_MI_HMOVE
 
     ; DEBUG: Set per-kernel color
-    ldx #$e0
-    ; ldx #COL_EMERALD
+    ; ldx #$e0
+    ldx #COL_EMERALD
     stx EMERALD_SP_COLOR
 
     ; Disable reflection for Jetpack.

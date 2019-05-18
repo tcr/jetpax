@@ -4,8 +4,8 @@
 
 :- nb_setval(enable_reflect, false).
 
-% kernel(ka).
-kernel(kb).
+kernel(ka).
+% kernel(kb).
 
 is_bool(true).
 is_bool(false).
@@ -70,9 +70,8 @@ hash(Prog) :-
 
 condense_program(Prog, Out) :-
     (nth0(VD0Index, Prog, bc_VD0); VD0Index = 0),
-    (nth0(RSTIndex, Prog, bc_RST); RSTIndex = 0),
     (nth0(RF1Index, Prog, bc_RF1); RF1Index = 0),
-    Out = [VD0Index,RSTIndex,RF1Index].
+    Out = [VD0Index, RF1Index].
 
 opcode_violation(Prog, cpu(G, V, _, _, _, _), bc_VD0) :-
     should_occur_once(Prog, bc_VD0) ; % restrict count

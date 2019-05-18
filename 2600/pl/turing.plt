@@ -72,10 +72,13 @@ test(all_gems) :-
         turing(state(q0, Cpu), Gems, Program),
         write_term("cpu:      ", []), print(Cpu), nl,
         append(Prg, [_], Program),
-        write_term("solved:   ", []), print(Prg), nl
+        write_term("solved:   ", []), print(Prg), nl,
+
+        condense_program(Program, Shard),
+        write_term("shard:    ", []), print(Shard), nl, nl
+
         )).
 
-        % condense_program(Program, Shard),   
         % !,
         % (
         %     % Skip BLK segments for now
