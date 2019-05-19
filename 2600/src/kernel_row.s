@@ -92,7 +92,7 @@ row_3:
     KERNEL_LOAD_PLAYER
     stx RamKernelGRP0
     KERNEL_LOAD_PLAYER
-    stx [CBSRAM_KERNEL_WRITE + 2]
+    stx [KernelA_GRP0 - $100]
 
     ; We jump immediately into scanlines 4-5, the "gem kernel"
     ldx RamKernelX

@@ -89,7 +89,7 @@ SIGNAL_LINE = $02
 ; RAM+ memory map
 CBSRAM_KERNEL_WRITE     = $f000
 CBSRAM_KERNEL_READ      = $f100
-CBSRAM_KERNEL_ENTRY     = [CBSRAM_KERNEL_READ + 3]
+CBSRAM_KERNEL_ENTRY     = [CBSRAM_KERNEL_READ + 4]
 
 RAMP_STORAGE_W = $f040 ; is this just max(frame_1_end, frame_2_end) ?
 RAMP_STORAGE_R = $f140

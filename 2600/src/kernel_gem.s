@@ -33,8 +33,12 @@ kernel_1_start: subroutine
     .byte $A
 
 KernelA_early:
+    ASSERT_RUNTIME_KERNEL $A, "v == #1"
+    clv
+
     ; Early code to set next Player GRP0. Immediate value is overwritten
     lda #$ff
+KernelA_GRP0 = . - 1
 
 KernelA: subroutine
     ASSERT_RUNTIME_KERNEL $A, "_scycles == #0"
@@ -101,16 +105,16 @@ KernelA_M:
 
 KernelA_N:
 KernelA_O:
-    sleep 2
     ; reset stack pointer
     pla
 
     ; End visible line
-    ASSERT_RUNTIME_KERNEL $A, "_scycles == #67"
+    ASSERT_RUNTIME_KERNEL $A, "_scycles == #65"
 
 KernelA_branch:
-    lda INTIM
-    bne KernelA_early
+    sleep 4
+    bvs KernelA_early
+    sleep 2
 
     jmp row_after_kernel
 
@@ -129,9 +133,12 @@ kernel_2_start: subroutine
     ; Kernel Marker
     .byte $B
 
+    clv
+
 KernelB_early:
     ; Early code to set next GRP0 image. Value is overwritten
     lda #$ff
+KernelB_GRP0 = . - 1
 
 KernelB: subroutine
     ASSERT_RUNTIME_KERNEL $B, "_scycles == #0"
