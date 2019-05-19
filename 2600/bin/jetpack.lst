@@ -770,9 +770,9 @@
      59  f253
      60  f253							; Set all the bits in a silly manner
      61  f253				   .setallbits
-     62  f253		       a9 ff		      lda	#%11111111
+     62  f253		       a9 fd		      lda	#%11111101
      63  f255		       85 aa		      sta	[level_for_game + 0]
-     64  f257		       a9 fe		      lda	#%11111110
+     64  f257		       a9 ff		      lda	#%11111111
      65  f259		       85 ab		      sta	[level_for_game + 1]
      66  f25b		       a9 ff		      lda	#%11111111
      67  f25d		       85 ac		      sta	[level_for_game + 2]
@@ -1747,7 +1747,7 @@
     133  f442		       a2 86		      ldx	#BC_STX
     134  f444		       b0 00		      bcs	[. + 2]
     135  f446		       a2 84		      ldx	#BC_STY
-    136  f448				   SAVEIT
+    136  f448				   DBG_CHECK_MISSILE_OPCODE
     137  f448		       86 a9		      stx	BuildKernelMissile
     138  f44a
     139  f44a		       84 a4		      sty	BuildKernelX
@@ -2994,27 +2994,48 @@
     663  f942							; Calculate GemAnimation.
     664  f942		       a5 84		      lda	FrameCount
     665  f944		       29 1f		      and	#%11111
-    666  f946		       d0 03		      bne	.skiprotate
+    666  f946		       d0 0b		      bne	.skiprotate
     667  f948		       a5 ad		      lda	level_for_game + 3
     668  f94a		       6a		      ror
     669  f94b				   .rollall
-    670  f94b							; _ROR32 level_for_game, level_for_game
-    671  f94b				   .skiprotate
-    672  f94b
-      0  f94b					      TIMER_WAIT
-      1  f94b				   .waittimer
-      2  f94b		       ad 84 02 	      lda	INTIM
-      3  f94e		       d0 fb		      bne	.waittimer
-      4  f950		       85 02		      sta	WSYNC
-      0  f952					      ASSERT_RUNTIME	"_scan == (#37 + #192 + #29)"
-      1  f952				   .COND      SET	"_scan == (#37 + #192 + #29)"
- ASSERT: breakif { pc== $f952  && !(  _scan == (#37 + #192 + #29)  ) }
-      2  f952					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
-    675  f952
-    676  f952		       4c 5b f4 	      jmp	VerticalSync
-    677  f955
-    678  f955
-    679  f955
+      0  f94b					      _ROR32	level_for_game, level_for_game
+      1  f94b		       00 aa	   VLA	      EQU	level_for_game
+      2  f94b		       00 aa	   RES	      EQU	level_for_game
+      3  f94b				  -	      IF	VLA != RES
+      4  f94b				  -	      LDA	VLA+0
+      5  f94b				  -	      ROR	A
+      6  f94b				  -	      STA	RES+0
+      7  f94b				  -	      LDA	VLA+1
+      8  f94b				  -	      ROR	A
+      9  f94b				  -	      STA	RES+1
+     10  f94b				  -	      LDA	VLA+2
+     11  f94b				  -	      ROR	A
+     12  f94b				  -	      STA	RES+2
+     13  f94b				  -	      LDA	VLA+3
+     14  f94b				  -	      ROR	A
+     15  f94b				  -	      STA	RES+3
+     16  f94b					      ELSE
+     17  f94b		       66 aa		      ROR	VLA+0
+     18  f94d		       66 ab		      ROR	VLA+1
+     19  f94f		       66 ac		      ROR	VLA+2
+     20  f951		       66 ad		      ROR	VLA+3
+     21  f953					      ENDIF
+    671  f953				   .skiprotate
+    672  f953
+      0  f953					      TIMER_WAIT
+      1  f953				   .waittimer
+      2  f953		       ad 84 02 	      lda	INTIM
+      3  f956		       d0 fb		      bne	.waittimer
+      4  f958		       85 02		      sta	WSYNC
+      0  f95a					      ASSERT_RUNTIME	"_scan == (#37 + #192 + #29)"
+      1  f95a				   .COND      SET	"_scan == (#37 + #192 + #29)"
+ ASSERT: breakif { pc== $f95a  && !(  _scan == (#37 + #192 + #29)  ) }
+      2  f95a					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
+    675  f95a
+    676  f95a		       4c 5b f4 	      jmp	VerticalSync
+    677  f95d
+    678  f95d
+    679  f95d
     680  fa00		       00 00 00 00*	      align	256
     681  fa00
     682  fa00					      mac	gemini_populate

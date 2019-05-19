@@ -59,9 +59,9 @@ InitSetup:
 
     ; Set all the bits in a silly manner
 .setallbits:
-    lda #%11111111
+    lda #%11111101
     sta [level_for_game + 0]
-    lda #%11111110
+    lda #%11111111
     sta [level_for_game + 1]
     lda #%11111111
     sta [level_for_game + 2]

@@ -667,7 +667,7 @@ Overscan: subroutine
     lda level_for_game + 3
     ror
 .rollall:
-    ; _ROR32 level_for_game, level_for_game
+    _ROR32 level_for_game, level_for_game
 .skiprotate:
 
     TIMER_WAIT
