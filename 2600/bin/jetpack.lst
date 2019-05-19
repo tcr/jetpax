@@ -4134,17 +4134,8 @@
     107  fd2e				   KernelA_O
     108  fd2e							; reset stack pointer
     109  fd2e		       68		      pla
-    110  fd2f
-    111  fd2f							; End visible line
-      0  fd2f					      ASSERT_RUNTIME_KERNEL	$A, "_scycles == #65"
-      1  fd2f				   .KERNEL    SET	$A
-      2  fd2f				   .COND      SET	"_scycles == #65"
- ASSERT: breakif { pc== $f12f  && ( *$f100 ==  $a   ) && ! (  _scycles == #65  ) }
-      3  fd2f					      echo	"ASSERT:", "breakif { pc==", ., " && ( *$f100 == ", .KERNEL, "  ) && ! ( ", .COND, " ) }"
-    113  fd2f
-    114  fd2f				   KernelA_branch
-      0  fd2f					      sleep	4
-      1  fd2f				   .CYCLES    SET	4
+      0  fd2f					      sleep	2
+      1  fd2f				   .CYCLES    SET	2
       2  fd2f
       3  fd2f				  -	      IF	.CYCLES < 2
       4  fd2f				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
@@ -4162,10 +4153,38 @@
      16  fd2f
      17  fd2f					      REPEAT	.CYCLES / 2
      18  fd2f		       ea		      nop
-     17  fd2f					      REPEND
+     19  fd30					      REPEND
+    111  fd30
+    112  fd30							; End visible line
+      0  fd30					      ASSERT_RUNTIME_KERNEL	$A, "_scycles == #67"
+      1  fd30				   .KERNEL    SET	$A
+      2  fd30				   .COND      SET	"_scycles == #67"
+ ASSERT: breakif { pc== $f130  && ( *$f100 ==  $a   ) && ! (  _scycles == #67  ) }
+      3  fd30					      echo	"ASSERT:", "breakif { pc==", ., " && ( *$f100 == ", .KERNEL, "  ) && ! ( ", .COND, " ) }"
+    114  fd30
+    115  fd30				   KernelA_branch
+      0  fd30					      sleep	2
+      1  fd30				   .CYCLES    SET	2
+      2  fd30
+      3  fd30				  -	      IF	.CYCLES < 2
+      4  fd30				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  fd30				  -	      ERR
+      6  fd30					      ENDIF
+      7  fd30
+      8  fd30				  -	      IF	.CYCLES & 1
+      9  fd30				  -	      IFNCONST	NO_ILLEGAL_OPCODES
+     10  fd30				  -	      nop	0
+     11  fd30				  -	      ELSE
+     12  fd30				  -	      bit	VSYNC
+     13  fd30				  -	      ENDIF
+     14  fd30				  -.CYCLES    SET	.CYCLES - 3
+     15  fd30					      ENDIF
+     16  fd30
+     17  fd30					      REPEAT	.CYCLES / 2
      18  fd30		       ea		      nop
      19  fd31					      REPEND
-    116  fd31		       70 ce		      bvs	KernelA_early
+    117  fd31		       70 ce		      bvs	KernelA_early
+    118  fd33
       0  fd33					      sleep	2
       1  fd33				   .CYCLES    SET	2
       2  fd33
@@ -4186,11 +4205,10 @@
      17  fd33					      REPEAT	.CYCLES / 2
      18  fd33		       ea		      nop
      19  fd34					      REPEND
-    118  fd34
-    119  fd34		       4c 80 fc 	      jmp	row_after_kernel
-    120  fd37
-    121  fd37					      rend
-    122  fd37				   kernel_1_end
+    120  fd34		       4c 80 fc 	      jmp	row_after_kernel
+    121  fd37
+    122  fd37					      rend
+    123  fd37				   kernel_1_end
       0  fd37					      ASSERT_SIZE	kernel_1_start, kernel_1_end, $40
       1  fd37				   .STARTA    SET	kernel_1_start
       2  fd37				   .ENDA      SET	kernel_1_end
@@ -4199,41 +4217,41 @@
       5  fd37				  -	      echo	"Error: Exceeded size limit", [.ENDA - .STARTA], "vs", .LEN
       6  fd37				  -	      err
       7  fd37					      endif
-    124  fd37
-    125  fd37							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    126  fd37							;
-    127  fd37							; GEM KERNEL B
-    128  fd37							;
-    129  fd37
-    130  fd37				   kernel_2_start subroutine
-    131  fd37					      rorg	$f100
-    132  fd37
-    133  fd37							; Kernel Marker
-    134  fd37		       0b		      .byte.b	$B
-    135  fd38
-    136  fd38		       b8		      clv
-    137  fd39
-    138  fd39				   KernelB_early
-    139  fd39							; Early code to set next GRP0 image. Value is overwritten
-    140  fd39		       a9 ff		      lda	#$ff
-    141  fd39		       f1 03	   KernelB_GRP0 =	. - 1
-    142  fd3b
-    143  fd3b				   KernelB    subroutine
+    125  fd37
+    126  fd37							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    127  fd37							;
+    128  fd37							; GEM KERNEL B
+    129  fd37							;
+    130  fd37
+    131  fd37				   kernel_2_start subroutine
+    132  fd37					      rorg	$f100
+    133  fd37
+    134  fd37							; Kernel Marker
+    135  fd37		       0b		      .byte.b	$B
+    136  fd38
+    137  fd38		       b8		      clv
+    138  fd39
+    139  fd39				   KernelB_early
+    140  fd39							; Early code to set next GRP0 image. Value is overwritten
+    141  fd39		       a9 ff		      lda	#$ff
+    142  fd39		       f1 03	   KernelB_GRP0 =	. - 1
+    143  fd3b
+    144  fd3b				   KernelB    subroutine
       0  fd3b					      ASSERT_RUNTIME_KERNEL	$B, "_scycles == #0"
       1  fd3b				   .KERNEL    SET	$B
       2  fd3b				   .COND      SET	"_scycles == #0"
  ASSERT: breakif { pc== $f104  && ( *$f100 ==  $b   ) && ! (  _scycles == #0  ) }
       3  fd3b					      echo	"ASSERT:", "breakif { pc==", ., " && ( *$f100 == ", .KERNEL, "  ) && ! ( ", .COND, " ) }"
-    145  fd3b
-    146  fd3b							; Write Gemini 0A into delayed sprite register
-    147  fd3b		       84 1c		      sty	EMERALD_SP
-    148  fd3d							; Write Player from accumulator. When writing to the other sprite, the
-    149  fd3d							; TIA will copy Gemini 0A into visible sprite register
-    150  fd3d		       85 1b		      sta	JET_SP
-    151  fd3f		       a0 aa		      ldy	#%10101010
-    152  fd3f		       f1 09	   KernelB_VDEL0 =	. - 1
-    153  fd41							; Write Gemini 1A into delayed sprite register
-    154  fd41		       84 1c		      sty	EMERALD_SP
+    146  fd3b
+    147  fd3b							; Write Gemini 0A into delayed sprite register
+    148  fd3b		       84 1c		      sty	EMERALD_SP
+    149  fd3d							; Write Player from accumulator. When writing to the other sprite, the
+    150  fd3d							; TIA will copy Gemini 0A into visible sprite register
+    151  fd3d		       85 1b		      sta	JET_SP
+    152  fd3f		       a0 aa		      ldy	#%10101010
+    153  fd3f		       f1 09	   KernelB_VDEL0 =	. - 1
+    154  fd41							; Write Gemini 1A into delayed sprite register
+    155  fd41		       84 1c		      sty	EMERALD_SP
       0  fd43					      sleep	2
       1  fd43				   .CYCLES    SET	2
       2  fd43
@@ -4254,35 +4272,35 @@
      17  fd43					      REPEAT	.CYCLES / 2
      18  fd43		       ea		      nop
      19  fd44					      REPEND
-    156  fd44
-    157  fd44		       a0 ff		      ldy	#$ff
-    158  fd44		       f1 0e	   KernelB_STY =	. - 1
-    159  fd46
-    160  fd46							; Register config
-    161  fd46		       a9 ff		      lda	#$ff
-    162  fd48
-    163  fd48		       85 1e		      sta	EMERALD_MI_ENABLE	; enable missile
-    164  fd4a							; Load PF1 value into accumulator
-    165  fd4a		       a5 97		      lda	RamPF1Value
-    166  fd4c
-    167  fd4c							; Clear bits in processor status register for drawing.
-    168  fd4c							; clc
-    169  fd4c							; bit RamLowerSixByte
-    170  fd4c		       38		      sec
-    171  fd4c		       f1 15	   KernelB_P11_C =	. - 1
-    172  fd4d							; sleep 2
-    173  fd4d
-    174  fd4d							; 25c is critical start of precise GRP0 timing for Kernel B
+    157  fd44
+    158  fd44		       a0 ff		      ldy	#$ff
+    159  fd44		       f1 0e	   KernelB_STY =	. - 1
+    160  fd46
+    161  fd46							; Register config
+    162  fd46		       a9 ff		      lda	#$ff
+    163  fd48
+    164  fd48		       85 1e		      sta	EMERALD_MI_ENABLE	; enable missile
+    165  fd4a							; Load PF1 value into accumulator
+    166  fd4a		       a5 97		      lda	RamPF1Value
+    167  fd4c
+    168  fd4c							; Clear bits in processor status register for drawing.
+    169  fd4c							; clc
+    170  fd4c							; bit RamLowerSixByte
+    171  fd4c		       38		      sec
+    172  fd4c		       f1 15	   KernelB_P11_C =	. - 1
+    173  fd4d							; sleep 2
+    174  fd4d
+    175  fd4d							; 25c is critical start of precise GRP0 timing for Kernel B
       0  fd4d					      ASSERT_RUNTIME_KERNEL	$B, "_scycles == #25"
       1  fd4d				   .KERNEL    SET	$B
       2  fd4d				   .COND      SET	"_scycles == #25"
  ASSERT: breakif { pc== $f116  && ( *$f100 ==  $b   ) && ! (  _scycles == #25  ) }
       3  fd4d					      echo	"ASSERT:", "breakif { pc==", ., " && ( *$f100 == ", .KERNEL, "  ) && ! ( ", .COND, " ) }"
-    176  fd4d				   KernelB_A
-    177  fd4d		       85 11		      sta	EMERALD_SP_RESET
-    178  fd4f				   KernelB_B
-    179  fd4f		       24 93		      bit	RamZeroByte
-    180  fd51				   KernelB_C
+    177  fd4d				   KernelB_A
+    178  fd4d		       85 11		      sta	EMERALD_SP_RESET
+    179  fd4f				   KernelB_B
+    180  fd4f		       24 93		      bit	RamZeroByte
+    181  fd51				   KernelB_C
       0  fd51					      sleep	3
       1  fd51				   .CYCLES    SET	3
       2  fd51
@@ -4303,31 +4321,31 @@
      17  fd53				  -	      REPEAT	.CYCLES / 2
      18  fd53				  -	      nop
      19  fd53					      REPEND
-    182  fd53				   KernelB_D
-    183  fd53		       86 1c		      stx	EMERALD_SP	; Gemini 1B
-    184  fd55
-    185  fd55							; below has one php load (could just be RESET)
-    186  fd55				   KernelB_E
-    187  fd55		       08		      php
-    188  fd56				   KernelB_F
-    189  fd56		       84 1c		      sty	EMERALD_SP	; Gemini 2B
-    190  fd58				   KernelB_G
-    191  fd58		       85 0e		      sta	PF1
-    192  fd5a				   KernelB_H
-    193  fd5a		       84 1c		      sty	EMERALD_SP	; Gemini 3B; TODO write php instead fixed
-    194  fd5c							; above has one PHP load
-    195  fd5c
-    196  fd5c				   KernelB_I
-    197  fd5c		       85 11		      sta	EMERALD_SP_RESET
-    198  fd5e				   KernelB_J
-    199  fd5e		       84 1c		      sty	EMERALD_SP	; Gemini 4B
-    200  fd60				   KernelB_K
-    201  fd60		       86 1e		      stx	EMERALD_MI_ENABLE
-    202  fd62				   KernelB_L
-    203  fd62		       86 1c		      stx	EMERALD_SP	; Gemini 5B
-    204  fd64
-    205  fd64				   KernelB_M
-    206  fd64				   KernelB_N
+    183  fd53				   KernelB_D
+    184  fd53		       86 1c		      stx	EMERALD_SP	; Gemini 1B
+    185  fd55
+    186  fd55							; below has one php load (could just be RESET)
+    187  fd55				   KernelB_E
+    188  fd55		       08		      php
+    189  fd56				   KernelB_F
+    190  fd56		       84 1c		      sty	EMERALD_SP	; Gemini 2B
+    191  fd58				   KernelB_G
+    192  fd58		       85 0e		      sta	PF1
+    193  fd5a				   KernelB_H
+    194  fd5a		       84 1c		      sty	EMERALD_SP	; Gemini 3B; TODO write php instead fixed
+    195  fd5c							; above has one PHP load
+    196  fd5c
+    197  fd5c				   KernelB_I
+    198  fd5c		       85 11		      sta	EMERALD_SP_RESET
+    199  fd5e				   KernelB_J
+    200  fd5e		       84 1c		      sty	EMERALD_SP	; Gemini 4B
+    201  fd60				   KernelB_K
+    202  fd60		       86 1e		      stx	EMERALD_MI_ENABLE
+    203  fd62				   KernelB_L
+    204  fd62		       86 1c		      stx	EMERALD_SP	; Gemini 5B
+    205  fd64
+    206  fd64				   KernelB_M
+    207  fd64				   KernelB_N
       0  fd64					      sleep	2
       1  fd64				   .CYCLES    SET	2
       2  fd64
@@ -4348,24 +4366,24 @@
      17  fd64					      REPEAT	.CYCLES / 2
      18  fd64		       ea		      nop
      19  fd65					      REPEND
-    208  fd65
-    209  fd65							; reset stack pointer
-    210  fd65		       68		      pla
-    211  fd66
-    212  fd66							; End visible line
+    209  fd65
+    210  fd65							; reset stack pointer
+    211  fd65		       68		      pla
+    212  fd66
+    213  fd66							; End visible line
       0  fd66					      ASSERT_RUNTIME_KERNEL	$B, "_scycles == #67"
       1  fd66				   .KERNEL    SET	$B
       2  fd66				   .COND      SET	"_scycles == #67"
  ASSERT: breakif { pc== $f12f  && ( *$f100 ==  $b   ) && ! (  _scycles == #67  ) }
       3  fd66					      echo	"ASSERT:", "breakif { pc==", ., " && ( *$f100 == ", .KERNEL, "  ) && ! ( ", .COND, " ) }"
-    214  fd66
-    215  fd66				   KernelB_branch
-    216  fd66		       ad 84 02 	      lda	INTIM
-    217  fd69		       d0 ce		      bne	KernelB_early
-    218  fd6b		       4c 80 fc 	      jmp	row_after_kernel
-    219  fd6e
-    220  fd6e					      rend
-    221  fd6e				   kernel_2_end
+    215  fd66
+    216  fd66				   KernelB_branch
+    217  fd66		       ad 84 02 	      lda	INTIM
+    218  fd69		       d0 ce		      bne	KernelB_early
+    219  fd6b		       4c 80 fc 	      jmp	row_after_kernel
+    220  fd6e
+    221  fd6e					      rend
+    222  fd6e				   kernel_2_end
       0  fd6e					      ASSERT_SIZE	kernel_2_start, kernel_2_end, $40
       1  fd6e				   .STARTA    SET	kernel_2_start
       2  fd6e				   .ENDA      SET	kernel_2_end

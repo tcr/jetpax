@@ -43,8 +43,10 @@ KernelA_GRP0 = . - 1
 KernelA: subroutine
     ASSERT_RUNTIME_KERNEL $A, "_scycles == #0"
 
+    ; FIXME This should all use STA and y should be unmodified
+    ; FIXME this will require freeing up cycles on kernel_row 3 though, meaning the sprite loading channges
     ; Write Gemini 0A into delayed sprite register
-    ldy #%01100110 ; TODO temporary?
+    ldy #%01100110
 KernelA_VDEL1 = . - 1
     sty EMERALD_SP
     ; Write Player from accumulator. When writing to the other sprite, the
@@ -107,15 +109,16 @@ KernelA_N:
 KernelA_O:
     ; reset stack pointer
     pla
-
-    ; End visible line
-    ASSERT_RUNTIME_KERNEL $A, "_scycles == #65"
-
-KernelA_branch:
-    sleep 4
-    bvs KernelA_early
     sleep 2
 
+    ; End visible line
+    ASSERT_RUNTIME_KERNEL $A, "_scycles == #67"
+
+KernelA_branch:
+    sleep 2
+    bvs KernelA_early
+
+    sleep 2
     jmp row_after_kernel
 
     rend
