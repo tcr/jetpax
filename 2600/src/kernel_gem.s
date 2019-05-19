@@ -64,19 +64,20 @@ KernelA_STY = . - 1
 KernelA_A:
     sta EMERALD_SP_RESET ; RESPx must be strobed on cycle 25c.
 
-; vvv RST0
+; RST0 vvv
 KernelA_B:
     lda RamPF1Value
 KernelA_C:
     sty VDELP1 ; disable delayed sprite
 KernelA_D:
-    ; sty VDELP1 ; Gemini 1A, clear VDELP1. all registers have d0 cleared
-    sleep 3 ; Load PF1 (TODO asymmetrical playfield)
+    ; sty EMERALD_SP ; Gemini 1A
+    sleep 3
+; RST0 ^^^
+
 KernelA_E:
     sta EMERALD_SP_RESET ; Reset "medium close" NUSIZ repetition
 KernelA_F:
-    sty EMERALD_MI_ENABLE ; Enable the missile (if we use %0xx00110 pattern)
-    ; sleep 3 ; FIXME This should be a "sleep 3" and the missile enabled should be moved
+    stx EMERALD_MI_ENABLE ; Enable the missile (if register uses the %0xx00110 pattern)
 KernelA_G:
     sty EMERALD_SP ; Gemini 2A
 

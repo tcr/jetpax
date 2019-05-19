@@ -662,7 +662,7 @@ Overscan: subroutine
 
     ; Calculate GemAnimation.
     lda FrameCount
-    and #%11111
+    and #%1111
     bne .skiprotate
     lda level_for_game + 3
     ror
