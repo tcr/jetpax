@@ -33,7 +33,7 @@ kernel_1_start: subroutine
     .byte $A
 
 KernelA_early:
-    ; Early code to set next GRP0 image. Immediate value is overwritten
+    ; Early code to set next Player GRP0. Immediate value is overwritten
     lda #$ff
 
 KernelA: subroutine
@@ -53,7 +53,6 @@ KernelA_VDEL0 = . - 1
     ldy #%00000110
 KernelA_STY = . - 1
 
-    ; Need D0 for VDELP1 trigger with PHP
     sleep 2
 
     ; Register config
@@ -76,7 +75,7 @@ KernelA_D:
 KernelA_E:
     sta EMERALD_SP_RESET ; Reset "medium close" NUSIZ repetition
 KernelA_F:
-    sta EMERALD_MI_ENABLE ; Enable the missile (if we use %0xx00110 pattern)
+    sty EMERALD_MI_ENABLE ; Enable the missile (if we use %0xx00110 pattern)
     ; sleep 3 ; FIXME This should be a "sleep 3" and the missile enabled should be moved
 KernelA_G:
     sty EMERALD_SP ; Gemini 2A

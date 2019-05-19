@@ -125,6 +125,16 @@ KernelA_UpdateRegs: subroutine
     ldx BuildKernelX
     cpx #SENTINEL
     bne .set_else
+
+    ; Kernel A Missile opcode
+    sty BuildKernelX
+    ror BuildKernelX ; D0
+    ror BuildKernelX ; D1
+    ldx #BC_STX
+    bcc [. + 2]
+    ldx #BC_STY
+    stx BuildKernelMissile
+
     sty BuildKernelX
     ldy #BC_STX
     rts
@@ -145,7 +155,7 @@ VerticalSync: subroutine
     VERTICAL_SYNC
 
 FrameStart: subroutine
-    ASSERT_RUNTIME "_scan == #0"
+    ; FIXME we can't skip this: ASSERT_RUNTIME "_scan == #0"
 
 VerticalBlank: subroutine
     TIMER_SETUP 37
@@ -236,7 +246,7 @@ frame_setup_kernel_b: subroutine
     sta EMERALD_MI_HMOVE
 
     ; DEBUG: Set per-kernel color
-    ldx #$e0
+    ldx #$e4
     ; ldx #COL_EMERALD
     stx EMERALD_SP_COLOR
 
@@ -424,6 +434,14 @@ KernelB_K_W EQM [KernelB_K - $100]
 
             ; Set PHP
             NIBBLE_WRITE RamKernelPhpTarget, #RESP1
+        NIBBLE_END_IF
+
+        ; Misisle
+        ldy DO_MISS_A
+        NIBBLE_IF eq ; Disabled
+            NIBBLE_WRITE [KernelA_F - $100], #BC_NOP
+        NIBBLE_ELSE
+            NIBBLE_WRITE [KernelA_F - $100], #BC_STX
         NIBBLE_END_IF
 
         ; VD1
@@ -671,7 +689,7 @@ Overscan: subroutine
 
     mac GEMINI_POPULATE_MISSILE
 .TARGET SET {1}
-    txa
+    lda RamNibbleTemp
     and #%00000001
     sta .TARGET
     endm

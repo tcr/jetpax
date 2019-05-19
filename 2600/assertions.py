@@ -7,4 +7,4 @@ with open('bin/jetpack.lst') as fp:
             if m:
                 out.write(m[1])
                 out.write('\n')
-        out.write('run\n')
+        out.write("run\n")

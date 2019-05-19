@@ -57,6 +57,7 @@ BuildKernelY byte
 BuildKernelRST byte
 BuildKernelGrp0 byte
 BuildKernelVdel1 byte
+BuildKernelMissile byte
 
 level_for_game byte
     byte
@@ -141,7 +142,7 @@ CEILING_OFFSET equ 190
 
 ; Starting player position
 YPosStart equ 62
-XPosStart equ 55
+XPosStart equ 88
 
 ; Top left corner
 ; YPosStart equ 190

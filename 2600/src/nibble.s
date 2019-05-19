@@ -166,6 +166,21 @@
     ; [BIT DEPTH] #1 *If-End @ 1
     ; [BIT DEPTH] #1 Else-End @ 1
 .endif_1:
+    ; Misisle
+    ldy DO_MISS_A
+.if_2:
+    bne .else_2
+    sec
+    rol
+    jmp .endif_2
+    ; [BIT DEPTH] #2 If-End @ 2
+
+.else_2:
+    clc
+    rol
+    ; [BIT DEPTH] #2 *If-End @ 2
+    ; [BIT DEPTH] #2 Else-End @ 2
+.endif_2:
     ; VD1
     ; ldy #SHARD_VD1
     ; sty [KernelA_VDEL1 - $100]
@@ -178,8 +193,7 @@
     ; Y
     ; Gemini 5A
     ; TODO eventually...?
-    ; [BIT DEPTH] Final: 1 (out of 8 bits)
-    rol
+    ; [BIT DEPTH] Final: 2 (out of 8 bits)
     rol
     rol
     rol
@@ -391,6 +405,16 @@
     ldx #RESP1
     stx [RamKernelPhpTarget + 0]
 .endif_1:
+.if_2:
+    asl
+    bcc .else_2
+    ldx #BC_NOP
+    stx [[KernelA_F - $100] + 0]
+    jmp .endif_2
+.else_2:
+    ldx #BC_STX
+    stx [[KernelA_F - $100] + 0]
+.endif_2:
     ldx BuildKernelVdel1
     stx [[KernelA_VDEL1 - $100] + 0]
     ldx BuildKernelGrp0
