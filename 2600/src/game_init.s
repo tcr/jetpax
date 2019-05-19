@@ -56,6 +56,8 @@ InitSetup:
     sta RamZeroByte
     lda #%00111111
     sta RamLowerSixByte
+    lda #$ff
+    sta RamFFByte
 
     ; Set all the bits in a silly manner
 .setallbits:

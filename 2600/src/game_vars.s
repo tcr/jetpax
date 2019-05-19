@@ -34,6 +34,7 @@ RamNibbleVar1       byte
 RamNibbleVar2       byte
 RamZeroByte         byte
 RamLowerSixByte     byte
+RamFFByte           byte
 RamStackBkp         byte
 
 ; Kernel support

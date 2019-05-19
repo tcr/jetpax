@@ -9,7 +9,7 @@
     ldy #0 ; 2c
     ; constant 6c:
     .byte $b0, $01 ; 2c / 3c (taken)  : bcs +01 (skipping 1-byte bit instr)
-    .byte $2c ; 4c / 0c              : bit (skip next two bytes)
+    .byte $0c ; 4c / 0c              : bit (skip next two bytes)
     ldy SpriteEnd
     ; 4c
     ldx Frame0,Y
@@ -31,7 +31,7 @@
     lda Frame0,Y
     ; 6c
     .byte $b0, $01 ;2c / 3c (taken)
-    .byte $2c ; 4c / 0c
+    .byte $0c ; 4c / 0c
     sta JET_SP ; 0c / 3c
     endm
 
@@ -60,12 +60,8 @@ row_2:
     lda #0
     sta COLUPF
 
-    ; Set stack pointer for PHP use from RamKernelPhpTarget.
-    ldx RamKernelPhpTarget
-    txs
-
     ; [[[Nibble VM.]]]
-    sleep 30
+    sleep 27
 
     ; Load PF1 value
     lda #%10100000
@@ -78,8 +74,12 @@ row_2:
     lda #COL_BG
     sta COLUPF
 
-    ; lda #%00001000
-    ; sta REFP1
+    ; Set stack pointer for PHP use from RamKernelPhpTarget.
+    ldx RamKernelPhpTarget
+    txs
+
+    ; Set overflow flag
+    bit RamFFByte
 
     ASSERT_RUNTIME "_scycles == #0"
 
@@ -93,14 +93,15 @@ row_3:
     stx RamKernelGRP0
     KERNEL_LOAD_PLAYER
     stx [CBSRAM_KERNEL_WRITE + 2]
-    lda RamKernelGRP0 ; Load sprite 2 into A
-    sleep 2
 
-; [scanlines 4-5]
     ; We jump immediately into scanlines 4-5, the "gem kernel"
     ldx RamKernelX
+    lda RamKernelGRP0 ; Load sprite 2 into A
     sec
+    sleep 2
+
     ASSERT_RUNTIME "_scycles == #73"
+; [scanlines 4-5]
     jmp CBSRAM_KERNEL_ENTRY
 
 ; [scanline 6]
