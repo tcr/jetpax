@@ -412,7 +412,7 @@
     stx [[KernelA_F - $100] + 0]
     jmp .endif_2
 .else_2:
-    ldx #BC_STX
+    ldx BuildKernelMissile
     stx [[KernelA_F - $100] + 0]
 .endif_2:
     ldx BuildKernelVdel1

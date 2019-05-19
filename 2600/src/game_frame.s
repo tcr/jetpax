@@ -126,13 +126,14 @@ KernelA_UpdateRegs: subroutine
     cpx #SENTINEL
     bne .set_else
 
-    ; Kernel A Missile opcode
+    ; KA Missile opcode determination
     sty BuildKernelX
     ror BuildKernelX ; D0
     ror BuildKernelX ; D1
     ldx #BC_STX
-    bcc [. + 2]
+    bcs [. + 2]
     ldx #BC_STY
+DBG_CHECK_MISSILE_OPCODE:
     stx BuildKernelMissile
 
     sty BuildKernelX
@@ -441,7 +442,7 @@ KernelB_K_W EQM [KernelB_K - $100]
         NIBBLE_IF eq ; Disabled
             NIBBLE_WRITE [KernelA_F - $100], #BC_NOP
         NIBBLE_ELSE
-            NIBBLE_WRITE [KernelA_F - $100], #BC_STX
+            NIBBLE_WRITE [KernelA_F - $100], BuildKernelMissile
         NIBBLE_END_IF
 
         ; VD1
@@ -666,7 +667,7 @@ Overscan: subroutine
     lda level_for_game + 3
     ror
 .rollall:
-    _ROR32 level_for_game, level_for_game
+    ; _ROR32 level_for_game, level_for_game
 .skiprotate:
 
     TIMER_WAIT

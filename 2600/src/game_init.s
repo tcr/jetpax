@@ -61,7 +61,7 @@ InitSetup:
 .setallbits:
     lda #%11111111
     sta [level_for_game + 0]
-    lda #%11011111
+    lda #%11111110
     sta [level_for_game + 1]
     lda #%11111111
     sta [level_for_game + 2]
