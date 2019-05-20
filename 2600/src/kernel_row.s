@@ -82,7 +82,6 @@ row_2:
 ; [scanline 3]
 row_3:
     jet_spritedata_calc
-    sleep 5
 
     ; Pre-populate graphics.
     ldy RamRowJetpackIndex
@@ -95,7 +94,7 @@ row_3:
     sty RamRowJetpackIndex
 
     ; Idle.
-    sleep 20
+    sleep 25
 
     ; We jump immediately into scanlines 4-5, the "gem kernel"
     ldx RamKernelX
