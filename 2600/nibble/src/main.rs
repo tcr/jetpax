@@ -214,7 +214,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     
     let re_data = Regex::new(r"^\s*(.+?)\s*(;.*)?$")?;
 
-    let input_file = std::fs::read_to_string("../src/game_frame.s")?;
+    let input_file = std::fs::read_to_string("../src/game_nibble.s")?;
 
     let mut kernels = vec![];
     let mut lines = vec![];

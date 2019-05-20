@@ -75,6 +75,7 @@
 .endif_1:
     ; BuildKernelX, BuildKernelY are upgraded if not set
     ; Gemini 2A
+.K_2A
     ldy [DO_GEMS_A + 2]
     jsr KernelA_GenReset
 .if_3:
@@ -103,6 +104,7 @@
     ; [BIT DEPTH] #3 Else-End @ 3
 .endif_3:
     ; Gemini 3A
+.K_3A:
     ldy [DO_GEMS_A + 3]
     jsr KernelA_GenReset
 .if_4:
@@ -222,7 +224,6 @@
     jsr KernelB_UpdateRegs
     sty RamKernelGemini3
     ; Gemini 2B
-.K_2B:
     ldy [DO_GEMS_B + 2]
     jsr KernelB_GenPhp
 .if_1:
@@ -283,8 +284,6 @@
 .else_3:
     clc
     rol
-    ; FIXME this was broken, enable this!
-    ; NIBBLE_WRITE KernelA_H_W, RamKernelGemini3, #EMERALD_SP
     ; [BIT DEPTH] #3 *If-End @ 4
     ; [BIT DEPTH] #3 Else-End @ 3
     rol
@@ -292,7 +291,6 @@
     ; Gemini 4B
     ldy [DO_GEMS_B + 4]
     jsr KernelA_UpdateRegs
-.K_4B:
     sty RamKernelGemini4
     ; TODO if no PHP, rewrite previous section:
     ; NIBBLE_IF cs
@@ -499,6 +497,10 @@
 .endif_4:
     jmp .endif_3
 .else_3:
+    ldx RamKernelGemini3
+    stx [KernelB_H_W + 0]
+    ldx #EMERALD_SP
+    stx [KernelB_H_W + 1]
 .endif_3:
     ldx RamKernelGemini4
     stx [KernelB_J_W + 0]

@@ -57,7 +57,7 @@ row_2:
     sta COLUPF
 
     ; [[[Nibble VM.]]]
-    sleep 27
+    sleep 25
 
     ; Load PF1 value
     lda #%00111111
@@ -72,6 +72,7 @@ row_2:
 
     ; Set stack pointer for PHP use from RamKernelPhpTarget.
     ldx RamKernelPhpTarget
+    dex
     txs
 
     ; Set overflow flag
