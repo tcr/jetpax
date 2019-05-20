@@ -43,27 +43,23 @@ KernelA_GRP0 = . - 1
 KernelA: subroutine
     ASSERT_RUNTIME_KERNEL $A, "_scycles == #0"
 
-    ; FIXME This should all use STA and y should be unmodified
-    ; FIXME this will require freeing up cycles on kernel_row 3 though, meaning the sprite loading channges
-    ; Write Gemini 0A into delayed sprite register
-    ldy #%01100110
-KernelA_VDEL1 = . - 1
-    sty EMERALD_SP
     ; Write Player from accumulator. When writing to the other sprite, the
     ; TIA will copy Gemini 0A into visible sprite register
     sta JET_SP
     ; Write Gemini 1A into visible sprite register
-    ldy #%01100110
+    lda #%01100110
 KernelA_VDEL0 = . - 1
-    sty EMERALD_SP
-    ldy #%00000110
-KernelA_STY = . - 1
-
-    sleep 2
+    sta EMERALD_SP
 
     ; Register config
     lda #%00001000
     sta REFP1
+
+    lda #%00100000
+    sta PF1
+
+    ; Reset stack pointer
+    pla
 
     ; 22c is critical start of precise GRP0 timing for Kernel A
     ASSERT_RUNTIME_KERNEL $A, "_scycles == #22"
@@ -101,23 +97,22 @@ KernelA_K:
 ; RST4 ^^^
 
 KernelA_L:
-    sta EMERALD_MI_ENABLE ; disable missile FIXME this should be in prelude
+    lda RamZeroByte ; FIXME this doesn't belong here
 KernelA_M:
     sty VDELP1 ; Gemini 5A ; need a way to skip this vlaue
-
 KernelA_N:
+    sta EMERALD_MI_ENABLE ; disable missile FIXME better place for this?
 KernelA_O:
-    ; reset stack pointer
-    pla
-    sleep 2
+    lda #%01100110
+KernelA_VDEL1 = . - 1
 
     ; End visible line
-    ASSERT_RUNTIME_KERNEL $A, "_scycles == #67"
-
+    ASSERT_RUNTIME_KERNEL $A, "_scycles == #66"
 KernelA_branch:
-    sleep 2
-    bvs KernelA_early
+    sta EMERALD_SP ; set VDEL1
 
+    ; Branch or return. 
+    bvs KernelA_early
     sleep 2
     jmp row_after_kernel
 
@@ -146,33 +141,28 @@ KernelB_GRP0 = . - 1
 KernelB: subroutine
     ASSERT_RUNTIME_KERNEL $B, "_scycles == #0"
 
-    ; Write Gemini 0A into delayed sprite register
-    sty EMERALD_SP
     ; Write Player from accumulator. When writing to the other sprite, the
     ; TIA will copy Gemini 0A into visible sprite register
     sta JET_SP
-    ldy #%10101010
+    lda #%10101010
 KernelB_VDEL0 = . - 1
     ; Write Gemini 1A into delayed sprite register
-    sty EMERALD_SP
-    sleep 2
+    sta EMERALD_SP
 
-    ldy #$ff
-KernelB_STY = . - 1
+    ; Reset stack
+    pla
 
     ; Register config
     lda #$ff
-
     sta EMERALD_MI_ENABLE ; enable missile
-    ; Load PF1 value into accumulator
-    lda RamPF1Value
 
-    ; Clear bits in processor status register for drawing.
-    ; clc
-    ; bit RamLowerSixByte
+    ; Set processor register bit for PHP sprite rendering.
     sec
 KernelB_P11_C = . - 1
-    ; sleep 2
+
+    ; 6c
+    lda #%00100000
+    sta.w PF1
 
     ; 25c is critical start of precise GRP0 timing for Kernel B
     ASSERT_RUNTIME_KERNEL $B, "_scycles == #25"
@@ -181,7 +171,8 @@ KernelB_A:
 KernelB_B:
     bit RamZeroByte
 KernelB_C:
-    sleep 3
+    ; Load PF1 value into accumulator
+    lda RamPF1Value
 KernelB_D:
     stx EMERALD_SP ; Gemini 1B
 
@@ -206,11 +197,9 @@ KernelB_L:
     stx EMERALD_SP ; Gemini 5B
 
 KernelB_M:
+    sleep 3
 KernelB_N:
-    sleep 2
-
-    ; reset stack pointer
-    pla
+    sleep 3
 
     ; End visible line
     ASSERT_RUNTIME_KERNEL $B, "_scycles == #67"

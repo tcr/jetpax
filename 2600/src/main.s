@@ -153,6 +153,7 @@ Bank3Start:
     include "nibble_shard.s"
     include "game_frame.s"
     include "game_input.s"
+    include "game_state.s"
     include "kernel_border.s"
     include "kernel_row.s"
     include "kernel_gem.s"

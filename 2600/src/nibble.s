@@ -182,14 +182,8 @@
     ; [BIT DEPTH] #2 Else-End @ 2
 .endif_2:
     ; VD1
-    ; ldy #SHARD_VD1
-    ; sty [KernelA_VDEL1 - $100]
     ; GRP0
-    ; ldy #SHARD_GRP0
-    ; sty [KernelA_VDEL0 - $100]
     ; X
-    ; ldy #SHARD_X
-    ; sty RamKernelX
     ; Y
     ; Gemini 5A
     ; TODO eventually...?
@@ -289,6 +283,8 @@
 .else_3:
     clc
     rol
+    ; FIXME this was broken, enable this!
+    ; NIBBLE_WRITE KernelA_H_W, RamKernelGemini3, #EMERALD_SP
     ; [BIT DEPTH] #3 *If-End @ 4
     ; [BIT DEPTH] #3 Else-End @ 3
     rol
@@ -422,7 +418,7 @@
     ldx BuildKernelX
     stx [RamKernelX + 0]
     ldx BuildKernelY
-    stx [[KernelA_STY - $100] + 0]
+    stx [RamKernelY + 0]
     ENDM
 
     MAC NIBBLE_gem_kernel_b
@@ -503,10 +499,6 @@
 .endif_4:
     jmp .endif_3
 .else_3:
-    ldx RamKernelGemini3
-    stx [KernelA_H_W + 0]
-    ldx #EMERALD_SP
-    stx [KernelA_H_W + 1]
 .endif_3:
     ldx RamKernelGemini4
     stx [KernelB_J_W + 0]
@@ -515,7 +507,7 @@
     ldx BuildKernelX
     stx [RamKernelX + 0]
     ldx BuildKernelY
-    stx [[KernelB_STY - $100] + 0]
+    stx [RamKernelY + 0]
     ENDM
 
 

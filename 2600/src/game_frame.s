@@ -8,49 +8,6 @@ G01 = %01100000
 G10 = %00000110
 G11 = %01100110
 
-; Reflected for Kernel A
-G00 = %00000000
-G01 = %01100000
-G10 = %00000110
-G11 = %01100110
-
-
-; gems:     [g01,g10,g01,g11,g00,g00]
-; cpu:      cpu(g01,g00,false,g10,g11,false)
-; solved:   [bc_NOP,bc_STX,bc_RF1,bc_STY,bc_VD1]
-
-; gems:     [g00,g01,g10,g11,g00,g01]
-; cpu:      cpu(g01,g00,false,g10,g11,false)
-; solved:   [bc_RST,bc_NOP,bc_STX,bc_STY,bc_VD1]
-
-; gems:     [g01,g10,g11,g00,g01,g10]
-; cpu:      cpu(g01,g01,false,g10,g11,false)
-; solved:   [bc_NOP,bc_STX,bc_STY,bc_RST,bc_VD1]
-
-; gems:     [g10,g11,g00,g01,g10,g11]
-; cpu:      cpu(g10,g10,false,g11,g01,false)
-; solved:   [bc_NOP,bc_STX,bc_RST,bc_STY,bc_VD1]
-
-; gems:     [g01,g00,g00,g11,g01,g11]
-; cpu:      cpu(g01,g01,false,g00,g11,false)
-; solved:   [bc_NOP,bc_STX,bc_STX,bc_STY,bc_VD1]
-
-; gems:     [g11,g01,g01,g01,g01,g00]
-; cpu:      cpu(g00,g01,false,g11,g00,false)
-; solved:   [bc_STX,bc_VD1,bc_STX,bc_STX,bc_STX]
-
-; gems:     [g10,g10,g11,g00,g11,g01]
-; cpu:      cpu(g00,g00,false,g10,g11,false)
-; solved:   [bc_STX,bc_STX,bc_STY,bc_RST,bc_STY]
-
-; gems:     [g01,g00,g00,g11,g01,g11]
-; cpu:      cpu(g00,g01,false,g01,g11,false)
-; solved:   [bc_STX,bc_RST,bc_RST,bc_STY,bc_VD1]
-
-; gems:     [g11,g10,g00,g01,g00,g01]
-; cpu:      cpu(g11,g00,false,g10,g01,false)
-; solved:   [bc_NOP,bc_STX,bc_RST,bc_STY,bc_VD1]
-
 ; Y=Gemini Sprite
 ; See if the current Gemini is g00. Allocate an RST to this Gemini if so
 ; processor flag Z is TRUE if this is RST.
@@ -127,13 +84,13 @@ KernelA_UpdateRegs: subroutine
     bne .set_else
 
     ; KA Missile opcode determination
+DBG_CHECK_MISSILE_OPCODE:
     sty BuildKernelX
     ror BuildKernelX ; D0
     ror BuildKernelX ; D1
     ldx #BC_STX
-    bcs [. + 2]
+    bcs [. + 4]
     ldx #BC_STY
-DBG_CHECK_MISSILE_OPCODE:
     stx BuildKernelMissile
 
     sty BuildKernelX
@@ -446,19 +403,13 @@ KernelB_K_W EQM [KernelB_K - $100]
         NIBBLE_END_IF
 
         ; VD1
-        ; ldy #SHARD_VD1
-        ; sty [KernelA_VDEL1 - $100]
         NIBBLE_WRITE [KernelA_VDEL1 - $100], BuildKernelVdel1
         ; GRP0
-        ; ldy #SHARD_GRP0
-        ; sty [KernelA_VDEL0 - $100]
         NIBBLE_WRITE [KernelA_VDEL0 - $100], BuildKernelGrp0
         ; X
-        ; ldy #SHARD_X
-        ; sty RamKernelX
         NIBBLE_WRITE RamKernelX, BuildKernelX
         ; Y
-        NIBBLE_WRITE [KernelA_STY - $100], BuildKernelY
+        NIBBLE_WRITE RamKernelY, BuildKernelY
 
         ; Gemini 5A
         ; TODO eventually...?
@@ -540,7 +491,8 @@ KernelB_K_W EQM [KernelB_K - $100]
                 NIBBLE_WRITE [KernelB_B + 1 - $100], #RamLowerSixByte
             NIBBLE_END_IF
         NIBBLE_ELSE
-            NIBBLE_WRITE KernelA_H_W, RamKernelGemini3, #EMERALD_SP
+            ; FIXME this was broken, enable this!
+            ; NIBBLE_WRITE KernelA_H_W, RamKernelGemini3, #EMERALD_SP
         NIBBLE_END_IF
 
         ; Gemini 4B
@@ -571,7 +523,7 @@ KernelB_K_W EQM [KernelB_K - $100]
         ; X
         NIBBLE_WRITE RamKernelX, BuildKernelX
         ; Y
-        NIBBLE_WRITE [KernelB_STY - $100], BuildKernelY
+        NIBBLE_WRITE RamKernelY, BuildKernelY
 
     NIBBLE_END_KERNEL
 
@@ -659,16 +611,7 @@ Overscan: subroutine
 
     jsr MoveJoystick
     jsr SpeedCalculation
-
-    ; Calculate GemAnimation.
-    lda FrameCount
-    and #%1111
-    bne .skiprotate
-    lda level_for_game + 3
-    ror
-.rollall:
-    _ROR32 level_for_game, level_for_game
-.skiprotate:
+    jsr game_state_tick
 
     TIMER_WAIT
     ASSERT_RUNTIME "_scan == (#37 + #184 + #29)"

@@ -59,16 +59,8 @@ InitSetup:
     lda #$ff
     sta RamFFByte
 
-    ; Set all the bits in a silly manner
-.setallbits:
-    lda #%11111101
-    sta [level_for_game + 0]
-    lda #%11111111
-    sta [level_for_game + 1]
-    lda #%11111111
-    sta [level_for_game + 2]
-    lda #%11111111
-    sta [level_for_game + 3]
+    ; Setup level.
+    jsr game_state_setup
 
     ; Start with vertical sync (to reset frame)
     jmp VerticalSync

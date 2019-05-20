@@ -60,7 +60,7 @@ row_2:
     sleep 27
 
     ; Load PF1 value
-    lda #%10100000
+    lda #%00111111
     sta RamPF1Value
 
     lda #4
@@ -95,17 +95,20 @@ row_3:
     sty RamRowJetpackIndex
 
     ; Idle.
-    sleep 31
+    sleep 22
 
     ; Setup for kernel
-    ldx RamKernelX
-    lda RamKernelGRP0 ; Load sprite 2 into A
     sec ; clear carry bit
+    ldx RamKernelX
+    ldy RamKernelY
 
     ; Jump immediately into scanlines 4-5 aka "kernel_gem"
-    ASSERT_RUNTIME "_scycles == #73"
+    lda BuildKernelVdel1
+    sta EMERALD_SP
+    lda RamKernelGRP0 ; Load sprite 2 into A
 ; [scanline 4]
 ; [scanline 5]
+    ASSERT_RUNTIME "_scycles == #73"
     jmp CBSRAM_KERNEL_ENTRY
 
 ; [scanline 6]
@@ -125,8 +128,10 @@ row_6:
     sta COLUPF
     sta VDELP1
 
+    lda #%00100000
+    sta PF1
+
     jet_spritedata_calc
-    sleep 5
 
     ; Idle.
     sta WSYNC
