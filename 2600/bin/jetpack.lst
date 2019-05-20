@@ -489,8 +489,86 @@
 ------- FILE main.s
      94  0000 ????
      95  0000 ????						; RAM and constants
+------- FILE game_define.s LEVEL 2 PASS 2
+      0  0000 ????				      include	"game_define.s"
+      1 U0000 ????				      seg.u	Defines
+      2 U0000 ????
+      3 U0000 ????	       00 10	   ROW_COUNT  =	16
+      4 U0000 ????	       00 02	   SIGNAL_LINE =	$02
+      5 U0000 ????	       00 07	   FrameSkip  =	%111	; Tick (every 8 frames)
+      6 U0000 ????
+      7 U0000 ????						; RAM+ memory map
+      8 U0000 ????
+      9 U0000 ????	       f0 00	   CBSRAM_KERNEL_WRITE =	$f000
+     10 U0000 ????	       f1 00	   CBSRAM_KERNEL_READ =	$f100
+     11 U0000 ????	       f1 04	   CBSRAM_KERNEL_ENTRY =	[CBSRAM_KERNEL_READ + 4]
+     12 U0000 ????
+     13 U0000 ????	       f0 40	   RAMP_STORAGE_W =	$f040	; is this just max(frame_1_end, frame_2_end) ?
+     14 U0000 ????	       f1 40	   RAMP_STORAGE_R =	$f140
+     15 U0000 ????
+     16 U0000 ????
+     17 U0000 ????						; NUSIZ values
+     18 U0000 ????
+     19 U0000 ????	       00 13	   THREE_COPIES =	%00010011
+     20 U0000 ????
+     21 U0000 ????
+     22 U0000 ????						; Colors
+     23 U0000 ????
+     24 U0000 ????	       00 42	   COL_BG     =	$42
+     25 U0000 ????	       00 cc	   COL_EMERALD =	$CC
+     26 U0000 ????	       00 cc	   COL_EMERALD_2 =	$CC
+     27 U0000 ????
+     28 U0000 ????
+     29 U0000 ????						; HMOVE values for missiles
+     30 U0000 ????
+     31 U0000 ????	       00 1c	   KERNEL_A_MISSILE_SLEEP =	28
+     32 U0000 ????	       00 00	   KERNEL_A_MISSILE_HMOVE =	$00
+     33 U0000 ????
+     34 U0000 ????	       00 33	   KERNEL_B_MISSILE_SLEEP =	51
+     35 U0000 ????	       00 10	   KERNEL_B_MISSILE_HMOVE =	$10
+     36 U0000 ????
+     37 U0000 ????						; Missile values when 2A=RST
+     38 U0000 ????						; KERNEL_B_MISSILE_SLEEP equ 46
+     39 U0000 ????						; KERNEL_B_MISSILE_HMOVE equ $20
+     40 U0000 ????
+     41 U0000 ????
+     42 U0000 ????						; Sprite details
+     43 U0000 ????
+     44 U0000 ????	       00 07	   EMERALD_SP_COLOR =	COLUP1
+     45 U0000 ????	       00 1c	   EMERALD_SP =	GRP1
+     46 U0000 ????	       00 1e	   EMERALD_MI_ENABLE =	ENAM1
+     47 U0000 ????	       00 11	   EMERALD_SP_RESET =	RESP1
+     48 U0000 ????	       00 13	   EMERALD_MI_RESET =	RESM1
+     49 U0000 ????	       00 21	   EMERALD_SP_HMOVE =	HMP1
+     50 U0000 ????	       00 23	   EMERALD_MI_HMOVE =	HMM1
+     51 U0000 ????	       00 05	   EMERALD_COPIES =	NUSIZ1
+     52 U0000 ????
+     53 U0000 ????	       00 1b	   JET_SP     =	GRP0
+     54 U0000 ????	       00 10	   JET_SP_RESET =	RESP0
+     55 U0000 ????	       00 20	   JET_SP_HMOVE =	HMP0
+     56 U0000 ????	       00 06	   JET_SP_COLOR =	COLUP0
+     57 U0000 ????
+     58 U0000 ????
+     59 U0000 ????						; Game dimensionsn
+     60 U0000 ????
+     61 U0000 ????						; Spriteend is HEIGHT_OFFSET - YPos
+     62 U0000 ????	       00 09	   SPRITE_HEIGHT =	9
+     63 U0000 ????	       00 c8	   HEIGHT_OFFSET =	200
+     64 U0000 ????
+     65 U0000 ????						; Compared with YPos
+     66 U0000 ????	       00 46	   FLOOR_OFFSET =	70
+     67 U0000 ????	       00 be	   CEILING_OFFSET =	190
+     68 U0000 ????
+     69 U0000 ????						; Starting player position
+     70 U0000 ????	       00 46	   YPosStart  =	70
+     71 U0000 ????	       00 58	   XPosStart  =	88
+     72 U0000 ????
+     73 U0000 ????						; Top left corner
+     74 U0000 ????						; YPosStart equ 190
+     75 U0000 ????						; XPosStart equ 28
+------- FILE main.s
 ------- FILE game_vars.s LEVEL 2 PASS 2
-      0  0000 ????				      include	"game_vars.s"
+      0 U0000 ????				      include	"game_vars.s"
       1 U00be ????				      seg.u	Variables
       2 U00be ????
       3 U0080					      org	$80
@@ -574,130 +652,59 @@
      81 U00bb		       00		      byte.b
      82 U00bc		       00		      byte.b
      83 U00bd		       00		      byte.b
-     84 U00be
-     85 U00be							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-     86 U00be
-     87 U00be		       00 10	   ROW_COUNT  =	16
-     88 U00be
-     89 U00be		       00 02	   SIGNAL_LINE =	$02
-     90 U00be
-     91 U00be							; RAM+ memory map
-     92 U00be		       f0 00	   CBSRAM_KERNEL_WRITE =	$f000
-     93 U00be		       f1 00	   CBSRAM_KERNEL_READ =	$f100
-     94 U00be		       f1 04	   CBSRAM_KERNEL_ENTRY =	[CBSRAM_KERNEL_READ + 4]
-     95 U00be
-     96 U00be		       f0 40	   RAMP_STORAGE_W =	$f040	; is this just max(frame_1_end, frame_2_end) ?
-     97 U00be		       f1 40	   RAMP_STORAGE_R =	$f140
-     98 U00be
-     99 U00be							; NUSIZ values
-    100 U00be
-    101 U00be		       00 13	   THREE_COPIES =	%00010011
-    102 U00be
-    103 U00be							; Colors
-    104 U00be
-    105 U00be		       00 42	   COL_BG     =	$42
-    106 U00be		       00 cc	   COL_EMERALD =	$CC
-    107 U00be		       00 cc	   COL_EMERALD_2 =	$CC
-    108 U00be
-    109 U00be							; HMOVE values for missiles
-    110 U00be
-    111 U00be		       00 1c	   KERNEL_A_MISSILE_SLEEP =	28
-    112 U00be		       00 00	   KERNEL_A_MISSILE_HMOVE =	$00
-    113 U00be
-    114 U00be		       00 33	   KERNEL_B_MISSILE_SLEEP =	51
-    115 U00be		       00 10	   KERNEL_B_MISSILE_HMOVE =	$10
-    116 U00be
-    117 U00be							; Missile values when 2A=RST
-    118 U00be							; KERNEL_B_MISSILE_SLEEP equ 46
-    119 U00be							; KERNEL_B_MISSILE_HMOVE equ $20
-    120 U00be
-    121 U00be							; Sprite details
-    122 U00be
-    123 U00be		       00 07	   EMERALD_SP_COLOR =	COLUP1
-    124 U00be		       00 1c	   EMERALD_SP =	GRP1
-    125 U00be		       00 1e	   EMERALD_MI_ENABLE =	ENAM1
-    126 U00be		       00 11	   EMERALD_SP_RESET =	RESP1
-    127 U00be		       00 13	   EMERALD_MI_RESET =	RESM1
-    128 U00be		       00 21	   EMERALD_SP_HMOVE =	HMP1
-    129 U00be		       00 23	   EMERALD_MI_HMOVE =	HMM1
-    130 U00be		       00 05	   EMERALD_COPIES =	NUSIZ1
-    131 U00be
-    132 U00be		       00 1b	   JET_SP     =	GRP0
-    133 U00be		       00 10	   JET_SP_RESET =	RESP0
-    134 U00be		       00 20	   JET_SP_HMOVE =	HMP0
-    135 U00be		       00 06	   JET_SP_COLOR =	COLUP0
-    136 U00be
-    137 U00be							; Spriteend is HEIGHT_OFFSET - YPos
-    138 U00be		       00 09	   SPRITE_HEIGHT =	9
-    139 U00be		       00 c8	   HEIGHT_OFFSET =	200
-    140 U00be
-    141 U00be							; Compared with YPos
-    142 U00be		       00 46	   FLOOR_OFFSET =	70
-    143 U00be		       00 be	   CEILING_OFFSET =	190
-    144 U00be
-    145 U00be							; Starting player position
-    146 U00be		       00 46	   YPosStart  =	70
-    147 U00be		       00 58	   XPosStart  =	88
-    148 U00be
-    149 U00be							; Top left corner
-    150 U00be							; YPosStart equ 190
-    151 U00be							; XPosStart equ 28
-    152 U00be
-    153 U00be							; Tick (every 8 frames)
-    154 U00be		       00 07	   FrameSkip  equ	%111
 ------- FILE main.s
-     97 U00be
-     98 U00be							; Bank 1
-     99  e000 ????				      seg	CodeBank1
-    100  d000					      org	$D000
-    101  d000					      rorg	$F000
-    102  d000		       00	   BANK1      byte.b
-    103  d200					      org	$d200
-    104  d200					      rorg	$d200
-    105  d200				   Bank1Start
-    106  d200		       ad fa ff 	      lda	$fffa
-    107  d203		       ea		      nop
-    108  d204		       ea		      nop
-    109  d205		       ea		      nop
-    110  d206
-    111  dffc					      org	$dffc
-    112  dffc					      rorg	$fffc
-    113  dffc		       00 d2		      .word.w	Bank1Start
-    114  dffe		       00 d2		      .word.w	Bank1Start
-    115  e000
-    116  e000							; Bank 2
-    117  f000 ????				      seg	CodeBank2
-    118  e000					      org	$E000
-    119  e000					      rorg	$F000
-    120  e000		       00	   BANK2      byte.b
-    121  e200					      org	$e200
-    122  e200					      rorg	$f200
-    123  e200				   Bank2Start
-    124  e200		       ad fa ff 	      lda	$fffa
-    125  e203		       ea		      nop
-    126  e204		       ea		      nop
-    127  e205		       ea		      nop
-    128  e206
-    129  effc					      org	$effc
-    130  effc					      rorg	$fffc
-    131  effc		       00 f2		      .word.w	Bank2Start
-    132  effe		       00 f2		      .word.w	Bank2Start
-    133  f000
-    134  f000							; Bank 3
-    135  10000 ????				       seg	CodeBank3
-    136  f000					      org	$F000
-    137  f000					      rorg	$F000
-    138  f000		       00	   BANK3      byte.b
-    139  f200					      org	$f200
-    140  f200					      rorg	$f200
-    141  f200				   Bank3Start
-    142  f200		       ad fa ff 	      lda	$fffa
-    143  f203		       ea		      nop
-    144  f204		       ea		      nop
-    145  f205		       ea		      nop
-    146  f206		       4c 09 f2 	      jmp	Start
-    147  f209
-    148  f209							; Bank 3 source code
+     98 U00be
+     99 U00be							; Bank 1
+    100  e000 ????				      seg	CodeBank1
+    101  d000					      org	$D000
+    102  d000					      rorg	$F000
+    103  d000		       00	   BANK1      byte.b
+    104  d200					      org	$d200
+    105  d200					      rorg	$d200
+    106  d200				   Bank1Start
+    107  d200		       ad fa ff 	      lda	$fffa
+    108  d203		       ea		      nop
+    109  d204		       ea		      nop
+    110  d205		       ea		      nop
+    111  d206
+    112  dffc					      org	$dffc
+    113  dffc					      rorg	$fffc
+    114  dffc		       00 d2		      .word.w	Bank1Start
+    115  dffe		       00 d2		      .word.w	Bank1Start
+    116  e000
+    117  e000							; Bank 2
+    118  f000 ????				      seg	CodeBank2
+    119  e000					      org	$E000
+    120  e000					      rorg	$F000
+    121  e000		       00	   BANK2      byte.b
+    122  e200					      org	$e200
+    123  e200					      rorg	$f200
+    124  e200				   Bank2Start
+    125  e200		       ad fa ff 	      lda	$fffa
+    126  e203		       ea		      nop
+    127  e204		       ea		      nop
+    128  e205		       ea		      nop
+    129  e206
+    130  effc					      org	$effc
+    131  effc					      rorg	$fffc
+    132  effc		       00 f2		      .word.w	Bank2Start
+    133  effe		       00 f2		      .word.w	Bank2Start
+    134  f000
+    135  f000							; Bank 3
+    136  10000 ????				       seg	CodeBank3
+    137  f000					      org	$F000
+    138  f000					      rorg	$F000
+    139  f000		       00	   BANK3      byte.b
+    140  f200					      org	$f200
+    141  f200					      rorg	$f200
+    142  f200				   Bank3Start
+    143  f200		       ad fa ff 	      lda	$fffa
+    144  f203		       ea		      nop
+    145  f204		       ea		      nop
+    146  f205		       ea		      nop
+    147  f206		       4c 09 f2 	      jmp	Start
+    148  f209
+    149  f209							; Bank 3 source code
 ------- FILE game_init.s LEVEL 2 PASS 2
       0  f209					      include	"game_init.s"
       1  f209							; Game Initialization after power on or reset
@@ -4470,7 +4477,7 @@
      38  fe84		       40		      .byte.b	%01000000	; [1, 0, 0]
      39  fe85				   shard_map_end
 ------- FILE main.s
-    160  fe85
-    161  fffc					      org	$fffc
-    162  fffc		       09 f2		      .word.w	Start
-    163  fffe		       09 f2		      .word.w	Start
+    161  fe85
+    162  fffc					      org	$fffc
+    163  fffc		       09 f2		      .word.w	Start
+    164  fffe		       09 f2		      .word.w	Start

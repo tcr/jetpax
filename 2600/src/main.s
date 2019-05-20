@@ -93,6 +93,7 @@ RES EQU {2}
     include "xmacro.h"
 
     ; RAM and constants
+    include "game_define.s"
     include "game_vars.s"
 
     ; Bank 1
