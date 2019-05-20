@@ -81,10 +81,11 @@ row_2:
 
 ; [scanline 3]
 row_3:
-    jet_spritedata_calc
-
-    ; Pre-populate graphics.
+    ; Current row and next two rows.
     ldy RamRowJetpackIndex
+    dey
+    ldx Frame0,Y
+    stx JET_SP
     dey
     ldx Frame0,Y
     stx RamKernelGRP0
@@ -94,15 +95,17 @@ row_3:
     sty RamRowJetpackIndex
 
     ; Idle.
-    sleep 25
+    sleep 31
 
-    ; We jump immediately into scanlines 4-5, the "gem kernel"
+    ; Setup for kernel
     ldx RamKernelX
     lda RamKernelGRP0 ; Load sprite 2 into A
-    sec
+    sec ; clear carry bit
 
+    ; Jump immediately into scanlines 4-5 aka "kernel_gem"
     ASSERT_RUNTIME "_scycles == #73"
-; [scanlines 4-5]
+; [scanline 4]
+; [scanline 5]
     jmp CBSRAM_KERNEL_ENTRY
 
 ; [scanline 6]

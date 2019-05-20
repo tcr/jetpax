@@ -3714,61 +3714,46 @@
      81  fc49
      82  fc49							; [scanline 3]
      83  fc49				   row_3
-      0  fc49					      jet_spritedata_calc
-      1  fc49		       c6 97		      dec	RamRowJetpackIndex
-      2  fc4b		       a4 97		      ldy	RamRowJetpackIndex
-      3  fc4d		       be 00 fe 	      ldx	Frame0,Y
-      4  fc50		       86 1b		      stx	JET_SP
-      0  fc52					      sleep	5
-      1  fc52				   .CYCLES    SET	5
-      2  fc52
-      3  fc52				  -	      IF	.CYCLES < 2
-      4  fc52				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  fc52				  -	      ERR
-      6  fc52					      ENDIF
-      7  fc52
-      8  fc52					      IF	.CYCLES & 1
-      9  fc52					      IFNCONST	NO_ILLEGAL_OPCODES
-     10  fc52		       04 00		      nop	0
-     11  fc54				  -	      ELSE
-     12  fc54				  -	      bit	VSYNC
-     13  fc54					      ENDIF
-     14  fc54				   .CYCLES    SET	.CYCLES - 3
-     15  fc54					      ENDIF
-     16  fc54
-     17  fc54					      REPEAT	.CYCLES / 2
-     18  fc54		       ea		      nop
-     19  fc55					      REPEND
-     86  fc55
-     87  fc55							; Pre-populate graphics.
-     88  fc55		       a4 97		      ldy	RamRowJetpackIndex
-     89  fc57		       88		      dey
-     90  fc58		       be 00 fe 	      ldx	Frame0,Y
-     91  fc5b		       86 99		      stx	RamKernelGRP0
-     92  fc5d		       88		      dey
-     93  fc5e		       be 00 fe 	      ldx	Frame0,Y
-     94  fc61		       8e 03 f0 	      stx	[KernelA_GRP0 - $100]
-     95  fc64		       84 97		      sty	RamRowJetpackIndex
-     96  fc66
-     97  fc66							; Idle.
-      0  fc66					      sleep	20
-      1  fc66				   .CYCLES    SET	20
-      2  fc66
-      3  fc66				  -	      IF	.CYCLES < 2
-      4  fc66				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  fc66				  -	      ERR
-      6  fc66					      ENDIF
-      7  fc66
-      8  fc66				  -	      IF	.CYCLES & 1
-      9  fc66				  -	      IFNCONST	NO_ILLEGAL_OPCODES
-     10  fc66				  -	      nop	0
-     11  fc66				  -	      ELSE
-     12  fc66				  -	      bit	VSYNC
-     13  fc66				  -	      ENDIF
-     14  fc66				  -.CYCLES    SET	.CYCLES - 3
-     15  fc66					      ENDIF
-     16  fc66
-     17  fc66					      REPEAT	.CYCLES / 2
+     84  fc49							; Current row and next two rows.
+     85  fc49		       a4 97		      ldy	RamRowJetpackIndex
+     86  fc4b		       88		      dey
+     87  fc4c		       be 00 fe 	      ldx	Frame0,Y
+     88  fc4f		       86 1b		      stx	JET_SP
+     89  fc51		       88		      dey
+     90  fc52		       be 00 fe 	      ldx	Frame0,Y
+     91  fc55		       86 99		      stx	RamKernelGRP0
+     92  fc57		       88		      dey
+     93  fc58		       be 00 fe 	      ldx	Frame0,Y
+     94  fc5b		       8e 03 f0 	      stx	[KernelA_GRP0 - $100]
+     95  fc5e		       84 97		      sty	RamRowJetpackIndex
+     96  fc60
+     97  fc60							; Idle.
+      0  fc60					      sleep	31
+      1  fc60				   .CYCLES    SET	31
+      2  fc60
+      3  fc60				  -	      IF	.CYCLES < 2
+      4  fc60				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  fc60				  -	      ERR
+      6  fc60					      ENDIF
+      7  fc60
+      8  fc60					      IF	.CYCLES & 1
+      9  fc60					      IFNCONST	NO_ILLEGAL_OPCODES
+     10  fc60		       04 00		      nop	0
+     11  fc62				  -	      ELSE
+     12  fc62				  -	      bit	VSYNC
+     13  fc62					      ENDIF
+     14  fc62				   .CYCLES    SET	.CYCLES - 3
+     15  fc62					      ENDIF
+     16  fc62
+     17  fc62					      REPEAT	.CYCLES / 2
+     18  fc62		       ea		      nop
+     17  fc62					      REPEND
+     18  fc63		       ea		      nop
+     17  fc63					      REPEND
+     18  fc64		       ea		      nop
+     17  fc64					      REPEND
+     18  fc65		       ea		      nop
+     17  fc65					      REPEND
      18  fc66		       ea		      nop
      17  fc66					      REPEND
      18  fc67		       ea		      nop
@@ -3799,29 +3784,30 @@
       1  fc75				   .COND      SET	"_scycles == #73"
  ASSERT: breakif { pc== $fc75  && !(  _scycles == #73  ) }
       2  fc75					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
-    106  fc75							; [scanlines 4-5]
-    107  fc75		       4c 04 f1 	      jmp	CBSRAM_KERNEL_ENTRY
-    108  fc78
-    109  fc78							; [scanline 6]
-    110  fc78
-    111  fc78							; Try to avoid page crossing in jet_spritedata_calc
-    112  fc78							; TODO enforce this with ASSERT_RUNTIME instead?
-    113  fc80		       00 00 00 00*	      align	16
-    114  fc80
-    115  fc80				   row_after_kernel
-    116  fc80				   row_6
+    106  fc75							; [scanline 4]
+    107  fc75							; [scanline 5]
+    108  fc75		       4c 04 f1 	      jmp	CBSRAM_KERNEL_ENTRY
+    109  fc78
+    110  fc78							; [scanline 6]
+    111  fc78
+    112  fc78							; Try to avoid page crossing in jet_spritedata_calc
+    113  fc78							; TODO enforce this with ASSERT_RUNTIME instead?
+    114  fc80		       00 00 00 00*	      align	16
+    115  fc80
+    116  fc80				   row_after_kernel
+    117  fc80				   row_6
       0  fc80					      ASSERT_RUNTIME	"_scycles == #0"
       1  fc80				   .COND      SET	"_scycles == #0"
  ASSERT: breakif { pc== $fc80  && !(  _scycles == #0  ) }
       2  fc80					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
-    118  fc80
-    119  fc80							; Cleanup from the kernel.
-    120  fc80		       a9 00		      lda	#0
-    121  fc82		       85 1e		      sta	EMERALD_MI_ENABLE
-    122  fc84		       85 1c		      sta	EMERALD_SP
-    123  fc86		       85 08		      sta	COLUPF
-    124  fc88		       85 26		      sta	VDELP1
-    125  fc8a
+    119  fc80
+    120  fc80							; Cleanup from the kernel.
+    121  fc80		       a9 00		      lda	#0
+    122  fc82		       85 1e		      sta	EMERALD_MI_ENABLE
+    123  fc84		       85 1c		      sta	EMERALD_SP
+    124  fc86		       85 08		      sta	COLUPF
+    125  fc88		       85 26		      sta	VDELP1
+    126  fc8a
       0  fc8a					      jet_spritedata_calc
       1  fc8a		       c6 97		      dec	RamRowJetpackIndex
       2  fc8c		       a4 97		      ldy	RamRowJetpackIndex
@@ -3847,12 +3833,12 @@
      17  fc95					      REPEAT	.CYCLES / 2
      18  fc95		       ea		      nop
      19  fc96					      REPEND
-    128  fc96
-    129  fc96							; Idle.
-    130  fc96		       85 02		      sta	WSYNC
-    131  fc98
-    132  fc98							; [scanline 7]
-    133  fc98				   row_7
+    129  fc96
+    130  fc96							; Idle.
+    131  fc96		       85 02		      sta	WSYNC
+    132  fc98
+    133  fc98							; [scanline 7]
+    134  fc98				   row_7
       0  fc98					      jet_spritedata_calc
       1  fc98		       c6 97		      dec	RamRowJetpackIndex
       2  fc9a		       a4 97		      ldy	RamRowJetpackIndex
@@ -3882,38 +3868,38 @@
       1  fca4				   .COND      SET	"_scycles == #20"
  ASSERT: breakif { pc== $fca4  && !(  _scycles == #20  ) }
       2  fca4					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
-    137  fca4
-    138  fca4		       a9 42		      lda	#COL_BG
-    139  fca6		       85 08		      sta	COLUPF
-    140  fca8
-    141  fca8							; FRAMESWITCH
-    142  fca8		       a9 01		      lda	#01
-    143  fcaa		       25 84		      and	FrameCount
-    144  fcac		       d0 11		      bne	loadframe2
-    145  fcae
-    146  fcae							; Perform gem loading for Kernel A.
-    147  fcae
-    148  fcae				   loadframe1
+    138  fca4
+    139  fca4		       a9 42		      lda	#COL_BG
+    140  fca6		       85 08		      sta	COLUPF
+    141  fca8
+    142  fca8							; FRAMESWITCH
+    143  fca8		       a9 01		      lda	#01
+    144  fcaa		       25 84		      and	FrameCount
+    145  fcac		       d0 11		      bne	loadframe2
+    146  fcae
+    147  fcae							; Perform gem loading for Kernel A.
+    148  fcae
+    149  fcae				   loadframe1
       0  fcae					      ASSERT_RUNTIME	"_scycles == #32"
       1  fcae				   .COND      SET	"_scycles == #32"
  ASSERT: breakif { pc== $fcae  && !(  _scycles == #32  ) }
       2  fcae					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
-    150  fcae
-    151  fcae							; Emerald byte setting 1A
-    152  fcae							; ldx #0
-    153  fcae							; lda KERNEL_STORAGE_R,X
-    154  fcae							; sta GEM_00_W
-    155  fcae							; inx
-    156  fcae							; lda KERNEL_STORAGE_R,X
-    157  fcae							; sta GEM_04_W
-    158  fcae							; inx
-    159  fcae							; lda KERNEL_STORAGE_R,X
-    160  fcae							; sta GEM_09_W
-    161  fcae							; inx
-    162  fcae
-    163  fcae		       85 02		      sta	WSYNC
-    164  fcb0
-    165  fcb0							; [scanline 8]
+    151  fcae
+    152  fcae							; Emerald byte setting 1A
+    153  fcae							; ldx #0
+    154  fcae							; lda KERNEL_STORAGE_R,X
+    155  fcae							; sta GEM_00_W
+    156  fcae							; inx
+    157  fcae							; lda KERNEL_STORAGE_R,X
+    158  fcae							; sta GEM_04_W
+    159  fcae							; inx
+    160  fcae							; lda KERNEL_STORAGE_R,X
+    161  fcae							; sta GEM_09_W
+    162  fcae							; inx
+    163  fcae
+    164  fcae		       85 02		      sta	WSYNC
+    165  fcb0
+    166  fcb0							; [scanline 8]
       0  fcb0					      jet_spritedata_calc
       1  fcb0		       c6 97		      dec	RamRowJetpackIndex
       2  fcb2		       a4 97		      ldy	RamRowJetpackIndex
@@ -3939,46 +3925,46 @@
      17  fcbb					      REPEAT	.CYCLES / 2
      18  fcbb		       ea		      nop
      19  fcbc					      REPEND
-    168  fcbc
-    169  fcbc							; Emerald byte setting 1B
-    170  fcbc							; lda KERNEL_STORAGE_R,X
-    171  fcbc							; sta GEM_13_W
-    172  fcbc							; inx
-    173  fcbc							; lda KERNEL_STORAGE_R,X
-    174  fcbc							; sta GEM_17_W
-    175  fcbc							; inx
-    176  fcbc							; lda KERNEL_STORAGE_R,X
-    177  fcbc							; sta GEM_18_W
-    178  fcbc							; inx
-    179  fcbc							; lda KERNEL_STORAGE_R,X
-    180  fcbc							; sta GEM_22_W
-    181  fcbc
-    182  fcbc		       4c d0 fc 	      jmp	row_8_end
-    183  fcbf
-    184  fcbf							; Perform gem loading for Kernel B.
-    185  fcbf
-    186  fcbf				   loadframe2
+    169  fcbc
+    170  fcbc							; Emerald byte setting 1B
+    171  fcbc							; lda KERNEL_STORAGE_R,X
+    172  fcbc							; sta GEM_13_W
+    173  fcbc							; inx
+    174  fcbc							; lda KERNEL_STORAGE_R,X
+    175  fcbc							; sta GEM_17_W
+    176  fcbc							; inx
+    177  fcbc							; lda KERNEL_STORAGE_R,X
+    178  fcbc							; sta GEM_18_W
+    179  fcbc							; inx
+    180  fcbc							; lda KERNEL_STORAGE_R,X
+    181  fcbc							; sta GEM_22_W
+    182  fcbc
+    183  fcbc		       4c d0 fc 	      jmp	row_8_end
+    184  fcbf
+    185  fcbf							; Perform gem loading for Kernel B.
+    186  fcbf
+    187  fcbf				   loadframe2
       0  fcbf					      ASSERT_RUNTIME	"_scycles == #33"
       1  fcbf				   .COND      SET	"_scycles == #33"
  ASSERT: breakif { pc== $fcbf  && !(  _scycles == #33  ) }
       2  fcbf					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
-    188  fcbf
-    189  fcbf							; Emerald byte setting 2A
-    190  fcbf							; ldx #[storage_02 - storage]
-    191  fcbf							; lda KERNEL_STORAGE_R,X
-    192  fcbf							; sta GEM_02_W
-    193  fcbf							; inx
-    194  fcbf							; lda KERNEL_STORAGE_R,X
-    195  fcbf							; sta GEM_06_W
-    196  fcbf							; inx
-    197  fcbf							; lda KERNEL_STORAGE_R,X
-    198  fcbf							; sta GEM_08_W
-    199  fcbf							; inx
-    200  fcbf
-    201  fcbf		       85 02		      sta	WSYNC
-    202  fcc1
-    203  fcc1							; [scanline 8]
-    204  fcc1				   row_8
+    189  fcbf
+    190  fcbf							; Emerald byte setting 2A
+    191  fcbf							; ldx #[storage_02 - storage]
+    192  fcbf							; lda KERNEL_STORAGE_R,X
+    193  fcbf							; sta GEM_02_W
+    194  fcbf							; inx
+    195  fcbf							; lda KERNEL_STORAGE_R,X
+    196  fcbf							; sta GEM_06_W
+    197  fcbf							; inx
+    198  fcbf							; lda KERNEL_STORAGE_R,X
+    199  fcbf							; sta GEM_08_W
+    200  fcbf							; inx
+    201  fcbf
+    202  fcbf		       85 02		      sta	WSYNC
+    203  fcc1
+    204  fcc1							; [scanline 8]
+    205  fcc1				   row_8
       0  fcc1					      jet_spritedata_calc
       1  fcc1		       c6 97		      dec	RamRowJetpackIndex
       2  fcc3		       a4 97		      ldy	RamRowJetpackIndex
@@ -4004,41 +3990,41 @@
      17  fccc					      REPEAT	.CYCLES / 2
      18  fccc		       ea		      nop
      19  fccd					      REPEND
-    207  fccd
-    208  fccd							; Emerald byte setting 2B
-    209  fccd							; lda KERNEL_STORAGE_R,X
-    210  fccd							; sta GEM_11_W
-    211  fccd							; inx
-    212  fccd							; lda KERNEL_STORAGE_R,X
-    213  fccd							; sta GEM_15_W
-    214  fccd							; inx
-    215  fccd							; lda KERNEL_STORAGE_R,X
-    216  fccd							; sta GEM_20_W
-    217  fccd							; inx
-    218  fccd							; lda KERNEL_STORAGE_R,X
-    219  fccd							; sta GEM_24_W
-    220  fccd
-    221  fccd		       4c d0 fc 	      jmp	row_8_end
-    222  fcd0
-    223  fcd0							; Common row 8 return.
-    224  fcd0
-    225  fcd0				   row_8_end
-    226  fcd0							; Decrease SpriteEnd
-    227  fcd0		       38		      sec
-    228  fcd1		       a5 86		      lda	SpriteEnd
-    229  fcd3		       e9 08		      sbc	#8
-    230  fcd5		       85 86		      sta	SpriteEnd
-    231  fcd7
-    232  fcd7							; Idle.
-    233  fcd7		       85 02		      sta	WSYNC
-    234  fcd9
-    235  fcd9							; [scanline 8]
-    236  fcd9							; Repeat loop until LoopCount < 0
-    237  fcd9		       c6 83		      dec	LoopCount
-    238  fcdb		       f0 03		      beq	row_end
-    239  fcdd		       4c ff fb 	      jmp	row_start
-    240  fce0				   row_end
-    241  fce0		       4c d0 fb 	      jmp	border_bottom
+    208  fccd
+    209  fccd							; Emerald byte setting 2B
+    210  fccd							; lda KERNEL_STORAGE_R,X
+    211  fccd							; sta GEM_11_W
+    212  fccd							; inx
+    213  fccd							; lda KERNEL_STORAGE_R,X
+    214  fccd							; sta GEM_15_W
+    215  fccd							; inx
+    216  fccd							; lda KERNEL_STORAGE_R,X
+    217  fccd							; sta GEM_20_W
+    218  fccd							; inx
+    219  fccd							; lda KERNEL_STORAGE_R,X
+    220  fccd							; sta GEM_24_W
+    221  fccd
+    222  fccd		       4c d0 fc 	      jmp	row_8_end
+    223  fcd0
+    224  fcd0							; Common row 8 return.
+    225  fcd0
+    226  fcd0				   row_8_end
+    227  fcd0							; Decrease SpriteEnd
+    228  fcd0		       38		      sec
+    229  fcd1		       a5 86		      lda	SpriteEnd
+    230  fcd3		       e9 08		      sbc	#8
+    231  fcd5		       85 86		      sta	SpriteEnd
+    232  fcd7
+    233  fcd7							; Idle.
+    234  fcd7		       85 02		      sta	WSYNC
+    235  fcd9
+    236  fcd9							; [scanline 8]
+    237  fcd9							; Repeat loop until LoopCount < 0
+    238  fcd9		       c6 83		      dec	LoopCount
+    239  fcdb		       f0 03		      beq	row_end
+    240  fcdd		       4c ff fb 	      jmp	row_start
+    241  fce0				   row_end
+    242  fce0		       4c d0 fb 	      jmp	border_bottom
 ------- FILE main.s
 ------- FILE kernel_gem.s LEVEL 2 PASS 2
       0  fce3					      include	"kernel_gem.s"
