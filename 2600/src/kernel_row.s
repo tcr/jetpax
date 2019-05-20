@@ -2,37 +2,15 @@
 
 ; Macros for calculating sprite values (GRPx).
 
-; Load the player graphics for this scanline using SpriteEnd (3c + 17c)
-    mac KERNEL_LOAD_PLAYER
-    ; expects "lda #SPRITE_HEIGHT" before this ; 3c
-    dcp SpriteEnd ; 5c
-    ldy #0 ; 2c
-    ; constant 6c:
-    .byte $b0, $01 ; 2c / 3c (taken)  : bcs +01 (skipping 1-byte bit instr)
-    .byte $0c ; 4c / 0c              : bit (skip next two bytes)
-    ldy SpriteEnd
-    ; 4c
-    ldx Frame0,Y
-    endm
-
 ; mac jet_spritedata_calc
 ;
 ; loads the offset from Frame0 in Y, and the sprite value in A, and stores it in
 ; GRP0.
     mac jet_spritedata_calc
-    ; loader
-    lda #SPRITE_HEIGHT
-    dcp SpriteEnd
-    ldy SpriteEnd
-
-    ; 4c
-    ; This must never be 5 cycles This means Frame0 must be aligned and loading
-    ; from Frame0 + Y must never cross a page boundary.
-    lda Frame0,Y
-    ; 6c
-    .byte $b0, $01 ;2c / 3c (taken)
-    .byte $0c ; 4c / 0c
-    sta JET_SP ; 0c / 3c
+        dec RamRowJetpackIndex
+        ldy RamRowJetpackIndex
+        ldx Frame0,Y
+        stx JET_SP
     endm
 
 row_start:
@@ -42,7 +20,24 @@ row_1:
     ; Enter after scanline starts on row "9" and wraps
     ASSERT_RUNTIME "_scycles == #10"
 
-    jet_spritedata_calc
+    ; Load sprite details
+    lda [#SPRITE_HEIGHT + #7]
+    cmp SpriteEnd ; 5c
+    lda #0 ; 2c
+    ; constant 6c: if carry set, load SpriteEnd into y
+    .byte $b0, $01 ; 2c / 3c (taken)  : bcs +01 (skipping 1-byte bit instr)
+    .byte $0c ; 4c / 0c              : bit (skip next two bytes)
+    lda SpriteEnd
+    adc #8
+    sta RamRowJetpackIndex
+    
+    ; Load sprite
+    dec RamRowJetpackIndex
+    ldy RamRowJetpackIndex
+    ldx Frame0,Y
+    stx JET_SP
+
+    ; TODO assert cycle is not in visible range!
 
     ; [[[Nibble VM.]]]
     sta WSYNC
@@ -54,6 +49,7 @@ row_1:
 ; [scanline 2]
 row_2:
     jet_spritedata_calc
+    sleep 5
 
     ; Black out playfield
     ; TODO This should be done with playfield pixels, not color.
@@ -86,19 +82,25 @@ row_2:
 ; [scanline 3]
 row_3:
     jet_spritedata_calc
+    sleep 5
 
     ; Pre-populate graphics.
-    lda #SPRITE_HEIGHT
-    KERNEL_LOAD_PLAYER
+    ldy RamRowJetpackIndex
+    dey
+    ldx Frame0,Y
     stx RamKernelGRP0
-    KERNEL_LOAD_PLAYER
+    dey
+    ldx Frame0,Y
     stx [KernelA_GRP0 - $100]
+    sty RamRowJetpackIndex
+
+    ; Idle.
+    sleep 20
 
     ; We jump immediately into scanlines 4-5, the "gem kernel"
     ldx RamKernelX
     lda RamKernelGRP0 ; Load sprite 2 into A
     sec
-    sleep 2
 
     ASSERT_RUNTIME "_scycles == #73"
 ; [scanlines 4-5]
@@ -122,6 +124,7 @@ row_6:
     sta VDELP1
 
     jet_spritedata_calc
+    sleep 5
 
     ; Idle.
     sta WSYNC
@@ -129,6 +132,7 @@ row_6:
 ; [scanline 7]
 row_7:
     jet_spritedata_calc
+    sleep 5
     ASSERT_RUNTIME "_scycles == #20"
 
     lda #COL_BG
@@ -160,6 +164,7 @@ loadframe1:
 
 ; [scanline 8]
     jet_spritedata_calc
+    sleep 5
 
     ; Emerald byte setting 1B
     ; lda KERNEL_STORAGE_R,X
@@ -198,6 +203,7 @@ loadframe2:
 ; [scanline 8]
 row_8:
     jet_spritedata_calc
+    sleep 5
 
     ; Emerald byte setting 2B
     ; lda KERNEL_STORAGE_R,X
@@ -217,6 +223,12 @@ row_8:
 ; Common row 8 return.
 
 row_8_end:
+    ; Decrease SpriteEnd
+    sec
+    lda SpriteEnd
+    sbc #8
+    sta SpriteEnd
+
     ; Idle.
     sta WSYNC
 

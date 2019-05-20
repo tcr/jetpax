@@ -59,15 +59,15 @@ JET_SP_COLOR            = COLUP0
 ; Game dimensionsn
 
 ; Spriteend is HEIGHT_OFFSET - YPos
-SPRITE_HEIGHT           = 9
+SPRITE_HEIGHT           = 8
 HEIGHT_OFFSET           = 200
 
 ; Compared with YPos
-FLOOR_OFFSET = 70
-CEILING_OFFSET = 190
+FLOOR_OFFSET = 72
+CEILING_OFFSET = 192
 
 ; Starting player position
-YPosStart = 70
+YPosStart = 72
 XPosStart = 88
 
 ; Top left corner

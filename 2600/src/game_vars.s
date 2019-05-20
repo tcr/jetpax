@@ -2,65 +2,65 @@
 
     org $80
 
-DebugKernelID byte ; only for debugging
+DebugKernelID           byte ; which kernel are we running this frame? (for debugging)
 
-Temp        byte
+Temp                    byte
 
 ; Counters
-RowCount   byte
-LoopCount   byte
-FrameCount   byte
+RowCount                byte
+LoopCount               byte
+FrameCount              byte
 
-YP1 byte
-SpriteEnd byte
-XPos    byte    ; X position of player sprite
+YP1                     byte
+SpriteEnd               byte
+XPos                    byte    ; X position of player sprite
 
 
-Speed1  byte
-Speed2  byte
+Speed1                  byte
+Speed2                  byte
 
-YPos    byte    ; Y position of player sprite
-YPos2   byte
+YPos                    byte    ; Y position of player sprite
+YPos2                   byte
 
-GEM_02_TARGET byte
+GEM_02_TARGET           byte
 
-JMP_ADDR byte
-JMP_ADDR_2 byte
+JMP_ADDR                byte
+JMP_ADDR_2              byte
 
-ROW_DEMO_INDEX byte
+ROW_DEMO_INDEX          byte
 
-RamNibbleTemp       byte
-RamNibbleVar1       byte
-RamNibbleVar2       byte
-RamZeroByte         byte
-RamLowerSixByte     byte
-RamFFByte           byte
-RamStackBkp         byte
+RamNibbleTemp           byte
+RamNibbleVar1           byte
+RamNibbleVar2           byte
+RamZeroByte             byte
+RamLowerSixByte         byte
+RamFFByte               byte
+RamStackBkp             byte
 
-RamRowJetpack       byte
+RamRowJetpackIndex      byte ; sprite counter
 
 ; Kernel support
-RamPF1Value         byte
-RamKernelGRP0       byte ; temp
-RamKernelPhpTarget  byte
-RamKernelX          byte
-RamKernelY          byte
-RamKernelGemini1    byte
-RamKernelGemini1Reg byte
-RamKernelGemini2    byte
-RamKernelGemini2Reg byte
-RamKernelGemini3    byte
-RamKernelGemini3Reg byte
-RamKernelGemini4    byte
-RamKernelGemini4Reg byte
-RamKernelGemini5    byte
+RamPF1Value             byte
+RamKernelGRP0           byte ; temp
+RamKernelPhpTarget      byte
+RamKernelX              byte
+RamKernelY              byte
+RamKernelGemini1        byte
+RamKernelGemini1Reg     byte
+RamKernelGemini2        byte
+RamKernelGemini2Reg     byte
+RamKernelGemini3        byte
+RamKernelGemini3Reg     byte
+RamKernelGemini4        byte
+RamKernelGemini4Reg     byte
+RamKernelGemini5        byte
 
-BuildKernelX byte
-BuildKernelY byte
-BuildKernelRST byte
-BuildKernelGrp0 byte
-BuildKernelVdel1 byte
-BuildKernelMissile byte
+BuildKernelX            byte
+BuildKernelY            byte
+BuildKernelRST          byte
+BuildKernelGrp0         byte
+BuildKernelVdel1        byte
+BuildKernelMissile      byte
 
 level_for_game byte
     byte
