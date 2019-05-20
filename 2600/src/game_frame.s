@@ -650,7 +650,7 @@ FrameEnd: subroutine
     TIMER_SETUP 25
     sta WSYNC
     TIMER_WAIT
-    ASSERT_RUNTIME "_scan == (#37 + #192)"
+    ASSERT_RUNTIME "_scan == (#37 + #184)"
 
     ; Overscan
 Overscan: subroutine
@@ -671,7 +671,7 @@ Overscan: subroutine
 .skiprotate:
 
     TIMER_WAIT
-    ASSERT_RUNTIME "_scan == (#37 + #192 + #29)"
+    ASSERT_RUNTIME "_scan == (#37 + #184 + #29)"
 
     jmp VerticalSync
 

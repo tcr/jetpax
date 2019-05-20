@@ -129,6 +129,7 @@ row_6:
 ; [scanline 7]
 row_7:
     jet_spritedata_calc
+    ASSERT_RUNTIME "_scycles == #20"
 
     lda #COL_BG
     sta COLUPF
@@ -222,7 +223,7 @@ row_8_end:
 ; [scanline 8]
     ; Repeat loop until LoopCount < 0
     dec LoopCount
-    bmi row_end
+    beq row_end
     jmp row_start
 row_end:
     jmp border_bottom

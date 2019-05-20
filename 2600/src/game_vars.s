@@ -37,6 +37,8 @@ RamLowerSixByte     byte
 RamFFByte           byte
 RamStackBkp         byte
 
+RamRowJetpack       byte
+
 ; Kernel support
 RamPF1Value         byte
 RamKernelGRP0       byte ; temp
@@ -100,17 +102,17 @@ THREE_COPIES = %00010011
 
 ; Colors
 
-COL_BG equ $42    
-COL_EMERALD equ $CC
-COL_EMERALD_2 equ $CC
+COL_BG                  = $42    
+COL_EMERALD             = $CC
+COL_EMERALD_2           = $CC
 
 ; HMOVE values for missiles
 
-KERNEL_A_MISSILE_SLEEP equ 28
-KERNEL_A_MISSILE_HMOVE equ $00
+KERNEL_A_MISSILE_SLEEP  = 28
+KERNEL_A_MISSILE_HMOVE  = $00
 
-KERNEL_B_MISSILE_SLEEP equ 51
-KERNEL_B_MISSILE_HMOVE equ $10
+KERNEL_B_MISSILE_SLEEP  = 51
+KERNEL_B_MISSILE_HMOVE  = $10
 
 ; Missile values when 2A=RST
 ; KERNEL_B_MISSILE_SLEEP equ 46
@@ -118,32 +120,31 @@ KERNEL_B_MISSILE_HMOVE equ $10
 
 ; Sprite details
 
-SPRITE_HEIGHT    equ 9
+EMERALD_SP_COLOR        = COLUP1
+EMERALD_SP              = GRP1
+EMERALD_MI_ENABLE       = ENAM1
+EMERALD_SP_RESET        = RESP1
+EMERALD_MI_RESET        = RESM1
+EMERALD_SP_HMOVE        = HMP1
+EMERALD_MI_HMOVE        = HMM1
+EMERALD_COPIES          = NUSIZ1
 
-EMERALD_SP_COLOR        equ COLUP1
-EMERALD_SP              equ GRP1
-EMERALD_MI_ENABLE       equ ENAM1
-EMERALD_SP_RESET        equ RESP1
-EMERALD_MI_RESET        equ RESM1
-EMERALD_SP_HMOVE        equ HMP1
-EMERALD_MI_HMOVE        equ HMM1
-EMERALD_COPIES          equ NUSIZ1
-
-JET_SP                  equ GRP0
-JET_SP_RESET            equ RESP0
-JET_SP_HMOVE            equ HMP0
-JET_SP_COLOR            equ COLUP0
+JET_SP                  = GRP0
+JET_SP_RESET            = RESP0
+JET_SP_HMOVE            = HMP0
+JET_SP_COLOR            = COLUP0
 
 ; Spriteend is HEIGHT_OFFSET - YPos
-HEIGHT_OFFSET equ 200
+SPRITE_HEIGHT           = 9
+HEIGHT_OFFSET           = 200
 
 ; Compared with YPos
-FLOOR_OFFSET equ 62
-CEILING_OFFSET equ 190
+FLOOR_OFFSET = 70
+CEILING_OFFSET = 190
 
 ; Starting player position
-YPosStart equ 62
-XPosStart equ 88
+YPosStart = 70
+XPosStart = 88
 
 ; Top left corner
 ; YPosStart equ 190
