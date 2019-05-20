@@ -152,27 +152,25 @@ KernelB_VDEL0 = . - 1
     ; Reset stack
     pla
 
+    ; 6c
+    lda #%00100000
+    sta PF1
+
     ; Register config
     lda #$ff
     sta EMERALD_MI_ENABLE ; enable missile
 
     ; Set processor register bit for PHP sprite rendering.
-    sec
-KernelB_P11_C = . - 1
-
-    ; 6c
-    lda #%00100000
-    sta.w PF1
+    sleep 3
 
     ; 25c is critical start of precise GRP0 timing for Kernel B
     ASSERT_RUNTIME_KERNEL $B, "_scycles == #25"
 KernelB_A:
     sta EMERALD_SP_RESET
 KernelB_B:
-    bit RamZeroByte
-KernelB_C:
-    ; Load PF1 value into accumulator
     lda RamPF1Value
+KernelB_C:
+    cmp RamPF1Value
 KernelB_D:
     stx EMERALD_SP ; Gemini 1B
 
@@ -192,7 +190,7 @@ KernelB_I:
 KernelB_J:
     sty EMERALD_SP ; Gemini 4B
 KernelB_K:
-    stx EMERALD_MI_ENABLE
+    sta EMERALD_MI_ENABLE ; FIXME this can't rely on sta
 KernelB_L:
     stx EMERALD_SP ; Gemini 5B
 

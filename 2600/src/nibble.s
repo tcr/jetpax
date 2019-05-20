@@ -168,7 +168,9 @@
     ; [BIT DEPTH] #1 *If-End @ 1
     ; [BIT DEPTH] #1 Else-End @ 1
 .endif_1:
-    ; Misisle
+    ; Gemini 5A
+    ; TODO eventually...?
+    ; Missile
     ldy DO_MISS_A
 .if_2:
     bne .else_2
@@ -187,8 +189,6 @@
     ; GRP0
     ; X
     ; Y
-    ; Gemini 5A
-    ; TODO eventually...?
     ; [BIT DEPTH] Final: 2 (out of 8 bits)
     rol
     rol
@@ -231,11 +231,23 @@
     sec
     rol
     ; Write to PHP in 2B
-    cpy G11
+    jmp .endif_1
+    ; [BIT DEPTH] #1 If-End @ 1
+
+.else_1:
+    clc
+    rol
+    ; [BIT DEPTH] #1 *If-End @ 1
+    ; [BIT DEPTH] #1 Else-End @ 1
+.endif_1:
+    ; Gemini 3B
+    ldy [DO_GEMS_B + 3]
+    jsr KernelB_GenPhp
 .if_2:
-    beq .else_2
+    bne .else_2
     sec
     rol
+    ; Write to PHP in 3B
     jmp .endif_2
     ; [BIT DEPTH] #2 If-End @ 2
 
@@ -245,49 +257,29 @@
     ; [BIT DEPTH] #2 *If-End @ 2
     ; [BIT DEPTH] #2 Else-End @ 2
 .endif_2:
-    jmp .endif_1
-    ; [BIT DEPTH] #1 If-End @ 2
-
-.else_1:
-    clc
-    rol
-    ; [BIT DEPTH] #1 *If-End @ 2
-    ; [BIT DEPTH] #1 Else-End @ 1
-    rol
-.endif_1:
-    ; Gemini 3B
-    ldy [DO_GEMS_B + 3]
-    jsr KernelB_GenPhp
+    ; Write out PHP
+    ldy BuildKernelRST
+    cpy #G01
 .if_3:
-    beq .else_3
+    bne .else_3
     sec
     rol
-    ; Write to PHP in 3B
-    ; TODO compare this in the outside by checking KernelB_GenPhp value
-    cpy G11
-.if_4:
-    bne .else_4
-    sec
-    rol
-    jmp .endif_4
-    ; [BIT DEPTH] #4 If-End @ 4
-
-.else_4:
-    clc
-    rol
-    ; [BIT DEPTH] #4 *If-End @ 4
-    ; [BIT DEPTH] #4 Else-End @ 4
-.endif_4:
     jmp .endif_3
-    ; [BIT DEPTH] #3 If-End @ 4
+    ; [BIT DEPTH] #3 If-End @ 3
 
 .else_3:
     clc
     rol
-    ; [BIT DEPTH] #3 *If-End @ 4
+    ; [BIT DEPTH] #3 *If-End @ 3
     ; [BIT DEPTH] #3 Else-End @ 3
-    rol
 .endif_3:
+    ; Missile
+    ; ldy DO_MISS_B
+    ; NIBBLE_IF eq
+    ; NIBBLE_WRITE [KernelB_K - $100], #BC_STA
+    ; NIBBLE_ELSE
+    ;     NIBBLE_WRITE [KernelB_K - $100], BuildKernelMissile
+    ; NIBBLE_END_IF
     ; Gemini 4B
     ldy [DO_GEMS_B + 4]
     jsr KernelA_UpdateRegs
@@ -309,7 +301,8 @@
     ; GRP0
     ; X
     ; Y
-    ; [BIT DEPTH] Final: 4 (out of 8 bits)
+    ; [BIT DEPTH] Final: 3 (out of 8 bits)
+    rol
     rol
     rol
     rol
@@ -417,6 +410,8 @@
     stx [RamKernelX + 0]
     ldx BuildKernelY
     stx [RamKernelY + 0]
+    ldx #$ff
+    stx [RamPSByte + 0]
     ENDM
 
     MAC NIBBLE_gem_kernel_b
@@ -441,20 +436,6 @@
     stx [[KernelB_H_W + 0] + 0]
     ldx #EMERALD_SP
     stx [[KernelB_H_W + 0] + 1]
-.if_2:
-    asl
-    bcc .else_2
-    ldx #$38
-    stx [[KernelB_P11_C - $100] + 0]
-    ldx #RamZeroByte
-    stx [[KernelB_B + 1 - $100] + 0]
-    jmp .endif_2
-.else_2:
-    ldx #$18
-    stx [[KernelB_P11_C - $100] + 0]
-    ldx #RamLowerSixByte
-    stx [[KernelB_B + 1 - $100] + 0]
-.endif_2:
     jmp .endif_1
 .else_1:
     ldx RamKernelGemini2
@@ -462,9 +443,9 @@
     ldx #EMERALD_SP
     stx [KernelB_F_W + 1]
 .endif_1:
-.if_3:
+.if_2:
     asl
-    bcc .else_3
+    bcc .else_2
     ldx #EMERALD_SP
     stx [RamKernelPhpTarget + 0]
     ldx #BC_STY
@@ -481,26 +462,26 @@
     stx [[KernelB_G_W + 1] + 1]
     ldx #BC_PHP
     stx [[KernelB_H_W + 1] + 0]
-.if_4:
-    asl
-    bcc .else_4
-    ldx #$38
-    stx [[KernelB_P11_C - $100] + 0]
-    ldx #RamZeroByte
-    stx [[KernelB_B + 1 - $100] + 0]
-    jmp .endif_4
-.else_4:
-    ldx #$18
-    stx [[KernelB_P11_C - $100] + 0]
-    ldx #RamLowerSixByte
-    stx [[KernelB_B + 1 - $100] + 0]
-.endif_4:
-    jmp .endif_3
-.else_3:
+    jmp .endif_2
+.else_2:
     ldx RamKernelGemini3
     stx [KernelB_H_W + 0]
     ldx #EMERALD_SP
     stx [KernelB_H_W + 1]
+.endif_2:
+.if_3:
+    asl
+    bcc .else_3
+    ldx #$c5
+    stx [[KernelB_C - $100] + 0]
+    ldx #RamFFByte
+    stx [[KernelB_C - $100] + 1]
+    jmp .endif_3
+.else_3:
+    ldx #$c5
+    stx [[KernelB_C - $100] + 0]
+    ldx #RamPF1Value
+    stx [[KernelB_C - $100] + 1]
 .endif_3:
     ldx RamKernelGemini4
     stx [KernelB_J_W + 0]
@@ -510,6 +491,8 @@
     stx [RamKernelX + 0]
     ldx BuildKernelY
     stx [RamKernelY + 0]
+    ldx #$00
+    stx [RamPSByte + 0]
     ENDM
 
 

@@ -53,16 +53,36 @@ VerticalBlank: subroutine
     ldx #0
     jsr SetHorizPos
 
-frame_setup: subroutine
+    ; Load the kernel into CBSRAM.
+game_frame_kernel_loader: subroutine
     ; Kernel A or B
     lda #01
     and FrameCount
-    bne frame_setup_kernel_b
-
-frame_setup_kernel_a: subroutine
-    ; Load kernel into CBSRAM
+    bne .kernel_b
+.kernel_a:
+    ; Load kernel A into CBSRAM
     jsr LoadKernelA
+    jmp .complete
+.kernel_b:
+    ; Load kernel B into CBSRAM
+    jsr LoadKernelB
+.complete:
 
+    ; Populate the kernel with gemini changes.
+game_frame_populate: subroutine
+    ; Extract 26-bit string to full Gemini profile
+    jsr gemini_populate
+    ; Run nibble populate.
+    jsr game_nibble_populate
+
+    ; Complete frame setup.
+game_frame_setup: subroutine
+    ; Kernel A or B
+    lda #01
+    and FrameCount
+    bne .kernel_b
+
+.kernel_a:
     ; Move missile
     sta WSYNC
     sleep KERNEL_A_MISSILE_SLEEP
@@ -74,12 +94,9 @@ frame_setup_kernel_a: subroutine
     ldx #COL_EMERALD
     stx EMERALD_SP_COLOR
 
-    jmp frame_setup_complete
+    jmp .complete
 
-frame_setup_kernel_b: subroutine
-    ; Load kernel into CBSRAM
-    jsr LoadKernelB
-
+.kernel_b:
     ; Move missile
     sta WSYNC
     sleep KERNEL_B_MISSILE_SLEEP
@@ -87,17 +104,22 @@ frame_setup_kernel_b: subroutine
     lda #KERNEL_B_MISSILE_HMOVE
     sta EMERALD_MI_HMOVE
 
+    lda DO_MISS_B
+    bne .kernel_b_continue
+    sta WSYNC
+    sleep KERNEL_B_MISSILE_SLEEP + 8
+    sta EMERALD_MI_RESET
+    jmp .kernel_b_continue_2
+
+.kernel_b_continue:
+    sta WSYNC
+.kernel_b_continue_2:
     ; DEBUG: Set per-kernel color
-    ldx #$e4
-    ; ldx #COL_EMERALD
+    ldx #COL_EMERALD
+    ; ldx #$e4
     stx EMERALD_SP_COLOR
 
-frame_setup_complete:
-
-    ; Extract 26-bit string to full Gemini profile
-    jsr gemini_populate
-    ; Run nibble populate.
-    jsr game_nibble_populate
+.complete:
 
 VerticalBlankEnd:
     ; Wait until the end of Vertical blank.

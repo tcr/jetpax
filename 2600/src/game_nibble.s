@@ -68,8 +68,9 @@ KernelB_GenPhp: subroutine
     cpx #SENTINEL
     bne .set_else
     ; We have found the first (and only) RST on this line, set the marker var
-    ldx #$ff
-    stx BuildKernelRST
+    sty BuildKernelRST
+
+    ; Set Z flag
     ldx #$00
 .set_else
     rts
@@ -290,7 +291,10 @@ gemini_builder:
             NIBBLE_WRITE RamKernelPhpTarget, #RESP1
         NIBBLE_END_IF
 
-        ; Misisle
+        ; Gemini 5A
+        ; TODO eventually...?
+
+        ; Missile
         ldy DO_MISS_A
         NIBBLE_IF eq ; Disabled
             NIBBLE_WRITE [KernelA_F - $100], #BC_NOP
@@ -307,8 +311,7 @@ gemini_builder:
         ; Y
         NIBBLE_WRITE RamKernelY, BuildKernelY
 
-        ; Gemini 5A
-        ; TODO eventually...?
+        NIBBLE_WRITE RamPSByte, #$ff
     NIBBLE_END_KERNEL
 
     ; Nibble Kernel B
@@ -352,15 +355,6 @@ gemini_builder:
             NIBBLE_WRITE [KernelB_F_W + 1], #BC_PHP
             NIBBLE_WRITE [KernelB_G_W + 0], #BC_STA, #PF1
             NIBBLE_WRITE [KernelB_H_W + 0], RamKernelGemini3, #EMERALD_SP ; 3B
-
-            cpy G11
-            NIBBLE_IF ne
-                NIBBLE_WRITE [KernelB_P11_C - $100], #$38 ; sec
-                NIBBLE_WRITE [KernelB_B + 1 - $100], #RamZeroByte
-            NIBBLE_ELSE
-                NIBBLE_WRITE [KernelB_P11_C - $100], #$18 ; clc
-                NIBBLE_WRITE [KernelB_B + 1 - $100], #RamLowerSixByte
-            NIBBLE_END_IF
         NIBBLE_ELSE
             NIBBLE_WRITE KernelB_F_W, RamKernelGemini2, #EMERALD_SP
         NIBBLE_END_IF
@@ -368,26 +362,33 @@ gemini_builder:
         ; Gemini 3B
         ldy [DO_GEMS_B + 3]
         jsr KernelB_GenPhp
-        NIBBLE_IF ne
+        NIBBLE_IF eq
             ; Write to PHP in 3B
             NIBBLE_WRITE RamKernelPhpTarget, #EMERALD_SP
             NIBBLE_WRITE [KernelB_E_W + 0], #BC_STY, #EMERALD_SP_RESET
             NIBBLE_WRITE [KernelB_F_W + 1], RamKernelGemini2, #EMERALD_SP ; 2B
             NIBBLE_WRITE [KernelB_G_W + 1], #BC_STA, #PF1
             NIBBLE_WRITE [KernelB_H_W + 1], #BC_PHP ; 3B
-
-            ; TODO compare this in the outside by checking KernelB_GenPhp value
-            cpy G11
-            NIBBLE_IF eq
-                NIBBLE_WRITE [KernelB_P11_C - $100], #$38 ; sec
-                NIBBLE_WRITE [KernelB_B + 1 - $100], #RamZeroByte
-            NIBBLE_ELSE
-                NIBBLE_WRITE [KernelB_P11_C - $100], #$18 ; clc
-                NIBBLE_WRITE [KernelB_B + 1 - $100], #RamLowerSixByte
-            NIBBLE_END_IF
         NIBBLE_ELSE
             NIBBLE_WRITE KernelB_H_W, RamKernelGemini3, #EMERALD_SP
         NIBBLE_END_IF
+
+        ; Write out PHP
+        ldy BuildKernelRST
+        cpy #G01
+        NIBBLE_IF eq
+            NIBBLE_WRITE [KernelB_C - $100], #$c5, #RamFFByte
+        NIBBLE_ELSE
+            NIBBLE_WRITE [KernelB_C - $100], #$c5, #RamPF1Value
+        NIBBLE_END_IF
+
+        ; Missile
+        ; ldy DO_MISS_B
+        ; NIBBLE_IF eq ; Disabled
+            ; NIBBLE_WRITE [KernelB_K - $100], #BC_STA
+        ; NIBBLE_ELSE
+        ;     NIBBLE_WRITE [KernelB_K - $100], BuildKernelMissile
+        ; NIBBLE_END_IF
 
         ; Gemini 4B
         ldy [DO_GEMS_B + 4]
@@ -417,6 +418,8 @@ gemini_builder:
         NIBBLE_WRITE RamKernelX, BuildKernelX
         ; Y
         NIBBLE_WRITE RamKernelY, BuildKernelY
+
+        NIBBLE_WRITE RamPSByte, #$00
 
     NIBBLE_END_KERNEL
 

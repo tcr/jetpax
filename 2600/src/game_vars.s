@@ -40,11 +40,13 @@ RamStackBkp             byte
 RamRowJetpackIndex      byte ; sprite counter
 
 ; Kernel support
+RamPSByte               byte
 RamPF1Value             byte
 RamKernelGRP0           byte ; temp
 RamKernelPhpTarget      byte
 RamKernelX              byte
 RamKernelY              byte
+
 RamKernelGemini1        byte
 RamKernelGemini1Reg     byte
 RamKernelGemini2        byte

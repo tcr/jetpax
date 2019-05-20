@@ -60,7 +60,7 @@ row_2:
     sleep 25
 
     ; Load PF1 value
-    lda #%00111111
+    lda #%00111101
     sta RamPF1Value
 
     lda #4
@@ -76,7 +76,7 @@ row_2:
     txs
 
     ; Set overflow flag
-    bit RamFFByte
+    bit RamPSByte
 
     ASSERT_RUNTIME "_scycles == #0"
 

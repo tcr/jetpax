@@ -12,15 +12,15 @@ game_state_setup:
 
 game_state_tick:
     lda FrameCount
-    and #%1111
+    and #%111
     bne .skiprotate
     lda level_for_game + 3
     ror
 .rollall:
     _ROR32 level_for_game, level_for_game
 
-    lda #%11111011
-    cmp [level_for_game + 2]
+    lda #%11101111
+    cmp [level_for_game + 3]
     bne .skiprotate
     jmp game_state_setup
 .skiprotate:
