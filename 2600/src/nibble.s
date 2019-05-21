@@ -200,13 +200,13 @@
 
     MAC NIBBLE_gem_kernel_b_BUILD
     lda #0
-    ; Php target default
-    ldx #RESP1
-    stx RamKernelPhpTarget
     ldx #SENTINEL
     stx BuildKernelX
     stx BuildKernelY
     stx BuildKernelRST
+    ; Php target default
+    ldx #RESP1
+    stx RamKernelPhpTarget
     ; Gemini 0B
     ldy [DO_GEMS_B + 0]
     sty BuildKernelGrp0
@@ -215,14 +215,6 @@
     ldy [DO_GEMS_B + 1]
     jsr KernelA_UpdateRegs
     sty RamKernelGemini1
-    ; Calculate Gemini 2B
-    ldy [DO_GEMS_B + 2]
-    jsr KernelB_UpdateRegs
-    sty RamKernelGemini2
-    ; Calculate Gemini 3B
-    ldy [DO_GEMS_B + 3]
-    jsr KernelB_UpdateRegs
-    sty RamKernelGemini3
     ; Gemini 2B
     ldy [DO_GEMS_B + 2]
     jsr KernelB_GenPhp
@@ -230,6 +222,7 @@
     bne .else_1
     sec
     rol
+    CALC_REGS_AND_STORE 3, RamKernelGemini3
     ; Write to PHP in 2B
     jmp .endif_1
     ; [BIT DEPTH] #1 If-End @ 1
@@ -237,6 +230,7 @@
 .else_1:
     clc
     rol
+    CALC_REGS_AND_STORE 2, RamKernelGemini2
     ; [BIT DEPTH] #1 *If-End @ 1
     ; [BIT DEPTH] #1 Else-End @ 1
 .endif_1:
@@ -248,12 +242,14 @@
     sec
     rol
     ; Write to PHP in 3B
+    CALC_REGS_AND_STORE 2, RamKernelGemini2
     jmp .endif_2
     ; [BIT DEPTH] #2 If-End @ 2
 
 .else_2:
     clc
     rol
+    CALC_REGS_AND_STORE 3, RamKernelGemini3
     ; [BIT DEPTH] #2 *If-End @ 2
     ; [BIT DEPTH] #2 Else-End @ 2
 .endif_2:
@@ -472,16 +468,12 @@
 .if_3:
     asl
     bcc .else_3
-    ldx #$c5
-    stx [[KernelB_C - $100] + 0]
     ldx #RamFFByte
-    stx [[KernelB_C - $100] + 1]
+    stx [[KernelB_C - $100 + 1] + 0]
     jmp .endif_3
 .else_3:
-    ldx #$c5
-    stx [[KernelB_C - $100] + 0]
     ldx #RamPF1Value
-    stx [[KernelB_C - $100] + 1]
+    stx [[KernelB_C - $100 + 1] + 0]
 .endif_3:
     ldx RamKernelGemini4
     stx [KernelB_J_W + 0]

@@ -184,3 +184,10 @@ http://atariage.com/forums/topic/180632-32-character-text-display/page-3
 Frame diagram:
 
 http://www.randomterrain.com/atari-2600-memories-tutorial-andrew-davie-07.html
+
+## Stella tricks
+
+```
+; Dump gem state
+print DO_GEMS_A
+```

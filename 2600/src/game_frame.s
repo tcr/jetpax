@@ -115,8 +115,8 @@ game_frame_setup: subroutine
     sta WSYNC
 .kernel_b_continue_2:
     ; DEBUG: Set per-kernel color
-    ldx #COL_EMERALD
-    ; ldx #$e4
+    ldx #$e4
+    ; ldx #COL_EMERALD
     stx EMERALD_SP_COLOR
 
 .complete:

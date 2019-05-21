@@ -34,6 +34,14 @@ KernelB_I_W EQM [KernelB_I - $100]
 KernelB_J_W EQM [KernelB_J - $100]
 KernelB_K_W EQM [KernelB_K - $100]
 
+        mac CALC_REGS_AND_STORE
+.OFFSET SET {1}
+.TARGET SET {2}
+        ldy [DO_GEMS_B + .OFFSET]
+        jsr KernelB_UpdateRegs
+        sty .TARGET
+        endm
+
 ; Y=Gemini Sprite
 ; See if the current Gemini is g00. Allocate an RST to this Gemini if so
 ; processor flag Z is TRUE if this is RST.
@@ -120,6 +128,7 @@ DBG_CHECK_MISSILE_OPCODE:
     ldx #BC_STY
     stx BuildKernelMissile
 
+    ; Set the X operator
     sty BuildKernelX
     ldy #BC_STX
     rts
@@ -316,14 +325,14 @@ gemini_builder:
 
     ; Nibble Kernel B
     NIBBLE_START_KERNEL gem_kernel_b, 40
-        ; Php target default
-        ldx #RESP1
-        stx RamKernelPhpTarget
-
         ldx #SENTINEL ; sentinel
         stx BuildKernelX
         stx BuildKernelY
         stx BuildKernelRST
+
+        ; Php target default
+        ldx #RESP1
+        stx RamKernelPhpTarget
 
         ; Gemini 0B
         ldy [DO_GEMS_B + 0]
@@ -336,19 +345,12 @@ gemini_builder:
         sty RamKernelGemini1
         NIBBLE_WRITE KernelB_D_W, RamKernelGemini1
 
-        ; Calculate Gemini 2B
-        ldy [DO_GEMS_B + 2]
-        jsr KernelB_UpdateRegs
-        sty RamKernelGemini2
-        ; Calculate Gemini 3B
-        ldy [DO_GEMS_B + 3]
-        jsr KernelB_UpdateRegs
-        sty RamKernelGemini3
-
         ; Gemini 2B
         ldy [DO_GEMS_B + 2]
         jsr KernelB_GenPhp
         NIBBLE_IF eq
+            CALC_REGS_AND_STORE 3, RamKernelGemini3
+
             ; Write to PHP in 2B
             NIBBLE_WRITE RamKernelPhpTarget, #EMERALD_SP
             NIBBLE_WRITE [KernelB_E_W + 0], #BC_STY, #EMERALD_SP_RESET ; 2B
@@ -356,6 +358,7 @@ gemini_builder:
             NIBBLE_WRITE [KernelB_G_W + 0], #BC_STA, #PF1
             NIBBLE_WRITE [KernelB_H_W + 0], RamKernelGemini3, #EMERALD_SP ; 3B
         NIBBLE_ELSE
+            CALC_REGS_AND_STORE 2, RamKernelGemini2
             NIBBLE_WRITE KernelB_F_W, RamKernelGemini2, #EMERALD_SP
         NIBBLE_END_IF
 
@@ -364,12 +367,14 @@ gemini_builder:
         jsr KernelB_GenPhp
         NIBBLE_IF eq
             ; Write to PHP in 3B
+            CALC_REGS_AND_STORE 2, RamKernelGemini2
             NIBBLE_WRITE RamKernelPhpTarget, #EMERALD_SP
             NIBBLE_WRITE [KernelB_E_W + 0], #BC_STY, #EMERALD_SP_RESET
             NIBBLE_WRITE [KernelB_F_W + 1], RamKernelGemini2, #EMERALD_SP ; 2B
             NIBBLE_WRITE [KernelB_G_W + 1], #BC_STA, #PF1
             NIBBLE_WRITE [KernelB_H_W + 1], #BC_PHP ; 3B
         NIBBLE_ELSE
+            CALC_REGS_AND_STORE 3, RamKernelGemini3
             NIBBLE_WRITE KernelB_H_W, RamKernelGemini3, #EMERALD_SP
         NIBBLE_END_IF
 
@@ -377,9 +382,9 @@ gemini_builder:
         ldy BuildKernelRST
         cpy #G01
         NIBBLE_IF eq
-            NIBBLE_WRITE [KernelB_C - $100], #$c5, #RamFFByte
+            NIBBLE_WRITE [KernelB_C - $100 + 1], #RamFFByte
         NIBBLE_ELSE
-            NIBBLE_WRITE [KernelB_C - $100], #$c5, #RamPF1Value
+            NIBBLE_WRITE [KernelB_C - $100 + 1], #RamPF1Value
         NIBBLE_END_IF
 
         ; Missile
