@@ -1,7 +1,15 @@
 ; Handles input checking. Called from overscan.
 
     ; Read joystick movement and apply to object 0
-MoveJoystick
+MoveJoystick: subroutine
+
+    ; HACK to add in resetting ability for the gems
+    lda INPT4                        ; read left port action button
+    and #%10000000                   ; safe to avoid any reads from D6 - D0
+    bmi .actionButtonNotPressed      ; branch if action button not pressed
+    jsr game_state_setup    
+.actionButtonNotPressed
+
     ; Move vertically
     ; (up and down are actually reversed since ypos starts at bottom)
 ;     ldx YPos
