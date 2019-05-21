@@ -66,14 +66,14 @@ row_2:
     lda #4
     sta TIM64T
 
-    ; Enable playfield at end of scanline
-    lda #COL_BG
-    sta COLUPF
-
     ; Set stack pointer for PHP use from RamKernelPhpTarget.
     ldx RamKernelPhpTarget
     dex
     txs
+
+    ; Enable playfield at end of scanline
+    lda #COL_BG
+    sta COLUPF
 
     ; Set overflow flag
     bit RamPSByte

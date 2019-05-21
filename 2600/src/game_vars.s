@@ -5,6 +5,7 @@
 DebugKernelID           byte ; which kernel are we running this frame? (for debugging)
 
 Temp                    byte
+Temp2                    byte
 
 ; Counters
 RowCount                byte
