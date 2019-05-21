@@ -95,13 +95,14 @@ KernelA_UpdateRegs: subroutine
     ; If equal to GRP0, return nop
     ; FIXME GRP0 might not always be up to date (should update each entry?)
     ; FIXME GOTTA REVERSE THE GRAPHICS ALSO
-    ; cpy BuildKernelGrp0
-    ; bne .set_start
-    ; ; TODO if this is stx + NOP value, then register doesn't have to change as
-    ; ; often in GEM1ASWITCH
-    ; ldy #BC_NOP
-    ; rts
+    cpy RamKernelGrp0
+    bne .op_start
+    ; TODO if this is stx + NOP value, then register doesn't have to change as
+    ; often in GEM1ASWITCH
+    ldy #BC_NOP
+    rts
 
+.op_start:
     cpy BuildKernelX
     bne .op_else
     ldy #BC_STX
@@ -177,6 +178,7 @@ gemini_builder:
             ; Store 1A in GRP0
             ldy [DO_GEMS_A + 1]
             sty BuildKernelGrp0
+            sty RamKernelGrp0
             ; Gemini 1A is RESPx
             ldy #EMERALD_SP_RESET
             sty [KernelA_C - $100 + 1]
@@ -187,6 +189,7 @@ gemini_builder:
             ; Store 0A in GRP0
             ldy [DO_GEMS_A + 0]
             sty BuildKernelGrp0
+            sty RamKernelGrp0
 
             ldy [DO_GEMS_A + 1]
             jsr KernelA_GenReset
@@ -242,6 +245,10 @@ gemini_builder:
             NIBBLE_WRITE KernelA_E_W + 1, #RESP1
             NIBBLE_WRITE KernelA_G_W, RamKernelGemini2, RamKernelGemini2Reg ; STX
         NIBBLE_END_IF
+
+        ; Can't preserve Grp0 now
+        ldy #SENTINEL
+        sty RamKernelGrp0
 
         ; Gemini 3A
 .K_3A:
@@ -337,6 +344,7 @@ gemini_builder:
         ; Gemini 0B
         ldy [DO_GEMS_B + 0]
         sty BuildKernelGrp0
+        sty RamKernelGrp0
         ; NIBBLE_WRITE KernelB_D_W, RamKernelGemini0
 
         ; Gemini 1B
@@ -357,6 +365,10 @@ gemini_builder:
             NIBBLE_WRITE [KernelB_F_W + 1], #BC_PHP
             NIBBLE_WRITE [KernelB_G_W + 0], #BC_STA, #PF1
             NIBBLE_WRITE [KernelB_H_W + 0], RamKernelGemini3, #EMERALD_SP ; 3B
+
+            ; Update Grp0
+            ldy BuildKernelRST
+            sty RamKernelGrp0
         NIBBLE_ELSE
             CALC_REGS_AND_STORE 2, RamKernelGemini2
             NIBBLE_WRITE KernelB_F_W, RamKernelGemini2, #EMERALD_SP
@@ -373,12 +385,16 @@ gemini_builder:
             NIBBLE_WRITE [KernelB_F_W + 1], RamKernelGemini2, #EMERALD_SP ; 2B
             NIBBLE_WRITE [KernelB_G_W + 1], #BC_STA, #PF1
             NIBBLE_WRITE [KernelB_H_W + 1], #BC_PHP ; 3B
+            
+            ; Update Grp0
+            ldy BuildKernelRST
+            sty RamKernelGrp0
         NIBBLE_ELSE
             CALC_REGS_AND_STORE 3, RamKernelGemini3
             NIBBLE_WRITE KernelB_H_W, RamKernelGemini3, #EMERALD_SP
         NIBBLE_END_IF
 
-        ; Write out PHP
+        ; Write out PHP flag comparison
         ldy BuildKernelRST
         cpy #G01
         NIBBLE_IF eq

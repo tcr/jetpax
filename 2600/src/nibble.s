@@ -22,6 +22,7 @@
     ; Store 1A in GRP0
     ldy [DO_GEMS_A + 1]
     sty BuildKernelGrp0
+    sty RamKernelGrp0
     ; Gemini 1A is RESPx
     ldy #EMERALD_SP_RESET
     sty [KernelA_C - $100 + 1]
@@ -38,6 +39,7 @@
     ; Store 0A in GRP0
     ldy [DO_GEMS_A + 0]
     sty BuildKernelGrp0
+    sty RamKernelGrp0
     ldy [DO_GEMS_A + 1]
     jsr KernelA_GenReset
 .if_2:
@@ -103,6 +105,9 @@
     ; [BIT DEPTH] #3 *If-End @ 3
     ; [BIT DEPTH] #3 Else-End @ 3
 .endif_3:
+    ; Can't preserve Grp0 now
+    ldy #SENTINEL
+    sty RamKernelGrp0
     ; Gemini 3A
 .K_3A:
     ldy [DO_GEMS_A + 3]
@@ -210,6 +215,7 @@
     ; Gemini 0B
     ldy [DO_GEMS_B + 0]
     sty BuildKernelGrp0
+    sty RamKernelGrp0
     ; NIBBLE_WRITE KernelB_D_W, RamKernelGemini0
     ; Gemini 1B
     ldy [DO_GEMS_B + 1]
@@ -224,6 +230,9 @@
     rol
     CALC_REGS_AND_STORE 3, RamKernelGemini3
     ; Write to PHP in 2B
+    ; Update Grp0
+    ldy BuildKernelRST
+    sty RamKernelGrp0
     jmp .endif_1
     ; [BIT DEPTH] #1 If-End @ 1
 
@@ -243,6 +252,10 @@
     rol
     ; Write to PHP in 3B
     CALC_REGS_AND_STORE 2, RamKernelGemini2
+     
+    ; Update Grp0
+    ldy BuildKernelRST
+    sty RamKernelGrp0
     jmp .endif_2
     ; [BIT DEPTH] #2 If-End @ 2
 
@@ -253,7 +266,7 @@
     ; [BIT DEPTH] #2 *If-End @ 2
     ; [BIT DEPTH] #2 Else-End @ 2
 .endif_2:
-    ; Write out PHP
+    ; Write out PHP flag comparison
     ldy BuildKernelRST
     cpy #G01
 .if_3:
