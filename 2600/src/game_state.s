@@ -85,7 +85,7 @@ game_state_mask:
     .byte #%11111110
 
 game_state_tick: subroutine
-    jsr game_state_setup
+    ; jsr game_state_setup
 
     ; Get index [0, 25]
     clc
@@ -108,10 +108,11 @@ game_state_tick: subroutine
     lsr
     tay
     lda Temp2
+    and level_for_game,y
     sta level_for_game,y
     rts
 
-game_state_tick_2: subroutine
+game_state_tick_1: subroutine
     _ADD32 level_for_game, game_state_adder, level_for_game
     rts
 

@@ -3356,33 +3356,34 @@
      85  f9f7		       fe		      .byte.b	#%11111110
      86  f9f8
      87  f9f8				   game_state_tick subroutine
-     88  f9f8		       20 da f9 	      jsr	game_state_setup
-     89  f9fb
-     90  f9fb							; Get index [0, 25]
-     91  f9fb		       18		      clc
-     92  f9fc		       a5 88		      lda	XPos
-     93  f9fe		       e9 02		      sbc	#2
-     94  fa00		       4a		      lsr
-     95  fa01		       4a		      lsr
-     96  fa02		       85 81		      sta	Temp
-     97  fa04
-     98  fa04							; Load bit offset
-     99  fa04		       29 07		      and	#%111
-    100  fa06		       a8		      tay
-    101  fa07		       b9 f0 f9 	      lda	game_state_mask,y
-    102  fa0a		       85 82		      sta	Temp2
-    103  fa0c
-    104  fa0c							; Load sprite offset
-    105  fa0c		       a5 81		      lda	Temp
-    106  fa0e		       4a		      lsr
-    107  fa0f		       4a		      lsr
-    108  fa10		       4a		      lsr
-    109  fa11		       a8		      tay
-    110  fa12		       a5 82		      lda	Temp2
-    111  fa14		       99 ae 00 	      sta	level_for_game,y
-    112  fa17		       60		      rts
-    113  fa18
-    114  fa18				   game_state_tick_2 subroutine
+     88  f9f8							; jsr game_state_setup
+     89  f9f8
+     90  f9f8							; Get index [0, 25]
+     91  f9f8		       18		      clc
+     92  f9f9		       a5 88		      lda	XPos
+     93  f9fb		       e9 02		      sbc	#2
+     94  f9fd		       4a		      lsr
+     95  f9fe		       4a		      lsr
+     96  f9ff		       85 81		      sta	Temp
+     97  fa01
+     98  fa01							; Load bit offset
+     99  fa01		       29 07		      and	#%111
+    100  fa03		       a8		      tay
+    101  fa04		       b9 f0 f9 	      lda	game_state_mask,y
+    102  fa07		       85 82		      sta	Temp2
+    103  fa09
+    104  fa09							; Load sprite offset
+    105  fa09		       a5 81		      lda	Temp
+    106  fa0b		       4a		      lsr
+    107  fa0c		       4a		      lsr
+    108  fa0d		       4a		      lsr
+    109  fa0e		       a8		      tay
+    110  fa0f		       a5 82		      lda	Temp2
+    111  fa11		       39 ae 00 	      and	level_for_game,y
+    112  fa14		       99 ae 00 	      sta	level_for_game,y
+    113  fa17		       60		      rts
+    114  fa18
+    115  fa18				   game_state_tick_1 subroutine
       0  fa18					      _ADD32	level_for_game, game_state_adder, level_for_game
       1  fa18		       00 ae	   .VLA       EQU	level_for_game
       2  fa18		       f9 d6	   .VLB       EQU	game_state_adder
@@ -3400,23 +3401,23 @@
      14  fa2e		       a5 ae		      LDA	.VLA+0
      15  fa30		       6d d6 f9 	      ADC	.VLB+0
      16  fa33		       85 ae		      STA	.RES+0
-    116  fa35		       60		      rts
-    117  fa36
-    118  fa36							; game_state_tick:
-    119  fa36							;     lda FrameCount
-    120  fa36							;     and #%111
-    121  fa36							;     bne .skiprotate
-    122  fa36							;     lda level_for_game + 3
-    123  fa36							;     ror
-    124  fa36							; .rollall:
-    125  fa36							;     _ROR32 level_for_game, level_for_game
-    126  fa36
-    127  fa36							;     lda #%11101111
-    128  fa36							;     cmp [level_for_game + 3]
-    129  fa36							;     bne .skiprotate
-    130  fa36							;     jmp game_state_setup
-    131  fa36							; .skiprotate:
-    132  fa36							;     rts
+    117  fa35		       60		      rts
+    118  fa36
+    119  fa36							; game_state_tick:
+    120  fa36							;     lda FrameCount
+    121  fa36							;     and #%111
+    122  fa36							;     bne .skiprotate
+    123  fa36							;     lda level_for_game + 3
+    124  fa36							;     ror
+    125  fa36							; .rollall:
+    126  fa36							;     _ROR32 level_for_game, level_for_game
+    127  fa36
+    128  fa36							;     lda #%11101111
+    129  fa36							;     cmp [level_for_game + 3]
+    130  fa36							;     bne .skiprotate
+    131  fa36							;     jmp game_state_setup
+    132  fa36							; .skiprotate:
+    133  fa36							;     rts
 ------- FILE main.s
 ------- FILE kernel_border.s LEVEL 2 PASS 2
       0  fa36					      include	"kernel_border.s"
