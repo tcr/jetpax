@@ -63,13 +63,13 @@ game_state_adder:
 
 game_state_setup:
     ; Set up the level
-    lda #%11111111
+    lda #%11111011
     sta [level_for_game + 0]
     lda #%11111111
     sta [level_for_game + 1]
     lda #%11111111
     sta [level_for_game + 2]
-    lda #%11101111
+    lda #%11111111
     sta [level_for_game + 3]
     rts
 
@@ -84,7 +84,7 @@ game_state_mask:
     .byte #%11111101
     .byte #%11111110
 
-game_state_tick_2: subroutine
+game_state_tick: subroutine
     jsr game_state_setup
 
     ; Get index [0, 25]
@@ -111,7 +111,7 @@ game_state_tick_2: subroutine
     sta level_for_game,y
     rts
 
-game_state_tick: subroutine
+game_state_tick_2: subroutine
     _ADD32 level_for_game, game_state_adder, level_for_game
     rts
 
