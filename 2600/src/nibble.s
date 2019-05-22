@@ -144,6 +144,7 @@
     rol
     ENDM
 
+
     MAC NIBBLE_gem_kernel_a_2_BUILD
     lda #0
     ; VD1 default
@@ -202,6 +203,7 @@
     rol
     rol
     ENDM
+
 
     MAC NIBBLE_gem_kernel_b_BUILD
     lda #0
@@ -319,6 +321,7 @@
     ENDM
 
 
+
     MAC NIBBLE_gem_kernel_a_1
 .if_1:
     asl
@@ -368,7 +371,8 @@
     ldx RamKernelGemini3Reg
     stx [KernelA_H_W + 1]
 .endif_4:
-    ENDM
+    ENDM ; 48 cycles max
+
 
     MAC NIBBLE_gem_kernel_a_2
 .if_1:
@@ -421,7 +425,8 @@
     stx [RamKernelY + 0]
     ldx #$ff
     stx [RamPSByte + 0]
-    ENDM
+    ENDM ; 84 cycles max
+
 
     MAC NIBBLE_gem_kernel_b
     ldx RamKernelGemini1
@@ -498,6 +503,7 @@
     stx [RamKernelY + 0]
     ldx #$00
     stx [RamPSByte + 0]
-    ENDM
+    ENDM ; 156 cycles max
+
 
 

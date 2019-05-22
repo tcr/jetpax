@@ -42,6 +42,7 @@ fn gen_kernel_code(lines: &[Parse], kernel_data: &mut String, kernel_code: &mut 
     let mut opcode_count = 0;
     let mut if_counter = 0;
     let mut if_depth = VecDeque::new();
+    let mut bitdepth = 0;
     for line in lines {
         match line {
             Parse::NibbleStartKernel(name, cycles) => {
@@ -49,6 +50,12 @@ fn gen_kernel_code(lines: &[Parse], kernel_data: &mut String, kernel_code: &mut 
                 opcode_count = 0;
                 if_counter = 0;
                 if_depth = VecDeque::new();
+                if_depth.push_front(IfDepth {
+                    cond: "program".to_string(),
+                    number: 0,
+                    bitdepth: 0,
+                });
+                bitdepth = 0;
 
                 // Pass in conditionals in A
                 kernel_name = name.to_string();
@@ -61,44 +68,58 @@ fn gen_kernel_code(lines: &[Parse], kernel_data: &mut String, kernel_code: &mut 
                     number: if_counter,
                     bitdepth: 0,
                 });
-                let current_if = if_depth.front().unwrap();
+                let current_if = if_depth.front_mut().unwrap();
                 writeln!(kernel_code, ".if_{}:", current_if.number)?;
                 writeln!(kernel_code, "    asl")?;
+                bitdepth += 2;
                 writeln!(kernel_code, "    bcc .else_{}", current_if.number)?;
+                bitdepth += 2;
             }
             Parse::NibbleElse => {
-                let current_if = if_depth.front().unwrap();
+                let current_if = if_depth.front_mut().unwrap();
                 writeln!(kernel_code, "    jmp .endif_{}", current_if.number)?;
+                bitdepth += 2;
                 writeln!(kernel_code, ".else_{}:", current_if.number)?;
+                std::mem::swap(&mut current_if.bitdepth, &mut bitdepth);
             }
             Parse::NibbleEndIf => {
-                let current_if = if_depth.front().unwrap();
+                let current_if = if_depth.front_mut().unwrap();
                 writeln!(kernel_code, ".endif_{}:", current_if.number)?;
+                bitdepth = std::cmp::max(bitdepth, current_if.bitdepth);
                 if_depth.pop_front();
             }
             Parse::NibbleWrite(label, values) => {
+                let current_if = if_depth.front_mut().unwrap();
                 for (i, value) in values.iter().enumerate() {
                     writeln!(kernel_code, "    ldx {}", value)?;
+                    bitdepth += 2;
                     writeln!(kernel_code, "    stx [{} + {}]", label, i)?;
+                    bitdepth += 4;
                 }
             }
             Parse::NibbleWriteOpcode(label, len, value) => {
+                let current_if = if_depth.front_mut().unwrap();
                 opcode_count += 1;
                 writeln!(kernel_data, "NIBBLE_{}_OPCODE_{}:", kernel_name, opcode_count)?;
                 writeln!(kernel_data, "    {}", value)?;
                 writeln!(kernel_data, "    ASSERT_SIZE_EXACT NIBBLE_{}_OPCODE_{}, ., {}", kernel_name, opcode_count, len)?; // enforce
                 for i in 0..*len {
                     writeln!(kernel_code, "    ldx [NIBBLE_{}_OPCODE_{} + {}]", kernel_name, opcode_count, i)?;
+                    bitdepth += 2;
                     writeln!(kernel_code, "    stx [{} + {}]", label, i)?;
+                    bitdepth += 4;
                 }
             }
             Parse::Opcode(opcode) => {}
             Parse::NibbleEndKernel => {
-                writeln!(kernel_code, "    ENDM")?;
+                let current_if = if_depth.pop_front().unwrap();
+                writeln!(kernel_code, "    ENDM ; {} cycles max", bitdepth)?;
+                writeln!(kernel_code, "")?;
                 writeln!(kernel_code, "")?;
             }
         }
     }
+
     Ok(())
 }
 
@@ -194,6 +215,7 @@ fn gen_kernel_build(lines: &[Parse], kernel_build: &mut String) -> Result<(), Bo
                     writeln!(kernel_build, "    rol");
                 }
                 writeln!(kernel_build, "    ENDM")?;
+                writeln!(kernel_build, "")?;
                 writeln!(kernel_build, "")?;
             }
         }
