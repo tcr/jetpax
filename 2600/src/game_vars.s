@@ -4,15 +4,15 @@
 
 DebugKernelID           byte ; which kernel are we running this frame? (for debugging)
 
+coolest_level           ds $3f
+
 Temp                    byte
-Temp2                    byte
+Temp2                   byte
 
 ; Counters
-RowCount                byte
 LoopCount               byte
 FrameCount              byte
 
-YP1                     byte
 SpriteEnd               byte
 XPos                    byte    ; X position of player sprite
 
@@ -22,11 +22,6 @@ Speed2                  byte
 
 YPos                    byte    ; Y position of player sprite
 YPos2                   byte
-
-GEM_02_TARGET           byte
-
-JMP_ADDR                byte
-JMP_ADDR_2              byte
 
 ROW_DEMO_INDEX          byte
 
