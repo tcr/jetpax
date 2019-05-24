@@ -276,6 +276,20 @@ gemini_builder:
     NIBBLE_END_KERNEL
 
     NIBBLE_START_KERNEL gem_kernel_a_2, 40
+; RAM:
+; RamKernelX
+; RamKernelY
+; RamPSByte
+; BuildKernelVdel1
+; RamKernelGrp0
+; RamKernelGemini1
+; RamKernelGemini1Reg
+; RamKernelGemini2
+; RamKernelGemini2Reg
+; RamKernelGemini3
+; RamKernelGemini3Reg
+; RamKernelGemini4
+
         ; VD1 default
         ldx [DO_GEMS_A + 1]
         stx BuildKernelVdel1
@@ -331,7 +345,17 @@ gemini_builder:
     NIBBLE_END_KERNEL
 
     ; Nibble Kernel B
-    NIBBLE_START_KERNEL gem_kernel_b, 40
+    NIBBLE_START_KERNEL gem_kernel_b_1, 40
+; RAM:
+; RamKernelX
+; RamKernelY
+; RamPSByte
+; RamKernelGrp0
+; RamKernelGemini1
+; RamKernelGemini2
+; RamKernelGemini3
+; RamKernelGemini4
+
         ldx #SENTINEL ; sentinel
         stx BuildKernelX
         stx BuildKernelY
@@ -393,6 +417,11 @@ gemini_builder:
             CALC_REGS_AND_STORE 3, RamKernelGemini3
             NIBBLE_WRITE KernelB_H_W, RamKernelGemini3, #EMERALD_SP
         NIBBLE_END_IF
+
+    NIBBLE_END_KERNEL
+
+    ; Nibble Kernel B
+    NIBBLE_START_KERNEL gem_kernel_b_2, 40
 
         ; Write out PHP flag comparison
         ldy BuildKernelRST
@@ -457,8 +486,10 @@ DBG_NIBBLE_BUILD: subroutine
     sta RamNibbleVar2
     jmp .next
 .kernel_b:
-    NIBBLE_gem_kernel_b_BUILD ; TODO can this be implied
+    NIBBLE_gem_kernel_b_1_BUILD ; TODO can this be implied
     sta RamNibbleVar1
+    NIBBLE_gem_kernel_b_2_BUILD ; TODO can this be implied
+    sta RamNibbleVar2
 .next:
 
     ; TODO move this into the row kernel
@@ -475,7 +506,9 @@ DBG_NIBBLE_RUN: subroutine
     jmp .next
 .kernel_b:
     lda RamNibbleVar1
-    NIBBLE_gem_kernel_b
+    NIBBLE_gem_kernel_b_1
+    lda RamNibbleVar2
+    NIBBLE_gem_kernel_b_2
 .next:
     rts
 

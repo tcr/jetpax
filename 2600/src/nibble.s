@@ -147,6 +147,19 @@
 
     MAC NIBBLE_gem_kernel_a_2_BUILD
     lda #0
+    ; RAM:
+    ; RamKernelX
+    ; RamKernelY
+    ; RamPSByte
+    ; BuildKernelVdel1
+    ; RamKernelGrp0
+    ; RamKernelGemini1
+    ; RamKernelGemini1Reg
+    ; RamKernelGemini2
+    ; RamKernelGemini2Reg
+    ; RamKernelGemini3
+    ; RamKernelGemini3Reg
+    ; RamKernelGemini4
     ; VD1 default
     ldx [DO_GEMS_A + 1]
     stx BuildKernelVdel1
@@ -205,8 +218,17 @@
     ENDM
 
 
-    MAC NIBBLE_gem_kernel_b_BUILD
+    MAC NIBBLE_gem_kernel_b_1_BUILD
     lda #0
+    ; RAM:
+    ; RamKernelX
+    ; RamKernelY
+    ; RamPSByte
+    ; RamKernelGrp0
+    ; RamKernelGemini1
+    ; RamKernelGemini2
+    ; RamKernelGemini3
+    ; RamKernelGemini4
     ldx #SENTINEL
     stx BuildKernelX
     stx BuildKernelY
@@ -235,16 +257,16 @@
     ; Update Grp0
     ldy BuildKernelRST
     sty RamKernelGrp0
+    ldy [DO_GEMS_B + 3]
+    CALC_REGS_AND_STORE 3, RamKernelGemini3
     jmp .endif_1
     ; [BIT DEPTH] #1 If-End @ 1
+    rol
 
 .else_1:
     clc
     rol
     CALC_REGS_AND_STORE 2, RamKernelGemini2
-    ; [BIT DEPTH] #1 *If-End @ 1
-    ; [BIT DEPTH] #1 Else-End @ 1
-.endif_1:
     ; Gemini 3B
     ldy [DO_GEMS_B + 3]
     jsr KernelB_GenPhp
@@ -268,22 +290,37 @@
     ; [BIT DEPTH] #2 *If-End @ 2
     ; [BIT DEPTH] #2 Else-End @ 2
 .endif_2:
+    ; [BIT DEPTH] #1 *If-End @ 1
+    ; [BIT DEPTH] #1 Else-End @ 2
+.endif_1:
+    ; [BIT DEPTH] Final: 2 (out of 8 bits)
+    rol
+    rol
+    rol
+    rol
+    rol
+    rol
+    ENDM
+
+
+    MAC NIBBLE_gem_kernel_b_2_BUILD
+    lda #0
     ; Write out PHP flag comparison
     ldy BuildKernelRST
     cpy #G01
-.if_3:
-    bne .else_3
+.if_1:
+    bne .else_1
     sec
     rol
-    jmp .endif_3
-    ; [BIT DEPTH] #3 If-End @ 3
+    jmp .endif_1
+    ; [BIT DEPTH] #1 If-End @ 1
 
-.else_3:
+.else_1:
     clc
     rol
-    ; [BIT DEPTH] #3 *If-End @ 3
-    ; [BIT DEPTH] #3 Else-End @ 3
-.endif_3:
+    ; [BIT DEPTH] #1 *If-End @ 1
+    ; [BIT DEPTH] #1 Else-End @ 1
+.endif_1:
     ; Missile
     ; ldy DO_MISS_B
     ; NIBBLE_IF eq
@@ -312,7 +349,9 @@
     ; GRP0
     ; X
     ; Y
-    ; [BIT DEPTH] Final: 3 (out of 8 bits)
+    ; [BIT DEPTH] Final: 1 (out of 8 bits)
+    rol
+    rol
     rol
     rol
     rol
@@ -428,7 +467,7 @@
     ENDM ; 84 cycles max
 
 
-    MAC NIBBLE_gem_kernel_b
+    MAC NIBBLE_gem_kernel_b_1
     ldx RamKernelGemini1
     stx [KernelB_D_W + 0]
 .if_1:
@@ -450,13 +489,16 @@
     stx [[KernelB_H_W + 0] + 0]
     ldx #EMERALD_SP
     stx [[KernelB_H_W + 0] + 1]
+    ldx RamKernelGemini3
+    stx [KernelB_H_W + 0]
+    ldx #EMERALD_SP
+    stx [KernelB_H_W + 1]
     jmp .endif_1
 .else_1:
     ldx RamKernelGemini2
     stx [KernelB_F_W + 0]
     ldx #EMERALD_SP
     stx [KernelB_F_W + 1]
-.endif_1:
 .if_2:
     asl
     bcc .else_2
@@ -483,16 +525,21 @@
     ldx #EMERALD_SP
     stx [KernelB_H_W + 1]
 .endif_2:
-.if_3:
+.endif_1:
+    ENDM ; 72 cycles max
+
+
+    MAC NIBBLE_gem_kernel_b_2
+.if_1:
     asl
-    bcc .else_3
+    bcc .else_1
     ldx #RamFFByte
     stx [[KernelB_C - $100 + 1] + 0]
-    jmp .endif_3
-.else_3:
+    jmp .endif_1
+.else_1:
     ldx #RamPF1Value
     stx [[KernelB_C - $100 + 1] + 0]
-.endif_3:
+.endif_1:
     ldx RamKernelGemini4
     stx [KernelB_J_W + 0]
     ldx BuildKernelGrp0
@@ -503,7 +550,7 @@
     stx [RamKernelY + 0]
     ldx #$00
     stx [RamPSByte + 0]
-    ENDM ; 156 cycles max
+    ENDM ; 42 cycles max
 
 
 

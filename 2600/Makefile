@@ -5,8 +5,10 @@ all:
 
 play:
 	rm bin/jetpack.script
-	stella  -bs FA bin/jetpack.bin -bs FA -center 0 -tv.phosphor always -tv.phosblend 40
+	/Applications/Stella.app/Contents/MacOS/Stella \
+		--args -bs FA bin/jetpack.bin -bs FA -center 0 -tv.phosphor always -tv.phosblend 40
 
 debug: all
-	if [[ $$STELLA_FG ]]; then ( sleep 0.2; osascript -e 'tell application "stella" to activate'; ) & fi
-	stella -debug -plr.debugcolors 0 -bs FA bin/jetpack.bin -bs FA -center 0 -tv.phosphor always -tv.phosblend 40
+	if [[ $$STELLA_FG ]]; then ( sleep 0.4; osascript -e 'tell application "stella" to activate'; ) & fi
+	/Applications/Stella.app/Contents/MacOS/Stella \
+		--args -debug -plr.debugcolors 0 -bs FA bin/jetpack.bin -bs FA -center 0 -tv.phosphor always -tv.phosblend 40
