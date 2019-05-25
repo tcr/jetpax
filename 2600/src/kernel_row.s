@@ -123,16 +123,14 @@ row_6:
     sta EMERALD_MI_ENABLE
     sta EMERALD_SP
     sta COLUPF
-    sta VDELP1
 
     lda #%00100000
     sta PF1
 
-    sleep 57
+    jet_spritedata_calc
 
     ; Idle.
-    ; sta WSYNC
-
+    sta WSYNC
 
 ; [scanline 7]
 row_7:
@@ -159,9 +157,10 @@ row_8:
     sta SpriteEnd
 
     ; Idle.
-    sta WSYNC
+    sleep 51
 
 ; [scanline 8-1]
+    ASSERT_RUNTIME "_scycles == #0"
     ; Repeat loop until LoopCount < 0
     dec LoopCount
     beq row_end
