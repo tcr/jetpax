@@ -39,7 +39,13 @@ row_1:
 
     ; TODO assert cycle is not in visible range!
 
-    ; FIXME Demo: modify kernel A in next row
+    ; Decrease SpriteEnd
+    sec
+    lda SpriteEnd
+    sbc #8
+    sta SpriteEnd
+
+    ; FIXME Demo: modify kernel A for the next row
     lda #%010101010
     sta BuildKernelGrp0
 
@@ -158,22 +164,17 @@ row_7:
 row_8:
     ASSERT_RUNTIME "_scycles == #0"
 
-    jet_spritedata_calc
-
-    ; Decrease SpriteEnd
-    sec
-    lda SpriteEnd
-    sbc #8
-    sta SpriteEnd
+    ; FIXME this should be enabled!
+    ; jet_spritedata_calc
 
     ; [NIBBLE VM]
-    ; lda RamNibbleVar1
-    ; NIBBLE_gem_kernel_a_1
-    ; sleep 2
+    lda RamNibbleVar1
+    NIBBLE_gem_kernel_a_1
+    sleep 3
 
     ; Idle.
     ; sleep 51
-    sta WSYNC
+    ; sta WSYNC
 
 ; [scanline 8-1]
     ASSERT_RUNTIME "_scycles == #0"
