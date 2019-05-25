@@ -28,10 +28,10 @@
     ; Turn 3-cycle NOP into 4-cycle
     ldy #$14
     sty [KernelA_D - $100]
-    jmp .endif_1
-    ; [BIT DEPTH] #1 If-End @ 1
     rol
 
+    jmp .endif_1
+    ; [BIT DEPTH] #1 If-End @ 1
 .else_1:
     clc
     rol
@@ -46,9 +46,9 @@
     sec
     rol
     ; GEM1ASWITCH
+
     jmp .endif_2
     ; [BIT DEPTH] #2 If-End @ 2
-
 .else_2:
     clc
     rol
@@ -74,6 +74,9 @@
     ; [BIT DEPTH] #1 *If-End @ 1
     ; [BIT DEPTH] #2 Else-End @ 2
 .endif_1:
+    ; Stop preserving GRP0
+    ldy #SENTINEL
+    sty RamKernelGrp0
     ; BuildKernelX, BuildKernelY are upgraded if not set
     ; Gemini 2A
 .K_2A
@@ -83,9 +86,9 @@
     bne .else_3
     sec
     rol
+
     jmp .endif_3
     ; [BIT DEPTH] #3 If-End @ 3
-
 .else_3:
     clc
     rol
@@ -104,9 +107,6 @@
     ; [BIT DEPTH] #3 *If-End @ 3
     ; [BIT DEPTH] #3 Else-End @ 3
 .endif_3:
-    ; Can't preserve Grp0 now
-    ldy #SENTINEL
-    sty RamKernelGrp0
     ; Gemini 3A
 .K_3A:
     ldy [DO_GEMS_A + 3]
@@ -115,9 +115,9 @@
     bne .else_4
     sec
     rol
+
     jmp .endif_4
     ; [BIT DEPTH] #4 If-End @ 4
-
 .else_4:
     clc
     rol
@@ -177,9 +177,9 @@
     ; Update VDEL1
     ldx [DO_GEMS_A + 4]
     stx BuildKernelVdel1
+
     jmp .endif_1
     ; [BIT DEPTH] #1 If-End @ 1
-
 .else_1:
     clc
     rol
@@ -200,9 +200,9 @@
     bne .else_2
     sec
     rol
+
     jmp .endif_2
     ; [BIT DEPTH] #2 If-End @ 2
-
 .else_2:
     clc
     rol
@@ -259,19 +259,23 @@
     rol
     CALC_REGS_AND_STORE 3, RamKernelGemini3
     ; Write to PHP in 2B
+    ldx #EMERALD_SP
+    stx RamKernelPhpTarget
     ; Update Grp0
     ldy BuildKernelRST
     sty RamKernelGrp0
+     
+    ; Update 3B
+    CALC_REGS_AND_STORE 3, RamKernelGemini3
+    rol
+
     jmp .endif_1
     ; [BIT DEPTH] #1 If-End @ 1
-
 .else_1:
     clc
     rol
+    ; Update 2B
     CALC_REGS_AND_STORE 2, RamKernelGemini2
-    ; [BIT DEPTH] #1 *If-End @ 1
-    ; [BIT DEPTH] #1 Else-End @ 1
-.endif_1:
     ; Gemini 3B
     ldy [DO_GEMS_B + 3]
     jsr KernelB_GenPhp
@@ -281,20 +285,26 @@
     rol
     ; Write to PHP in 3B
     CALC_REGS_AND_STORE 2, RamKernelGemini2
+    ldx #EMERALD_SP
+    stx RamKernelPhpTarget
      
     ; Update Grp0
     ldy BuildKernelRST
     sty RamKernelGrp0
+
     jmp .endif_2
     ; [BIT DEPTH] #2 If-End @ 2
-
 .else_2:
     clc
     rol
+    ; Update 3B
     CALC_REGS_AND_STORE 3, RamKernelGemini3
     ; [BIT DEPTH] #2 *If-End @ 2
     ; [BIT DEPTH] #2 Else-End @ 2
 .endif_2:
+    ; [BIT DEPTH] #1 *If-End @ 1
+    ; [BIT DEPTH] #2 Else-End @ 2
+.endif_1:
     ; [BIT DEPTH] Final: 2 (out of 8 bits)
     rol
     rol
@@ -309,6 +319,7 @@
 
     MAC NIBBLE_gem_kernel_b_2_BUILD
     lda #0
+    ; Gemini 1B
     ; Write out PHP flag comparison
     ldy BuildKernelRST
     cpy #G01
@@ -316,9 +327,9 @@
     bne .else_1
     sec
     rol
+
     jmp .endif_1
     ; [BIT DEPTH] #1 If-End @ 1
-
 .else_1:
     clc
     rol

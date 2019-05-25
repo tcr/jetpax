@@ -3,6 +3,8 @@ use std::error::Error;
 use std::collections::VecDeque;
 use std::fmt::Write;
 
+const IS_ZERO_PAGE: bool = false;
+
 #[derive(Debug, Clone)]
 enum Parse {
     NibbleStartKernel(String, isize),
@@ -126,21 +128,22 @@ impl KernelWalker for KernelBuild {
     }
 
     fn if_else(&mut self, parent_node: &mut Self::TNode, then_node: &mut Self::TNode) -> Self::TNode {
-        let index = then_node.index;
+        let index = parent_node.index + 1;
         let checkdepth = parent_node.checkdepth + 1;
         let cycles = parent_node.cycles + 5; // asl + bcc with branch
 
         let if_token = format!("<<<{}>>>", then_node.index);
 
         // BUILD
+        writeln!(&mut self.build, "{}", if_token);
         writeln!(&mut self.build, "    jmp .endif_{}", index);
         writeln!(&mut self.build, "    ; [BIT DEPTH] #{} If-End @ {}", index, checkdepth);
-        writeln!(&mut self.build, "{}", if_token);
         writeln!(&mut self.build, ".else_{}:", index);
         writeln!(&mut self.build, "    clc");
         writeln!(&mut self.build, "    rol");
 
         // EVAL
+        writeln!(&mut self.eval, "{}", if_token);
         writeln!(&mut self.eval, "    jmp .endif_{}", index);
         then_node.cycles += 2;
         writeln!(&mut self.eval, ".else_{}:", index);
@@ -153,29 +156,49 @@ impl KernelWalker for KernelBuild {
 
     fn if_end(&mut self, parent_node: &mut Self::TNode, then_node: Self::TNode, else_node: Self::TNode) {
         let index = parent_node.index + 1;
+        let if_token = format!("<<<{}>>>", index);
 
         // BUILD
-        let mut if_token_replacement = String::new();
-        writeln!(&mut self.build, "    ; [BIT DEPTH] #{} *If-End @ {}", then_node.index, then_node.checkdepth);
-        writeln!(&mut self.build, "    ; [BIT DEPTH] #{} Else-End @ {}", else_node.index, else_node.checkdepth);
-        if else_node.checkdepth > then_node.checkdepth {
-            // then block needs to advance
-            for _ in then_node.checkdepth..else_node.checkdepth {
-                if_token_replacement.push_str(&"    rol\n");
+        {
+            let mut if_token_replacement = String::new();
+            writeln!(&mut self.build, "    ; [BIT DEPTH] #{} *If-End @ {}", then_node.index, then_node.checkdepth);
+            writeln!(&mut self.build, "    ; [BIT DEPTH] #{} Else-End @ {}", else_node.index, else_node.checkdepth);
+            if else_node.checkdepth > then_node.checkdepth {
+                // then block needs to advance
+                for _ in then_node.checkdepth..else_node.checkdepth {
+                    if_token_replacement.push_str(&"    rol\n");
+                }
+            } else if then_node.checkdepth > else_node.checkdepth {
+                // else block needs to advance
+                for _ in else_node.checkdepth..then_node.checkdepth {
+                    writeln!(&mut self.build, "    rol");
+                }
             }
-        } else if then_node.checkdepth > else_node.checkdepth {
-            // else block needs to advance
-            for _ in else_node.checkdepth..then_node.checkdepth {
-                writeln!(&mut self.build, "    rol");
-            }
+            // Replace token
+            self.build = self.build.replace(&if_token, &if_token_replacement);
+            writeln!(&mut self.build, ".endif_{}:", index);
         }
-        // Replace token
-        let if_token = format!("<<<{}>>>", index);
-        self.build = self.build.replace(&if_token, &if_token_replacement);
-        writeln!(&mut self.build, ".endif_{}:", index);
 
         // EVAL
-        writeln!(&mut self.eval, ".endif_{}:", index);
+        {
+            let mut if_token_replacement = String::new();
+            writeln!(&mut self.eval, "    ; [BIT DEPTH] #{} *If-End @ {}", then_node.index, then_node.checkdepth);
+            writeln!(&mut self.eval, "    ; [BIT DEPTH] #{} Else-End @ {}", else_node.index, else_node.checkdepth);
+            if else_node.checkdepth > then_node.checkdepth {
+                // then block needs to advance
+                for _ in then_node.checkdepth..else_node.checkdepth {
+                    if_token_replacement.push_str(&"    rol\n");
+                }
+            } else if then_node.checkdepth > else_node.checkdepth {
+                // else block needs to advance
+                for _ in else_node.checkdepth..then_node.checkdepth {
+                    writeln!(&mut self.eval, "    rol");
+                }
+            }
+            // Replace token
+            self.eval = self.eval.replace(&if_token, &if_token_replacement);
+            writeln!(&mut self.eval, ".endif_{}:", index);
+        }
 
         parent_node.index = else_node.index;
         parent_node.checkdepth = std::cmp::max(then_node.checkdepth, else_node.checkdepth);
@@ -188,7 +211,7 @@ impl KernelWalker for KernelBuild {
             writeln!(&mut self.eval, "    ldx {}", value);
             parent_node.cycles += 2;
             writeln!(&mut self.eval, "    stx [{} + {}]", label, i);
-            parent_node.cycles += 4;
+            parent_node.cycles += if IS_ZERO_PAGE { 3 } else { 4 };
         }
     }
 

@@ -219,6 +219,10 @@ gemini_builder:
             NIBBLE_END_IF
         NIBBLE_END_IF
 
+        ; Stop preserving GRP0
+        ldy #SENTINEL
+        sty RamKernelGrp0
+
         ; BuildKernelX, BuildKernelY are upgraded if not set
         ; Gemini 2A
 .K_2A
@@ -245,10 +249,6 @@ gemini_builder:
             NIBBLE_WRITE KernelA_E_W + 1, #RESP1
             NIBBLE_WRITE KernelA_G_W, RamKernelGemini2, RamKernelGemini2Reg ; STX
         NIBBLE_END_IF
-
-        ; Can't preserve Grp0 now
-        ldy #SENTINEL
-        sty RamKernelGrp0
 
         ; Gemini 3A
 .K_3A:
@@ -373,7 +373,6 @@ gemini_builder:
         ldy [DO_GEMS_B + 1]
         jsr KernelA_UpdateRegs
         sty RamKernelGemini1
-        NIBBLE_WRITE KernelB_D_W, RamKernelGemini1
 
         ; Gemini 2B
         ldy [DO_GEMS_B + 2]
@@ -382,7 +381,8 @@ gemini_builder:
             CALC_REGS_AND_STORE 3, RamKernelGemini3
 
             ; Write to PHP in 2B
-            NIBBLE_WRITE RamKernelPhpTarget, #EMERALD_SP
+            ldx #EMERALD_SP
+            stx RamKernelPhpTarget
             NIBBLE_WRITE [KernelB_E_W + 0], #BC_STY, #EMERALD_SP_RESET ; 2B
             NIBBLE_WRITE [KernelB_F_W + 1], #BC_PHP
             NIBBLE_WRITE [KernelB_G_W + 0], #BC_STA, #PF1
@@ -391,35 +391,44 @@ gemini_builder:
             ; Update Grp0
             ldy BuildKernelRST
             sty RamKernelGrp0
-        NIBBLE_ELSE
-            CALC_REGS_AND_STORE 2, RamKernelGemini2
-            NIBBLE_WRITE KernelB_F_W, RamKernelGemini2, #EMERALD_SP
-        NIBBLE_END_IF
-
-        ; Gemini 3B
-        ldy [DO_GEMS_B + 3]
-        jsr KernelB_GenPhp
-        NIBBLE_IF eq
-            ; Write to PHP in 3B
-            CALC_REGS_AND_STORE 2, RamKernelGemini2
-            NIBBLE_WRITE RamKernelPhpTarget, #EMERALD_SP
-            NIBBLE_WRITE [KernelB_E_W + 0], #BC_STY, #EMERALD_SP_RESET
-            NIBBLE_WRITE [KernelB_F_W + 1], RamKernelGemini2, #EMERALD_SP ; 2B
-            NIBBLE_WRITE [KernelB_G_W + 1], #BC_STA, #PF1
-            NIBBLE_WRITE [KernelB_H_W + 1], #BC_PHP ; 3B
-            
-            ; Update Grp0
-            ldy BuildKernelRST
-            sty RamKernelGrp0
-        NIBBLE_ELSE
+        
+            ; Update 3B
             CALC_REGS_AND_STORE 3, RamKernelGemini3
             NIBBLE_WRITE KernelB_H_W, RamKernelGemini3, #EMERALD_SP
+        NIBBLE_ELSE
+            ; Update 2B
+            CALC_REGS_AND_STORE 2, RamKernelGemini2
+            NIBBLE_WRITE KernelB_F_W, RamKernelGemini2, #EMERALD_SP
+
+            ; Gemini 3B
+            ldy [DO_GEMS_B + 3]
+            jsr KernelB_GenPhp
+            NIBBLE_IF eq
+                ; Write to PHP in 3B
+                CALC_REGS_AND_STORE 2, RamKernelGemini2
+                ldx #EMERALD_SP
+                stx RamKernelPhpTarget
+                NIBBLE_WRITE [KernelB_E_W + 0], #BC_STY, #EMERALD_SP_RESET
+                NIBBLE_WRITE [KernelB_F_W + 1], RamKernelGemini2, #EMERALD_SP ; 2B
+                NIBBLE_WRITE [KernelB_G_W + 1], #BC_STA, #PF1
+                NIBBLE_WRITE [KernelB_H_W + 1], #BC_PHP ; 3B
+                
+                ; Update Grp0
+                ldy BuildKernelRST
+                sty RamKernelGrp0
+            NIBBLE_ELSE
+                ; Update 3B
+                CALC_REGS_AND_STORE 3, RamKernelGemini3
+                NIBBLE_WRITE KernelB_H_W, RamKernelGemini3, #EMERALD_SP
+            NIBBLE_END_IF
         NIBBLE_END_IF
 
     NIBBLE_END_KERNEL
 
     ; Nibble Kernel B
     NIBBLE_START_KERNEL gem_kernel_b_2, 40
+        ; Gemini 1B
+        NIBBLE_WRITE KernelB_D_W, RamKernelGemini1
 
         ; Write out PHP flag comparison
         ldy BuildKernelRST
