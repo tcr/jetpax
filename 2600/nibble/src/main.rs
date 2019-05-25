@@ -154,7 +154,7 @@ impl KernelWalker for KernelBuild {
             .with_cycles(cycles) 
     }
 
-    fn if_end(&mut self, parent_node: &mut Self::TNode, then_node: Self::TNode, else_node: Self::TNode) {
+    fn if_end(&mut self, parent_node: &mut Self::TNode, mut then_node: Self::TNode, mut else_node: Self::TNode) {
         let index = parent_node.index + 1;
         let if_token = format!("<<<{}>>>", index);
 
@@ -188,13 +188,25 @@ impl KernelWalker for KernelBuild {
                 // then block needs to advance
                 for _ in then_node.checkdepth..else_node.checkdepth {
                     if_token_replacement.push_str(&"    rol\n");
+                    then_node.cycles += 2;
                 }
             } else if then_node.checkdepth > else_node.checkdepth {
                 // else block needs to advance
                 for _ in else_node.checkdepth..then_node.checkdepth {
                     writeln!(&mut self.eval, "    rol");
+                    else_node.cycles += 2;
                 }
             }
+
+            // Balance out cycles
+            if else_node.cycles > then_node.cycles {
+                // then block needs to advance
+                if_token_replacement.push_str(&format!("    sleep {}", else_node.cycles - then_node.cycles));
+            } else if then_node.cycles > else_node.cycles {
+                // else block needs to advance
+                writeln!(&mut self.eval, "    sleep {}", then_node.cycles - else_node.cycles);
+            }
+
             // Replace token
             self.eval = self.eval.replace(&if_token, &if_token_replacement);
             writeln!(&mut self.eval, ".endif_{}:", index);

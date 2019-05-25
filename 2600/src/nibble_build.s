@@ -196,9 +196,10 @@
     ; TODO eventually...?
     ; Missile
     ldy DO_MISS_A
-    ds #$d0, #6
-    ldx #BC_NOP
-    stx BuildKernelMissile
+    ; FIXME Why doesn't this branch compile?
+    ; bne .+4
+    ; ldx #BC_NOP
+    ; stx BuildKernelMissile
     ; VD1
     ; GRP0
     ; [BIT DEPTH] Final: 1 (out of 8 bits)

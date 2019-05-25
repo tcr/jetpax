@@ -3,7 +3,7 @@
     asl
     bcc .else_1
     rol
-
+    sleep 10
     jmp .endif_1
 .else_1:
 .if_2:
@@ -22,6 +22,7 @@
     stx [KernelA_D_W + 1]
     ; [BIT DEPTH] #2 *If-End @ 2
     ; [BIT DEPTH] #2 Else-End @ 2
+    sleep 2
 .endif_2:
     ; [BIT DEPTH] #1 *If-End @ 1
     ; [BIT DEPTH] #2 Else-End @ 2
@@ -33,7 +34,7 @@
     stx [KernelA_E_W + 1 + 0]
     ldx #RESP1
     stx [KernelA_G_W + 1 + 0]
-
+    sleep 4
     jmp .endif_3
 .else_3:
     ldx #RESP1
@@ -50,7 +51,7 @@
     bcc .else_4
     ldx #RESP1
     stx [KernelA_H_W + 1 + 0]
-
+    sleep 4
     jmp .endif_4
 .else_4:
     ldx RamKernelGemini3
@@ -94,6 +95,7 @@
     stx [KernelA_K_W + 1]
     ; [BIT DEPTH] #1 *If-End @ 1
     ; [BIT DEPTH] #1 Else-End @ 1
+    sleep 2
 .endif_1:
     ldx BuildKernelMissile
     stx [[KernelA_F - $100] + 0]
@@ -164,11 +166,13 @@
     stx [KernelB_H_W + 1]
     ; [BIT DEPTH] #2 *If-End @ 2
     ; [BIT DEPTH] #2 Else-End @ 2
+    sleep 32
 .endif_2:
     ; [BIT DEPTH] #1 *If-End @ 1
     ; [BIT DEPTH] #2 Else-End @ 2
+    sleep 2
 .endif_1:
-    ENDM ; 56 cycles max
+    ENDM ; 58 cycles max
 
 
 
@@ -188,6 +192,7 @@
     stx [[KernelB_C - $100 + 1] + 0]
     ; [BIT DEPTH] #1 *If-End @ 1
     ; [BIT DEPTH] #1 Else-End @ 1
+    sleep 2
 .endif_1:
     ldx RamKernelGemini4
     stx [KernelB_J_W + 0]

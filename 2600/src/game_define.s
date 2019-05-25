@@ -1,3 +1,9 @@
+    seg.u CompileFlags
+
+ONLY_KERNEL_A = 1
+; ONLY_KERNEL_B = 1
+
+
     seg.u Defines
 
 ROW_COUNT               = 16
@@ -8,6 +14,7 @@ FrameSkip               = %111 ; Tick (every 8 frames)
 
 CBSRAM_KERNEL_WRITE     = $f000
 CBSRAM_KERNEL_READ      = $f100
+CBSRAM_KERNEL_READ_ID   = CBSRAM_KERNEL_READ
 CBSRAM_KERNEL_ENTRY     = [CBSRAM_KERNEL_READ + 4]
 
 RAMP_STORAGE_W          = $f040 ; is this just max(frame_1_end, frame_2_end) ?

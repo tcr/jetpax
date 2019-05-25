@@ -16,23 +16,6 @@ VerticalBlank: subroutine
     ; Frame counter
     inc FrameCount
 
-    ; Skip every 8 frames for increasing demo index
-    lda FrameCount
-    and #FrameSkip
-    cmp #FrameSkip
-    bne .next_next_thing
-
-    clc
-    lda ROW_DEMO_INDEX
-    adc #4
-    cmp #[level_01_end - level_01]
-    bcc .next_thing_local
-    lda #0
-.next_thing_local:
-    sta ROW_DEMO_INDEX
-.next_next_thing:
-    sta WSYNC
-
     ; Positioning
     SLEEP 40
     sta EMERALD_SP_RESET	; position 1st player
@@ -57,12 +40,17 @@ VerticalBlank: subroutine
 game_frame_kernel_loader: subroutine
     ; Kernel A or B
     lda #01
+    IFNCONST ONLY_KERNEL_B
+    IFNCONST ONLY_KERNEL_A
+    ; FIXME disabled for test
     and FrameCount
     bne .kernel_b
+    ENDIF
 .kernel_a:
     ; Load kernel A into CBSRAM
     jsr LoadKernelA
     jmp .complete
+    ENDIF
 .kernel_b:
     ; Load kernel B into CBSRAM
     jsr LoadKernelB
@@ -77,9 +65,9 @@ game_frame_populate: subroutine
 
     ; Complete frame setup.
 game_frame_setup: subroutine
-    ; Kernel A or B
-    lda #01
-    and FrameCount
+    ; Kernel A or B reading directly from the kernel ID
+    lda CBSRAM_KERNEL_READ
+    cmp #$0a
     bne .kernel_b
 
 .kernel_a:
@@ -132,8 +120,6 @@ VerticalBlankEnd:
 
     ; Start rendering the kernel.
     jmp KernelBorder
-
-    align 256 ; TODO why
 
 FrameEnd: subroutine
     sta WSYNC

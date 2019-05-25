@@ -328,9 +328,10 @@ gemini_builder:
 
         ; Missile
         ldy DO_MISS_A
-        ds #$d0, #6
-        ldx #BC_NOP
-        stx BuildKernelMissile
+        ; FIXME Why doesn't this branch compile?
+        ; bne .+4
+        ; ldx #BC_NOP
+        ; stx BuildKernelMissile
         NIBBLE_WRITE [KernelA_F - $100], BuildKernelMissile
 
         ; VD1

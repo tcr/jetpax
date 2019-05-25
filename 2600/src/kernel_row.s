@@ -136,13 +136,19 @@ row_6:
 row_7:
     ASSERT_RUNTIME "_scycles == #0"
 
-    jet_spritedata_calc
+    ; FIXME this should be enabled!
+    ; jet_spritedata_calc
 
     lda #COL_BG
     sta COLUPF
 
     ; Idle.
-    sleep 56
+    sleep 71
+
+    ; Run Kernel.
+    ; lda RamNibbleVar1
+    ; NIBBLE_gem_kernel_a_2
+    ; sleep 4
 
 ; [scanline 8]
 row_8:
