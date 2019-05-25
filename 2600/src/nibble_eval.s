@@ -47,7 +47,7 @@
     ldx RamKernelGemini3Reg
     stx [KernelA_H_W + 1]
 .endif_4:
-    ENDM ; 37 cycles max
+    ENDM ; 44 cycles max
 
 
 
@@ -66,8 +66,6 @@
     stx [[KernelA_J_W + 1] + 1]
     ldx #BC_PHP
     stx [[KernelA_K_W + 1] + 0]
-    ldx #VDELP1
-    stx [RamKernelPhpTarget + 0]
     jmp .endif_1
 .else_1:
     ldx #BC_PHP
@@ -80,8 +78,6 @@
     stx [KernelA_K_W + 0]
     ldx #EMERALD_SP
     stx [KernelA_K_W + 1]
-    ldx #RESP1
-    stx [RamKernelPhpTarget + 0]
 .endif_1:
 .if_2:
     asl
@@ -99,7 +95,7 @@
     stx [[KernelA_VDEL0 - $100] + 0]
     ldx #$ff
     stx [RamPSByte + 0]
-    ENDM ; 54 cycles max
+    ENDM ; 58 cycles max
 
 
 
@@ -159,7 +155,7 @@
     ldx #EMERALD_SP
     stx [KernelB_H_W + 1]
 .endif_2:
-    ENDM ; 89 cycles max
+    ENDM ; 106 cycles max
 
 
 
@@ -181,7 +177,7 @@
     stx [[KernelB_VDEL0 - $100] + 0]
     ldx #$00
     stx [RamPSByte + 0]
-    ENDM ; 22 cycles max
+    ENDM ; 26 cycles max
 
 
 

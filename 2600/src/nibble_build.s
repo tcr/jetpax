@@ -172,6 +172,8 @@
     sec
     rol
     ; Set PHP
+    ldx #VDELP1
+    stx RamKernelPhpTarget
     ; Update VDEL1
     ldx [DO_GEMS_A + 4]
     stx BuildKernelVdel1
@@ -185,6 +187,8 @@
     jsr KernelA_UpdateRegs
     sty RamKernelGemini4
     ; Set PHP
+    ldx #RESP1
+    stx RamKernelPhpTarget
     ; [BIT DEPTH] #1 *If-End @ 1
     ; [BIT DEPTH] #1 Else-End @ 1
 .endif_1:

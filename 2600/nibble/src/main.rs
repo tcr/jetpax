@@ -19,7 +19,7 @@ trait KernelWalker {
 
     fn start(&mut self, name: &str, cycles: usize) -> Self::TNode;
     fn end(&mut self, node: Self::TNode);
-    
+
     fn if_start(&mut self, parent: &mut Self::TNode, cond: &str) -> Self::TNode;
     fn if_else(&mut self, parent: &mut Self::TNode, then_node: &mut Self::TNode) -> Self::TNode;
     fn if_end(&mut self, parent: &mut Self::TNode, then_node: Self::TNode, else_node: Self::TNode);
@@ -100,7 +100,7 @@ impl KernelWalker for KernelBuild {
         writeln!(&mut self.eval, "");
         writeln!(&mut self.eval, "");
     }
-    
+
     fn if_start(&mut self, parent_node: &mut Self::TNode, cond: &str) -> Self::TNode {
         let index = parent_node.index + 1;
         let checkdepth = parent_node.checkdepth + 1;
@@ -188,7 +188,7 @@ impl KernelWalker for KernelBuild {
             writeln!(&mut self.eval, "    ldx {}", value);
             parent_node.cycles += 2;
             writeln!(&mut self.eval, "    stx [{} + {}]", label, i);
-            parent_node.cycles += 3;
+            parent_node.cycles += 4;
         }
     }
 
@@ -200,13 +200,6 @@ impl KernelWalker for KernelBuild {
             writeln!(&mut self.build, "    {}", opcode);
         }
     }
-}
-
-#[derive(Debug, Clone)]
-struct IfDepth {
-    cond: String,
-    number: usize,
-    bitdepth: usize,
 }
 
 fn invert_cond(cond: &str) -> &'static str {
@@ -280,7 +273,11 @@ fn gen_kernel_build(lines: &[Parse]) -> Result<KernelBuild, Box<dyn Error>> {
 }
 
 
-fn main() -> Result<(), Box<dyn Error>> {
+type KernelDefinition = Vec<Parse>;
+
+fn parse_kernels(
+    input_file: &str,
+) -> Result<Vec<KernelDefinition>, Box<dyn Error>> {
     let re_nibble_start_kernel = Regex::new(r"^NIBBLE_START_KERNEL\s+(\S.*)\s*,\s*(\S.*)\s*")?;
     let re_nibble_if = Regex::new(r"^NIBBLE_IF\s+(.+)\s*")?;
     let re_nibble_else = Regex::new(r"^NIBBLE_ELSE")?;
@@ -290,10 +287,6 @@ fn main() -> Result<(), Box<dyn Error>> {
     let re_nibble_end_kernel = Regex::new(r"^NIBBLE_END_KERNEL")?;
     
     let re_data = Regex::new(r"^\s*(.+?)\s*(;.*)?$")?;
-
-    let input_file = std::fs::read_to_string("../src/game_nibble.s")?;
-    let output_build = "../src/nibble_build.s";
-    let output_eval = "../src/nibble_eval.s";
 
     let mut kernels = vec![];
     let mut lines = vec![];
@@ -345,10 +338,20 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
     }
 
+    Ok(kernels)
+}
+
+fn main() -> Result<(), Box<dyn Error>> {
+    let input_file = std::fs::read_to_string("../src/game_nibble.s")?;
+    let output_build = "../src/nibble_build.s";
+    let output_eval = "../src/nibble_eval.s";
+
+    let kernels = parse_kernels(&input_file)?;
+
     let mut kernel_build = String::new();
     let mut kernel_eval = String::new();
     for lines in &kernels {
-        let kernel = gen_kernel_build(lines)?;
+        let kernel = gen_kernel_build(&lines)?;
         kernel_build.push_str(&kernel.build);
         kernel_eval.push_str(&kernel.eval);
     }

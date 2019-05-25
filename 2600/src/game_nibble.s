@@ -303,7 +303,8 @@ gemini_builder:
             NIBBLE_WRITE [KernelA_K_W + 1], #BC_PHP
 
             ; Set PHP
-            NIBBLE_WRITE RamKernelPhpTarget, #VDELP1
+            ldx #VDELP1
+            stx RamKernelPhpTarget
 
             ; Update VDEL1
             ldx [DO_GEMS_A + 4]
@@ -318,7 +319,8 @@ gemini_builder:
             NIBBLE_WRITE KernelA_K_W, RamKernelGemini4, #EMERALD_SP
 
             ; Set PHP
-            NIBBLE_WRITE RamKernelPhpTarget, #RESP1
+            ldx #RESP1
+            stx RamKernelPhpTarget
         NIBBLE_END_IF
 
         ; Gemini 5A
