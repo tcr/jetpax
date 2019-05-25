@@ -336,10 +336,6 @@ gemini_builder:
         NIBBLE_WRITE [KernelA_VDEL1 - $100], BuildKernelVdel1
         ; GRP0
         NIBBLE_WRITE [KernelA_VDEL0 - $100], BuildKernelGrp0
-        ; X
-        NIBBLE_WRITE RamKernelX, BuildKernelX
-        ; Y
-        NIBBLE_WRITE RamKernelY, BuildKernelY
 
         NIBBLE_WRITE RamPSByte, #$ff
     NIBBLE_END_KERNEL
@@ -464,10 +460,6 @@ gemini_builder:
         ; NIBBLE_WRITE [KernelB_VDEL1 - $100], BuildKernelVdel1
         ; GRP0
         NIBBLE_WRITE [KernelB_VDEL0 - $100], BuildKernelGrp0
-        ; X
-        NIBBLE_WRITE RamKernelX, BuildKernelX
-        ; Y
-        NIBBLE_WRITE RamKernelY, BuildKernelY
 
         NIBBLE_WRITE RamPSByte, #$00
 

@@ -40,8 +40,6 @@ RamPSByte               byte
 RamPF1Value             byte
 RamKernelGRP0           byte ; temp
 RamKernelPhpTarget      byte
-RamKernelX              byte
-RamKernelY              byte
 RamKernelGrp0           byte
 
 RamKernelGemini1        byte

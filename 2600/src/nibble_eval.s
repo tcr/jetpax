@@ -97,13 +97,9 @@
     stx [[KernelA_VDEL1 - $100] + 0]
     ldx BuildKernelGrp0
     stx [[KernelA_VDEL0 - $100] + 0]
-    ldx BuildKernelX
-    stx [RamKernelX + 0]
-    ldx BuildKernelY
-    stx [RamKernelY + 0]
     ldx #$ff
     stx [RamPSByte + 0]
-    ENDM ; 64 cycles max
+    ENDM ; 54 cycles max
 
 
 
@@ -183,13 +179,9 @@
     stx [KernelB_J_W + 0]
     ldx BuildKernelGrp0
     stx [[KernelB_VDEL0 - $100] + 0]
-    ldx BuildKernelX
-    stx [RamKernelX + 0]
-    ldx BuildKernelY
-    stx [RamKernelY + 0]
     ldx #$00
     stx [RamPSByte + 0]
-    ENDM ; 32 cycles max
+    ENDM ; 22 cycles max
 
 
 

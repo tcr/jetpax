@@ -100,8 +100,8 @@ row_3:
 
     ; Setup for kernel
     sec ; clear carry bit
-    ldx RamKernelX
-    ldy RamKernelY
+    ldx BuildKernelX
+    ldy BuildKernelY
 
     ; Jump immediately into scanlines 4-5 aka "kernel_gem"
     lda BuildKernelVdel1

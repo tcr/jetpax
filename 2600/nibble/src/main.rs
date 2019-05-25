@@ -128,6 +128,7 @@ impl KernelWalker for KernelBuild {
     fn if_else(&mut self, parent_node: &mut Self::TNode, then_node: &mut Self::TNode) -> Self::TNode {
         let index = then_node.index;
         let checkdepth = parent_node.checkdepth + 1;
+        let cycles = parent_node.cycles + 5; // asl + bcc with branch
 
         let if_token = format!("<<<{}>>>", then_node.index);
 
@@ -147,6 +148,7 @@ impl KernelWalker for KernelBuild {
         parent_node
             .with_index(then_node.index)
             .with_checkdepth(checkdepth)
+            .with_cycles(cycles) 
     }
 
     fn if_end(&mut self, parent_node: &mut Self::TNode, then_node: Self::TNode, else_node: Self::TNode) {

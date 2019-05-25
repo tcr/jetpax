@@ -207,8 +207,6 @@
 .endif_2:
     ; VD1
     ; GRP0
-    ; X
-    ; Y
     ; [BIT DEPTH] Final: 2 (out of 8 bits)
     rol
     rol
@@ -349,8 +347,6 @@
     ;
     ; NIBBLE_WRITE [KernelB_VDEL1 - $100], BuildKernelVdel1
     ; GRP0
-    ; X
-    ; Y
     ; [BIT DEPTH] Final: 1 (out of 8 bits)
     rol
     rol
