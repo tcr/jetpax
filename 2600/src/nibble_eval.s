@@ -95,26 +95,15 @@
     ; [BIT DEPTH] #1 *If-End @ 1
     ; [BIT DEPTH] #1 Else-End @ 1
 .endif_1:
-.if_2:
-    asl
-    bcc .else_2
-    ldx #BC_NOP
-    stx [[KernelA_F - $100] + 0]
-
-    jmp .endif_2
-.else_2:
     ldx BuildKernelMissile
     stx [[KernelA_F - $100] + 0]
-    ; [BIT DEPTH] #2 *If-End @ 2
-    ; [BIT DEPTH] #2 Else-End @ 2
-.endif_2:
     ldx BuildKernelVdel1
     stx [[KernelA_VDEL1 - $100] + 0]
     ldx BuildKernelGrp0
     stx [[KernelA_VDEL0 - $100] + 0]
     ldx #$ff
     stx [RamPSByte + 0]
-    ENDM ; 58 cycles max
+    ENDM ; 56 cycles max
 
 
 

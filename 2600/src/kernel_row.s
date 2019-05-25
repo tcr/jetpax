@@ -40,9 +40,8 @@ row_1:
     ; TODO assert cycle is not in visible range!
 
     ; [[[Nibble VM.]]]
-    sta WSYNC
-
-    ; sleep 46
+    ; sta WSYNC
+    sleep 33
 
     ASSERT_RUNTIME "_scycles == #0"
 
@@ -95,6 +94,7 @@ row_3:
     stx [KernelA_GRP0 - $100]
     sty RamRowJetpackIndex
 
+    ; [[[Nibble VM.]]]
     ; Idle.
     sleep 22
 
@@ -114,10 +114,6 @@ row_3:
 
 ; [scanline 6]
 
-    ; Try to avoid page crossing in jet_spritedata_calc
-    ; TODO enforce this with ASSERT_RUNTIME instead?
-    align 16
-
 row_after_kernel:
 row_6:
     ASSERT_RUNTIME "_scycles == #0"
@@ -132,105 +128,30 @@ row_6:
     lda #%00100000
     sta PF1
 
-    jet_spritedata_calc
+    sleep 57
 
     ; Idle.
-    sta WSYNC
+    ; sta WSYNC
+
 
 ; [scanline 7]
 row_7:
+    ASSERT_RUNTIME "_scycles == #0"
+
     jet_spritedata_calc
-    sleep 5
-    ASSERT_RUNTIME "_scycles == #20"
 
     lda #COL_BG
     sta COLUPF
 
-    ; FRAMESWITCH
-    lda #01
-    and FrameCount
-    bne loadframe2
-
-; Perform gem loading for Kernel A.
-
-loadframe1:
-    ASSERT_RUNTIME "_scycles == #32"
-
-    ; Emerald byte setting 1A
-    ; ldx #0
-    ; lda KERNEL_STORAGE_R,X
-    ; sta GEM_00_W
-    ; inx
-    ; lda KERNEL_STORAGE_R,X
-    ; sta GEM_04_W
-    ; inx
-    ; lda KERNEL_STORAGE_R,X
-    ; sta GEM_09_W
-    ; inx
-
-    sta WSYNC
-
-; [scanline 8]
-    jet_spritedata_calc
-    sleep 5
-
-    ; Emerald byte setting 1B
-    ; lda KERNEL_STORAGE_R,X
-    ; sta GEM_13_W
-    ; inx
-    ; lda KERNEL_STORAGE_R,X
-    ; sta GEM_17_W
-    ; inx
-    ; lda KERNEL_STORAGE_R,X
-    ; sta GEM_18_W
-    ; inx
-    ; lda KERNEL_STORAGE_R,X
-    ; sta GEM_22_W
-
-    jmp row_8_end
-
-; Perform gem loading for Kernel B.
-
-loadframe2:
-    ASSERT_RUNTIME "_scycles == #33"
-
-    ; Emerald byte setting 2A
-    ; ldx #[storage_02 - storage]
-    ; lda KERNEL_STORAGE_R,X
-    ; sta GEM_02_W
-    ; inx
-    ; lda KERNEL_STORAGE_R,X
-    ; sta GEM_06_W
-    ; inx
-    ; lda KERNEL_STORAGE_R,X
-    ; sta GEM_08_W
-    ; inx
-
-    sta WSYNC
+    ; Idle.
+    sleep 56
 
 ; [scanline 8]
 row_8:
+    ASSERT_RUNTIME "_scycles == #0"
+
     jet_spritedata_calc
-    sleep 5
 
-    ; Emerald byte setting 2B
-    ; lda KERNEL_STORAGE_R,X
-    ; sta GEM_11_W
-    ; inx
-    ; lda KERNEL_STORAGE_R,X
-    ; sta GEM_15_W
-    ; inx
-    ; lda KERNEL_STORAGE_R,X
-    ; sta GEM_20_W
-    ; inx
-    ; lda KERNEL_STORAGE_R,X
-    ; sta GEM_24_W
-
-    jmp row_8_end
-
-; Common row 8 return.
-
-row_8_end:
     ; Decrease SpriteEnd
     sec
     lda SpriteEnd
@@ -240,7 +161,7 @@ row_8_end:
     ; Idle.
     sta WSYNC
 
-; [scanline 8]
+; [scanline 8-1]
     ; Repeat loop until LoopCount < 0
     dec LoopCount
     beq row_end

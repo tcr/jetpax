@@ -196,22 +196,13 @@
     ; TODO eventually...?
     ; Missile
     ldy DO_MISS_A
-.if_2:
-    bne .else_2
-    sec
-    rol
-
-    jmp .endif_2
-    ; [BIT DEPTH] #2 If-End @ 2
-.else_2:
-    clc
-    rol
-    ; [BIT DEPTH] #2 *If-End @ 2
-    ; [BIT DEPTH] #2 Else-End @ 2
-.endif_2:
+    ds #$d0, #6
+    ldx #BC_NOP
+    stx BuildKernelMissile
     ; VD1
     ; GRP0
-    ; [BIT DEPTH] Final: 2 (out of 8 bits)
+    ; [BIT DEPTH] Final: 1 (out of 8 bits)
+    rol
     rol
     rol
     rol

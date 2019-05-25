@@ -328,11 +328,10 @@ gemini_builder:
 
         ; Missile
         ldy DO_MISS_A
-        NIBBLE_IF eq ; Disabled
-            NIBBLE_WRITE [KernelA_F - $100], #BC_NOP
-        NIBBLE_ELSE
-            NIBBLE_WRITE [KernelA_F - $100], BuildKernelMissile
-        NIBBLE_END_IF
+        ds #$d0, #6
+        ldx #BC_NOP
+        stx BuildKernelMissile
+        NIBBLE_WRITE [KernelA_F - $100], BuildKernelMissile
 
         ; VD1
         NIBBLE_WRITE [KernelA_VDEL1 - $100], BuildKernelVdel1
