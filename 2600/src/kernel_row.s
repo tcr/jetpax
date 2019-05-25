@@ -39,9 +39,13 @@ row_1:
 
     ; TODO assert cycle is not in visible range!
 
-    ; [[[Nibble VM.]]]
-    ; sta WSYNC
-    sleep 33
+    ; FIXME Demo: modify kernel A in next row
+    lda #%010101010
+    sta BuildKernelGrp0
+
+    ; Idle.
+    sta WSYNC
+    ; sleep 33
 
     ASSERT_RUNTIME "_scycles == #0"
 
@@ -146,9 +150,9 @@ row_7:
     ; sleep 71
 
     ; Run Kernel.
-    lda RamNibbleVar1
+    lda RamNibbleVar2
     NIBBLE_gem_kernel_a_2
-    sleep 4
+    sleep 5
 
 ; [scanline 8]
 row_8:
@@ -162,8 +166,14 @@ row_8:
     sbc #8
     sta SpriteEnd
 
+    ; [NIBBLE VM]
+    ; lda RamNibbleVar1
+    ; NIBBLE_gem_kernel_a_1
+    ; sleep 2
+
     ; Idle.
-    sleep 51
+    ; sleep 51
+    sta WSYNC
 
 ; [scanline 8-1]
     ASSERT_RUNTIME "_scycles == #0"

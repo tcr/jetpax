@@ -4116,491 +4116,380 @@
      39  fbf5
      40  fbf5							; TODO assert cycle is not in visible range!
      41  fbf5
-     42  fbf5							; [[[Nibble VM.]]]
-     43  fbf5							; sta WSYNC
-      0  fbf5					      sleep	33
-      1  fbf5				   .CYCLES    SET	33
-      2  fbf5
-      3  fbf5				  -	      IF	.CYCLES < 2
-      4  fbf5				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  fbf5				  -	      ERR
-      6  fbf5					      ENDIF
-      7  fbf5
-      8  fbf5					      IF	.CYCLES & 1
-      9  fbf5					      IFNCONST	NO_ILLEGAL_OPCODES
-     10  fbf5		       04 00		      nop	0
-     11  fbf7				  -	      ELSE
-     12  fbf7				  -	      bit	VSYNC
-     13  fbf7					      ENDIF
-     14  fbf7				   .CYCLES    SET	.CYCLES - 3
-     15  fbf7					      ENDIF
-     16  fbf7
-     17  fbf7					      REPEAT	.CYCLES / 2
-     18  fbf7		       ea		      nop
-     17  fbf7					      REPEND
-     18  fbf8		       ea		      nop
-     17  fbf8					      REPEND
-     18  fbf9		       ea		      nop
-     17  fbf9					      REPEND
-     18  fbfa		       ea		      nop
-     17  fbfa					      REPEND
-     18  fbfb		       ea		      nop
-     17  fbfb					      REPEND
-     18  fbfc		       ea		      nop
-     17  fbfc					      REPEND
-     18  fbfd		       ea		      nop
-     17  fbfd					      REPEND
-     18  fbfe		       ea		      nop
-     17  fbfe					      REPEND
-     18  fbff		       ea		      nop
-     17  fbff					      REPEND
-     18  fc00		       ea		      nop
-     17  fc00					      REPEND
-     18  fc01		       ea		      nop
-     17  fc01					      REPEND
-     18  fc02		       ea		      nop
-     17  fc02					      REPEND
-     18  fc03		       ea		      nop
-     17  fc03					      REPEND
-     18  fc04		       ea		      nop
-     17  fc04					      REPEND
-     18  fc05		       ea		      nop
-     19  fc06					      REPEND
-     45  fc06
-      0  fc06					      ASSERT_RUNTIME	"_scycles == #0"
-      1  fc06				   .COND      SET	"_scycles == #0"
- ASSERT: breakif { pc== $fc06  && !(  _scycles == #0  ) }
-      2  fc06					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
-     47  fc06
-     48  fc06							; [scanline 2]
-     49  fc06				   row_2
-      0  fc06					      jet_spritedata_calc
-      1  fc06		       c6 d2		      dec	RamRowJetpackIndex
-      2  fc08		       a4 d2		      ldy	RamRowJetpackIndex
-      3  fc0a		       be 00 fe 	      ldx	Frame0,Y
-      4  fc0d		       86 1b		      stx	JET_SP
-      0  fc0f					      sleep	5
-      1  fc0f				   .CYCLES    SET	5
-      2  fc0f
-      3  fc0f				  -	      IF	.CYCLES < 2
-      4  fc0f				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  fc0f				  -	      ERR
-      6  fc0f					      ENDIF
-      7  fc0f
-      8  fc0f					      IF	.CYCLES & 1
-      9  fc0f					      IFNCONST	NO_ILLEGAL_OPCODES
-     10  fc0f		       04 00		      nop	0
-     11  fc11				  -	      ELSE
-     12  fc11				  -	      bit	VSYNC
-     13  fc11					      ENDIF
-     14  fc11				   .CYCLES    SET	.CYCLES - 3
-     15  fc11					      ENDIF
-     16  fc11
-     17  fc11					      REPEAT	.CYCLES / 2
+     42  fbf5							; FIXME Demo: modify kernel A in next row
+     43  fbf5		       a9 aa		      lda	#%010101010
+     44  fbf7		       85 e4		      sta	BuildKernelGrp0
+     45  fbf9
+     46  fbf9							; Idle.
+     47  fbf9		       85 02		      sta	WSYNC
+     48  fbfb							; sleep 33
+     49  fbfb
+      0  fbfb					      ASSERT_RUNTIME	"_scycles == #0"
+      1  fbfb				   .COND      SET	"_scycles == #0"
+ ASSERT: breakif { pc== $fbfb  && !(  _scycles == #0  ) }
+      2  fbfb					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
+     51  fbfb
+     52  fbfb							; [scanline 2]
+     53  fbfb				   row_2
+      0  fbfb					      jet_spritedata_calc
+      1  fbfb		       c6 d2		      dec	RamRowJetpackIndex
+      2  fbfd		       a4 d2		      ldy	RamRowJetpackIndex
+      3  fbff		       be 00 fe 	      ldx	Frame0,Y
+      4  fc02		       86 1b		      stx	JET_SP
+      0  fc04					      sleep	5
+      1  fc04				   .CYCLES    SET	5
+      2  fc04
+      3  fc04				  -	      IF	.CYCLES < 2
+      4  fc04				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  fc04				  -	      ERR
+      6  fc04					      ENDIF
+      7  fc04
+      8  fc04					      IF	.CYCLES & 1
+      9  fc04					      IFNCONST	NO_ILLEGAL_OPCODES
+     10  fc04		       04 00		      nop	0
+     11  fc06				  -	      ELSE
+     12  fc06				  -	      bit	VSYNC
+     13  fc06					      ENDIF
+     14  fc06				   .CYCLES    SET	.CYCLES - 3
+     15  fc06					      ENDIF
+     16  fc06
+     17  fc06					      REPEAT	.CYCLES / 2
+     18  fc06		       ea		      nop
+     19  fc07					      REPEND
+     56  fc07
+     57  fc07							; Black out playfield
+     58  fc07							; TODO This should be done with playfield pixels, not color.
+     59  fc07		       a9 00		      lda	#0
+     60  fc09		       85 08		      sta	COLUPF
+     61  fc0b
+     62  fc0b							; [[[Nibble VM.]]]
+      0  fc0b					      sleep	25
+      1  fc0b				   .CYCLES    SET	25
+      2  fc0b
+      3  fc0b				  -	      IF	.CYCLES < 2
+      4  fc0b				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  fc0b				  -	      ERR
+      6  fc0b					      ENDIF
+      7  fc0b
+      8  fc0b					      IF	.CYCLES & 1
+      9  fc0b					      IFNCONST	NO_ILLEGAL_OPCODES
+     10  fc0b		       04 00		      nop	0
+     11  fc0d				  -	      ELSE
+     12  fc0d				  -	      bit	VSYNC
+     13  fc0d					      ENDIF
+     14  fc0d				   .CYCLES    SET	.CYCLES - 3
+     15  fc0d					      ENDIF
+     16  fc0d
+     17  fc0d					      REPEAT	.CYCLES / 2
+     18  fc0d		       ea		      nop
+     17  fc0d					      REPEND
+     18  fc0e		       ea		      nop
+     17  fc0e					      REPEND
+     18  fc0f		       ea		      nop
+     17  fc0f					      REPEND
+     18  fc10		       ea		      nop
+     17  fc10					      REPEND
      18  fc11		       ea		      nop
-     19  fc12					      REPEND
-     52  fc12
-     53  fc12							; Black out playfield
-     54  fc12							; TODO This should be done with playfield pixels, not color.
-     55  fc12		       a9 00		      lda	#0
-     56  fc14		       85 08		      sta	COLUPF
-     57  fc16
-     58  fc16							; [[[Nibble VM.]]]
-      0  fc16					      sleep	25
-      1  fc16				   .CYCLES    SET	25
-      2  fc16
-      3  fc16				  -	      IF	.CYCLES < 2
-      4  fc16				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  fc16				  -	      ERR
-      6  fc16					      ENDIF
-      7  fc16
-      8  fc16					      IF	.CYCLES & 1
-      9  fc16					      IFNCONST	NO_ILLEGAL_OPCODES
-     10  fc16		       04 00		      nop	0
-     11  fc18				  -	      ELSE
-     12  fc18				  -	      bit	VSYNC
-     13  fc18					      ENDIF
-     14  fc18				   .CYCLES    SET	.CYCLES - 3
-     15  fc18					      ENDIF
-     16  fc18
-     17  fc18					      REPEAT	.CYCLES / 2
-     18  fc18		       ea		      nop
-     17  fc18					      REPEND
-     18  fc19		       ea		      nop
-     17  fc19					      REPEND
-     18  fc1a		       ea		      nop
-     17  fc1a					      REPEND
-     18  fc1b		       ea		      nop
-     17  fc1b					      REPEND
-     18  fc1c		       ea		      nop
-     17  fc1c					      REPEND
-     18  fc1d		       ea		      nop
-     17  fc1d					      REPEND
-     18  fc1e		       ea		      nop
-     17  fc1e					      REPEND
-     18  fc1f		       ea		      nop
-     17  fc1f					      REPEND
-     18  fc20		       ea		      nop
-     17  fc20					      REPEND
-     18  fc21		       ea		      nop
-     17  fc21					      REPEND
-     18  fc22		       ea		      nop
-     19  fc23					      REPEND
-     60  fc23
-     61  fc23							; Load PF1 value
-     62  fc23		       a9 3d		      lda	#%00111101
-     63  fc25		       85 d4		      sta	RamPF1Value
-     64  fc27
-     65  fc27		       a9 04		      lda	#4
-     66  fc29		       8d 96 02 	      sta	TIM64T
-     67  fc2c
-     68  fc2c							; Set stack pointer for PHP use from RamKernelPhpTarget.
-     69  fc2c		       a6 d6		      ldx	RamKernelPhpTarget
-     70  fc2e		       ca		      dex
-     71  fc2f		       9a		      txs
-     72  fc30
-     73  fc30							; Enable playfield at end of scanline
-     74  fc30		       a9 42		      lda	#COL_BG
-     75  fc32		       85 08		      sta	COLUPF
-     76  fc34
-     77  fc34							; Set overflow flag
-     78  fc34		       24 d3		      bit	RamPSByte
-     79  fc36
-      0  fc36					      ASSERT_RUNTIME	"_scycles == #0"
-      1  fc36				   .COND      SET	"_scycles == #0"
- ASSERT: breakif { pc== $fc36  && !(  _scycles == #0  ) }
-      2  fc36					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
-     81  fc36
-     82  fc36							; [scanline 3]
-     83  fc36				   row_3
-     84  fc36							; Current row and next two rows.
-     85  fc36		       a4 d2		      ldy	RamRowJetpackIndex
-     86  fc38		       88		      dey
-     87  fc39		       be 00 fe 	      ldx	Frame0,Y
-     88  fc3c		       86 1b		      stx	JET_SP
-     89  fc3e		       88		      dey
-     90  fc3f		       be 00 fe 	      ldx	Frame0,Y
-     91  fc42		       86 d5		      stx	RamKernelGRP0
-     92  fc44		       88		      dey
-     93  fc45		       be 00 fe 	      ldx	Frame0,Y
-     94  fc48		       8e 03 f0 	      stx	[KernelA_GRP0 - $100]
-     95  fc4b		       84 d2		      sty	RamRowJetpackIndex
-     96  fc4d
-     97  fc4d							; [[[Nibble VM.]]]
-     98  fc4d							; Idle.
-      0  fc4d					      sleep	22
-      1  fc4d				   .CYCLES    SET	22
-      2  fc4d
-      3  fc4d				  -	      IF	.CYCLES < 2
-      4  fc4d				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  fc4d				  -	      ERR
-      6  fc4d					      ENDIF
-      7  fc4d
-      8  fc4d				  -	      IF	.CYCLES & 1
-      9  fc4d				  -	      IFNCONST	NO_ILLEGAL_OPCODES
-     10  fc4d				  -	      nop	0
-     11  fc4d				  -	      ELSE
-     12  fc4d				  -	      bit	VSYNC
-     13  fc4d				  -	      ENDIF
-     14  fc4d				  -.CYCLES    SET	.CYCLES - 3
-     15  fc4d					      ENDIF
-     16  fc4d
-     17  fc4d					      REPEAT	.CYCLES / 2
-     18  fc4d		       ea		      nop
-     17  fc4d					      REPEND
-     18  fc4e		       ea		      nop
-     17  fc4e					      REPEND
-     18  fc4f		       ea		      nop
-     17  fc4f					      REPEND
-     18  fc50		       ea		      nop
-     17  fc50					      REPEND
-     18  fc51		       ea		      nop
-     17  fc51					      REPEND
-     18  fc52		       ea		      nop
-     17  fc52					      REPEND
-     18  fc53		       ea		      nop
-     17  fc53					      REPEND
-     18  fc54		       ea		      nop
-     17  fc54					      REPEND
-     18  fc55		       ea		      nop
-     17  fc55					      REPEND
-     18  fc56		       ea		      nop
-     17  fc56					      REPEND
-     18  fc57		       ea		      nop
-     19  fc58					      REPEND
-    100  fc58
-    101  fc58							; Setup for kernel
-    102  fc58		       38		      sec		; clear carry bit
-    103  fc59		       a6 e1		      ldx	BuildKernelX
-    104  fc5b		       a4 e2		      ldy	BuildKernelY
-    105  fc5d
-    106  fc5d							; Jump immediately into scanlines 4-5 aka "kernel_gem"
-    107  fc5d		       a5 e5		      lda	BuildKernelVdel1
-    108  fc5f		       85 1c		      sta	EMERALD_SP
-    109  fc61		       a5 d5		      lda	RamKernelGRP0	; Load sprite 2 into A
-    110  fc63							; [scanline 4]
-    111  fc63							; [scanline 5]
-      0  fc63					      ASSERT_RUNTIME	"_scycles == #73"
-      1  fc63				   .COND      SET	"_scycles == #73"
- ASSERT: breakif { pc== $fc63  && !(  _scycles == #73  ) }
-      2  fc63					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
-    113  fc63		       4c 04 f1 	      jmp	CBSRAM_KERNEL_ENTRY
-    114  fc66
-    115  fc66							; [scanline 6]
-    116  fc66
-    117  fc66				   row_after_kernel
-    118  fc66				   row_6
-      0  fc66					      ASSERT_RUNTIME	"_scycles == #0"
-      1  fc66				   .COND      SET	"_scycles == #0"
- ASSERT: breakif { pc== $fc66  && !(  _scycles == #0  ) }
-      2  fc66					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
-    120  fc66
-    121  fc66							; Cleanup from the kernel.
-    122  fc66		       a9 00		      lda	#0
-    123  fc68		       85 1e		      sta	EMERALD_MI_ENABLE
-    124  fc6a		       85 1c		      sta	EMERALD_SP
-    125  fc6c		       85 08		      sta	COLUPF
-    126  fc6e
-    127  fc6e		       a9 20		      lda	#%00100000
-    128  fc70		       85 0e		      sta	PF1
-    129  fc72
-      0  fc72					      jet_spritedata_calc
-      1  fc72		       c6 d2		      dec	RamRowJetpackIndex
-      2  fc74		       a4 d2		      ldy	RamRowJetpackIndex
-      3  fc76		       be 00 fe 	      ldx	Frame0,Y
-      4  fc79		       86 1b		      stx	JET_SP
-    131  fc7b
-    132  fc7b							; Idle.
-    133  fc7b		       85 02		      sta	WSYNC
-    134  fc7d
-    135  fc7d							; [scanline 7]
-    136  fc7d				   row_7
-      0  fc7d					      ASSERT_RUNTIME	"_scycles == #0"
-      1  fc7d				   .COND      SET	"_scycles == #0"
- ASSERT: breakif { pc== $fc7d  && !(  _scycles == #0  ) }
-      2  fc7d					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
-    138  fc7d
-    139  fc7d							; FIXME this should be enabled!
-    140  fc7d							; jet_spritedata_calc
-    141  fc7d
-    142  fc7d		       a9 42		      lda	#COL_BG
-    143  fc7f		       85 08		      sta	COLUPF
-    144  fc81
-    145  fc81							; Idle.
-      0  fc81					      sleep	71
-      1  fc81				   .CYCLES    SET	71
-      2  fc81
-      3  fc81				  -	      IF	.CYCLES < 2
-      4  fc81				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  fc81				  -	      ERR
-      6  fc81					      ENDIF
-      7  fc81
-      8  fc81					      IF	.CYCLES & 1
-      9  fc81					      IFNCONST	NO_ILLEGAL_OPCODES
-     10  fc81		       04 00		      nop	0
-     11  fc83				  -	      ELSE
-     12  fc83				  -	      bit	VSYNC
-     13  fc83					      ENDIF
-     14  fc83				   .CYCLES    SET	.CYCLES - 3
-     15  fc83					      ENDIF
-     16  fc83
-     17  fc83					      REPEAT	.CYCLES / 2
-     18  fc83		       ea		      nop
-     17  fc83					      REPEND
-     18  fc84		       ea		      nop
-     17  fc84					      REPEND
-     18  fc85		       ea		      nop
-     17  fc85					      REPEND
-     18  fc86		       ea		      nop
-     17  fc86					      REPEND
-     18  fc87		       ea		      nop
-     17  fc87					      REPEND
-     18  fc88		       ea		      nop
-     17  fc88					      REPEND
-     18  fc89		       ea		      nop
-     17  fc89					      REPEND
-     18  fc8a		       ea		      nop
-     17  fc8a					      REPEND
-     18  fc8b		       ea		      nop
-     17  fc8b					      REPEND
-     18  fc8c		       ea		      nop
-     17  fc8c					      REPEND
-     18  fc8d		       ea		      nop
-     17  fc8d					      REPEND
-     18  fc8e		       ea		      nop
-     17  fc8e					      REPEND
-     18  fc8f		       ea		      nop
-     17  fc8f					      REPEND
-     18  fc90		       ea		      nop
-     17  fc90					      REPEND
-     18  fc91		       ea		      nop
-     17  fc91					      REPEND
-     18  fc92		       ea		      nop
-     17  fc92					      REPEND
-     18  fc93		       ea		      nop
-     17  fc93					      REPEND
-     18  fc94		       ea		      nop
-     17  fc94					      REPEND
-     18  fc95		       ea		      nop
-     17  fc95					      REPEND
-     18  fc96		       ea		      nop
-     17  fc96					      REPEND
-     18  fc97		       ea		      nop
-     17  fc97					      REPEND
-     18  fc98		       ea		      nop
-     17  fc98					      REPEND
-     18  fc99		       ea		      nop
-     17  fc99					      REPEND
-     18  fc9a		       ea		      nop
-     17  fc9a					      REPEND
-     18  fc9b		       ea		      nop
-     17  fc9b					      REPEND
-     18  fc9c		       ea		      nop
-     17  fc9c					      REPEND
-     18  fc9d		       ea		      nop
-     17  fc9d					      REPEND
-     18  fc9e		       ea		      nop
-     17  fc9e					      REPEND
-     18  fc9f		       ea		      nop
-     17  fc9f					      REPEND
-     18  fca0		       ea		      nop
-     17  fca0					      REPEND
-     18  fca1		       ea		      nop
-     17  fca1					      REPEND
-     18  fca2		       ea		      nop
-     17  fca2					      REPEND
-     18  fca3		       ea		      nop
-     17  fca3					      REPEND
-     18  fca4		       ea		      nop
-     19  fca5					      REPEND
-    147  fca5
-    148  fca5							; Run Kernel.
-    149  fca5							; lda RamNibbleVar1
-    150  fca5							; NIBBLE_gem_kernel_a_2
-    151  fca5							; sleep 4
-    152  fca5
-    153  fca5							; [scanline 8]
-    154  fca5				   row_8
-      0  fca5					      ASSERT_RUNTIME	"_scycles == #0"
-      1  fca5				   .COND      SET	"_scycles == #0"
- ASSERT: breakif { pc== $fca5  && !(  _scycles == #0  ) }
-      2  fca5					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
-    156  fca5
-      0  fca5					      jet_spritedata_calc
-      1  fca5		       c6 d2		      dec	RamRowJetpackIndex
-      2  fca7		       a4 d2		      ldy	RamRowJetpackIndex
-      3  fca9		       be 00 fe 	      ldx	Frame0,Y
-      4  fcac		       86 1b		      stx	JET_SP
-    158  fcae
-    159  fcae							; Decrease SpriteEnd
-    160  fcae		       38		      sec
-    161  fcaf		       a5 c4		      lda	SpriteEnd
-    162  fcb1		       e9 08		      sbc	#8
-    163  fcb3		       85 c4		      sta	SpriteEnd
-    164  fcb5
-    165  fcb5							; Idle.
-      0  fcb5					      sleep	51
-      1  fcb5				   .CYCLES    SET	51
-      2  fcb5
-      3  fcb5				  -	      IF	.CYCLES < 2
-      4  fcb5				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
-      5  fcb5				  -	      ERR
-      6  fcb5					      ENDIF
-      7  fcb5
-      8  fcb5					      IF	.CYCLES & 1
-      9  fcb5					      IFNCONST	NO_ILLEGAL_OPCODES
-     10  fcb5		       04 00		      nop	0
-     11  fcb7				  -	      ELSE
-     12  fcb7				  -	      bit	VSYNC
-     13  fcb7					      ENDIF
-     14  fcb7				   .CYCLES    SET	.CYCLES - 3
-     15  fcb7					      ENDIF
-     16  fcb7
-     17  fcb7					      REPEAT	.CYCLES / 2
-     18  fcb7		       ea		      nop
-     17  fcb7					      REPEND
-     18  fcb8		       ea		      nop
-     17  fcb8					      REPEND
-     18  fcb9		       ea		      nop
-     17  fcb9					      REPEND
-     18  fcba		       ea		      nop
-     17  fcba					      REPEND
-     18  fcbb		       ea		      nop
-     17  fcbb					      REPEND
-     18  fcbc		       ea		      nop
-     17  fcbc					      REPEND
-     18  fcbd		       ea		      nop
-     17  fcbd					      REPEND
-     18  fcbe		       ea		      nop
-     17  fcbe					      REPEND
-     18  fcbf		       ea		      nop
-     17  fcbf					      REPEND
-     18  fcc0		       ea		      nop
-     17  fcc0					      REPEND
-     18  fcc1		       ea		      nop
-     17  fcc1					      REPEND
-     18  fcc2		       ea		      nop
-     17  fcc2					      REPEND
-     18  fcc3		       ea		      nop
-     17  fcc3					      REPEND
-     18  fcc4		       ea		      nop
-     17  fcc4					      REPEND
-     18  fcc5		       ea		      nop
-     17  fcc5					      REPEND
+     17  fc11					      REPEND
+     18  fc12		       ea		      nop
+     17  fc12					      REPEND
+     18  fc13		       ea		      nop
+     17  fc13					      REPEND
+     18  fc14		       ea		      nop
+     17  fc14					      REPEND
+     18  fc15		       ea		      nop
+     17  fc15					      REPEND
+     18  fc16		       ea		      nop
+     17  fc16					      REPEND
+     18  fc17		       ea		      nop
+     19  fc18					      REPEND
+     64  fc18
+     65  fc18							; Load PF1 value
+     66  fc18		       a9 3d		      lda	#%00111101
+     67  fc1a		       85 d4		      sta	RamPF1Value
+     68  fc1c
+     69  fc1c		       a9 04		      lda	#4
+     70  fc1e		       8d 96 02 	      sta	TIM64T
+     71  fc21
+     72  fc21							; Set stack pointer for PHP use from RamKernelPhpTarget.
+     73  fc21		       a6 d6		      ldx	RamKernelPhpTarget
+     74  fc23		       ca		      dex
+     75  fc24		       9a		      txs
+     76  fc25
+     77  fc25							; Enable playfield at end of scanline
+     78  fc25		       a9 42		      lda	#COL_BG
+     79  fc27		       85 08		      sta	COLUPF
+     80  fc29
+     81  fc29							; Set overflow flag
+     82  fc29		       24 d3		      bit	RamPSByte
+     83  fc2b
+      0  fc2b					      ASSERT_RUNTIME	"_scycles == #0"
+      1  fc2b				   .COND      SET	"_scycles == #0"
+ ASSERT: breakif { pc== $fc2b  && !(  _scycles == #0  ) }
+      2  fc2b					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
+     85  fc2b
+     86  fc2b							; [scanline 3]
+     87  fc2b				   row_3
+     88  fc2b							; Current row and next two rows.
+     89  fc2b		       a4 d2		      ldy	RamRowJetpackIndex
+     90  fc2d		       88		      dey
+     91  fc2e		       be 00 fe 	      ldx	Frame0,Y
+     92  fc31		       86 1b		      stx	JET_SP
+     93  fc33		       88		      dey
+     94  fc34		       be 00 fe 	      ldx	Frame0,Y
+     95  fc37		       86 d5		      stx	RamKernelGRP0
+     96  fc39		       88		      dey
+     97  fc3a		       be 00 fe 	      ldx	Frame0,Y
+     98  fc3d		       8e 03 f0 	      stx	[KernelA_GRP0 - $100]
+     99  fc40		       84 d2		      sty	RamRowJetpackIndex
+    100  fc42
+    101  fc42							; [[[Nibble VM.]]]
+    102  fc42							; Idle.
+      0  fc42					      sleep	22
+      1  fc42				   .CYCLES    SET	22
+      2  fc42
+      3  fc42				  -	      IF	.CYCLES < 2
+      4  fc42				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  fc42				  -	      ERR
+      6  fc42					      ENDIF
+      7  fc42
+      8  fc42				  -	      IF	.CYCLES & 1
+      9  fc42				  -	      IFNCONST	NO_ILLEGAL_OPCODES
+     10  fc42				  -	      nop	0
+     11  fc42				  -	      ELSE
+     12  fc42				  -	      bit	VSYNC
+     13  fc42				  -	      ENDIF
+     14  fc42				  -.CYCLES    SET	.CYCLES - 3
+     15  fc42					      ENDIF
+     16  fc42
+     17  fc42					      REPEAT	.CYCLES / 2
+     18  fc42		       ea		      nop
+     17  fc42					      REPEND
+     18  fc43		       ea		      nop
+     17  fc43					      REPEND
+     18  fc44		       ea		      nop
+     17  fc44					      REPEND
+     18  fc45		       ea		      nop
+     17  fc45					      REPEND
+     18  fc46		       ea		      nop
+     17  fc46					      REPEND
+     18  fc47		       ea		      nop
+     17  fc47					      REPEND
+     18  fc48		       ea		      nop
+     17  fc48					      REPEND
+     18  fc49		       ea		      nop
+     17  fc49					      REPEND
+     18  fc4a		       ea		      nop
+     17  fc4a					      REPEND
+     18  fc4b		       ea		      nop
+     17  fc4b					      REPEND
+     18  fc4c		       ea		      nop
+     19  fc4d					      REPEND
+    104  fc4d
+    105  fc4d							; Setup for kernel
+    106  fc4d		       38		      sec		; clear carry bit
+    107  fc4e		       a6 e1		      ldx	BuildKernelX
+    108  fc50		       a4 e2		      ldy	BuildKernelY
+    109  fc52
+    110  fc52							; Jump immediately into scanlines 4-5 aka "kernel_gem"
+    111  fc52		       a5 e5		      lda	BuildKernelVdel1
+    112  fc54		       85 1c		      sta	EMERALD_SP
+    113  fc56		       a5 d5		      lda	RamKernelGRP0	; Load sprite 2 into A
+    114  fc58							; [scanline 4]
+    115  fc58							; [scanline 5]
+      0  fc58					      ASSERT_RUNTIME	"_scycles == #73"
+      1  fc58				   .COND      SET	"_scycles == #73"
+ ASSERT: breakif { pc== $fc58  && !(  _scycles == #73  ) }
+      2  fc58					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
+    117  fc58		       4c 04 f1 	      jmp	CBSRAM_KERNEL_ENTRY
+    118  fc5b
+    119  fc5b							; [scanline 6]
+    120  fc5b
+    121  fc5b				   row_after_kernel
+    122  fc5b				   row_6
+      0  fc5b					      ASSERT_RUNTIME	"_scycles == #0"
+      1  fc5b				   .COND      SET	"_scycles == #0"
+ ASSERT: breakif { pc== $fc5b  && !(  _scycles == #0  ) }
+      2  fc5b					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
+    124  fc5b
+    125  fc5b							; Cleanup from the kernel.
+    126  fc5b		       a9 00		      lda	#0
+    127  fc5d		       85 1e		      sta	EMERALD_MI_ENABLE
+    128  fc5f		       85 1c		      sta	EMERALD_SP
+    129  fc61		       85 08		      sta	COLUPF
+    130  fc63
+    131  fc63		       a9 20		      lda	#%00100000
+    132  fc65		       85 0e		      sta	PF1
+    133  fc67
+      0  fc67					      jet_spritedata_calc
+      1  fc67		       c6 d2		      dec	RamRowJetpackIndex
+      2  fc69		       a4 d2		      ldy	RamRowJetpackIndex
+      3  fc6b		       be 00 fe 	      ldx	Frame0,Y
+      4  fc6e		       86 1b		      stx	JET_SP
+    135  fc70
+    136  fc70							; Idle.
+    137  fc70		       85 02		      sta	WSYNC
+    138  fc72
+    139  fc72							; [scanline 7]
+    140  fc72				   row_7
+      0  fc72					      ASSERT_RUNTIME	"_scycles == #0"
+      1  fc72				   .COND      SET	"_scycles == #0"
+ ASSERT: breakif { pc== $fc72  && !(  _scycles == #0  ) }
+      2  fc72					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
+    142  fc72
+    143  fc72							; FIXME this should be enabled!
+    144  fc72							; jet_spritedata_calc
+    145  fc72
+    146  fc72		       a9 42		      lda	#COL_BG
+    147  fc74		       85 08		      sta	COLUPF
+    148  fc76
+    149  fc76							; Idle.
+    150  fc76							; sleep 71
+    151  fc76
+    152  fc76							; Run Kernel.
+    153  fc76		       a5 cd		      lda	RamNibbleVar2
+      0  fc78					      NIBBLE_gem_kernel_a_2
+      1  fc78				   .if_1
+      2  fc78		       0a		      asl
+      3  fc79		       90 1c		      bcc	.else_1
+      4  fc7b		       a2 85		      ldx	#BC_STA
+      5  fc7d		       8e 23 f0 	      stx	[[KernelA_I_W + 0] + 0]
+      6  fc80		       a2 11		      ldx	#EMERALD_SP_RESET
+      7  fc82		       8e 24 f0 	      stx	[[KernelA_I_W + 0] + 1]
+      8  fc85		       a2 85		      ldx	#BC_STA
+      9  fc87		       8e 25 f0 	      stx	[[KernelA_J_W + 1] + 0]
+     10  fc8a		       a2 0e		      ldx	#PF1
+     11  fc8c		       8e 26 f0 	      stx	[[KernelA_J_W + 1] + 1]
+     12  fc8f		       a2 08		      ldx	#BC_PHP
+     13  fc91		       8e 27 f0 	      stx	[[KernelA_K_W + 1] + 0]
+     14  fc94
+     15  fc94		       4c b1 fc 	      jmp	.endif_1
+     16  fc97				   .else_1
+     17  fc97		       a2 08		      ldx	#BC_PHP
+     18  fc99		       8e 23 f0 	      stx	[[KernelA_I_W + 0] + 0]
+     19  fc9c		       a2 85		      ldx	#BC_STA
+     20  fc9e		       8e 24 f0 	      stx	[[KernelA_J_W + 0] + 0]
+     21  fca1		       a2 0e		      ldx	#PF1
+     22  fca3		       8e 25 f0 	      stx	[[KernelA_J_W + 0] + 1]
+     23  fca6		       a6 de		      ldx	RamKernelGemini4
+     24  fca8		       8e 26 f0 	      stx	[KernelA_K_W + 0]
+     25  fcab		       a2 1c		      ldx	#EMERALD_SP
+     26  fcad		       8e 27 f0 	      stx	[KernelA_K_W + 1]
+     27  fcb0
+     28  fcb0
+      0  fcb0					      sleep	2
+      1  fcb0				   .CYCLES    SET	2
+      2  fcb0
+      3  fcb0				  -	      IF	.CYCLES < 2
+      4  fcb0				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  fcb0				  -	      ERR
+      6  fcb0					      ENDIF
+      7  fcb0
+      8  fcb0				  -	      IF	.CYCLES & 1
+      9  fcb0				  -	      IFNCONST	NO_ILLEGAL_OPCODES
+     10  fcb0				  -	      nop	0
+     11  fcb0				  -	      ELSE
+     12  fcb0				  -	      bit	VSYNC
+     13  fcb0				  -	      ENDIF
+     14  fcb0				  -.CYCLES    SET	.CYCLES - 3
+     15  fcb0					      ENDIF
+     16  fcb0
+     17  fcb0					      REPEAT	.CYCLES / 2
+     18  fcb0		       ea		      nop
+     19  fcb1					      REPEND
+     30  fcb1				   .endif_1
+     31  fcb1		       a6 e6		      ldx	BuildKernelMissile
+     32  fcb3		       8e 1d f0 	      stx	[[KernelA_F - $100] + 0]
+     33  fcb6		       a6 e5		      ldx	BuildKernelVdel1
+     34  fcb8		       8e 2f f0 	      stx	[[KernelA_VDEL1 - $100] + 0]
+     35  fcbb		       a6 e4		      ldx	BuildKernelGrp0
+     36  fcbd		       8e 07 f0 	      stx	[[KernelA_VDEL0 - $100] + 0]
+     37  fcc0		       a2 ff		      ldx	#$ff
+     38  fcc2		       86 d3		      stx	[RamPSByte + 0]
+      0  fcc4					      sleep	5
+      1  fcc4				   .CYCLES    SET	5
+      2  fcc4
+      3  fcc4				  -	      IF	.CYCLES < 2
+      4  fcc4				  -	      ECHO	"MACRO ERROR: 'SLEEP': Duration must be > 1"
+      5  fcc4				  -	      ERR
+      6  fcc4					      ENDIF
+      7  fcc4
+      8  fcc4					      IF	.CYCLES & 1
+      9  fcc4					      IFNCONST	NO_ILLEGAL_OPCODES
+     10  fcc4		       04 00		      nop	0
+     11  fcc6				  -	      ELSE
+     12  fcc6				  -	      bit	VSYNC
+     13  fcc6					      ENDIF
+     14  fcc6				   .CYCLES    SET	.CYCLES - 3
+     15  fcc6					      ENDIF
+     16  fcc6
+     17  fcc6					      REPEAT	.CYCLES / 2
      18  fcc6		       ea		      nop
-     17  fcc6					      REPEND
-     18  fcc7		       ea		      nop
-     17  fcc7					      REPEND
-     18  fcc8		       ea		      nop
-     17  fcc8					      REPEND
-     18  fcc9		       ea		      nop
-     17  fcc9					      REPEND
-     18  fcca		       ea		      nop
-     17  fcca					      REPEND
-     18  fccb		       ea		      nop
-     17  fccb					      REPEND
-     18  fccc		       ea		      nop
-     17  fccc					      REPEND
-     18  fccd		       ea		      nop
-     17  fccd					      REPEND
-     18  fcce		       ea		      nop
-     19  fccf					      REPEND
-    167  fccf
-    168  fccf							; [scanline 8-1]
-      0  fccf					      ASSERT_RUNTIME	"_scycles == #0"
-      1  fccf				   .COND      SET	"_scycles == #0"
- ASSERT: breakif { pc== $fccf  && !(  _scycles == #0  ) }
-      2  fccf					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
-    170  fccf							; Repeat loop until LoopCount < 0
-    171  fccf		       c6 c2		      dec	LoopCount
-    172  fcd1		       f0 03		      beq	row_end
-    173  fcd3		       4c dd fb 	      jmp	row_start
-    174  fcd6				   row_end
-    175  fcd6		       4c ae fb 	      jmp	border_bottom
+     19  fcc7					      REPEND
+    156  fcc7
+    157  fcc7							; [scanline 8]
+    158  fcc7				   row_8
+      0  fcc7					      ASSERT_RUNTIME	"_scycles == #0"
+      1  fcc7				   .COND      SET	"_scycles == #0"
+ ASSERT: breakif { pc== $fcc7  && !(  _scycles == #0  ) }
+      2  fcc7					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
+    160  fcc7
+      0  fcc7					      jet_spritedata_calc
+      1  fcc7		       c6 d2		      dec	RamRowJetpackIndex
+      2  fcc9		       a4 d2		      ldy	RamRowJetpackIndex
+      3  fccb		       be 00 fe 	      ldx	Frame0,Y
+      4  fcce		       86 1b		      stx	JET_SP
+    162  fcd0
+    163  fcd0							; Decrease SpriteEnd
+    164  fcd0		       38		      sec
+    165  fcd1		       a5 c4		      lda	SpriteEnd
+    166  fcd3		       e9 08		      sbc	#8
+    167  fcd5		       85 c4		      sta	SpriteEnd
+    168  fcd7
+    169  fcd7							; [NIBBLE VM]
+    170  fcd7							; lda RamNibbleVar1
+    171  fcd7							; NIBBLE_gem_kernel_a_1
+    172  fcd7							; sleep 2
+    173  fcd7
+    174  fcd7							; Idle.
+    175  fcd7							; sleep 51
+    176  fcd7		       85 02		      sta	WSYNC
+    177  fcd9
+    178  fcd9							; [scanline 8-1]
+      0  fcd9					      ASSERT_RUNTIME	"_scycles == #0"
+      1  fcd9				   .COND      SET	"_scycles == #0"
+ ASSERT: breakif { pc== $fcd9  && !(  _scycles == #0  ) }
+      2  fcd9					      echo	"ASSERT:", "breakif { pc==", ., " && !( ", .COND, " ) }"
+    180  fcd9							; Repeat loop until LoopCount < 0
+    181  fcd9		       c6 c2		      dec	LoopCount
+    182  fcdb		       f0 03		      beq	row_end
+    183  fcdd		       4c dd fb 	      jmp	row_start
+    184  fce0				   row_end
+    185  fce0		       4c ae fb 	      jmp	border_bottom
 ------- FILE main.s
 ------- FILE kernel_gem.s LEVEL 2 PASS 2
-      0  fcd9					      include	"kernel_gem.s"
-      1  fcd9							;
-      2  fcd9							; Gem Kernels
-      3  fcd9							;
-      4  fcd9							; Gems are displayed in alternating kernels. This chart shows
-      5  fcd9							; which kernel is responsible for which gem, with missiles denoted.
-      6  fcd9							;
-      7  fcd9							;  1:	 |SS  SS  MSS  |SS   SS  SS  |	      kernel 1 (S = Sprite, M = missile)
-      8  fcd9							;  2:	 |  SS	SS   SS|  SSM  SS  SS|	      kernel 2
-      9  fcd9							;  =	 |1122112221122|1122111221122|	      kernel #
-     10  fcd9							;  #	 0^	 8^	  17^	    26^       gem index
-     11  fcd9							;
-     12  fcd9							; The middle bar indicates where the pattern reverses.
-     13  fcd9							;
-     14  fcd9							; Because we can repeat a sprite multiple times, and reset the sprite
-     15  fcd9							; occurance mid-line, we can render close to half of the 26 gems a line
-     16  fcd9							; requires with a single sprite. By alternating sprites each frame with an...
-     17  fcd9							; acceptable amount of flicker (15Hz) we can render almost all the gems on each
-     18  fcd9							; line, except for two. These are instead rendered by the missile, which
-     19  fcd9							; corresponds to the sprite and must have the same color and repeat pattern.
-     20  fcd9
-     21  fcd9							; for copying
+      0  fce3					      include	"kernel_gem.s"
+      1  fce3							;
+      2  fce3							; Gem Kernels
+      3  fce3							;
+      4  fce3							; Gems are displayed in alternating kernels. This chart shows
+      5  fce3							; which kernel is responsible for which gem, with missiles denoted.
+      6  fce3							;
+      7  fce3							;  1:	 |SS  SS  MSS  |SS   SS  SS  |	      kernel 1 (S = Sprite, M = missile)
+      8  fce3							;  2:	 |  SS	SS   SS|  SSM  SS  SS|	      kernel 2
+      9  fce3							;  =	 |1122112221122|1122111221122|	      kernel #
+     10  fce3							;  #	 0^	 8^	  17^	    26^       gem index
+     11  fce3							;
+     12  fce3							; The middle bar indicates where the pattern reverses.
+     13  fce3							;
+     14  fce3							; Because we can repeat a sprite multiple times, and reset the sprite
+     15  fce3							; occurance mid-line, we can render close to half of the 26 gems a line
+     16  fce3							; requires with a single sprite. By alternating sprites each frame with an...
+     17  fce3							; acceptable amount of flicker (15Hz) we can render almost all the gems on each
+     18  fce3							; line, except for two. These are instead rendered by the missile, which
+     19  fce3							; corresponds to the sprite and must have the same color and repeat pattern.
+     20  fce3
+     21  fce3							; for copying
      22  fd00		       00 00 00 00*	      align	256
      23  fd00
      24  fd00							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -4754,7 +4643,7 @@
      17  fd34					      REPEAT	.CYCLES / 2
      18  fd34		       ea		      nop
      19  fd35					      REPEND
-    117  fd35		       4c 66 fc 	      jmp	row_after_kernel
+    117  fd35		       4c 5b fc 	      jmp	row_after_kernel
     118  fd38
     119  fd38					      rend
     120  fd38				   kernel_1_end
@@ -4921,7 +4810,7 @@
     205  fd68				   KernelB_branch
     206  fd68		       ad 84 02 	      lda	INTIM
     207  fd6b		       d0 cd		      bne	KernelB_early
-    208  fd6d		       4c 66 fc 	      jmp	row_after_kernel
+    208  fd6d		       4c 5b fc 	      jmp	row_after_kernel
     209  fd70
     210  fd70					      rend
     211  fd70				   kernel_2_end
