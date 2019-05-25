@@ -143,12 +143,12 @@ row_7:
     sta COLUPF
 
     ; Idle.
-    sleep 71
+    ; sleep 71
 
     ; Run Kernel.
-    ; lda RamNibbleVar1
-    ; NIBBLE_gem_kernel_a_2
-    ; sleep 4
+    lda RamNibbleVar1
+    NIBBLE_gem_kernel_a_2
+    sleep 4
 
 ; [scanline 8]
 row_8:
