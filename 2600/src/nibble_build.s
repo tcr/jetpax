@@ -29,7 +29,6 @@
     ldy #$14
     sty [KernelA_D - $100]
     rol
-
     jmp .endif_1
     ; [BIT DEPTH] #1 If-End @ 1
 .else_1:
@@ -46,7 +45,6 @@
     sec
     rol
     ; GEM1ASWITCH
-
     jmp .endif_2
     ; [BIT DEPTH] #2 If-End @ 2
 .else_2:
@@ -86,7 +84,6 @@
     bne .else_3
     sec
     rol
-
     jmp .endif_3
     ; [BIT DEPTH] #3 If-End @ 3
 .else_3:
@@ -115,7 +112,6 @@
     bne .else_4
     sec
     rol
-
     jmp .endif_4
     ; [BIT DEPTH] #4 If-End @ 4
 .else_4:
@@ -177,7 +173,6 @@
     ; Update VDEL1
     ldx [DO_GEMS_A + 4]
     stx BuildKernelVdel1
-
     jmp .endif_1
     ; [BIT DEPTH] #1 If-End @ 1
 .else_1:
@@ -260,7 +255,6 @@
     ; Update 3B
     CALC_REGS_AND_STORE 3, RamKernelGemini3
     rol
-
     jmp .endif_1
     ; [BIT DEPTH] #1 If-End @ 1
 .else_1:
@@ -283,7 +277,6 @@
     ; Update Grp0
     ldy BuildKernelRST
     sty RamKernelGrp0
-
     jmp .endif_2
     ; [BIT DEPTH] #2 If-End @ 2
 .else_2:
@@ -319,7 +312,6 @@
     bne .else_1
     sec
     rol
-
     jmp .endif_1
     ; [BIT DEPTH] #1 If-End @ 1
 .else_1:

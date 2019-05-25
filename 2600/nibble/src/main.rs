@@ -57,7 +57,7 @@ impl BuildState {
     }
 
     fn with_cycles(&mut self, cycles: usize) -> Self {
-        BuildState { index: self.index, cycles: self.cycles, checkdepth: self.checkdepth }
+        BuildState { index: self.index, cycles, checkdepth: self.checkdepth }
     }
 
     fn with_checkdepth(&mut self, checkdepth: usize) -> Self {
@@ -106,7 +106,6 @@ impl KernelWalker for KernelBuild {
     fn if_start(&mut self, parent_node: &mut Self::TNode, cond: &str) -> Self::TNode {
         let index = parent_node.index + 1;
         let checkdepth = parent_node.checkdepth + 1;
-        let mut cycles = parent_node.cycles;
 
         // BUILD
         writeln!(&mut self.build, ".if_{}:", index);
@@ -115,22 +114,22 @@ impl KernelWalker for KernelBuild {
         writeln!(&mut self.build, "    rol");
 
         // EVAL
-        writeln!(&mut self.eval, ".if_{}:", index);
         writeln!(&mut self.eval, "    asl");
-        cycles += 2;
+        parent_node.cycles += 2;
         writeln!(&mut self.eval, "    bcc .else_{}", index);
-        cycles += 2;
+        parent_node.cycles += 2;
+        writeln!(&mut self.eval, "    ; parent: {:?}", parent_node);
+        writeln!(&mut self.eval, ".if_{}:", index);
 
         parent_node
             .with_index(index)
             .with_checkdepth(checkdepth)
-            .with_cycles(cycles)
     }
 
     fn if_else(&mut self, parent_node: &mut Self::TNode, then_node: &mut Self::TNode) -> Self::TNode {
         let index = parent_node.index + 1;
         let checkdepth = parent_node.checkdepth + 1;
-        let cycles = parent_node.cycles + 5; // asl + bcc with branch
+        let cycles = parent_node.cycles + 1; // bcc with branch
 
         let if_token = format!("<<<{}>>>", then_node.index);
 
@@ -156,7 +155,7 @@ impl KernelWalker for KernelBuild {
 
     fn if_end(&mut self, parent_node: &mut Self::TNode, mut then_node: Self::TNode, mut else_node: Self::TNode) {
         let index = parent_node.index + 1;
-        let if_token = format!("<<<{}>>>", index);
+        let if_token = format!("<<<{}>>>\n", index);
 
         // BUILD
         {
@@ -182,8 +181,6 @@ impl KernelWalker for KernelBuild {
         // EVAL
         {
             let mut if_token_replacement = String::new();
-            writeln!(&mut self.eval, "    ; [BIT DEPTH] #{} *If-End @ {}", then_node.index, then_node.checkdepth);
-            writeln!(&mut self.eval, "    ; [BIT DEPTH] #{} Else-End @ {}", else_node.index, else_node.checkdepth);
             if else_node.checkdepth > then_node.checkdepth {
                 // then block needs to advance
                 for _ in then_node.checkdepth..else_node.checkdepth {
@@ -201,14 +198,16 @@ impl KernelWalker for KernelBuild {
             // Balance out cycles
             if else_node.cycles > then_node.cycles {
                 // then block needs to advance
-                if_token_replacement.push_str(&format!("    sleep {}", else_node.cycles - then_node.cycles));
+                if_token_replacement.push_str(&format!("    sleep {}\n", else_node.cycles - then_node.cycles));
             } else if then_node.cycles > else_node.cycles {
                 // else block needs to advance
                 writeln!(&mut self.eval, "    sleep {}", then_node.cycles - else_node.cycles);
             }
 
             // Replace token
+            writeln!(&mut if_token_replacement, "    ; then: {:?}", then_node);
             self.eval = self.eval.replace(&if_token, &if_token_replacement);
+            writeln!(&mut self.eval, "    ; else: {:?}", else_node);
             writeln!(&mut self.eval, ".endif_{}:", index);
         }
 
