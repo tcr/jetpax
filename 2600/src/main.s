@@ -115,7 +115,8 @@ Bank3Start:
     ; Bank 3 source code
     include "game_init.s"
     include "kernel_loader.s"
-    include "nibble.s"
+    include "nibble_build.s"
+    include "nibble_eval.s"
     include "nibble_shard.s"
     include "game_frame.s"
     include "game_input.s"

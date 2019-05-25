@@ -11,8 +11,189 @@ enum Parse {
     NibbleEndIf,
     NibbleEndKernel,
     NibbleWrite(String, Vec<String>),
-    NibbleWriteOpcode(String, isize, String),
     Opcode(String),
+}
+
+trait KernelWalker {
+    type TNode;
+
+    fn start(&mut self, name: &str, cycles: usize) -> Self::TNode;
+    fn end(&mut self, node: Self::TNode);
+    
+    fn if_start(&mut self, parent: &mut Self::TNode, cond: &str) -> Self::TNode;
+    fn if_else(&mut self, parent: &mut Self::TNode, then_node: &mut Self::TNode) -> Self::TNode;
+    fn if_end(&mut self, parent: &mut Self::TNode, then_node: Self::TNode, else_node: Self::TNode);
+
+    fn write(&mut self, parent: &mut Self::TNode, label: &str, values: &[String]);
+    fn opcode(&mut self, parent: &mut Self::TNode, value: &str);
+}
+
+struct KernelBuild {
+    build: String,
+    eval: String,
+}
+
+impl KernelBuild {
+    fn new() -> Self {
+        Self {
+            build: String::new(),
+            eval: String::new(),
+        }
+    }
+}
+
+#[derive(Debug)]
+struct BuildState {
+    index: usize,
+    checkdepth: usize,
+    cycles: usize
+}
+
+impl BuildState {
+    fn with_index(&mut self, index: usize) -> Self {
+        BuildState { index, cycles: self.cycles, checkdepth: self.checkdepth }
+    }
+
+    fn with_cycles(&mut self, cycles: usize) -> Self {
+        BuildState { index: self.index, cycles: self.cycles, checkdepth: self.checkdepth }
+    }
+
+    fn with_checkdepth(&mut self, checkdepth: usize) -> Self {
+        BuildState { index: self.index, cycles: self.cycles, checkdepth }
+    }
+}
+
+impl KernelWalker for KernelBuild {
+    type TNode = BuildState;
+
+    fn start(&mut self, name: &str, cycles: usize) -> Self::TNode {
+        // BUILD
+        writeln!(&mut self.build, "    MAC NIBBLE_{}_BUILD", name);
+        writeln!(&mut self.build, "    lda #0");
+
+        // EVAL
+        writeln!(&mut self.eval, "    MAC NIBBLE_{}", name);
+        
+        BuildState { index: 0, cycles: 0, checkdepth: 0 }
+    }
+
+    fn end(&mut self, node: Self::TNode) {
+        if node.checkdepth > 8 {
+            panic!("TOO MANY IFs");
+        }
+
+        // BUILD
+        writeln!(&mut self.build, "    ; [BIT DEPTH] Final: {} (out of 8 bits)", node.checkdepth);
+        for i in node.checkdepth..8 {
+            writeln!(&mut self.build, "    rol");
+        }
+        writeln!(&mut self.build, "    ENDM");
+        writeln!(&mut self.build, "");
+        writeln!(&mut self.build, "");
+
+        // EVAL
+        writeln!(&mut self.eval, "    ENDM ; {} cycles max", node.checkdepth);
+        writeln!(&mut self.eval, "");
+        writeln!(&mut self.eval, "");
+    }
+    
+    fn if_start(&mut self, parent_node: &mut Self::TNode, cond: &str) -> Self::TNode {
+        let index = parent_node.index + 1;
+        let checkdepth = parent_node.checkdepth + 1;
+        let mut cycles = parent_node.cycles;
+
+        // BUILD
+        writeln!(&mut self.build, ".if_{}:", index);
+        writeln!(&mut self.build, "    b{} .else_{}", invert_cond(&cond), index);
+        writeln!(&mut self.build, "    sec");
+        writeln!(&mut self.build, "    rol");
+
+        // EVAL
+        writeln!(&mut self.eval, ".if_{}:", index);
+        writeln!(&mut self.eval, "    asl");
+        cycles += 2;
+        writeln!(&mut self.eval, "    bcc .else_{}", index);
+        cycles += 2;
+
+        parent_node
+            .with_index(index)
+            .with_checkdepth(checkdepth)
+            .with_cycles(cycles)
+    }
+
+    fn if_else(&mut self, parent_node: &mut Self::TNode, then_node: &mut Self::TNode) -> Self::TNode {
+        let index = then_node.index;
+        let checkdepth = parent_node.checkdepth + 1;
+
+        let if_token = format!("<<<{}>>>", then_node.index);
+
+        // BUILD
+        writeln!(&mut self.build, "    jmp .endif_{}", index);
+        writeln!(&mut self.build, "    ; [BIT DEPTH] #{} If-End @ {}", index, checkdepth);
+        writeln!(&mut self.build, "{}", if_token);
+        writeln!(&mut self.build, ".else_{}:", index);
+        writeln!(&mut self.build, "    clc");
+        writeln!(&mut self.build, "    rol");
+
+        // EVAL
+        writeln!(&mut self.eval, "    jmp .endif_{}", index);
+        then_node.cycles += 2;
+        writeln!(&mut self.eval, ".else_{}:", index);
+
+        parent_node
+            .with_index(then_node.index)
+            .with_checkdepth(checkdepth)
+    }
+
+    fn if_end(&mut self, parent_node: &mut Self::TNode, then_node: Self::TNode, else_node: Self::TNode) {
+        let index = parent_node.index + 1;
+
+        // BUILD
+        let mut if_token_replacement = String::new();
+        writeln!(&mut self.build, "    ; [BIT DEPTH] #{} *If-End @ {}", then_node.index, then_node.checkdepth);
+        writeln!(&mut self.build, "    ; [BIT DEPTH] #{} Else-End @ {}", else_node.index, else_node.checkdepth);
+        if else_node.checkdepth > then_node.checkdepth {
+            // then block needs to advance
+            for _ in then_node.checkdepth..else_node.checkdepth {
+                if_token_replacement.push_str(&"    rol\n");
+            }
+        } else if then_node.checkdepth > else_node.checkdepth {
+            // else block needs to advance
+            for _ in else_node.checkdepth..then_node.checkdepth {
+                writeln!(&mut self.build, "    rol");
+            }
+        }
+        // Replace token
+        let if_token = format!("<<<{}>>>", index);
+        self.build = self.build.replace(&if_token, &if_token_replacement);
+        writeln!(&mut self.build, ".endif_{}:", index);
+
+        // EVAL
+        writeln!(&mut self.eval, ".endif_{}:", index);
+
+        parent_node.index = else_node.index;
+        parent_node.checkdepth = std::cmp::max(then_node.checkdepth, else_node.checkdepth);
+        parent_node.cycles = std::cmp::max(then_node.cycles, else_node.cycles);
+    }
+
+    fn write(&mut self, parent_node: &mut Self::TNode, label: &str, values: &[String]) {
+        // EVAL
+        for (i, value) in values.iter().enumerate() {
+            writeln!(&mut self.eval, "    ldx {}", value);
+            parent_node.cycles += 2;
+            writeln!(&mut self.eval, "    stx [{} + {}]", label, i);
+            parent_node.cycles += 3;
+        }
+    }
+
+    fn opcode(&mut self, parent_node: &mut Self::TNode, opcode: &str) {
+        // BUILD
+        if opcode.starts_with(".") && !opcode.starts_with(".byte") {
+            writeln!(&mut self.build, "{}", opcode);
+        } else {
+            writeln!(&mut self.build, "    {}", opcode);
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -36,191 +217,60 @@ fn invert_cond(cond: &str) -> &'static str {
     }
 }
 
-fn gen_kernel_code(lines: &[Parse], kernel_data: &mut String, kernel_code: &mut String) -> Result<(), Box<dyn Error>> {
-    // Reset each START_KERNEL
-    let mut kernel_name = "".to_string();
-    let mut opcode_count = 0;
-    let mut if_counter = 0;
-    let mut if_depth = VecDeque::new();
-    let mut bitdepth = 0;
+fn gen_kernel_build(lines: &[Parse]) -> Result<KernelBuild, Box<dyn Error>> {
+    let mut code = KernelBuild::new();
+    let mut code_queue = VecDeque::new();
     for line in lines {
         match line {
             Parse::NibbleStartKernel(name, cycles) => {
-                // Reset values
-                opcode_count = 0;
-                if_counter = 0;
-                if_depth = VecDeque::new();
-                if_depth.push_front(IfDepth {
-                    cond: "program".to_string(),
-                    number: 0,
-                    bitdepth: 0,
-                });
-                bitdepth = 0;
-
-                // Pass in conditionals in A
-                kernel_name = name.to_string();
-                writeln!(kernel_code, "    MAC NIBBLE_{}", name)?;
+                // Push new node.
+                code_queue.push_front(code.start(&name, *cycles as usize));
             }
             Parse::NibbleIf(cond) => {
-                if_counter += 1;
-                if_depth.push_front(IfDepth {
-                    cond: cond.to_string(),
-                    number: if_counter,
-                    bitdepth: 0,
-                });
-                let current_if = if_depth.front_mut().unwrap();
-                writeln!(kernel_code, ".if_{}:", current_if.number)?;
-                writeln!(kernel_code, "    asl")?;
-                bitdepth += 2;
-                writeln!(kernel_code, "    bcc .else_{}", current_if.number)?;
-                bitdepth += 2;
+                // Push if node.
+                let mut parent_node = code_queue.pop_front().unwrap();
+                let if_node = code.if_start(&mut parent_node, &cond);
+                code_queue.push_front(parent_node);
+                code_queue.push_front(if_node);
             }
             Parse::NibbleElse => {
-                let current_if = if_depth.front_mut().unwrap();
-                writeln!(kernel_code, "    jmp .endif_{}", current_if.number)?;
-                bitdepth += 2;
-                writeln!(kernel_code, ".else_{}:", current_if.number)?;
-                std::mem::swap(&mut current_if.bitdepth, &mut bitdepth);
+                // Handle else node.
+                let mut if_node = code_queue.pop_front().unwrap();
+                let mut parent_node = code_queue.pop_front().unwrap();
+                let else_node = code.if_else(&mut parent_node, &mut if_node);
+                code_queue.push_front(parent_node);
+                code_queue.push_front(if_node);
+                code_queue.push_front(else_node);
             }
             Parse::NibbleEndIf => {
-                let current_if = if_depth.front_mut().unwrap();
-                writeln!(kernel_code, ".endif_{}:", current_if.number)?;
-                bitdepth = std::cmp::max(bitdepth, current_if.bitdepth);
-                if_depth.pop_front();
+                // Pop if node.
+                let mut else_node = code_queue.pop_front().unwrap();
+                let mut if_node = code_queue.pop_front().unwrap();
+                let mut parent_node = code_queue.pop_front().unwrap();
+                let else_node = code.if_end(&mut parent_node, if_node, else_node);
+                code_queue.push_front(parent_node);
+
             }
             Parse::NibbleWrite(label, values) => {
-                let current_if = if_depth.front_mut().unwrap();
-                for (i, value) in values.iter().enumerate() {
-                    writeln!(kernel_code, "    ldx {}", value)?;
-                    bitdepth += 2;
-                    writeln!(kernel_code, "    stx [{} + {}]", label, i)?;
-                    bitdepth += 4;
-                }
+                // Write to node.
+                let mut parent_node = code_queue.pop_front().unwrap();
+                code.write(&mut parent_node, &label, &values);
+                code_queue.push_front(parent_node);
             }
-            Parse::NibbleWriteOpcode(label, len, value) => {
-                let current_if = if_depth.front_mut().unwrap();
-                opcode_count += 1;
-                writeln!(kernel_data, "NIBBLE_{}_OPCODE_{}:", kernel_name, opcode_count)?;
-                writeln!(kernel_data, "    {}", value)?;
-                writeln!(kernel_data, "    ASSERT_SIZE_EXACT NIBBLE_{}_OPCODE_{}, ., {}", kernel_name, opcode_count, len)?; // enforce
-                for i in 0..*len {
-                    writeln!(kernel_code, "    ldx [NIBBLE_{}_OPCODE_{} + {}]", kernel_name, opcode_count, i)?;
-                    bitdepth += 2;
-                    writeln!(kernel_code, "    stx [{} + {}]", label, i)?;
-                    bitdepth += 4;
-                }
-            }
-            Parse::Opcode(opcode) => {}
-            Parse::NibbleEndKernel => {
-                let current_if = if_depth.pop_front().unwrap();
-                writeln!(kernel_code, "    ENDM ; {} cycles max", bitdepth)?;
-                writeln!(kernel_code, "")?;
-                writeln!(kernel_code, "")?;
-            }
-        }
-    }
-
-    Ok(())
-}
-
-fn gen_kernel_build(lines: &[Parse], kernel_build: &mut String) -> Result<(), Box<dyn Error>> {
-    // Rewritten each START_KERNEL
-    let mut build_if_counter = 0;
-    let mut build_if_depth = VecDeque::<IfDepth>::new();
-    let mut bitdepth = 0;
-
-    let mut kernel_name = String::new();
-    for line in lines {
-        match line {
-            Parse::NibbleStartKernel(name, cycles) => {
-                // Reset values
-                build_if_counter = 0;
-                build_if_depth = VecDeque::<IfDepth>::new();
-                bitdepth = 0;
-
-                // Pass in conditionals in A
-                kernel_name = name.to_string();
-                writeln!(kernel_build, "    MAC NIBBLE_{}_BUILD", name)?;
-                writeln!(kernel_build, "    lda #0");
-            }
-            Parse::NibbleIf(cond) => {
-                bitdepth += 1;
-
-                build_if_counter += 1;
-                build_if_depth.push_front(IfDepth {
-                    cond: cond.to_string(),
-                    number: build_if_counter,
-                    bitdepth: bitdepth,
-                });
-                let current_if = build_if_depth.front().unwrap();
-                writeln!(kernel_build, ".if_{}:", current_if.number)?;
-                writeln!(kernel_build, "    b{} .else_{}", invert_cond(&cond), current_if.number)?;
-                writeln!(kernel_build, "    sec")?;
-                writeln!(kernel_build, "    rol")?;
-            }
-            Parse::NibbleElse => {
-                let current_if = build_if_depth.front_mut().unwrap();
-                writeln!(kernel_build, "    jmp .endif_{}", current_if.number)?;
-                std::mem::swap(&mut current_if.bitdepth, &mut bitdepth);
-                writeln!(kernel_build, "    ; [BIT DEPTH] #{} If-End @ {}", current_if.number, current_if.bitdepth)?;
-                writeln!(kernel_build, "<<<{}>>>", current_if.number)?;
-                writeln!(kernel_build, ".else_{}:", current_if.number)?;
-                writeln!(kernel_build, "    clc")?;
-                writeln!(kernel_build, "    rol")?;
-            }
-            Parse::NibbleEndIf => {
-                let mut current_if = build_if_depth.pop_front().unwrap();
-                let mut if_token_replacement = String::new();
-                writeln!(kernel_build, "    ; [BIT DEPTH] #{} *If-End @ {}", current_if.number, current_if.bitdepth)?;
-                writeln!(kernel_build, "    ; [BIT DEPTH] #{} Else-End @ {}", current_if.number, bitdepth)?;
-                if bitdepth > current_if.bitdepth {
-                    // if block needs to advance
-                    for _ in current_if.bitdepth..bitdepth {
-                        if_token_replacement.push_str(&"    rol\n");
-                    }
-                } else if current_if.bitdepth > bitdepth {
-                    // else block needs to advance
-                    for _ in bitdepth..current_if.bitdepth {
-                        writeln!(kernel_build, "    rol");
-                    }
-                    
-                }
-                // Replace token
-                *kernel_build = kernel_build.replace(&format!("<<<{}>>>", current_if.number), &if_token_replacement);
-                // Advance bitdepth
-                bitdepth = std::cmp::max(bitdepth, current_if.bitdepth);
-
-                // if let Some(previous_if) = build_if_depth.front_mut() {
-                //     previous_if.bitdepth = bitdepth;
-                // }
-
-                writeln!(kernel_build, ".endif_{}:", current_if.number)?;
-
-            }
-            Parse::NibbleWrite(label, values) => {}
-            Parse::NibbleWriteOpcode(label, len, value) => {},
             Parse::Opcode(opcode) => {
-                if opcode.starts_with(".") && !opcode.starts_with(".byte") {
-                    writeln!(kernel_build, "{}", opcode)?;
-                } else {
-                    writeln!(kernel_build, "    {}", opcode)?;
-                }
+                // Write to node.
+                let mut parent_node = code_queue.pop_front().unwrap();
+                code.opcode(&mut parent_node, &opcode);
+                code_queue.push_front(parent_node);
             }
             Parse::NibbleEndKernel => {
-                if bitdepth > 8 {
-                    panic!("TOO MANY IFs");
-                }
-                writeln!(kernel_build, "    ; [BIT DEPTH] Final: {} (out of 8 bits)", bitdepth)?;
-                for i in bitdepth..8 {
-                    writeln!(kernel_build, "    rol");
-                }
-                writeln!(kernel_build, "    ENDM")?;
-                writeln!(kernel_build, "")?;
-                writeln!(kernel_build, "")?;
+                // Pop kernel node.
+                let end_node = code_queue.pop_front().unwrap();
+                code.end(end_node);
             }
         }
     }
-    Ok(())
+    Ok(code)
 }
 
 
@@ -231,12 +281,13 @@ fn main() -> Result<(), Box<dyn Error>> {
     let re_nibble_end_if = Regex::new(r"^NIBBLE_END_IF")?;
     let re_nibble_write = Regex::new(r"^NIBBLE_WRITE\s+([^,]+)(?:\s*,\s*([^,]+))+")?;
     let re_nibble_write_args = Regex::new(r",\s*([^,]+)")?;
-    let re_nibble_write_opcode = Regex::new(r"^NIBBLE_WRITE_OPCODE\s+(\S.*),\s*(\S.*)\s*,\s*(\S.*)\s*")?;
     let re_nibble_end_kernel = Regex::new(r"^NIBBLE_END_KERNEL")?;
     
     let re_data = Regex::new(r"^\s*(.+?)\s*(;.*)?$")?;
 
     let input_file = std::fs::read_to_string("../src/game_nibble.s")?;
+    let output_build = "../src/nibble_build.s";
+    let output_eval = "../src/nibble_eval.s";
 
     let mut kernels = vec![];
     let mut lines = vec![];
@@ -268,15 +319,13 @@ fn main() -> Result<(), Box<dyn Error>> {
         } else if let Some(_) = re_nibble_end_if.captures(&line) {
             Parse::NibbleEndIf
         } else if let Some(m) = re_nibble_write.captures(&line) {
-            eprintln!("line {:?}", line);
+            // eprintln!("line {:?}", line);
             let selection = re_nibble_write_args.captures_iter(&line).map(|n| {
-                eprintln!("{:?}", n);
+                // eprintln!("{:?}", n);
                 n
             }).map(|n| n[1].to_string()).collect::<Vec<_>>();
-            eprintln!("selection {:?}", selection);
+            // eprintln!("selection {:?}", selection);
             Parse::NibbleWrite(m[1].to_string(), selection)
-        } else if let Some(m) = re_nibble_write_opcode.captures(&line) {
-            Parse::NibbleWriteOpcode(m[1].to_string(), m[2].parse()?, m[2].to_string())
         } else if let Some(_) = re_nibble_end_kernel.captures(&line) {
             Parse::NibbleEndKernel
         } else {
@@ -290,18 +339,20 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
     }
 
-    let mut kernel_data = String::new();
-    let mut kernel_code = String::new();
     let mut kernel_build = String::new();
-
+    let mut kernel_eval = String::new();
     for lines in &kernels {
-        gen_kernel_code(lines, &mut kernel_data, &mut kernel_code);
-        gen_kernel_build(lines, &mut kernel_build);
+        let kernel = gen_kernel_build(lines)?;
+        kernel_build.push_str(&kernel.build);
+        kernel_eval.push_str(&kernel.eval);
     }
 
-    println!("{}", kernel_data);
+    std::fs::write(&output_build, &kernel_build)?;
+    std::fs::write(&output_eval, &kernel_eval)?;
+
+    println!("{}", output_build);
     println!("{}", kernel_build);
-    println!("{}", kernel_code);
+    println!("{}", kernel_eval);
 
     Ok(())
 }
