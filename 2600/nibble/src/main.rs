@@ -90,9 +90,13 @@ impl KernelWalker for KernelBuild {
         writeln!(&mut self.build, "    ENDM");
         writeln!(&mut self.build, "");
         writeln!(&mut self.build, "");
+        writeln!(&mut self.build, "");
+        writeln!(&mut self.build, "");
 
         // EVAL
-        writeln!(&mut self.eval, "    ENDM ; {} cycles max", node.checkdepth);
+        writeln!(&mut self.eval, "    ENDM ; {} cycles max", node.cycles);
+        writeln!(&mut self.eval, "");
+        writeln!(&mut self.eval, "");
         writeln!(&mut self.eval, "");
         writeln!(&mut self.eval, "");
     }

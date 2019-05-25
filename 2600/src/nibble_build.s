@@ -144,6 +144,8 @@
     ENDM
 
 
+
+
     MAC NIBBLE_gem_kernel_a_2_BUILD
     lda #0
     ; RAM:
@@ -215,6 +217,8 @@
     rol
     rol
     ENDM
+
+
 
 
     MAC NIBBLE_gem_kernel_b_1_BUILD
@@ -299,6 +303,8 @@
     ENDM
 
 
+
+
     MAC NIBBLE_gem_kernel_b_2_BUILD
     lda #0
     ; Write out PHP flag comparison
@@ -354,5 +360,7 @@
     rol
     rol
     ENDM
+
+
 
 

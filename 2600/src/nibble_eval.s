@@ -47,7 +47,9 @@
     ldx RamKernelGemini3Reg
     stx [KernelA_H_W + 1]
 .endif_4:
-    ENDM ; 4 cycles max
+    ENDM ; 37 cycles max
+
+
 
 
     MAC NIBBLE_gem_kernel_a_2
@@ -101,7 +103,9 @@
     stx [RamKernelY + 0]
     ldx #$ff
     stx [RamPSByte + 0]
-    ENDM ; 2 cycles max
+    ENDM ; 64 cycles max
+
+
 
 
     MAC NIBBLE_gem_kernel_b_1
@@ -159,7 +163,9 @@
     ldx #EMERALD_SP
     stx [KernelB_H_W + 1]
 .endif_2:
-    ENDM ; 2 cycles max
+    ENDM ; 89 cycles max
+
+
 
 
     MAC NIBBLE_gem_kernel_b_2
@@ -183,6 +189,8 @@
     stx [RamKernelY + 0]
     ldx #$00
     stx [RamPSByte + 0]
-    ENDM ; 1 cycles max
+    ENDM ; 32 cycles max
+
+
 
 
