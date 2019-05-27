@@ -6,6 +6,32 @@ DebugKernelID           byte ; which kernel are we running this frame? (for debu
 
 coolest_level           ds $3f
 
+    align 16
+
+; Nibble (16 bytes)
+RamNibbleVar1           byte
+RamNibbleVar2           byte
+RamKernelGemini1        byte
+RamKernelGemini1Reg     byte
+RamKernelGemini2        byte
+RamKernelGemini2Reg     byte
+RamKernelGemini3        byte
+RamKernelGemini3Reg     byte
+RamKernelGemini4        byte
+BuildKernelMissile      byte
+BuildKernelVdel1        byte
+BuildKernelGrp0         byte
+BuildKernelX            byte
+BuildKernelY            byte
+RamKernelPhpTarget      byte
+RamPSByte               byte
+
+    align 16
+
+; Misc Nibble support
+RamKernelGrp0           byte
+BuildKernelRST          byte
+
 Temp                    byte
 Temp2                   byte
 
@@ -26,38 +52,13 @@ YPos2                   byte
 ROW_DEMO_INDEX          byte
 
 RamNibbleTemp           byte
-RamNibbleVar1           byte
-RamNibbleVar2           byte
 RamZeroByte             byte
 RamLowerSixByte         byte
 RamFFByte               byte
 RamStackBkp             byte
+RamPF1Value             byte
 
 RamRowJetpackIndex      byte ; sprite counter
-
-; Kernel support
-RamPSByte               byte
-RamPF1Value             byte
-RamKernelGRP0           byte ; temp
-RamKernelPhpTarget      byte
-RamKernelGrp0           byte
-
-RamKernelGemini1        byte
-RamKernelGemini1Reg     byte
-RamKernelGemini2        byte
-RamKernelGemini2Reg     byte
-RamKernelGemini3        byte
-RamKernelGemini3Reg     byte
-RamKernelGemini4        byte
-RamKernelGemini4Reg     byte
-RamKernelGemini5        byte
-
-BuildKernelX            byte
-BuildKernelY            byte
-BuildKernelRST          byte
-BuildKernelGrp0         byte
-BuildKernelVdel1        byte
-BuildKernelMissile      byte
 
 level_for_game byte
     byte

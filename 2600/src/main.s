@@ -4,9 +4,15 @@
     mac NIBBLE_START_KERNEL
         seg.U ignoreme ; comment out rest of code
     endm
+    mac NIBBLE_VAR
+    endm
+    mac NIBBLE_VAR_STY
+    endm
     mac NIBBLE_IF
     endm
-    mac NIBBLE_WRITE
+    mac NIBBLE_WRITE_IMM
+    endm
+    mac NIBBLE_WRITE_VAR
     endm
     mac NIBBLE_WRITE_OPCODE
     endm

@@ -1,9 +1,12 @@
     MAC NIBBLE_gem_kernel_a_1_BUILD
     lda #0
-    ldx #SENTINEL
-    stx BuildKernelX
-    stx BuildKernelY
-    stx BuildKernelRST
+    ; NIBBLE_VAR RamKernelGemini4
+    ; NIBBLE_VAR BuildKernelMissile
+    ; NIBBLE_VAR BuildKernelVdel1
+    ldy #SENTINEL
+    sty BuildKernelRST
+    sty BuildKernelX
+    sty BuildKernelY
     ; Gemini 1A
 .K_1A:
     ldy [DO_GEMS_A + 0]
@@ -144,22 +147,15 @@
 
     MAC NIBBLE_gem_kernel_a_2_BUILD
     lda #0
-    ; RAM:
-    ; RamKernelX
-    ; RamKernelY
-    ; RamPSByte
-    ; BuildKernelVdel1
-    ; RamKernelGrp0
-    ; RamKernelGemini1
-    ; RamKernelGemini1Reg
-    ; RamKernelGemini2
-    ; RamKernelGemini2Reg
-    ; RamKernelGemini3
-    ; RamKernelGemini3Reg
-    ; RamKernelGemini4
+    ; NIBBLE_VAR RamKernelGemini1
+    ; NIBBLE_VAR RamKernelGemini1Reg
+    ; NIBBLE_VAR RamKernelGemini2
+    ; NIBBLE_VAR RamKernelGemini2Reg
+    ; NIBBLE_VAR RamKernelGemini3
+    ; NIBBLE_VAR RamKernelGemini3Reg
     ; VD1 default
-    ldx [DO_GEMS_A + 1]
-    stx BuildKernelVdel1
+    ldy [DO_GEMS_A + 1]
+    sty BuildKernelVdel1
     ; Gemini 4A
     ldx SHARD_LUT_VD1
     cpx #4
@@ -168,11 +164,11 @@
     sec
     rol
     ; Set PHP
-    ldx #VDELP1
-    stx RamKernelPhpTarget
+    ldy #VDELP1
+    sty RamKernelPhpTarget
     ; Update VDEL1
-    ldx [DO_GEMS_A + 4]
-    stx BuildKernelVdel1
+    ldy [DO_GEMS_A + 4]
+    sty BuildKernelVdel1
     jmp .endif_1
     ; [BIT DEPTH] #1 If-End @ 1
 .else_1:
@@ -182,8 +178,8 @@
     jsr KernelA_UpdateRegs
     sty RamKernelGemini4
     ; Set PHP
-    ldx #RESP1
-    stx RamKernelPhpTarget
+    ldy #RESP1
+    sty RamKernelPhpTarget
     ; [BIT DEPTH] #1 *If-End @ 1
     ; [BIT DEPTH] #1 Else-End @ 1
 .endif_1:
@@ -212,27 +208,26 @@
 
     MAC NIBBLE_gem_kernel_b_1_BUILD
     lda #0
-    ; RAM:
-    ; RamKernelX
-    ; RamKernelY
-    ; RamPSByte
-    ; RamKernelGrp0
-    ; RamKernelGemini1
-    ; RamKernelGemini2
-    ; RamKernelGemini3
-    ; RamKernelGemini4
+    ; NIBBLE_VAR RamKernelGemini1
+    ; NIBBLE_VAR RamKernelGemini1Reg
+    ; NIBBLE_VAR RamKernelGemini2Reg
+    ; NIBBLE_VAR RamKernelGemini3Reg
+    ; NIBBLE_VAR RamKernelGemini4
+    ; NIBBLE_VAR BuildKernelMissile
+    ; NIBBLE_VAR BuildKernelVdel1
+    ; NIBBLE_VAR BuildKernelGrp0
     ldx #SENTINEL
     stx BuildKernelX
     stx BuildKernelY
     stx BuildKernelRST
     ; Php target default
-    ldx #RESP1
-    stx RamKernelPhpTarget
+    ldy #RESP1
+    sty RamKernelPhpTarget
     ; Gemini 0B
     ldy [DO_GEMS_B + 0]
     sty BuildKernelGrp0
     sty RamKernelGrp0
-    ; NIBBLE_WRITE KernelB_D_W, RamKernelGemini0
+    ; NIBBLE_WRITE_IMM KernelB_D_W, RamKernelGemini0
     ; Gemini 1B
     ldy [DO_GEMS_B + 1]
     jsr KernelA_UpdateRegs
@@ -301,6 +296,14 @@
 
     MAC NIBBLE_gem_kernel_b_2_BUILD
     lda #0
+    ; NIBBLE_VAR RamKernelGemini1
+    ; NIBBLE_VAR RamKernelGemini1Reg
+    ; NIBBLE_VAR RamKernelGemini2
+    ; NIBBLE_VAR RamKernelGemini2Reg
+    ; NIBBLE_VAR RamKernelGemini3
+    ; NIBBLE_VAR RamKernelGemini3Reg
+    ; NIBBLE_VAR BuildKernelMissile
+    ; NIBBLE_VAR BuildKernelVdel1
     ; Gemini 1B
     ; Write out PHP flag comparison
     ldy BuildKernelRST
@@ -320,9 +323,9 @@
     ; Missile
     ; ldy DO_MISS_B
     ; NIBBLE_IF eq
-    ; NIBBLE_WRITE [KernelB_K - $100], #BC_STA
+    ; NIBBLE_WRITE_IMM [KernelB_K - $100], #BC_STA
     ; NIBBLE_ELSE
-    ;     NIBBLE_WRITE [KernelB_K - $100], BuildKernelMissile
+    ;     NIBBLE_WRITE_IMM [KernelB_K - $100], BuildKernelMissile
     ; NIBBLE_END_IF
     ; Gemini 4B
     ldy [DO_GEMS_B + 4]
@@ -331,17 +334,17 @@
     ; TODO if no PHP, rewrite previous section:
     ; NIBBLE_IF cs
     ;
-    ;     NIBBLE_WRITE [KernelB_E_W + 0], #BC_PHP
-    ;     NIBBLE_WRITE [KernelB_F_W + 0], #BC_STY, #EMERALD_SP
-    ;     NIBBLE_WRITE [KernelB_G_W + 0], #BC_STA, #PF1
-    ;     NIBBLE_WRITE [KernelB_H_W + 0], #BC_STY, #EMERALD_SP
+    ;     NIBBLE_WRITE_IMM [KernelB_E_W + 0], #BC_PHP
+    ;     NIBBLE_WRITE_IMM [KernelB_F_W + 0], #BC_STY, #EMERALD_SP
+    ;     NIBBLE_WRITE_IMM [KernelB_G_W + 0], #BC_STA, #PF1
+    ;     NIBBLE_WRITE_IMM [KernelB_H_W + 0], #BC_STY, #EMERALD_SP
     ; NIBBLE_END_IF
     ; Make adjustments for sprites.
     ror BuildKernelGrp0
     ror BuildKernelX
     ror BuildKernelY
     ;
-    ; NIBBLE_WRITE [KernelB_VDEL1 - $100], BuildKernelVdel1
+    ; NIBBLE_WRITE_IMM [KernelB_VDEL1 - $100], BuildKernelVdel1
     ; GRP0
     ; [BIT DEPTH] Final: 1 (out of 8 bits)
     rol

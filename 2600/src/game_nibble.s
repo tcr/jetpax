@@ -159,10 +159,23 @@ gemini_builder:
 
     ; Nibble Kernel A
     NIBBLE_START_KERNEL gem_kernel_a_1, 40
-        ldx #SENTINEL ; sentinel
-        stx BuildKernelX
-        stx BuildKernelY
-        stx BuildKernelRST
+        NIBBLE_VAR RamKernelGemini1
+        NIBBLE_VAR RamKernelGemini1Reg
+        NIBBLE_VAR RamKernelGemini2
+        NIBBLE_VAR RamKernelGemini2Reg
+        NIBBLE_VAR RamKernelGemini3
+        NIBBLE_VAR RamKernelGemini3Reg
+        ; NIBBLE_VAR RamKernelGemini4
+        ; NIBBLE_VAR BuildKernelMissile
+        ; NIBBLE_VAR BuildKernelVdel1
+        NIBBLE_VAR RamKernelGrp0
+        NIBBLE_VAR BuildKernelX
+        NIBBLE_VAR BuildKernelY
+
+        ldy #SENTINEL ; sentinel
+        sty BuildKernelRST
+        NIBBLE_VAR_STY BuildKernelX
+        NIBBLE_VAR_STY BuildKernelY
 
         ; Gemini 1A
 .K_1A:
@@ -178,7 +191,7 @@ gemini_builder:
             ; Store 1A in GRP0
             ldy [DO_GEMS_A + 1]
             sty BuildKernelGrp0
-            sty RamKernelGrp0
+            NIBBLE_VAR_STY RamKernelGrp0
             ; Gemini 1A is RESPx
             ldy #EMERALD_SP_RESET
             sty [KernelA_C - $100 + 1]
@@ -189,13 +202,14 @@ gemini_builder:
             ; Store 0A in GRP0
             ldy [DO_GEMS_A + 0]
             sty BuildKernelGrp0
-            sty RamKernelGrp0
+            NIBBLE_VAR_STY RamKernelGrp0
 
             ldy [DO_GEMS_A + 1]
             jsr KernelA_GenReset
             NIBBLE_IF eq
                 ; GEM1ASWITCH
-                NIBBLE_WRITE KernelA_D_W, #BC_STX, #RESP1 ; RESET
+                NIBBLE_WRITE_IMM [KernelA_D_W + 0], #BC_STX
+                NIBBLE_WRITE_IMM [KernelA_D_W + 1], #RESP1 ; RESET
             NIBBLE_ELSE
                 ; Calculate the 1A value
                 ldy SHARD_LUT_RF1
@@ -204,7 +218,7 @@ gemini_builder:
                 ldy #RESP1
                 .byte $2C ; .bit (ABS)
                 ldy #GRP1
-                sty RamKernelGemini1Reg
+                NIBBLE_VAR_STY RamKernelGemini1Reg
 
                 ; Set opcode
                 ldx SHARD_LUT_RF1
@@ -213,15 +227,16 @@ gemini_builder:
                 .byte $F0, #5 ; beq +4
                 ldy [DO_GEMS_A + 1]
                 jsr KernelA_UpdateRegs
-                sty RamKernelGemini1
+                NIBBLE_VAR_STY RamKernelGemini1
 
-                NIBBLE_WRITE KernelA_D_W, RamKernelGemini1, RamKernelGemini1Reg
+                NIBBLE_WRITE_VAR [KernelA_D_W + 0], RamKernelGemini1
+                NIBBLE_WRITE_VAR [KernelA_D_W + 1], RamKernelGemini1Reg
             NIBBLE_END_IF
         NIBBLE_END_IF
 
         ; Stop preserving GRP0
         ldy #SENTINEL
-        sty RamKernelGrp0
+        NIBBLE_VAR_STY RamKernelGrp0
 
         ; BuildKernelX, BuildKernelY are upgraded if not set
         ; Gemini 2A
@@ -229,13 +244,13 @@ gemini_builder:
         ldy [DO_GEMS_A + 2]
         jsr KernelA_GenReset
         NIBBLE_IF eq
-            NIBBLE_WRITE KernelA_E_W + 1, #NOP_REG   ; NOP
-            NIBBLE_WRITE KernelA_G_W + 1, #RESP1 ; RESET
+            NIBBLE_WRITE_IMM [KernelA_E_W + 1], #NOP_REG   ; NOP
+            NIBBLE_WRITE_IMM [KernelA_G_W + 1], #RESP1 ; RESET
         NIBBLE_ELSE
             ; Set opcode
             ldy [DO_GEMS_A + 2]
             jsr KernelA_UpdateRegs
-            sty RamKernelGemini2
+            NIBBLE_VAR_STY RamKernelGemini2
 
             ; Set opcode target
             ldy SHARD_LUT_RF1
@@ -244,10 +259,11 @@ gemini_builder:
             ldy #RESP1
             .byte $2C ; .bit (ABS)
             ldy #GRP1
-            sty RamKernelGemini2Reg
+            NIBBLE_VAR_STY RamKernelGemini2Reg
 
-            NIBBLE_WRITE KernelA_E_W + 1, #RESP1
-            NIBBLE_WRITE KernelA_G_W, RamKernelGemini2, RamKernelGemini2Reg ; STX
+            NIBBLE_WRITE_IMM [KernelA_E_W + 1], #RESP1
+            NIBBLE_WRITE_VAR [KernelA_G_W + 0], RamKernelGemini2
+            NIBBLE_WRITE_VAR [KernelA_G_W + 1], RamKernelGemini2Reg ; STX
         NIBBLE_END_IF
 
         ; Gemini 3A
@@ -255,12 +271,12 @@ gemini_builder:
         ldy [DO_GEMS_A + 3]
         jsr KernelA_GenReset
         NIBBLE_IF eq
-            NIBBLE_WRITE KernelA_H_W + 1, #RESP1 ; RESET
+            NIBBLE_WRITE_IMM [KernelA_H_W + 1], #RESP1 ; RESET
         NIBBLE_ELSE
             ; Set opcode
             ldy [DO_GEMS_A + 3]
             jsr KernelA_UpdateRegs
-            sty RamKernelGemini3
+            NIBBLE_VAR_STY RamKernelGemini3
 
             ; Set opcode target
             ldy SHARD_LUT_RF1
@@ -269,58 +285,58 @@ gemini_builder:
             ldy #RESP1
             .byte $2C ; .bit (ABS)
             ldy #GRP1
-            sty RamKernelGemini3Reg
+            NIBBLE_VAR_STY RamKernelGemini3Reg
 
-            NIBBLE_WRITE KernelA_H_W, RamKernelGemini3, RamKernelGemini3Reg ; STY
+            NIBBLE_WRITE_VAR [KernelA_H_W + 0], RamKernelGemini3
+            NIBBLE_WRITE_VAR [KernelA_H_W + 1], RamKernelGemini3Reg
         NIBBLE_END_IF
     NIBBLE_END_KERNEL
 
     NIBBLE_START_KERNEL gem_kernel_a_2, 40
-; RAM:
-; RamKernelX
-; RamKernelY
-; RamPSByte
-; BuildKernelVdel1
-; RamKernelGrp0
-; RamKernelGemini1
-; RamKernelGemini1Reg
-; RamKernelGemini2
-; RamKernelGemini2Reg
-; RamKernelGemini3
-; RamKernelGemini3Reg
-; RamKernelGemini4
+        ; NIBBLE_VAR RamKernelGemini1
+        ; NIBBLE_VAR RamKernelGemini1Reg
+        ; NIBBLE_VAR RamKernelGemini2
+        ; NIBBLE_VAR RamKernelGemini2Reg
+        ; NIBBLE_VAR RamKernelGemini3
+        ; NIBBLE_VAR RamKernelGemini3Reg
+        NIBBLE_VAR RamKernelGemini4
+        NIBBLE_VAR BuildKernelMissile
+        NIBBLE_VAR BuildKernelVdel1
+        NIBBLE_VAR BuildKernelGrp0
+        NIBBLE_VAR RamKernelPhpTarget
 
         ; VD1 default
-        ldx [DO_GEMS_A + 1]
-        stx BuildKernelVdel1
+        ldy [DO_GEMS_A + 1]
+        NIBBLE_VAR_STY BuildKernelVdel1
 
         ; Gemini 4A 
         ldx SHARD_LUT_VD1
         cpx #4
         NIBBLE_IF ne
-            NIBBLE_WRITE [KernelA_I_W + 0], #BC_STA, #EMERALD_SP_RESET
-            NIBBLE_WRITE [KernelA_J_W + 1], #BC_STA, #PF1
-            NIBBLE_WRITE [KernelA_K_W + 1], #BC_PHP
+            NIBBLE_WRITE_IMM [KernelA_I_W + 0], #BC_STA, #EMERALD_SP_RESET
+            NIBBLE_WRITE_IMM [KernelA_J_W + 1], #BC_STA, #PF1
+            NIBBLE_WRITE_IMM [KernelA_K_W + 1], #BC_PHP
 
             ; Set PHP
-            ldx #VDELP1
-            stx RamKernelPhpTarget
+            ldy #VDELP1
+            NIBBLE_VAR_STY RamKernelPhpTarget
 
             ; Update VDEL1
-            ldx [DO_GEMS_A + 4]
-            stx BuildKernelVdel1
+            ldy [DO_GEMS_A + 4]
+            NIBBLE_VAR_STY BuildKernelVdel1
         NIBBLE_ELSE
             ldy [DO_GEMS_A + 4]
             jsr KernelA_UpdateRegs
-            sty RamKernelGemini4
+            NIBBLE_VAR_STY RamKernelGemini4
 
-            NIBBLE_WRITE [KernelA_I_W + 0], #BC_PHP
-            NIBBLE_WRITE [KernelA_J_W + 0], #BC_STA, #PF1
-            NIBBLE_WRITE KernelA_K_W, RamKernelGemini4, #EMERALD_SP
+            NIBBLE_WRITE_IMM [KernelA_I_W + 0], #BC_PHP
+            NIBBLE_WRITE_IMM [KernelA_J_W + 0], #BC_STA, #PF1
+            NIBBLE_WRITE_VAR [KernelA_K_W + 0], RamKernelGemini4
+            NIBBLE_WRITE_IMM [KernelA_K_W + 1], #EMERALD_SP
 
             ; Set PHP
-            ldx #RESP1
-            stx RamKernelPhpTarget
+            ldy #RESP1
+            NIBBLE_VAR_STY RamKernelPhpTarget
         NIBBLE_END_IF
 
         ; Gemini 5A
@@ -332,27 +348,28 @@ gemini_builder:
         ; bne .+4
         ; ldx #BC_NOP
         ; stx BuildKernelMissile
-        NIBBLE_WRITE [KernelA_F - $100], BuildKernelMissile
+        NIBBLE_WRITE_VAR [KernelA_F - $100], BuildKernelMissile
 
         ; VD1
-        NIBBLE_WRITE [KernelA_VDEL1 - $100], BuildKernelVdel1
+        NIBBLE_WRITE_VAR [KernelA_VDEL1 - $100], BuildKernelVdel1
         ; GRP0
-        NIBBLE_WRITE [KernelA_VDEL0 - $100], BuildKernelGrp0
+        NIBBLE_WRITE_VAR [KernelA_VDEL0 - $100], BuildKernelGrp0
 
-        NIBBLE_WRITE RamPSByte, #$ff
+        NIBBLE_WRITE_IMM RamPSByte, #$ff
     NIBBLE_END_KERNEL
 
     ; Nibble Kernel B
     NIBBLE_START_KERNEL gem_kernel_b_1, 40
-; RAM:
-; RamKernelX
-; RamKernelY
-; RamPSByte
-; RamKernelGrp0
-; RamKernelGemini1
-; RamKernelGemini2
-; RamKernelGemini3
-; RamKernelGemini4
+        ; NIBBLE_VAR RamKernelGemini1
+        ; NIBBLE_VAR RamKernelGemini1Reg
+        NIBBLE_VAR RamKernelGemini2
+        ; NIBBLE_VAR RamKernelGemini2Reg
+        NIBBLE_VAR RamKernelGemini3
+        ; NIBBLE_VAR RamKernelGemini3Reg
+        ; NIBBLE_VAR RamKernelGemini4
+        ; NIBBLE_VAR BuildKernelMissile
+        ; NIBBLE_VAR BuildKernelVdel1
+        ; NIBBLE_VAR BuildKernelGrp0
 
         ldx #SENTINEL ; sentinel
         stx BuildKernelX
@@ -360,14 +377,14 @@ gemini_builder:
         stx BuildKernelRST
 
         ; Php target default
-        ldx #RESP1
-        stx RamKernelPhpTarget
+        ldy #RESP1
+        sty RamKernelPhpTarget
 
         ; Gemini 0B
         ldy [DO_GEMS_B + 0]
         sty BuildKernelGrp0
         sty RamKernelGrp0
-        ; NIBBLE_WRITE KernelB_D_W, RamKernelGemini0
+        ; NIBBLE_WRITE_IMM KernelB_D_W, RamKernelGemini0
 
         ; Gemini 1B
         ldy [DO_GEMS_B + 1]
@@ -383,10 +400,13 @@ gemini_builder:
             ; Write to PHP in 2B
             ldx #EMERALD_SP
             stx RamKernelPhpTarget
-            NIBBLE_WRITE [KernelB_E_W + 0], #BC_STY, #EMERALD_SP_RESET ; 2B
-            NIBBLE_WRITE [KernelB_F_W + 1], #BC_PHP
-            NIBBLE_WRITE [KernelB_G_W + 0], #BC_STA, #PF1
-            NIBBLE_WRITE [KernelB_H_W + 0], RamKernelGemini3, #EMERALD_SP ; 3B
+            NIBBLE_WRITE_IMM [KernelB_E_W + 0], #BC_STY
+            NIBBLE_WRITE_IMM [KernelB_E_W + 1], #EMERALD_SP_RESET ; 2B
+            NIBBLE_WRITE_IMM [KernelB_F_W + 1], #BC_PHP
+            NIBBLE_WRITE_IMM [KernelB_G_W + 0], #BC_STA
+            NIBBLE_WRITE_IMM [KernelB_G_W + 1], #PF1
+            NIBBLE_WRITE_VAR [KernelB_H_W + 0], RamKernelGemini3
+            NIBBLE_WRITE_IMM [KernelB_H_W + 1], #EMERALD_SP ; 3B
 
             ; Update Grp0
             ldy BuildKernelRST
@@ -400,10 +420,13 @@ gemini_builder:
                 CALC_REGS_AND_STORE 2, RamKernelGemini2
                 ldx #EMERALD_SP
                 stx RamKernelPhpTarget
-                NIBBLE_WRITE [KernelB_E_W + 0], #BC_STY, #EMERALD_SP_RESET
-                NIBBLE_WRITE [KernelB_F_W + 1], RamKernelGemini2, #EMERALD_SP ; 2B
-                NIBBLE_WRITE [KernelB_G_W + 1], #BC_STA, #PF1
-                NIBBLE_WRITE [KernelB_H_W + 1], #BC_PHP ; 3B
+                NIBBLE_WRITE_IMM [KernelB_E_W + 0], #BC_STY
+                NIBBLE_WRITE_IMM [KernelB_E_W + 1], #EMERALD_SP_RESET
+                NIBBLE_WRITE_VAR [KernelB_F_W + 1], RamKernelGemini2
+                NIBBLE_WRITE_IMM [KernelB_F_W + 2], #EMERALD_SP ; 2B
+                NIBBLE_WRITE_IMM [KernelB_G_W + 1], #BC_STA,
+                NIBBLE_WRITE_IMM [KernelB_G_W + 2], #PF1
+                NIBBLE_WRITE_IMM [KernelB_H_W + 1], #BC_PHP ; 3B
                 
                 ; Update Grp0
                 ldy BuildKernelRST
@@ -411,11 +434,13 @@ gemini_builder:
             NIBBLE_ELSE
                 ; Update 2B
                 CALC_REGS_AND_STORE 2, RamKernelGemini2
-                NIBBLE_WRITE KernelB_F_W, RamKernelGemini2, #EMERALD_SP
+                NIBBLE_WRITE_VAR [KernelB_F_W + 0], RamKernelGemini2
+                NIBBLE_WRITE_IMM [KernelB_F_W + 1], #EMERALD_SP
 
                 ; Update 3B
                 CALC_REGS_AND_STORE 3, RamKernelGemini3
-                NIBBLE_WRITE KernelB_H_W, RamKernelGemini3, #EMERALD_SP
+                NIBBLE_WRITE_VAR [KernelB_H_W + 0], RamKernelGemini3
+                NIBBLE_WRITE_IMM [KernelB_H_W + 1], #EMERALD_SP
             NIBBLE_END_IF
         NIBBLE_END_IF
 
@@ -423,39 +448,50 @@ gemini_builder:
 
     ; Nibble Kernel B
     NIBBLE_START_KERNEL gem_kernel_b_2, 40
+        ; NIBBLE_VAR RamKernelGemini1
+        ; NIBBLE_VAR RamKernelGemini1Reg
+        ; NIBBLE_VAR RamKernelGemini2
+        ; NIBBLE_VAR RamKernelGemini2Reg
+        ; NIBBLE_VAR RamKernelGemini3
+        ; NIBBLE_VAR RamKernelGemini3Reg
+        NIBBLE_VAR RamKernelGemini4
+        ; NIBBLE_VAR BuildKernelMissile
+        ; NIBBLE_VAR BuildKernelVdel1
+        NIBBLE_VAR BuildKernelGrp0
+
         ; Gemini 1B
-        NIBBLE_WRITE KernelB_D_W, RamKernelGemini1
+        NIBBLE_WRITE_IMM KernelB_D_W, RamKernelGemini1
 
         ; Write out PHP flag comparison
         ldy BuildKernelRST
         cpy #G01
         NIBBLE_IF eq
-            NIBBLE_WRITE [KernelB_C - $100 + 1], #RamFFByte
+            NIBBLE_WRITE_IMM [KernelB_C - $100 + 1], #RamFFByte
         NIBBLE_ELSE
-            NIBBLE_WRITE [KernelB_C - $100 + 1], #RamPF1Value
+            NIBBLE_WRITE_IMM [KernelB_C - $100 + 1], #RamPF1Value
         NIBBLE_END_IF
 
         ; Missile
         ; ldy DO_MISS_B
         ; NIBBLE_IF eq ; Disabled
-            ; NIBBLE_WRITE [KernelB_K - $100], #BC_STA
+            ; NIBBLE_WRITE_IMM [KernelB_K - $100], #BC_STA
         ; NIBBLE_ELSE
-        ;     NIBBLE_WRITE [KernelB_K - $100], BuildKernelMissile
+        ;     NIBBLE_WRITE_IMM [KernelB_K - $100], BuildKernelMissile
         ; NIBBLE_END_IF
 
         ; Gemini 4B
         ldy [DO_GEMS_B + 4]
         jsr KernelA_UpdateRegs
         sty RamKernelGemini4
-        NIBBLE_WRITE KernelB_J_W, RamKernelGemini4
+        NIBBLE_WRITE_VAR KernelB_J_W, RamKernelGemini4
 
         ; TODO if no PHP, rewrite previous section:
         ; NIBBLE_IF cs
         ;     ; Write to PHP in reset command
-        ;     NIBBLE_WRITE [KernelB_E_W + 0], #BC_PHP
-        ;     NIBBLE_WRITE [KernelB_F_W + 0], #BC_STY, #EMERALD_SP ; 2B
-        ;     NIBBLE_WRITE [KernelB_G_W + 0], #BC_STA, #PF1
-        ;     NIBBLE_WRITE [KernelB_H_W + 0], #BC_STY, #EMERALD_SP ; 3B
+        ;     NIBBLE_WRITE_IMM [KernelB_E_W + 0], #BC_PHP
+        ;     NIBBLE_WRITE_IMM [KernelB_F_W + 0], #BC_STY, #EMERALD_SP ; 2B
+        ;     NIBBLE_WRITE_IMM [KernelB_G_W + 0], #BC_STA, #PF1
+        ;     NIBBLE_WRITE_IMM [KernelB_H_W + 0], #BC_STY, #EMERALD_SP ; 3B
         ; NIBBLE_END_IF
 
         ; Make adjustments for sprites.
@@ -464,11 +500,11 @@ gemini_builder:
         ror BuildKernelY
 
         ; ; VD1
-        ; NIBBLE_WRITE [KernelB_VDEL1 - $100], BuildKernelVdel1
+        ; NIBBLE_WRITE_IMM [KernelB_VDEL1 - $100], BuildKernelVdel1
         ; GRP0
-        NIBBLE_WRITE [KernelB_VDEL0 - $100], BuildKernelGrp0
+        NIBBLE_WRITE_VAR [KernelB_VDEL0 - $100], BuildKernelGrp0
 
-        NIBBLE_WRITE RamPSByte, #$00
+        NIBBLE_WRITE_IMM RamPSByte, #$00
 
     NIBBLE_END_KERNEL
 

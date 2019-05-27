@@ -98,7 +98,7 @@ row_3:
     stx JET_SP
     dey
     ldx Frame0,Y
-    stx RamKernelGRP0
+    stx RamKernelGrp0
     dey
     ldx Frame0,Y
     stx [KernelA_GRP0 - $100]
@@ -116,7 +116,7 @@ row_3:
     ; Jump immediately into scanlines 4-5 aka "kernel_gem"
     lda BuildKernelVdel1
     sta EMERALD_SP
-    lda RamKernelGRP0 ; Load sprite 2 into A
+    lda RamKernelGrp0 ; Load sprite 2 into A
 ; [scanline 4]
 ; [scanline 5]
     ASSERT_RUNTIME "_scycles == #73"
