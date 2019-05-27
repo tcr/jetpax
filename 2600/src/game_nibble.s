@@ -168,7 +168,7 @@ gemini_builder:
         ; NIBBLE_VAR NibbleGemini4
         ; NIBBLE_VAR NibbleMissile
         ; NIBBLE_VAR NibbleVdel1
-        NIBBLE_VAR RamKernelGrp0
+        NIBBLE_VAR NibbleGrp0
         NIBBLE_VAR NibbleX
         NIBBLE_VAR NibbleY
 
@@ -190,8 +190,8 @@ gemini_builder:
             sty [KernelA_B - $100 + 1]
             ; Store 1A in GRP0
             ldy [DO_GEMS_A + 1]
-            sty NibbleGrp0
-            NIBBLE_VAR_STY RamKernelGrp0
+            NIBBLE_VAR_STY NibbleGrp0
+            sty RamKernelGrp0
             ; Gemini 1A is RESPx
             ldy #EMERALD_SP_RESET
             sty [KernelA_C - $100 + 1]
@@ -201,8 +201,8 @@ gemini_builder:
         NIBBLE_ELSE
             ; Store 0A in GRP0
             ldy [DO_GEMS_A + 0]
-            sty NibbleGrp0
-            NIBBLE_VAR_STY RamKernelGrp0
+            NIBBLE_VAR_STY NibbleGrp0
+            sty RamKernelGrp0
 
             ldy [DO_GEMS_A + 1]
             jsr KernelA_GenReset
@@ -236,7 +236,7 @@ gemini_builder:
 
         ; Stop preserving GRP0
         ldy #SENTINEL
-        NIBBLE_VAR_STY RamKernelGrp0
+        sty RamKernelGrp0
 
         ; NibbleX, NibbleY are upgraded if not set
         ; Gemini 2A
@@ -369,7 +369,7 @@ gemini_builder:
         ; NIBBLE_VAR NibbleGemini4
         ; NIBBLE_VAR NibbleMissile
         ; NIBBLE_VAR NibbleVdel1
-        ; NIBBLE_VAR NibbleGrp0
+        NIBBLE_VAR NibbleGrp0
 
         ldx #SENTINEL ; sentinel
         stx NibbleX
@@ -382,7 +382,7 @@ gemini_builder:
 
         ; Gemini 0B
         ldy [DO_GEMS_B + 0]
-        sty NibbleGrp0
+        NIBBLE_VAR_STY NibbleGrp0
         sty RamKernelGrp0
         ; NIBBLE_WRITE_IMM KernelB_D_W, RamKernelGemini0
 

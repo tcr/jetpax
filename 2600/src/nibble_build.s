@@ -215,7 +215,6 @@
     ; NIBBLE_VAR NibbleGemini4
     ; NIBBLE_VAR NibbleMissile
     ; NIBBLE_VAR NibbleVdel1
-    ; NIBBLE_VAR NibbleGrp0
     ldx #SENTINEL
     stx NibbleX
     stx NibbleY
