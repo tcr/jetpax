@@ -391,15 +391,7 @@ gemini_builder:
             ; Update Grp0
             ldy BuildKernelRST
             sty RamKernelGrp0
-        
-            ; Update 3B
-            CALC_REGS_AND_STORE 3, RamKernelGemini3
-            NIBBLE_WRITE KernelB_H_W, RamKernelGemini3, #EMERALD_SP
         NIBBLE_ELSE
-            ; Update 2B
-            CALC_REGS_AND_STORE 2, RamKernelGemini2
-            NIBBLE_WRITE KernelB_F_W, RamKernelGemini2, #EMERALD_SP
-
             ; Gemini 3B
             ldy [DO_GEMS_B + 3]
             jsr KernelB_GenPhp
@@ -417,6 +409,10 @@ gemini_builder:
                 ldy BuildKernelRST
                 sty RamKernelGrp0
             NIBBLE_ELSE
+                ; Update 2B
+                CALC_REGS_AND_STORE 2, RamKernelGemini2
+                NIBBLE_WRITE KernelB_F_W, RamKernelGemini2, #EMERALD_SP
+
                 ; Update 3B
                 CALC_REGS_AND_STORE 3, RamKernelGemini3
                 NIBBLE_WRITE KernelB_H_W, RamKernelGemini3, #EMERALD_SP

@@ -1,5 +1,5 @@
 all:
-	# cd nibble; cargo run
+	cd nibble; cargo run
 	cd src; dasm main.s -f3 -v5 -I../include -o../bin/jetpack.bin -l../bin/jetpack.lst -s../bin/jetpack.sym
 	python assertions.py
 

@@ -32,15 +32,55 @@ trait KernelWalker {
 
 struct KernelBuild {
     build: String,
-    eval: String,
+    eval: Vec<EvalStep>,
 }
 
 impl KernelBuild {
     fn new() -> Self {
         Self {
             build: String::new(),
-            eval: String::new(),
+            eval: vec![],
         }
+    }
+
+    fn push_eval(&mut self, step: EvalStep) {
+        self.eval.push(step);
+    }
+
+    fn eval_replace(&mut self, left: &EvalStep, right: EvalStep) -> bool {
+        for item in &mut self.eval {
+            if item == left {
+                *item = right;
+                return true;
+            }
+        }
+        false
+    }
+
+    fn eval_output(&self) -> String {
+        let mut output = String::new();
+        for item in &self.eval {
+            use EvalStep::*;
+            match item {
+                Literal(s) => {
+                    writeln!(&mut output, "{}", s);
+                }
+                Token(index) => {
+                    writeln!(&mut output, "; raw token: {}", index);
+                }
+
+                LoadImm(s) => {
+                    writeln!(&mut output, "{}", s);
+                }
+                LoadZero(s) => {
+                    writeln!(&mut output, "{}", s);
+                }
+                StoreAbs(s) => {
+                    writeln!(&mut output, "{}", s);
+                }
+            }
+        }
+        output
     }
 }
 
@@ -65,6 +105,16 @@ impl BuildState {
     }
 }
 
+#[derive(Debug, PartialEq)]
+enum EvalStep {
+    Literal(String),
+    Token(usize),
+
+    LoadImm(String),
+    LoadZero(String),
+    StoreAbs(String),
+}
+
 impl KernelWalker for KernelBuild {
     type TNode = BuildState;
 
@@ -74,7 +124,7 @@ impl KernelWalker for KernelBuild {
         writeln!(&mut self.build, "    lda #0");
 
         // EVAL
-        writeln!(&mut self.eval, "    MAC NIBBLE_{}", name);
+        self.push_eval(EvalStep::Literal(format!("    MAC NIBBLE_{}", name)));
         
         BuildState { index: 0, cycles: 0, checkdepth: 0 }
     }
@@ -89,18 +139,10 @@ impl KernelWalker for KernelBuild {
         for i in node.checkdepth..8 {
             writeln!(&mut self.build, "    rol");
         }
-        writeln!(&mut self.build, "    ENDM");
-        writeln!(&mut self.build, "");
-        writeln!(&mut self.build, "");
-        writeln!(&mut self.build, "");
-        writeln!(&mut self.build, "");
+        writeln!(&mut self.build, "    ENDM\n\n\n\n");
 
         // EVAL
-        writeln!(&mut self.eval, "    ENDM ; {} cycles max", node.cycles);
-        writeln!(&mut self.eval, "");
-        writeln!(&mut self.eval, "");
-        writeln!(&mut self.eval, "");
-        writeln!(&mut self.eval, "");
+        self.push_eval(EvalStep::Literal(format!("    ENDM ; {} cycles max\n\n\n\n", node.cycles)));
     }
 
     fn if_start(&mut self, parent_node: &mut Self::TNode, cond: &str) -> Self::TNode {
@@ -114,12 +156,12 @@ impl KernelWalker for KernelBuild {
         writeln!(&mut self.build, "    rol");
 
         // EVAL
-        writeln!(&mut self.eval, "    asl");
+        self.push_eval(EvalStep::Literal(format!("    asl")));
         parent_node.cycles += 2;
-        writeln!(&mut self.eval, "    bcc .else_{}", index);
+        self.push_eval(EvalStep::Literal(format!("    bcc .else_{}", index)));
         parent_node.cycles += 2;
-        writeln!(&mut self.eval, "    ; parent: {:?}", parent_node);
-        writeln!(&mut self.eval, ".if_{}:", index);
+        self.push_eval(EvalStep::Literal(format!("    ; parent: {:?}", parent_node)));
+        self.push_eval(EvalStep::Literal(format!(".if_{}:", index)));
 
         parent_node
             .with_index(index)
@@ -142,10 +184,10 @@ impl KernelWalker for KernelBuild {
         writeln!(&mut self.build, "    rol");
 
         // EVAL
-        writeln!(&mut self.eval, "{}", if_token);
-        writeln!(&mut self.eval, "    jmp .endif_{}", index);
+        self.push_eval(EvalStep::Token(then_node.index));
+        self.push_eval(EvalStep::Literal(format!("    jmp .endif_{}", index)));
         then_node.cycles += 2;
-        writeln!(&mut self.eval, ".else_{}:", index);
+        self.push_eval(EvalStep::Literal(format!(".else_{}:", index)));
 
         parent_node
             .with_index(then_node.index)
@@ -190,25 +232,42 @@ impl KernelWalker for KernelBuild {
             } else if then_node.checkdepth > else_node.checkdepth {
                 // else block needs to advance
                 for _ in else_node.checkdepth..then_node.checkdepth {
-                    writeln!(&mut self.eval, "    rol");
+                    self.push_eval(EvalStep::Literal(format!("    rol")));
                     else_node.cycles += 2;
                 }
             }
 
             // Balance out cycles
+            let mut then_sleep = 0;
+            let mut else_sleep = 0;
             if else_node.cycles > then_node.cycles {
                 // then block needs to advance
-                if_token_replacement.push_str(&format!("    sleep {}\n", else_node.cycles - then_node.cycles));
+                then_sleep = else_node.cycles - then_node.cycles;
             } else if then_node.cycles > else_node.cycles {
                 // else block needs to advance
-                writeln!(&mut self.eval, "    sleep {}", then_node.cycles - else_node.cycles);
+                else_sleep = then_node.cycles - else_node.cycles;
+            }
+
+            // Balance sleeps so we don't sleep 1.
+            // TODO: We can use other EvalStep data to wait the extra cycle.
+            if then_sleep == 1 || else_sleep == 1 {
+                else_sleep += 2;
+                then_sleep += 2;
+            }
+
+            // Write out sleeps.
+            if then_sleep > 0 {
+                if_token_replacement.push_str(&format!("    sleep {}\n", then_sleep));
+            }
+            if else_sleep > 0 {
+                self.push_eval(EvalStep::Literal(format!("    sleep {}", else_sleep)));
             }
 
             // Replace token
             writeln!(&mut if_token_replacement, "    ; then: {:?}", then_node);
-            self.eval = self.eval.replace(&if_token, &if_token_replacement);
-            writeln!(&mut self.eval, "    ; else: {:?}", else_node);
-            writeln!(&mut self.eval, ".endif_{}:", index);
+            assert!(self.eval_replace(&EvalStep::Token(index), EvalStep::Literal(if_token_replacement)), "expected token replacement");
+            self.push_eval(EvalStep::Literal(format!("    ; else: {:?}", else_node)));
+            self.push_eval(EvalStep::Literal(format!(".endif_{}:", index)));
         }
 
         parent_node.index = else_node.index;
@@ -219,9 +278,9 @@ impl KernelWalker for KernelBuild {
     fn write(&mut self, parent_node: &mut Self::TNode, label: &str, values: &[String]) {
         // EVAL
         for (i, value) in values.iter().enumerate() {
-            writeln!(&mut self.eval, "    ldx {}", value);
+            self.push_eval(EvalStep::Literal(format!("    ldx {}", value)));
             parent_node.cycles += 2;
-            writeln!(&mut self.eval, "    stx [{} + {}]", label, i);
+            self.push_eval(EvalStep::Literal(format!("    stx [{} + {}]", label, i)));
             parent_node.cycles += if IS_ZERO_PAGE { 3 } else { 4 };
         }
     }
@@ -250,7 +309,7 @@ fn invert_cond(cond: &str) -> &'static str {
     }
 }
 
-fn gen_kernel_build(lines: &[Parse]) -> Result<KernelBuild, Box<dyn Error>> {
+fn walk_kernel(lines: &[Parse]) -> Result<KernelBuild, Box<dyn Error>> {
     let mut code = KernelBuild::new();
     let mut code_queue = VecDeque::new();
     for line in lines {
@@ -385,9 +444,9 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut kernel_build = String::new();
     let mut kernel_eval = String::new();
     for lines in &kernels {
-        let kernel = gen_kernel_build(&lines)?;
+        let kernel = walk_kernel(&lines)?;
         kernel_build.push_str(&kernel.build);
-        kernel_eval.push_str(&kernel.eval);
+        kernel_eval.push_str(&kernel.eval_output());
     }
 
     std::fs::write(&output_build, &kernel_build)?;

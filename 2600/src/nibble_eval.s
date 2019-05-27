@@ -6,6 +6,7 @@
     rol
     sleep 15
     ; then: BuildState { index: 1, checkdepth: 1, cycles: 8 }
+
     jmp .endif_1
 .else_1:
     asl
@@ -16,13 +17,16 @@
     stx [KernelA_D_W + 0]
     ldx #RESP1
     stx [KernelA_D_W + 1]
+    sleep 2
     ; then: BuildState { index: 2, checkdepth: 2, cycles: 23 }
+
     jmp .endif_2
 .else_2:
     ldx RamKernelGemini1
     stx [KernelA_D_W + 0]
-    ldx.w RamKernelGemini1Reg
+    ldx RamKernelGemini1Reg
     stx [KernelA_D_W + 1]
+    sleep 3
     ; else: BuildState { index: 2, checkdepth: 2, cycles: 22 }
 .endif_2:
     ; else: BuildState { index: 2, checkdepth: 2, cycles: 23 }
@@ -37,6 +41,7 @@
     stx [KernelA_G_W + 1 + 0]
     sleep 5
     ; then: BuildState { index: 3, checkdepth: 3, cycles: 41 }
+
     jmp .endif_3
 .else_3:
     ldx #RESP1
@@ -55,6 +60,7 @@
     stx [KernelA_H_W + 1 + 0]
     sleep 5
     ; then: BuildState { index: 4, checkdepth: 4, cycles: 58 }
+
     jmp .endif_4
 .else_4:
     ldx RamKernelGemini3
@@ -83,7 +89,9 @@
     stx [[KernelA_J_W + 1] + 1]
     ldx #BC_PHP
     stx [[KernelA_K_W + 1] + 0]
+    sleep 2
     ; then: BuildState { index: 1, checkdepth: 1, cycles: 36 }
+
     jmp .endif_1
 .else_1:
     ldx #BC_PHP
@@ -92,10 +100,11 @@
     stx [[KernelA_J_W + 0] + 0]
     ldx #PF1
     stx [[KernelA_J_W + 0] + 1]
-    ldx.w RamKernelGemini4
+    ldx RamKernelGemini4
     stx [KernelA_K_W + 0]
     ldx #EMERALD_SP
     stx [KernelA_K_W + 1]
+    sleep 3
     ; else: BuildState { index: 1, checkdepth: 1, cycles: 35 }
 .endif_1:
     ldx BuildKernelMissile
@@ -130,22 +139,15 @@
     stx [[KernelB_H_W + 0] + 0]
     ldx #EMERALD_SP
     stx [[KernelB_H_W + 0] + 1]
-    ldx RamKernelGemini3
-    stx [KernelB_H_W + 0]
-    ldx #EMERALD_SP
-    stx [KernelB_H_W + 1]
     rol
     sleep 3
-    ; then: BuildState { index: 1, checkdepth: 1, cycles: 62 }
+    ; then: BuildState { index: 1, checkdepth: 1, cycles: 50 }
+
     jmp .endif_1
 .else_1:
-    ldx RamKernelGemini2
-    stx [KernelB_F_W + 0]
-    ldx #EMERALD_SP
-    stx [KernelB_F_W + 1]
     asl
     bcc .else_2
-    ; parent: BuildState { index: 1, checkdepth: 1, cycles: 21 }
+    ; parent: BuildState { index: 1, checkdepth: 1, cycles: 9 }
 .if_2:
     ldx #BC_STY
     stx [[KernelB_E_W + 0] + 0]
@@ -161,19 +163,24 @@
     stx [[KernelB_G_W + 1] + 1]
     ldx #BC_PHP
     stx [[KernelB_H_W + 1] + 0]
-    ; then: BuildState { index: 2, checkdepth: 2, cycles: 65 }
+    ; then: BuildState { index: 2, checkdepth: 2, cycles: 53 }
+
     jmp .endif_2
 .else_2:
+    ldx RamKernelGemini2
+    stx [KernelB_F_W + 0]
+    ldx #EMERALD_SP
+    stx [KernelB_F_W + 1]
     ldx RamKernelGemini3
     stx [KernelB_H_W + 0]
     ldx #EMERALD_SP
     stx [KernelB_H_W + 1]
-    sleep 31
+    sleep 19
     ; else: BuildState { index: 2, checkdepth: 2, cycles: 34 }
 .endif_2:
-    ; else: BuildState { index: 2, checkdepth: 2, cycles: 65 }
+    ; else: BuildState { index: 2, checkdepth: 2, cycles: 53 }
 .endif_1:
-    ENDM ; 65 cycles max
+    ENDM ; 53 cycles max
 
 
 
@@ -187,8 +194,9 @@
 .if_1:
     ldx #RamFFByte
     stx [[KernelB_C - $100 + 1] + 0]
-    ; then: BuildState { index: 1, checkdepth: 1, cycles: 18 }
     sleep 2
+    ; then: BuildState { index: 1, checkdepth: 1, cycles: 18 }
+
     jmp .endif_1
 .else_1:
     ldx #RamPF1Value

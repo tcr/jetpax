@@ -251,17 +251,12 @@
     ; Update Grp0
     ldy BuildKernelRST
     sty RamKernelGrp0
-     
-    ; Update 3B
-    CALC_REGS_AND_STORE 3, RamKernelGemini3
     rol
     jmp .endif_1
     ; [BIT DEPTH] #1 If-End @ 1
 .else_1:
     clc
     rol
-    ; Update 2B
-    CALC_REGS_AND_STORE 2, RamKernelGemini2
     ; Gemini 3B
     ldy [DO_GEMS_B + 3]
     jsr KernelB_GenPhp
@@ -282,6 +277,8 @@
 .else_2:
     clc
     rol
+    ; Update 2B
+    CALC_REGS_AND_STORE 2, RamKernelGemini2
     ; Update 3B
     CALC_REGS_AND_STORE 3, RamKernelGemini3
     ; [BIT DEPTH] #2 *If-End @ 2
