@@ -47,7 +47,7 @@ row_1:
 
     ; FIXME Demo: modify kernel A for the next row
     lda #%010101010
-    sta BuildKernelGrp0
+    sta NibbleGrp0
 
     ; Idle.
     sta WSYNC
@@ -75,8 +75,8 @@ row_2:
     lda #4
     sta TIM64T
 
-    ; Set stack pointer for PHP use from RamKernelPhpTarget.
-    ldx RamKernelPhpTarget
+    ; Set stack pointer for PHP use from NibblePhp.
+    ldx NibblePhp
     dex
     txs
 
@@ -85,7 +85,7 @@ row_2:
     sta COLUPF
 
     ; Set overflow flag
-    bit RamPSByte
+    bit NibblePs
 
     ASSERT_RUNTIME "_scycles == #0"
 
@@ -110,11 +110,11 @@ row_3:
 
     ; Setup for kernel
     sec ; clear carry bit
-    ldx BuildKernelX
-    ldy BuildKernelY
+    ldx NibbleX
+    ldy NibbleY
 
     ; Jump immediately into scanlines 4-5 aka "kernel_gem"
-    lda BuildKernelVdel1
+    lda NibbleVdel1
     sta EMERALD_SP
     lda RamKernelGrp0 ; Load sprite 2 into A
 ; [scanline 4]
@@ -156,7 +156,7 @@ row_7:
     ; sleep 71
 
     ; Run Kernel.
-    lda RamNibbleVar2
+    lda NibbleVar2
     NIBBLE_gem_kernel_a_2
     sleep 5
 
@@ -168,7 +168,7 @@ row_8:
     ; jet_spritedata_calc
 
     ; [NIBBLE VM]
-    lda RamNibbleVar1
+    lda NibbleVar1
     NIBBLE_gem_kernel_a_1
     sleep 3
 

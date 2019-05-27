@@ -9,22 +9,22 @@ coolest_level           ds $3f
     align 16
 
 ; Nibble (16 bytes)
-RamNibbleVar1           byte
-RamNibbleVar2           byte
-RamKernelGemini1        byte
-RamKernelGemini1Reg     byte
-RamKernelGemini2        byte
-RamKernelGemini2Reg     byte
-RamKernelGemini3        byte
-RamKernelGemini3Reg     byte
-RamKernelGemini4        byte
-BuildKernelMissile      byte
-BuildKernelVdel1        byte
-BuildKernelGrp0         byte
-BuildKernelX            byte
-BuildKernelY            byte
-RamKernelPhpTarget      byte
-RamPSByte               byte
+NibbleVar1              byte
+NibbleVar2              byte
+NibbleGemini1           byte
+NibbleGemini1Reg        byte
+NibbleGemini2           byte
+NibbleGemini2Reg        byte
+NibbleGemini3           byte
+NibbleGemini3Reg        byte
+NibbleGemini4           byte
+NibbleMissile           byte
+NibbleVdel1             byte
+NibbleGrp0              byte
+NibbleX                 byte
+NibbleY                 byte
+NibblePhp               byte
+NibblePs                byte
 
     align 16
 
