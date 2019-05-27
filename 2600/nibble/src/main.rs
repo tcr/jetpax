@@ -257,9 +257,11 @@ impl KernelWalker for KernelBuild {
 
             // Write out sleeps.
             if then_sleep > 0 {
+                then_node.cycles += then_sleep;
                 if_token_replacement.push_str(&format!("    sleep {}\n", then_sleep));
             }
             if else_sleep > 0 {
+                else_node.cycles += else_sleep;
                 self.push_eval(EvalStep::Literal(format!("    sleep {}", else_sleep)));
             }
 
