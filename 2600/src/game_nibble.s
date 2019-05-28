@@ -615,10 +615,11 @@ GeminiPopulate: subroutine
     ror
     ror
     GEMINI_POPULATE DO_GEMS_B + 2
-    ; ror
-    ; ror
-    ; ror
+    ror
+    ror
 
+    ; Join last bit and first bit
+    ror
     lda level_for_game + 1
     rol
     GEMINI_POPULATE DO_GEMS_A + 2
