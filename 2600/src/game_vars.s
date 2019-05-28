@@ -8,6 +8,8 @@ coolest_level           ds $3f
 
     align 16
 
+NIBBLE_VAR_START = .
+
 ; Nibble (16 bytes)
 NibbleVar1              byte
 NibbleVar2              byte
@@ -25,6 +27,8 @@ NibbleX                 byte
 NibbleY                 byte
 NibblePhp               byte
 NibblePs                byte
+
+NIBBLE_VAR_END = .
 
     align 16
 

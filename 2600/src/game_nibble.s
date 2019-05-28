@@ -527,6 +527,28 @@ DBG_NIBBLE_BUILD: subroutine
     sta NibbleVar2
 .next:
 
+NibbleZeroLoop: subroutine
+    ; Copy out
+    ldx #00
+    ldy #$00
+.loop:
+    lda NIBBLE_VAR_START,y
+    sta CBSRAM_NIBBLE_WRITE,y
+    stx NIBBLE_VAR_START,y
+    iny
+    cpy #16
+    bne .loop
+
+NibbleExitLoop: subroutine
+    ; Copy in
+    ldy #$00
+.loop:
+    lda CBSRAM_NIBBLE_READ,y
+    sta NIBBLE_VAR_START,y
+    iny
+    cpy #16
+    bne .loop
+
     ; TODO move this into the row kernel
 DBG_NIBBLE_RUN: subroutine
     ldx $f100

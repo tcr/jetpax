@@ -1,10 +1,24 @@
+PositionSprites: subroutine
 
-    ; Vertical Sync
+
+    ; "Start" with overscan.
+Overscan: subroutine
+    sta VBLANK
+    TIMER_SETUP 29
+
+    jsr MoveJoystick
+    jsr SpeedCalculation
+    jsr game_state_tick
+
+    ; Wait out overscan.
+    TIMER_WAIT
+
+    ; Vertical Sync (3 lines)
 VerticalSync: subroutine
     VERTICAL_SYNC
 
 FrameStart: subroutine
-    ; FIXME we can't skip this: ASSERT_RUNTIME "_scan == #0"
+    ASSERT_RUNTIME "_scan == #0"
 
 VerticalBlank: subroutine
     TIMER_SETUP 37
@@ -15,15 +29,6 @@ VerticalBlank: subroutine
 
     ; Frame counter
     inc FrameCount
-
-    ; Positioning
-    SLEEP 40
-    sta EMERALD_SP_RESET	; position 1st player
-    sta WSYNC
-
-    ; Misc
-    lda #00
-    sta EMERALD_MI_ENABLE
 
     ; Assign dervied SpriteEnd value
     clc
@@ -109,15 +114,22 @@ game_frame_setup: subroutine
 
 .complete:
 
+PreFrameSetup:
+    ; Save stack pointer
+    tsx
+    stx RamStackBkp
+
 VerticalBlankEnd:
     ; Wait until the end of Vertical blank.
     TIMER_WAIT
     ASSERT_RUNTIME "_scan == #37"
 
-    ; Save stack pointer
-    tsx
-    stx RamStackBkp
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Visible frame
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+GameFrameRender:
     ; Start rendering the kernel.
     jmp KernelBorder
 
@@ -150,16 +162,5 @@ FrameEnd: subroutine
     TIMER_WAIT
     ASSERT_RUNTIME "_scan == (#37 + #184)"
 
-    ; Overscan
-Overscan: subroutine
-    sta VBLANK
-    TIMER_SETUP 29
-
-    jsr MoveJoystick
-    jsr SpeedCalculation
-    jsr game_state_tick
-
-    TIMER_WAIT
-    ASSERT_RUNTIME "_scan == (#37 + #184 + #29)"
-
-    jmp VerticalSync
+    ; Finish with overscan
+    jmp Overscan
