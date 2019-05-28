@@ -21,28 +21,12 @@ FrameStart: subroutine
     ASSERT_RUNTIME "_scan == #0"
 
 VerticalBlank: subroutine
+    ; Setup frame timer and increment frame counter.
     TIMER_SETUP 37
-
-    ; Scanline counter
-    lda #ROW_COUNT
-    sta LoopCount
-
-    ; Frame counter
     inc FrameCount
 
-    ; Assign dervied SpriteEnd value
-    clc
-    lda #HEIGHT_OFFSET
-    sbc YPos
-    sta SpriteEnd
-
-    ; Player 1
-    lda XPos
-    ldx #0
-    jsr SetHorizPos
-
-    ; Load the kernel into CBSRAM.
-game_frame_kernel_loader: subroutine
+    ; Load the ROM kernel into CBSRAM.
+GameFrameKernelLoader: subroutine
     ; Kernel A or B
     lda #01
     IFNCONST ONLY_KERNEL_B
@@ -61,15 +45,15 @@ game_frame_kernel_loader: subroutine
     jsr LoadKernelB
 .complete:
 
-    ; Populate the kernel with gemini changes.
-game_frame_populate: subroutine
+    ; Populate the kernel with gemini patches.
+GameFramePopulate: subroutine
     ; Extract 26-bit string to full Gemini profile
     jsr gemini_populate
     ; Run nibble populate.
     jsr game_nibble_populate
 
-    ; Complete frame setup.
-game_frame_setup: subroutine
+    ; Kernel-specific frame setup.
+GameFrameSetup: subroutine
     ; Kernel A or B reading directly from the kernel ID
     lda CBSRAM_KERNEL_READ
     cmp #$0a
@@ -97,16 +81,16 @@ game_frame_setup: subroutine
     lda #KERNEL_B_MISSILE_HMOVE
     sta EMERALD_MI_HMOVE
 
+    ; Possibly override Missile position.
+    ; TODO Document use of DO_MISS_B here, to check if M1 should be reset to a
+    ; hidden position on Kernel B as a mechanism for offing the missile bit.
     lda DO_MISS_B
     bne .kernel_b_continue
     sta WSYNC
     sleep KERNEL_B_MISSILE_SLEEP + 8
     sta EMERALD_MI_RESET
-    jmp .kernel_b_continue_2
 
 .kernel_b_continue:
-    sta WSYNC
-.kernel_b_continue_2:
     ; DEBUG: Set per-kernel color
     ldx #$e4
     ; ldx #COL_EMERALD
@@ -114,10 +98,26 @@ game_frame_setup: subroutine
 
 .complete:
 
-PreFrameSetup:
+    ; General frame setup.
+FrameSetup:
     ; Save stack pointer
     tsx
     stx RamStackBkp
+
+    ; Row counter
+    lda #ROW_COUNT
+    sta LoopCount
+
+    ; let SpriteEnd = Frame Height - Y Position
+    clc
+    lda #HEIGHT_OFFSET
+    sbc YPos
+    sta SpriteEnd
+
+    ; Position Player 1
+    lda XPos
+    ldx #0
+    jsr SetHorizPos
 
 VerticalBlankEnd:
     ; Wait until the end of Vertical blank.
