@@ -145,14 +145,14 @@ DBG_CHECK_MISSILE_OPCODE:
     ASSERT_RUNTIME "0"
     rts
 
-
-game_nibble_populate:
+    ; Populate the Nibble kernel values for the current row.
+GameNibblePopulate: subroutine
     lda $f100
     sta DebugKernelID
 
     lda shard_map
     ldy #1 ; gemini counter, starting at 1
-gemini_builder:
+gemini_builder: subroutine
     cpy #1 ; TODO top two bits of shard_map
     bne .no_vd0
 .no_vd0:
@@ -549,8 +549,10 @@ NibbleExitLoop: subroutine
     cpy #16
     bne .loop
 
+    rts
+
     ; TODO move this into the row kernel
-DBG_NIBBLE_RUN: subroutine
+GameNibbleRun: subroutine
     ldx $f100
     cpx #$a
     beq [. + 5]
@@ -574,78 +576,71 @@ DBG_NIBBLE_RUN: subroutine
 
     mac GEMINI_POPULATE
 .TARGET SET {1}
-    lda RamNibbleTemp
-    and #%00000011
-    tay
-    lda GEMINI_LOOKUP,y
-    sta .TARGET
+    ldx #%00000011
+    .byte $cb, $00 ; axs #0 : x = a&x - #0
+    ldy GEMINI_LOOKUP,x
+    sty .TARGET
     endm
 
     mac GEMINI_POPULATE_MISSILE
 .TARGET SET {1}
-    lda RamNibbleTemp
-    and #%00000001
-    sta .TARGET
+    ldx #%00000001
+    sax .TARGET
     endm
 
     align 256
 
-gemini_populate:
-    ldx level_for_game + 3
-    stx RamNibbleTemp
+GeminiPopulate: subroutine
+    lda level_for_game + 3
     GEMINI_POPULATE DO_GEMS_B + 5
-    ror RamNibbleTemp
-    ror RamNibbleTemp
+    ror
+    ror
     GEMINI_POPULATE DO_GEMS_A + 5
-    ror RamNibbleTemp
-    ror RamNibbleTemp
+    ror
+    ror
     GEMINI_POPULATE DO_GEMS_B + 4
-    ror RamNibbleTemp
-    ror RamNibbleTemp
+    ror
+    ror
     GEMINI_POPULATE DO_GEMS_A + 4
-    ror RamNibbleTemp
-    ror RamNibbleTemp
+    ; ror
+    ; ror
 
-    ldx level_for_game + 2
-    stx RamNibbleTemp
+    lda level_for_game + 2
     GEMINI_POPULATE_MISSILE DO_MISS_B
-    ror RamNibbleTemp
+    ror
     GEMINI_POPULATE DO_GEMS_B + 3
-    ror RamNibbleTemp
-    ror RamNibbleTemp
+    ror
+    ror
     GEMINI_POPULATE DO_GEMS_A + 3
-    ror RamNibbleTemp
-    ror RamNibbleTemp
+    ror
+    ror
     GEMINI_POPULATE DO_GEMS_B + 2
-    ror RamNibbleTemp
-    ror RamNibbleTemp
+    ; ror
+    ; ror
+    ; ror
 
-    ror RamNibbleTemp
-    ldx level_for_game + 1
-    stx RamNibbleTemp
-    rol RamNibbleTemp
+    lda level_for_game + 1
+    rol
     GEMINI_POPULATE DO_GEMS_A + 2
 
-    ldx level_for_game + 1
-    stx RamNibbleTemp
-    ror RamNibbleTemp
+    lda level_for_game + 1
+    ror
     GEMINI_POPULATE_MISSILE DO_MISS_A
-    ror RamNibbleTemp
+    ror
     GEMINI_POPULATE DO_GEMS_B + 1
-    ror RamNibbleTemp
-    ror RamNibbleTemp
+    ror
+    ror
     GEMINI_POPULATE DO_GEMS_A + 1
-    ror RamNibbleTemp
-    ror RamNibbleTemp
+    ror
+    ror
     GEMINI_POPULATE DO_GEMS_B + 0
-    ror RamNibbleTemp
-    ror RamNibbleTemp
+    ; ror
+    ; ror
     
-    ldx level_for_game + 0
-    stx RamNibbleTemp
+    lda level_for_game + 0
     GEMINI_POPULATE DO_GEMS_A + 0
-    ror RamNibbleTemp
-    ror RamNibbleTemp
+    ; ror
+    ; ror
 
     rts
 gemini_populate_end:

@@ -62,5 +62,5 @@ InitSetup:
     ; Setup level.
     jsr game_state_setup
 
-    ; Start with vertical sync (to reset frame)
-    jmp VerticalSync
+    ; Start with overscan (calculation start of frame)
+    jmp Overscan

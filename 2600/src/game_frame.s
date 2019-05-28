@@ -1,14 +1,19 @@
-PositionSprites: subroutine
-
-
     ; "Start" with overscan.
 Overscan: subroutine
     sta VBLANK
     TIMER_SETUP 29
 
+    ; Read inputs.
     jsr MoveJoystick
+    ; Player physics.
     jsr SpeedCalculation
+    ; Animation.
     jsr game_state_tick
+    ; Load the ROM kernel into CBSRAM.
+    jsr GameFrameKernelLoader
+
+    ; Extract 26-bit string to full Gemini profile
+    jsr GeminiPopulate
 
     ; Wait out overscan.
     TIMER_WAIT
@@ -17,6 +22,7 @@ Overscan: subroutine
 VerticalSync: subroutine
     VERTICAL_SYNC
 
+    ; Start of NTSC frame.
 FrameStart: subroutine
     ASSERT_RUNTIME "_scan == #0"
 
@@ -25,32 +31,86 @@ VerticalBlank: subroutine
     TIMER_SETUP 37
     inc FrameCount
 
+    ; Populate the Nibble kernel values for the current row.
+    jsr GameNibblePopulate
+    ; Update the current kernel with precomputed Nibble data.
+    jsr GameNibbleRun
+
+    ; TODO Rerun nibble populate for the "next row"
+    ; jsr GeminiPopulate
+    ; jsr GameNibblePopulate
+
+    ; Setup frame. Jump and return
+    jmp GameFrameSetup
+
+VerticalBlankEnd:
+    ; Wait until the end of Vertical blank.
+    TIMER_WAIT
+    ASSERT_RUNTIME "_scan == #37"
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Visible frame
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+GameFrameRender:
+    ; Start rendering the kernel.
+    jmp KernelBorder
+
+FrameEnd: subroutine
+    sta WSYNC
+
+    ; Blank all background colors.
+    lda #0
+    sta COLUPF
+    sta PF2
+    sta PF1
+    sta EMERALD_SP
+
+    ; Guide lines (2x)
+    lda #SIGNAL_LINE
+    sta COLUBK
+    REPEAT 6
+    sta WSYNC
+    REPEND
+    lda #$00
+    sta COLUBK
+
+    ; Restore stack pointer
+    ldx RamStackBkp
+    txs
+
+    ; Display the rest of the blank screen.
+    TIMER_SETUP 25
+    sta WSYNC
+    TIMER_WAIT
+    ASSERT_RUNTIME "_scan == (#37 + #184)"
+
+    ; Finish with overscan
+    jmp Overscan
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Other stuff
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+
     ; Load the ROM kernel into CBSRAM.
 GameFrameKernelLoader: subroutine
     ; Kernel A or B
     lda #01
     IFNCONST ONLY_KERNEL_B
     IFNCONST ONLY_KERNEL_A
-    ; FIXME disabled for test
+    ; FIXME Kernel B disabled for test
     and FrameCount
     bne .kernel_b
     ENDIF
 .kernel_a:
     ; Load kernel A into CBSRAM
-    jsr LoadKernelA
-    jmp .complete
+    jmp LoadKernelA
     ENDIF
 .kernel_b:
     ; Load kernel B into CBSRAM
-    jsr LoadKernelB
-.complete:
-
-    ; Populate the kernel with gemini patches.
-GameFramePopulate: subroutine
-    ; Extract 26-bit string to full Gemini profile
-    jsr gemini_populate
-    ; Run nibble populate.
-    jsr game_nibble_populate
+    jmp LoadKernelB
 
     ; Kernel-specific frame setup.
 GameFrameSetup: subroutine
@@ -119,48 +179,4 @@ FrameSetup:
     ldx #0
     jsr SetHorizPos
 
-VerticalBlankEnd:
-    ; Wait until the end of Vertical blank.
-    TIMER_WAIT
-    ASSERT_RUNTIME "_scan == #37"
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Visible frame
-;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-GameFrameRender:
-    ; Start rendering the kernel.
-    jmp KernelBorder
-
-FrameEnd: subroutine
-    sta WSYNC
-
-    ; Blank all background colors.
-    lda #0
-    sta COLUPF
-    sta PF2
-    sta PF1
-    sta EMERALD_SP
-
-    ; Guide lines (2x)
-    lda #SIGNAL_LINE
-    sta COLUBK
-    REPEAT 6
-    sta WSYNC
-    REPEND
-    lda #$00
-    sta COLUBK
-
-    ; Restore stack pointer
-    ldx RamStackBkp
-    txs
-
-    ; Display the rest of the blank screen.
-    TIMER_SETUP 25
-    sta WSYNC
-    TIMER_WAIT
-    ASSERT_RUNTIME "_scan == (#37 + #184)"
-
-    ; Finish with overscan
-    jmp Overscan
+    jmp VerticalBlankEnd
