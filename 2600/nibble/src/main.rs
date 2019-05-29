@@ -95,7 +95,7 @@ impl KernelBuild {
                     writeln!(&mut output, "    ldx #[ {} ]", s);
                 }
                 LoadZero(s) => {
-                    writeln!(&mut output, "    ldx.z {}", s);
+                    writeln!(&mut output, "    ldx [CBSRAM_NIBBLE_READ + {} - NIBBLE_VAR_START],y", s);
                 }
                 StoreAbs(s) => {
                     writeln!(&mut output, "{}", s);
@@ -322,7 +322,7 @@ impl KernelWalker for KernelBuild {
             assert!(self.has_var(&value), "Did not find var definition: {}", value);
 
             self.push_eval(EvalStep::LoadZero(value.to_string()));
-            parent_node.cycles += 2;
+            parent_node.cycles += 4;
             self.push_eval(EvalStep::Literal(format!("    stx [{} + {}]", label, i)));
             parent_node.cycles += if IS_ZERO_PAGE { 3 } else { 4 };
         }

@@ -12,6 +12,9 @@ Overscan: subroutine
     ; Load the ROM kernel into CBSRAM.
     jsr GameFrameKernelLoader
 
+    ; Extract 26-bit string to full Gemini profile
+    jsr GeminiPopulate
+
     ; Wait out overscan.
     TIMER_WAIT
 
@@ -28,16 +31,17 @@ VerticalBlank: subroutine
     TIMER_SETUP 37
     inc FrameCount
 
-    ; Extract 26-bit string to full Gemini profile
-    jsr GeminiPopulate
     ; Populate the Nibble kernel values for the current row.
     jsr GameNibblePopulate
     ; Update the current kernel with precomputed Nibble data.
-    jsr GameNibbleRun
+    ; jsr GameNibbleRun
+    jsr NibbleCopyToRam
+    ; jsr NibbleCopyFromRam
 
     ; TODO Rerun nibble populate for the "next row"
-    ; jsr GeminiPopulate
-    ; jsr GameNibblePopulate
+    jsr GeminiPopulateFull
+    jsr GameNibblePopulate
+    jsr GameNibbleRun
 
     ; Setup frame. Jump and return
     jmp GameFrameSetup
@@ -158,7 +162,7 @@ GameFrameSetup: subroutine
 .complete:
 
     ; General frame setup.
-FrameSetup:
+FrameSetup: subroutine
     ; Save stack pointer
     tsx
     stx RamStackBkp

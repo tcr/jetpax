@@ -4,8 +4,8 @@
     ; parent: BuildState { index: 0, checkdepth: 0, cycles: 4 }
 .if_1:
     rol
-    sleep 17
-    ; then: BuildState { index: 1, checkdepth: 1, cycles: 25 }
+    sleep 18
+    ; then: BuildState { index: 1, checkdepth: 1, cycles: 26 }
 
     jmp .endif_1
 .else_1:
@@ -17,59 +17,58 @@
     stx [[KernelA_D_W + 0] + 0]
     ldx #[ #RESP1 ]
     stx [[KernelA_D_W + 1] + 0]
-    sleep 2
-    ; then: BuildState { index: 2, checkdepth: 2, cycles: 25 }
+    sleep 3
+    ; then: BuildState { index: 2, checkdepth: 2, cycles: 26 }
 
     jmp .endif_2
 .else_2:
-    ldx.z NibbleGemini1
+    ldx [CBSRAM_NIBBLE_READ + NibbleGemini1 - NIBBLE_VAR_START],y
     stx [[KernelA_D_W + 0] + 0]
-    ldx.z NibbleGemini1Reg
+    ldx [CBSRAM_NIBBLE_READ + NibbleGemini1Reg - NIBBLE_VAR_START],y
     stx [[KernelA_D_W + 1] + 0]
-    sleep 3
-    ; else: BuildState { index: 2, checkdepth: 2, cycles: 25 }
+    ; else: BuildState { index: 2, checkdepth: 2, cycles: 26 }
 .endif_2:
-    ; else: BuildState { index: 2, checkdepth: 2, cycles: 25 }
+    ; else: BuildState { index: 2, checkdepth: 2, cycles: 26 }
 .endif_1:
     asl
     bcc .else_3
-    ; parent: BuildState { index: 2, checkdepth: 2, cycles: 29 }
+    ; parent: BuildState { index: 2, checkdepth: 2, cycles: 30 }
 .if_3:
     ldx #[ #NOP_REG ]
     stx [[KernelA_E_W + 1] + 0]
     ldx #[ #RESP1 ]
     stx [[KernelA_G_W + 1] + 0]
-    sleep 5
-    ; then: BuildState { index: 3, checkdepth: 3, cycles: 48 }
+    sleep 9
+    ; then: BuildState { index: 3, checkdepth: 3, cycles: 53 }
 
     jmp .endif_3
 .else_3:
     ldx #[ #RESP1 ]
     stx [[KernelA_E_W + 1] + 0]
-    ldx.z NibbleGemini2
+    ldx [CBSRAM_NIBBLE_READ + NibbleGemini2 - NIBBLE_VAR_START],y
     stx [[KernelA_G_W + 0] + 0]
-    ldx.z NibbleGemini2Reg
+    ldx [CBSRAM_NIBBLE_READ + NibbleGemini2Reg - NIBBLE_VAR_START],y
     stx [[KernelA_G_W + 1] + 0]
-    ; else: BuildState { index: 3, checkdepth: 3, cycles: 48 }
+    ; else: BuildState { index: 3, checkdepth: 3, cycles: 53 }
 .endif_3:
     asl
     bcc .else_4
-    ; parent: BuildState { index: 3, checkdepth: 3, cycles: 52 }
+    ; parent: BuildState { index: 3, checkdepth: 3, cycles: 57 }
 .if_4:
     ldx #[ #RESP1 ]
     stx [[KernelA_H_W + 1] + 0]
-    sleep 5
-    ; then: BuildState { index: 4, checkdepth: 4, cycles: 65 }
+    sleep 9
+    ; then: BuildState { index: 4, checkdepth: 4, cycles: 74 }
 
     jmp .endif_4
 .else_4:
-    ldx.z NibbleGemini3
+    ldx [CBSRAM_NIBBLE_READ + NibbleGemini3 - NIBBLE_VAR_START],y
     stx [[KernelA_H_W + 0] + 0]
-    ldx.z NibbleGemini3Reg
+    ldx [CBSRAM_NIBBLE_READ + NibbleGemini3Reg - NIBBLE_VAR_START],y
     stx [[KernelA_H_W + 1] + 0]
-    ; else: BuildState { index: 4, checkdepth: 4, cycles: 65 }
+    ; else: BuildState { index: 4, checkdepth: 4, cycles: 74 }
 .endif_4:
-    ENDM ; 65 cycles max
+    ENDM ; 74 cycles max
 
 
 
@@ -89,8 +88,8 @@
     stx [[KernelA_J_W + 1] + 1]
     ldx #[ #BC_PHP ]
     stx [[KernelA_K_W + 1] + 0]
-    sleep 2
-    ; then: BuildState { index: 1, checkdepth: 1, cycles: 38 }
+    sleep 3
+    ; then: BuildState { index: 1, checkdepth: 1, cycles: 39 }
 
     jmp .endif_1
 .else_1:
@@ -100,22 +99,22 @@
     stx [[KernelA_J_W + 0] + 0]
     ldx #[ #PF1 ]
     stx [[KernelA_J_W + 0] + 1]
-    ldx.z NibbleGemini4
+    ldx [CBSRAM_NIBBLE_READ + NibbleGemini4 - NIBBLE_VAR_START],y
     stx [[KernelA_K_W + 0] + 0]
     ldx #[ #EMERALD_SP ]
     stx [[KernelA_K_W + 1] + 0]
-    sleep 3
-    ; else: BuildState { index: 1, checkdepth: 1, cycles: 38 }
+    sleep 2
+    ; else: BuildState { index: 1, checkdepth: 1, cycles: 39 }
 .endif_1:
-    ldx.z NibbleMissile
+    ldx [CBSRAM_NIBBLE_READ + NibbleMissile - NIBBLE_VAR_START],y
     stx [[KernelA_F - $100] + 0]
-    ldx.z NibbleVdel1
+    ldx [CBSRAM_NIBBLE_READ + NibbleVdel1 - NIBBLE_VAR_START],y
     stx [[KernelA_VDEL1 - $100] + 0]
-    ldx.z NibbleGrp0
+    ldx [CBSRAM_NIBBLE_READ + NibbleGrp0 - NIBBLE_VAR_START],y
     stx [[KernelA_VDEL0 - $100] + 0]
     ldx #[ #$ff ]
     stx [NibblePs + 0]
-    ENDM ; 62 cycles max
+    ENDM ; 69 cycles max
 
 
 
@@ -135,13 +134,13 @@
     stx [[KernelB_G_W + 0] + 0]
     ldx #[ #PF1 ]
     stx [[KernelB_G_W + 1] + 0]
-    ldx.z NibbleGemini3
+    ldx [CBSRAM_NIBBLE_READ + NibbleGemini3 - NIBBLE_VAR_START],y
     stx [[KernelB_H_W + 0] + 0]
     ldx #[ #EMERALD_SP ]
     stx [[KernelB_H_W + 1] + 0]
     rol
     sleep 3
-    ; then: BuildState { index: 1, checkdepth: 1, cycles: 53 }
+    ; then: BuildState { index: 1, checkdepth: 1, cycles: 55 }
 
     jmp .endif_1
 .else_1:
@@ -153,7 +152,7 @@
     stx [[KernelB_E_W + 0] + 0]
     ldx #[ #EMERALD_SP_RESET ]
     stx [[KernelB_E_W + 1] + 0]
-    ldx.z NibbleGemini2
+    ldx [CBSRAM_NIBBLE_READ + NibbleGemini2 - NIBBLE_VAR_START],y
     stx [[KernelB_F_W + 1] + 0]
     ldx #[ #EMERALD_SP ]
     stx [[KernelB_F_W + 2] + 0]
@@ -163,24 +162,24 @@
     stx [[KernelB_G_W + 2] + 0]
     ldx #[ #BC_PHP ]
     stx [[KernelB_H_W + 1] + 0]
-    ; then: BuildState { index: 2, checkdepth: 2, cycles: 53 }
+    ; then: BuildState { index: 2, checkdepth: 2, cycles: 55 }
 
     jmp .endif_2
 .else_2:
-    ldx.z NibbleGemini2
+    ldx [CBSRAM_NIBBLE_READ + NibbleGemini2 - NIBBLE_VAR_START],y
     stx [[KernelB_F_W + 0] + 0]
     ldx #[ #EMERALD_SP ]
     stx [[KernelB_F_W + 1] + 0]
-    ldx.z NibbleGemini3
+    ldx [CBSRAM_NIBBLE_READ + NibbleGemini3 - NIBBLE_VAR_START],y
     stx [[KernelB_H_W + 0] + 0]
     ldx #[ #EMERALD_SP ]
     stx [[KernelB_H_W + 1] + 0]
-    sleep 19
-    ; else: BuildState { index: 2, checkdepth: 2, cycles: 53 }
+    sleep 17
+    ; else: BuildState { index: 2, checkdepth: 2, cycles: 55 }
 .endif_2:
-    ; else: BuildState { index: 2, checkdepth: 2, cycles: 53 }
+    ; else: BuildState { index: 2, checkdepth: 2, cycles: 55 }
 .endif_1:
-    ENDM ; 53 cycles max
+    ENDM ; 55 cycles max
 
 
 
@@ -204,13 +203,13 @@
     sleep 3
     ; else: BuildState { index: 1, checkdepth: 1, cycles: 20 }
 .endif_1:
-    ldx.z NibbleGemini4
+    ldx [CBSRAM_NIBBLE_READ + NibbleGemini4 - NIBBLE_VAR_START],y
     stx [KernelB_J_W + 0]
-    ldx.z NibbleGrp0
+    ldx [CBSRAM_NIBBLE_READ + NibbleGrp0 - NIBBLE_VAR_START],y
     stx [[KernelB_VDEL0 - $100] + 0]
     ldx #[ #$00 ]
     stx [NibblePs + 0]
-    ENDM ; 38 cycles max
+    ENDM ; 42 cycles max
 
 
 

@@ -10,7 +10,7 @@ coolest_level           ds $3f
 
 NIBBLE_VAR_START = .
 
-; Nibble (16 bytes)
+; Nibble Variables
 NibbleVar1              byte
 NibbleVar2              byte
 NibbleGemini1           byte
@@ -29,6 +29,7 @@ NibblePhp               byte
 NibblePs                byte
 
 NIBBLE_VAR_END = .
+NIBBLE_VAR_COUNT = NIBBLE_VAR_END - NIBBLE_VAR_START
 
     align 16
 

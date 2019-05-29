@@ -45,10 +45,6 @@ row_1:
     sbc #8
     sta SpriteEnd
 
-    ; FIXME Demo: modify kernel A for the next row
-    lda #%010101010
-    sta NibbleGrp0
-
     ; Idle.
     sta WSYNC
     ; sleep 33
@@ -76,6 +72,7 @@ row_2:
     sta TIM64T
 
     ; Set stack pointer for PHP use from NibblePhp.
+    ; FIXME need to fix these and other Nibble references
     ldx NibblePhp
     dex
     txs
@@ -139,6 +136,9 @@ row_6:
 
     jet_spritedata_calc
 
+    ; Load nibble index.
+    ldy #0
+
     ; Idle.
     sta WSYNC
 
@@ -158,7 +158,7 @@ row_7:
     ; Run Kernel.
     lda NibbleVar2
     NIBBLE_gem_kernel_a_2
-    sleep 5
+    ; sleep 5
 
 ; [scanline 8]
 row_8:
@@ -170,7 +170,7 @@ row_8:
     ; [NIBBLE VM]
     lda NibbleVar1
     NIBBLE_gem_kernel_a_1
-    sleep 3
+    ; sleep 3
 
     ; Idle.
     ; sleep 51

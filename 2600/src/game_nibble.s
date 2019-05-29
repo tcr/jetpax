@@ -526,8 +526,10 @@ DBG_NIBBLE_BUILD: subroutine
     NIBBLE_gem_kernel_b_2_BUILD ; TODO can this be implied
     sta NibbleVar2
 .next:
-
-NibbleZeroLoop: subroutine
+    rts
+    
+    
+NibbleCopyToRam: subroutine
     ; Copy out
     ldx #00
     ldy #$00
@@ -536,19 +538,17 @@ NibbleZeroLoop: subroutine
     sta CBSRAM_NIBBLE_WRITE,y
     stx NIBBLE_VAR_START,y
     iny
-    cpy #16
+    cpy #NIBBLE_VAR_COUNT
     bne .loop
+    rts
 
-NibbleExitLoop: subroutine
-    ; Copy in
-    ldy #$00
-.loop:
-    lda CBSRAM_NIBBLE_READ,y
-    sta NIBBLE_VAR_START,y
-    iny
-    cpy #16
-    bne .loop
-
+NibbleCopyFromRam: subroutine
+.INDEX SET 0
+    REPEAT NIBBLE_VAR_COUNT
+        lda [CBSRAM_NIBBLE_READ + .INDEX]
+        sta [NIBBLE_VAR_START + .INDEX]
+.INDEX SET .INDEX + 1
+    REPEND
     rts
 
     ; TODO move this into the row kernel
@@ -645,6 +645,63 @@ GeminiPopulate: subroutine
 
     rts
 gemini_populate_end:
+
+; FIXME this should be deleted
+GeminiPopulateFull: subroutine
+    lda #%11111111
+    GEMINI_POPULATE DO_GEMS_B + 5
+    ror
+    ror
+    GEMINI_POPULATE DO_GEMS_A + 5
+    ror
+    ror
+    GEMINI_POPULATE DO_GEMS_B + 4
+    ror
+    ror
+    GEMINI_POPULATE DO_GEMS_A + 4
+    ; ror
+    ; ror
+
+    lda #%11111111
+    GEMINI_POPULATE_MISSILE DO_MISS_B
+    ror
+    GEMINI_POPULATE DO_GEMS_B + 3
+    ror
+    ror
+    GEMINI_POPULATE DO_GEMS_A + 3
+    ror
+    ror
+    GEMINI_POPULATE DO_GEMS_B + 2
+    ror
+    ror
+
+    ; Join last bit and first bit
+    ror
+    lda #%11111111
+    rol
+    GEMINI_POPULATE DO_GEMS_A + 2
+
+    lda #%11111111
+    ror
+    GEMINI_POPULATE_MISSILE DO_MISS_A
+    ror
+    GEMINI_POPULATE DO_GEMS_B + 1
+    ror
+    ror
+    GEMINI_POPULATE DO_GEMS_A + 1
+    ror
+    ror
+    GEMINI_POPULATE DO_GEMS_B + 0
+    ; ror
+    ; ror
+    
+    lda #%11111111
+    GEMINI_POPULATE DO_GEMS_A + 0
+    ; ror
+    ; ror
+
+    rts
+
 
     align 16
 
