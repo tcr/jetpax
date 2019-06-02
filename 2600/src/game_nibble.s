@@ -120,14 +120,14 @@ KernelA_UpdateRegs: subroutine
     bne .set_else
 
     ; KA Missile opcode determination
-DBG_CHECK_MISSILE_OPCODE:
-    sty NibbleX
-    ror NibbleX ; D0
-    ror NibbleX ; D1
-    ldx #BC_STX
-    bcs [. + 4]
-    ldx #BC_STY
-    stx NibbleMissile
+; DBG_CHECK_MISSILE_OPCODE:
+;     sty NibbleX
+;     ror NibbleX ; D0
+;     ror NibbleX ; D1
+;     ldx #BC_STX
+;     bcs [. + 4]
+;     ldx #BC_STY
+;     stx NibbleMissile
 
     ; Set the X operator
     sty NibbleX
@@ -166,7 +166,7 @@ gemini_builder: subroutine
         NIBBLE_VAR NibbleGemini3
         NIBBLE_VAR NibbleGemini3Reg
         ; NIBBLE_VAR NibbleGemini4
-        ; NIBBLE_VAR NibbleMissile
+        NIBBLE_VAR NibbleMissile
         ; NIBBLE_VAR NibbleVdel1
         NIBBLE_VAR NibbleGrp0
         NIBBLE_VAR NibbleX
@@ -176,6 +176,10 @@ gemini_builder: subroutine
         sty BuildKernelRST
         NIBBLE_VAR_STY NibbleX
         NIBBLE_VAR_STY NibbleY
+
+        ; FIXME don't hard code this?
+        ldy #BC_STX
+        NIBBLE_VAR_STY NibbleMissile
 
         ; Gemini 1A
 .K_1A:

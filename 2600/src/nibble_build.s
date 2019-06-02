@@ -1,12 +1,13 @@
     MAC NIBBLE_gem_kernel_a_1_BUILD
     lda #0
     ; NIBBLE_VAR NibbleGemini4
-    ; NIBBLE_VAR NibbleMissile
     ; NIBBLE_VAR NibbleVdel1
     ldy #SENTINEL
     sty BuildKernelRST
     sty NibbleX
     sty NibbleY
+    ldy #BC_STX
+    sty NibbleMissile
     ; Gemini 1A
 .K_1A:
     ldy [DO_GEMS_A + 0]
