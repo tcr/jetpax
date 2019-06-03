@@ -6,6 +6,7 @@
     sty BuildKernelRST
     sty NibbleX
     sty NibbleY
+    ; FIXME don't hard code this?
     ldy #BC_STX
     sty NibbleMissile
     ; Gemini 1A
