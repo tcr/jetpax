@@ -2,16 +2,16 @@
     lda #0
     ; NIBBLE_VAR NibbleGemini4
     ; NIBBLE_VAR NibbleVdel1
-    ldy #SENTINEL
-    sty BuildKernelRST
-    sty NibbleX
-    sty NibbleY
+    ldx #SENTINEL
+    stx BuildKernelRST
+    stx NibbleX
+    stx NibbleY
     ; FIXME don't hard code this?
-    ldy #BC_STX
-    sty NibbleMissile
+    ldx #BC_STX
+    stx NibbleMissile
     ; Gemini 1A
 .K_1A:
-    ldy [DO_GEMS_A + 0]
+    ldx [DO_GEMS_A + 0]
     jsr KernelA_GenReset
 .if_1:
     bne .else_1
@@ -19,9 +19,9 @@
     rol
     ; Special: Encoding RST0
     ; Store 1A in GRP0
-    ldy [DO_GEMS_A + 1]
-    sty NibbleGrp0
-    sty RamKernelGrp0
+    ldx [DO_GEMS_A + 1]
+    stx NibbleGrp0
+    stx RamKernelGrp0
     ; Gemini 1A is RESPx
     ; Turn 3-cycle NOP into 4-cycle
     rol
@@ -31,10 +31,10 @@
     clc
     rol
     ; Store 0A in GRP0
-    ldy [DO_GEMS_A + 0]
-    sty NibbleGrp0
-    sty RamKernelGrp0
-    ldy [DO_GEMS_A + 1]
+    ldx [DO_GEMS_A + 0]
+    stx NibbleGrp0
+    stx RamKernelGrp0
+    ldx [DO_GEMS_A + 1]
     jsr KernelA_GenReset
 .if_2:
     bne .else_2
@@ -47,21 +47,21 @@
     clc
     rol
     ; Calculate the 1A value
-    ldy SHARD_LUT_RF1
-    cpy #1
+    ldx SHARD_LUT_RF1
+    cpx #1
     .byte $D0, #3
-    ldy #RESP1
+    ldx #RESP1
     .byte $2C
-    ldy #GRP1
-    sty NibbleGemini1Reg
+    ldx #GRP1
+    stx NibbleGemini1Reg
     ; Set opcode
     ldx SHARD_LUT_RF1
     cpx #1
-    ldy #BC_STX
+    ldx #BC_STX
     .byte $F0, #5
-    ldy [DO_GEMS_A + 1]
-    jsr KernelA_UpdateRegs
-    sty NibbleGemini1
+    ldx [DO_GEMS_A + 1]
+    jsr Kernel_UpdateRegs
+    stx NibbleGemini1
     ; [BIT DEPTH] #2 *If-End @ 2
     ; [BIT DEPTH] #2 Else-End @ 2
 .endif_2:
@@ -69,12 +69,12 @@
     ; [BIT DEPTH] #2 Else-End @ 2
 .endif_1:
     ; Stop preserving GRP0
-    ldy #SENTINEL
-    sty RamKernelGrp0
+    ldx #SENTINEL
+    stx RamKernelGrp0
     ; NibbleX, NibbleY are upgraded if not set
     ; Gemini 2A
 .K_2A
-    ldy [DO_GEMS_A + 2]
+    ldx [DO_GEMS_A + 2]
     jsr KernelA_GenReset
 .if_3:
     bne .else_3
@@ -86,23 +86,23 @@
     clc
     rol
     ; Set opcode
-    ldy [DO_GEMS_A + 2]
-    jsr KernelA_UpdateRegs
-    sty NibbleGemini2
+    ldx [DO_GEMS_A + 2]
+    jsr Kernel_UpdateRegs
+    stx NibbleGemini2
     ; Set opcode target
-    ldy SHARD_LUT_RF1
-    cpy #2
+    ldx SHARD_LUT_RF1
+    cpx #2
     .byte $D0, #3
-    ldy #RESP1
+    ldx #RESP1
     .byte $2C
-    ldy #GRP1
-    sty NibbleGemini2Reg
+    ldx #GRP1
+    stx NibbleGemini2Reg
     ; [BIT DEPTH] #3 *If-End @ 3
     ; [BIT DEPTH] #3 Else-End @ 3
 .endif_3:
     ; Gemini 3A
 .K_3A:
-    ldy [DO_GEMS_A + 3]
+    ldx [DO_GEMS_A + 3]
     jsr KernelA_GenReset
 .if_4:
     bne .else_4
@@ -114,17 +114,17 @@
     clc
     rol
     ; Set opcode
-    ldy [DO_GEMS_A + 3]
-    jsr KernelA_UpdateRegs
-    sty NibbleGemini3
+    ldx [DO_GEMS_A + 3]
+    jsr Kernel_UpdateRegs
+    stx NibbleGemini3
     ; Set opcode target
-    ldy SHARD_LUT_RF1
+    ldx SHARD_LUT_RF1
     cpy #3
     .byte $D0, #3
-    ldy #RESP1
+    ldx #RESP1
     .byte $2C
-    ldy #GRP1
-    sty NibbleGemini3Reg
+    ldx #GRP1
+    stx NibbleGemini3Reg
     ; [BIT DEPTH] #4 *If-End @ 4
     ; [BIT DEPTH] #4 Else-End @ 4
 .endif_4:
@@ -147,8 +147,8 @@
     ; NIBBLE_VAR NibbleGemini3
     ; NIBBLE_VAR NibbleGemini3Reg
     ; VD1 default
-    ldy [DO_GEMS_A + 1]
-    sty NibbleVdel1
+    ldx [DO_GEMS_A + 1]
+    stx NibbleVdel1
     ; Gemini 4A
     ldx SHARD_LUT_VD1
     cpx #4
@@ -157,29 +157,29 @@
     sec
     rol
     ; Set PHP
-    ldy #VDELP1
-    sty NibblePhp
+    ldx #VDELP1
+    stx NibblePhp
     ; Update VDEL1
-    ldy [DO_GEMS_A + 4]
-    sty NibbleVdel1
+    ldx [DO_GEMS_A + 4]
+    stx NibbleVdel1
     jmp .endif_1
     ; [BIT DEPTH] #1 If-End @ 1
 .else_1:
     clc
     rol
-    ldy [DO_GEMS_A + 4]
-    jsr KernelA_UpdateRegs
-    sty NibbleGemini4
+    ldx [DO_GEMS_A + 4]
+    jsr Kernel_UpdateRegs
+    stx NibbleGemini4
     ; Set PHP
-    ldy #RESP1
-    sty NibblePhp
+    ldx #RESP1
+    stx NibblePhp
     ; [BIT DEPTH] #1 *If-End @ 1
     ; [BIT DEPTH] #1 Else-End @ 1
 .endif_1:
     ; Gemini 5A
     ; TODO eventually...?
     ; Missile
-    ldy DO_MISS_A
+    ldx DO_MISS_A
     ; FIXME Why doesn't this branch compile?
     ; bne .+4
     ; ldx #BC_NOP
@@ -217,12 +217,12 @@
     sty NibblePhp
     ; Gemini 0B
     ldy [DO_GEMS_B + 0]
-    sty NibbleGrp0
+    stx NibbleGrp0
     sty RamKernelGrp0
     ; NIBBLE_WRITE_IMM KernelB_D_W, RamKernelGemini0
     ; Gemini 1B
     ldy [DO_GEMS_B + 1]
-    jsr KernelA_UpdateRegs
+    jsr Kernel_UpdateRegs
     sty NibbleGemini1
     ; Gemini 2B
     ldy [DO_GEMS_B + 2]
@@ -321,7 +321,7 @@
     ; NIBBLE_END_IF
     ; Gemini 4B
     ldy [DO_GEMS_B + 4]
-    jsr KernelA_UpdateRegs
+    jsr Kernel_UpdateRegs
     sty NibbleGemini4
     ; TODO if no PHP, rewrite previous section:
     ; NIBBLE_IF cs
