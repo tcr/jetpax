@@ -41,8 +41,9 @@ VerticalBlank: subroutine
 
     ; TODO Rerun nibble populate for the "next row"
     jsr GeminiPopulateFull
-    ldy #0
-    ; TODO ldy #16
+    ; ldy #0
+    ldy #16
+.DBG_POPULATE:
     jsr GameNibblePopulate
     jsr GameNibbleRun
 
