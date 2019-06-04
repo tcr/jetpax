@@ -18,21 +18,12 @@
     sec
     rol
     ; Special: Encoding RST0
-    ; Rewrite lda RamKernelPF1 to be #immediate
-    ldy #BC_LDA_IMM
-    sty [KernelA_B - $100]
-    ldy #%10100000
-    sty [KernelA_B - $100 + 1]
     ; Store 1A in GRP0
     ldy [DO_GEMS_A + 1]
     sty NibbleGrp0
     sty RamKernelGrp0
     ; Gemini 1A is RESPx
-    ldy #EMERALD_SP_RESET
-    sty [KernelA_C - $100 + 1]
     ; Turn 3-cycle NOP into 4-cycle
-    ldy #$14
-    sty [KernelA_D - $100]
     rol
     jmp .endif_1
     ; [BIT DEPTH] #1 If-End @ 1

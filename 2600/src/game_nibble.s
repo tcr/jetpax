@@ -187,21 +187,16 @@ gemini_builder: subroutine
         jsr KernelA_GenReset
         NIBBLE_IF eq
             ; Special: Encoding RST0
-            ; Rewrite lda RamKernelPF1 to be #immediate
-            ldy #BC_LDA_IMM
-            sty [KernelA_B - $100]
-            ldy #%10100000
-            sty [KernelA_B - $100 + 1]
+            NIBBLE_WRITE_IMM [KernelA_B - $100], #BC_LDA_IMM
+            NIBBLE_WRITE_IMM [KernelA_B - $100 + 1], #%10100000
             ; Store 1A in GRP0
             ldy [DO_GEMS_A + 1]
             NIBBLE_VAR_STY NibbleGrp0
-            sty RamKernelGrp0
+            sty RamKernelGrp0 ; For checking purposes
             ; Gemini 1A is RESPx
-            ldy #EMERALD_SP_RESET
-            sty [KernelA_C - $100 + 1]
+            NIBBLE_WRITE_IMM [KernelA_C - $100 + 1], #EMERALD_SP_RESET
             ; Turn 3-cycle NOP into 4-cycle
-            ldy #$14 ; TODO what is this
-            sty [KernelA_D - $100]
+            NIBBLE_WRITE_IMM [KernelA_D - $100], #$14 ; NOP zpx (4 cycles)
         NIBBLE_ELSE
             ; Store 0A in GRP0
             ldy [DO_GEMS_A + 0]
@@ -555,8 +550,13 @@ NibbleCopyFromRam: subroutine
     REPEND
     rts
 
+    ; Evaluate the kernel.
     ; TODO move this into the row kernel
 GameNibbleRun: subroutine
+    ; Row 0.
+    ldy #0
+
+    ; Select kernel A or B.
     ldx $f100
     cpx #$a
     beq [. + 5]

@@ -3,9 +3,16 @@
     bcc .else_1
     ; parent: BuildState { index: 0, checkdepth: 0, cycles: 4 }
 .if_1:
+    ldx #[ #BC_LDA_IMM ]
+    stx [[KernelA_B - $100] + 0]
+    ldx #[ #%10100000 ]
+    stx [[KernelA_B - $100 + 1] + 0]
+    ldx #[ #EMERALD_SP_RESET ]
+    stx [[KernelA_C - $100 + 1] + 0]
+    ldx #[ #$14 ]
+    stx [[KernelA_D - $100] + 0]
     rol
-    sleep 18
-    ; then: BuildState { index: 1, checkdepth: 1, cycles: 26 }
+    ; then: BuildState { index: 1, checkdepth: 1, cycles: 32 }
 
     jmp .endif_1
 .else_1:
@@ -28,18 +35,19 @@
     stx [[KernelA_D_W + 1] + 0]
     ; else: BuildState { index: 2, checkdepth: 2, cycles: 26 }
 .endif_2:
-    ; else: BuildState { index: 2, checkdepth: 2, cycles: 26 }
+    sleep 6
+    ; else: BuildState { index: 2, checkdepth: 2, cycles: 32 }
 .endif_1:
     asl
     bcc .else_3
-    ; parent: BuildState { index: 2, checkdepth: 2, cycles: 30 }
+    ; parent: BuildState { index: 2, checkdepth: 2, cycles: 36 }
 .if_3:
     ldx #[ #NOP_REG ]
     stx [[KernelA_E_W + 1] + 0]
     ldx #[ #RESP1 ]
     stx [[KernelA_G_W + 1] + 0]
     sleep 9
-    ; then: BuildState { index: 3, checkdepth: 3, cycles: 53 }
+    ; then: BuildState { index: 3, checkdepth: 3, cycles: 59 }
 
     jmp .endif_3
 .else_3:
@@ -49,16 +57,16 @@
     stx [[KernelA_G_W + 0] + 0]
     ldx [CBSRAM_NIBBLE_READ + NibbleGemini2Reg - NIBBLE_VAR_START],y
     stx [[KernelA_G_W + 1] + 0]
-    ; else: BuildState { index: 3, checkdepth: 3, cycles: 53 }
+    ; else: BuildState { index: 3, checkdepth: 3, cycles: 59 }
 .endif_3:
     asl
     bcc .else_4
-    ; parent: BuildState { index: 3, checkdepth: 3, cycles: 57 }
+    ; parent: BuildState { index: 3, checkdepth: 3, cycles: 63 }
 .if_4:
     ldx #[ #RESP1 ]
     stx [[KernelA_H_W + 1] + 0]
     sleep 9
-    ; then: BuildState { index: 4, checkdepth: 4, cycles: 74 }
+    ; then: BuildState { index: 4, checkdepth: 4, cycles: 80 }
 
     jmp .endif_4
 .else_4:
@@ -66,9 +74,9 @@
     stx [[KernelA_H_W + 0] + 0]
     ldx [CBSRAM_NIBBLE_READ + NibbleGemini3Reg - NIBBLE_VAR_START],y
     stx [[KernelA_H_W + 1] + 0]
-    ; else: BuildState { index: 4, checkdepth: 4, cycles: 74 }
+    ; else: BuildState { index: 4, checkdepth: 4, cycles: 80 }
 .endif_4:
-    ENDM ; 74 cycles max
+    ENDM ; 80 cycles max
 
 
 
