@@ -303,7 +303,8 @@ impl KernelWalker for KernelBuild {
         // BUILD
         assert!(self.has_var(label), "Did not find var definition: {}", label);
 
-        writeln!(&mut self.build, "    stx {},y", label);
+        writeln!(&mut self.build, "    stx {}", label);
+        // FIXME writeln!(&mut self.build, "    stx [CBSRAM_NIBBLE_WRITE + {} - NIBBLE_VAR_START],y", label);
     }
 
     fn write(&mut self, parent_node: &mut Self::TNode, label: &str, values: &[String]) {

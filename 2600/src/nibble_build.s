@@ -4,11 +4,11 @@
     ; NIBBLE_VAR NibbleVdel1
     ldx #SENTINEL
     stx BuildKernelRST
-    stx NibbleX,y
-    stx NibbleY,y
+    stx NibbleX
+    stx NibbleY
     ; FIXME don't hard code this?
     ldx #BC_STX
-    stx NibbleMissile,y
+    stx NibbleMissile
     ; Gemini 1A
 .K_1A:
     ldx [DO_GEMS_A + 0]
@@ -20,7 +20,7 @@
     ; Special: Encoding RST0
     ; Store 1A in GRP0
     ldx [DO_GEMS_A + 1]
-    stx NibbleGrp0,y
+    stx NibbleGrp0
     stx RamKernelGrp0
     ; Gemini 1A is RESPx
     ; Turn 3-cycle NOP into 4-cycle
@@ -32,7 +32,7 @@
     rol
     ; Store 0A in GRP0
     ldx [DO_GEMS_A + 0]
-    stx NibbleGrp0,y
+    stx NibbleGrp0
     stx RamKernelGrp0
     ldx [DO_GEMS_A + 1]
     jsr KernelA_GenReset
@@ -53,7 +53,7 @@
     ldx #RESP1
     .byte $2C
     ldx #GRP1
-    stx NibbleGemini1Reg,y
+    stx NibbleGemini1Reg
     ; Set opcode
     ldx SHARD_LUT_RF1
     cpx #1
@@ -61,7 +61,7 @@
     .byte $F0, #5
     ldx [DO_GEMS_A + 1]
     jsr Kernel_UpdateRegs
-    stx NibbleGemini1,y
+    stx NibbleGemini1
     ; [BIT DEPTH] #2 *If-End @ 2
     ; [BIT DEPTH] #2 Else-End @ 2
 .endif_2:
@@ -88,7 +88,7 @@
     ; Set opcode
     ldx [DO_GEMS_A + 2]
     jsr Kernel_UpdateRegs
-    stx NibbleGemini2,y
+    stx NibbleGemini2
     ; Set opcode target
     ldx SHARD_LUT_RF1
     cpx #2
@@ -96,7 +96,7 @@
     ldx #RESP1
     .byte $2C
     ldx #GRP1
-    stx NibbleGemini2Reg,y
+    stx NibbleGemini2Reg
     ; [BIT DEPTH] #3 *If-End @ 3
     ; [BIT DEPTH] #3 Else-End @ 3
 .endif_3:
@@ -116,7 +116,7 @@
     ; Set opcode
     ldx [DO_GEMS_A + 3]
     jsr Kernel_UpdateRegs
-    stx NibbleGemini3,y
+    stx NibbleGemini3
     ; Set opcode target
     ldx SHARD_LUT_RF1
     cpy #3
@@ -124,7 +124,7 @@
     ldx #RESP1
     .byte $2C
     ldx #GRP1
-    stx NibbleGemini3Reg,y
+    stx NibbleGemini3Reg
     ; [BIT DEPTH] #4 *If-End @ 4
     ; [BIT DEPTH] #4 Else-End @ 4
 .endif_4:
@@ -148,7 +148,7 @@
     ; NIBBLE_VAR NibbleGemini3Reg
     ; VD1 default
     ldx [DO_GEMS_A + 1]
-    stx NibbleVdel1,y
+    stx NibbleVdel1
     ; Gemini 4A
     ldx SHARD_LUT_VD1
     cpx #4
@@ -158,10 +158,10 @@
     rol
     ; Set PHP
     ldx #VDELP1
-    stx NibblePhp,y
+    stx NibblePhp
     ; Update VDEL1
     ldx [DO_GEMS_A + 4]
-    stx NibbleVdel1,y
+    stx NibbleVdel1
     jmp .endif_1
     ; [BIT DEPTH] #1 If-End @ 1
 .else_1:
@@ -169,10 +169,10 @@
     rol
     ldx [DO_GEMS_A + 4]
     jsr Kernel_UpdateRegs
-    stx NibbleGemini4,y
+    stx NibbleGemini4
     ; Set PHP
     ldx #RESP1
-    stx NibblePhp,y
+    stx NibblePhp
     ; [BIT DEPTH] #1 *If-End @ 1
     ; [BIT DEPTH] #1 Else-End @ 1
 .endif_1:
@@ -217,7 +217,7 @@
     sty NibblePhp
     ; Gemini 0B
     ldy [DO_GEMS_B + 0]
-    stx NibbleGrp0,y
+    stx NibbleGrp0
     sty RamKernelGrp0
     ; NIBBLE_WRITE_IMM KernelB_D_W, RamKernelGemini0
     ; Gemini 1B

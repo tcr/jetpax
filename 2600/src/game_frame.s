@@ -39,10 +39,10 @@ VerticalBlank: subroutine
     jsr NibbleCopyToRam
     ; jsr NibbleCopyFromRam
 
-    ; TODO Rerun nibble populate for the "next row"
     jsr GeminiPopulateFull
-    ; ldy #0
     ldy #16
+    ; FIXME this is what is next to enable, but it breaks:
+    ; ldy #16
 .DBG_POPULATE:
     jsr GameNibblePopulate
     jsr GameNibbleRun
@@ -54,7 +54,6 @@ VerticalBlankEnd:
     ; Wait until the end of Vertical blank.
     TIMER_WAIT
     ASSERT_RUNTIME "_scan == #37"
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Visible frame
