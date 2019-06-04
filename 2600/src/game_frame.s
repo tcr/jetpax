@@ -32,6 +32,7 @@ VerticalBlank: subroutine
     inc FrameCount
 
     ; Populate the Nibble kernel values for the current row.
+    ldy #0
     jsr GameNibblePopulate
     ; Update the current kernel with precomputed Nibble data.
     ; jsr GameNibbleRun
@@ -40,6 +41,8 @@ VerticalBlank: subroutine
 
     ; TODO Rerun nibble populate for the "next row"
     jsr GeminiPopulateFull
+    ldy #0
+    ; TODO ldy #16
     jsr GameNibblePopulate
     jsr GameNibbleRun
 

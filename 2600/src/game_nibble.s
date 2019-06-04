@@ -509,7 +509,6 @@ gemini_builder: subroutine
 
     ; TODO do this for all rows
 DBG_NIBBLE_BUILD: subroutine
-    ldx #0 ; null out
     ldx $f100
     cpx #$a
     beq [. + 5]
