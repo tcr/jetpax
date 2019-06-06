@@ -36,7 +36,7 @@ VerticalBlank: subroutine
     jsr GameNibblePopulate
     ; Update the current kernel with precomputed Nibble data.
     ; jsr GameNibbleRun
-    jsr NibbleCopyToRam
+    ; jsr NibbleCopyToRam
     ; jsr NibbleCopyFromRam
 
     jsr GeminiPopulateFull
