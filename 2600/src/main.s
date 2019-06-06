@@ -24,6 +24,14 @@
         seg CodeBank3
     endm
 
+
+    ; Dynamic, runtime (Stella) assertions for "make debug"
+    mac NIBBLE_RAM_STORE
+.KEY SET {2}
+    {1} .KEY
+    endm
+
+
     ; Dynamic, runtime (Stella) assertions for "make debug"
     mac ASSERT_RUNTIME
 .COND SET {1}

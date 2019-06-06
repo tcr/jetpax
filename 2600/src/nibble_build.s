@@ -1,67 +1,68 @@
     MAC NIBBLE_gem_kernel_a_1_BUILD
     lda #0
+    sta RamNibbleBuildState
     ; NIBBLE_VAR NibbleGemini4
     ; NIBBLE_VAR NibbleVdel1
-    ldx #SENTINEL
-    stx BuildKernelRST
-    stx NibbleX
-    stx NibbleY
+    lda #SENTINEL
+    sta BuildKernelRST
+    NIBBLE_RAM_STORE sta, NibbleX
+    NIBBLE_RAM_STORE sta, NibbleY
     ; FIXME don't hard code this?
-    ldx #BC_STX
-    stx NibbleMissile
+    lda #BC_STX
+    NIBBLE_RAM_STORE sta, NibbleMissile
     ; Gemini 1A
 .K_1A:
-    ldx [DO_GEMS_A + 0]
+    lda [DO_GEMS_A + 0]
     jsr KernelA_GenReset
 .if_1:
     bne .else_1
     sec
-    rol
+    rol RamNibbleBuildState
     ; Special: Encoding RST0
     ; Store 1A in GRP0
-    ldx [DO_GEMS_A + 1]
-    stx NibbleGrp0
-    stx RamKernelGrp0
+    lda [DO_GEMS_A + 1]
+    NIBBLE_RAM_STORE sta, NibbleGrp0
+    sta RamKernelGrp0
     ; Gemini 1A is RESPx
     ; Turn 3-cycle NOP into 4-cycle
-    rol
+    rol RamNibbleBuildState
     jmp .endif_1
     ; [BIT DEPTH] #1 If-End @ 1
 .else_1:
     clc
-    rol
+    rol RamNibbleBuildState
     ; Store 0A in GRP0
-    ldx [DO_GEMS_A + 0]
-    stx NibbleGrp0
-    stx RamKernelGrp0
-    ldx [DO_GEMS_A + 1]
+    lda [DO_GEMS_A + 0]
+    NIBBLE_RAM_STORE sta, NibbleGrp0
+    sta RamKernelGrp0
+    lda [DO_GEMS_A + 1]
     jsr KernelA_GenReset
 .if_2:
     bne .else_2
     sec
-    rol
+    rol RamNibbleBuildState
     ; GEM1ASWITCH
     jmp .endif_2
     ; [BIT DEPTH] #2 If-End @ 2
 .else_2:
     clc
-    rol
+    rol RamNibbleBuildState
     ; Calculate the 1A value
-    ldx SHARD_LUT_RF1
-    cpx #1
+    lda SHARD_LUT_RF1
+    cmp #1
     .byte $D0, #3
-    ldx #RESP1
+    lda #RESP1
     .byte $2C
-    ldx #GRP1
-    stx NibbleGemini1Reg
+    lda #GRP1
+    NIBBLE_RAM_STORE sta, NibbleGemini1Reg
     ; Set opcode
-    ldx SHARD_LUT_RF1
-    cpx #1
-    ldx #BC_STX
+    lda SHARD_LUT_RF1
+    cmp #1
+    lda #BC_STX
     .byte $F0, #5
-    ldx [DO_GEMS_A + 1]
+    lda [DO_GEMS_A + 1]
     jsr Kernel_UpdateRegs
-    stx NibbleGemini1
+    NIBBLE_RAM_STORE sta, NibbleGemini1
     ; [BIT DEPTH] #2 *If-End @ 2
     ; [BIT DEPTH] #2 Else-End @ 2
 .endif_2:
@@ -69,70 +70,70 @@
     ; [BIT DEPTH] #2 Else-End @ 2
 .endif_1:
     ; Stop preserving GRP0
-    ldx #SENTINEL
-    stx RamKernelGrp0
+    lda #SENTINEL
+    sta RamKernelGrp0
     ; NibbleX, NibbleY are upgraded if not set
     ; Gemini 2A
 .K_2A
-    ldx [DO_GEMS_A + 2]
+    lda [DO_GEMS_A + 2]
     jsr KernelA_GenReset
 .if_3:
     bne .else_3
     sec
-    rol
+    rol RamNibbleBuildState
     jmp .endif_3
     ; [BIT DEPTH] #3 If-End @ 3
 .else_3:
     clc
-    rol
+    rol RamNibbleBuildState
     ; Set opcode
-    ldx [DO_GEMS_A + 2]
+    lda [DO_GEMS_A + 2]
     jsr Kernel_UpdateRegs
-    stx NibbleGemini2
+    NIBBLE_RAM_STORE sta, NibbleGemini2
     ; Set opcode target
-    ldx SHARD_LUT_RF1
-    cpx #2
+    lda SHARD_LUT_RF1
+    cmp #2
     .byte $D0, #3
-    ldx #RESP1
+    lda #RESP1
     .byte $2C
-    ldx #GRP1
-    stx NibbleGemini2Reg
+    lda #GRP1
+    NIBBLE_RAM_STORE sta, NibbleGemini2Reg
     ; [BIT DEPTH] #3 *If-End @ 3
     ; [BIT DEPTH] #3 Else-End @ 3
 .endif_3:
     ; Gemini 3A
 .K_3A:
-    ldx [DO_GEMS_A + 3]
+    lda [DO_GEMS_A + 3]
     jsr KernelA_GenReset
 .if_4:
     bne .else_4
     sec
-    rol
+    rol RamNibbleBuildState
     jmp .endif_4
     ; [BIT DEPTH] #4 If-End @ 4
 .else_4:
     clc
-    rol
+    rol RamNibbleBuildState
     ; Set opcode
-    ldx [DO_GEMS_A + 3]
+    lda [DO_GEMS_A + 3]
     jsr Kernel_UpdateRegs
-    stx NibbleGemini3
+    NIBBLE_RAM_STORE sta, NibbleGemini3
     ; Set opcode target
-    ldx SHARD_LUT_RF1
+    lda SHARD_LUT_RF1
     cpy #3
     .byte $D0, #3
-    ldx #RESP1
+    lda #RESP1
     .byte $2C
-    ldx #GRP1
-    stx NibbleGemini3Reg
+    lda #GRP1
+    NIBBLE_RAM_STORE sta, NibbleGemini3Reg
     ; [BIT DEPTH] #4 *If-End @ 4
     ; [BIT DEPTH] #4 Else-End @ 4
 .endif_4:
     ; [BIT DEPTH] Final: 4 (out of 8 bits)
-    rol
-    rol
-    rol
-    rol
+    rol RamNibbleBuildState
+    rol RamNibbleBuildState
+    rol RamNibbleBuildState
+    rol RamNibbleBuildState
     ENDM
 
 
@@ -140,6 +141,7 @@
 
     MAC NIBBLE_gem_kernel_a_2_BUILD
     lda #0
+    sta RamNibbleBuildState
     ; NIBBLE_VAR NibbleGemini1
     ; NIBBLE_VAR NibbleGemini1Reg
     ; NIBBLE_VAR NibbleGemini2
@@ -147,39 +149,39 @@
     ; NIBBLE_VAR NibbleGemini3
     ; NIBBLE_VAR NibbleGemini3Reg
     ; VD1 default
-    ldx [DO_GEMS_A + 1]
-    stx NibbleVdel1
+    lda [DO_GEMS_A + 1]
+    NIBBLE_RAM_STORE sta, NibbleVdel1
     ; Gemini 4A
-    ldx SHARD_LUT_VD1
-    cpx #4
+    lda SHARD_LUT_VD1
+    cmp #4
 .if_1:
     beq .else_1
     sec
-    rol
+    rol RamNibbleBuildState
     ; Set PHP
-    ldx #VDELP1
-    stx NibblePhp
+    lda #VDELP1
+    NIBBLE_RAM_STORE sta, NibblePhp
     ; Update VDEL1
-    ldx [DO_GEMS_A + 4]
-    stx NibbleVdel1
+    lda [DO_GEMS_A + 4]
+    NIBBLE_RAM_STORE sta, NibbleVdel1
     jmp .endif_1
     ; [BIT DEPTH] #1 If-End @ 1
 .else_1:
     clc
-    rol
-    ldx [DO_GEMS_A + 4]
+    rol RamNibbleBuildState
+    lda [DO_GEMS_A + 4]
     jsr Kernel_UpdateRegs
-    stx NibbleGemini4
+    NIBBLE_RAM_STORE sta, NibbleGemini4
     ; Set PHP
-    ldx #RESP1
-    stx NibblePhp
+    lda #RESP1
+    NIBBLE_RAM_STORE sta, NibblePhp
     ; [BIT DEPTH] #1 *If-End @ 1
     ; [BIT DEPTH] #1 Else-End @ 1
 .endif_1:
     ; Gemini 5A
     ; TODO eventually...?
     ; Missile
-    ldx DO_MISS_A
+    lda DO_MISS_A
     ; FIXME Why doesn't this branch compile?
     ; bne .+4
     ; ldx #BC_NOP
@@ -187,13 +189,13 @@
     ; VD1
     ; GRP0
     ; [BIT DEPTH] Final: 1 (out of 8 bits)
-    rol
-    rol
-    rol
-    rol
-    rol
-    rol
-    rol
+    rol RamNibbleBuildState
+    rol RamNibbleBuildState
+    rol RamNibbleBuildState
+    rol RamNibbleBuildState
+    rol RamNibbleBuildState
+    rol RamNibbleBuildState
+    rol RamNibbleBuildState
     ENDM
 
 
@@ -201,6 +203,7 @@
 
     MAC NIBBLE_gem_kernel_b_1_BUILD
     lda #0
+    sta RamNibbleBuildState
     ; NIBBLE_VAR NibbleGemini1
     ; NIBBLE_VAR NibbleGemini1Reg
     ; NIBBLE_VAR NibbleGemini2Reg
@@ -217,7 +220,7 @@
     sty NibblePhp
     ; Gemini 0B
     ldy [DO_GEMS_B + 0]
-    stx NibbleGrp0
+    NIBBLE_RAM_STORE sta, NibbleGrp0
     sty RamKernelGrp0
     ; NIBBLE_WRITE_IMM KernelB_D_W, RamKernelGemini0
     ; Gemini 1B
@@ -230,7 +233,7 @@
 .if_1:
     bne .else_1
     sec
-    rol
+    rol RamNibbleBuildState
     CALC_REGS_AND_STORE 3, NibbleGemini3
     ; Write to PHP in 2B
     ldx #EMERALD_SP
@@ -238,19 +241,19 @@
     ; Update Grp0
     ldy BuildKernelRST
     sty RamKernelGrp0
-    rol
+    rol RamNibbleBuildState
     jmp .endif_1
     ; [BIT DEPTH] #1 If-End @ 1
 .else_1:
     clc
-    rol
+    rol RamNibbleBuildState
     ; Gemini 3B
     ldy [DO_GEMS_B + 3]
     jsr KernelB_GenPhp
 .if_2:
     bne .else_2
     sec
-    rol
+    rol RamNibbleBuildState
     ; Write to PHP in 3B
     CALC_REGS_AND_STORE 2, NibbleGemini2
     ldx #EMERALD_SP
@@ -263,7 +266,7 @@
     ; [BIT DEPTH] #2 If-End @ 2
 .else_2:
     clc
-    rol
+    rol RamNibbleBuildState
     ; Update 2B
     CALC_REGS_AND_STORE 2, NibbleGemini2
     ; Update 3B
@@ -275,12 +278,12 @@
     ; [BIT DEPTH] #2 Else-End @ 2
 .endif_1:
     ; [BIT DEPTH] Final: 2 (out of 8 bits)
-    rol
-    rol
-    rol
-    rol
-    rol
-    rol
+    rol RamNibbleBuildState
+    rol RamNibbleBuildState
+    rol RamNibbleBuildState
+    rol RamNibbleBuildState
+    rol RamNibbleBuildState
+    rol RamNibbleBuildState
     ENDM
 
 
@@ -288,6 +291,7 @@
 
     MAC NIBBLE_gem_kernel_b_2_BUILD
     lda #0
+    sta RamNibbleBuildState
     ; NIBBLE_VAR NibbleGemini1
     ; NIBBLE_VAR NibbleGemini1Reg
     ; NIBBLE_VAR NibbleGemini2
@@ -303,12 +307,12 @@
 .if_1:
     bne .else_1
     sec
-    rol
+    rol RamNibbleBuildState
     jmp .endif_1
     ; [BIT DEPTH] #1 If-End @ 1
 .else_1:
     clc
-    rol
+    rol RamNibbleBuildState
     ; [BIT DEPTH] #1 *If-End @ 1
     ; [BIT DEPTH] #1 Else-End @ 1
 .endif_1:
@@ -339,13 +343,13 @@
     ; NIBBLE_WRITE_IMM [KernelB_VDEL1 - $100], NibbleVdel1
     ; GRP0
     ; [BIT DEPTH] Final: 1 (out of 8 bits)
-    rol
-    rol
-    rol
-    rol
-    rol
-    rol
-    rol
+    rol RamNibbleBuildState
+    rol RamNibbleBuildState
+    rol RamNibbleBuildState
+    rol RamNibbleBuildState
+    rol RamNibbleBuildState
+    rol RamNibbleBuildState
+    rol RamNibbleBuildState
     ENDM
 
 

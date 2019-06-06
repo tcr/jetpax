@@ -56,7 +56,8 @@ YPos2                   byte
 
 ROW_DEMO_INDEX          byte
 
-RamNibbleTemp           byte
+RamNibbleBuildState     byte    ; Nibble build state
+
 RamZeroByte             byte
 RamLowerSixByte         byte
 RamFFByte               byte

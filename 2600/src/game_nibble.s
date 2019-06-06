@@ -37,50 +37,51 @@ KernelB_K_W EQM [KernelB_K - $100]
         mac CALC_REGS_AND_STORE
 .OFFSET SET {1}
 .TARGET SET {2}
-        ldy [DO_GEMS_B + .OFFSET]
+        lda [DO_GEMS_B + .OFFSET]
         jsr Kernel_UpdateRegs
-        sty .TARGET
+        sta .TARGET
         endm
 
-; Y=Gemini Sprite
-; See if the current Gemini is g00. Allocate an RST to this Gemini if so
-; processor flag Z is TRUE if this is RST.
+    ; See if the current Gemini is g00. Allocate an RST to this Gemini if so
+    ; processor flag Z is TRUE if this is RST.
+    ; Args:
+    ;   Y = Gemini Sprite
 KernelA_GenReset: subroutine
-    cpx #$00
+    cmp #$00
     beq .start
     rts
     ; Current Gemini = $00
 .start:
-    ldx BuildKernelRST
-    cpx #SENTINEL
+    lda BuildKernelRST
+    cmp #SENTINEL
     bne .set_else
     ; We have found the first (and only) RST on this line, set the marker var
-    ldx #$ff
-    stx BuildKernelRST
+    lda #$ff
+    NIBBLE_RAM_STORE sta, BuildKernelRST
 .set_else
-    ldx #$00
+    lda #$00
     rts
 
 ; Y=Gemini Sprite
 ; See if the current Gemini is g00. Allocate an RST to this Gemini if so
 ; processor flag Z is TRUE if this is RST.
 KernelB_GenPhp: subroutine
-    cpx #G01
+    cmp #G01
     beq .start
-    cpx #G11
+    cmp #G11
     beq .start
     rts
     ; Current Gemini = $00
 .start:
-    ldx BuildKernelRST
-    cpx #SENTINEL
+    lda BuildKernelRST
+    cmp #SENTINEL
     bne .set_else
     ; We have found the first (and only) RST on this line, set the marker var
-    ldx #$ff
-    stx BuildKernelRST
+    lda #$ff
+    sta BuildKernelRST
 
     ; Set Z flag
-    ldx #$00
+    lda #$00
 .set_else
     rts
 
@@ -95,28 +96,28 @@ Kernel_UpdateRegs: subroutine
     ; If equal to GRP0, return nop
     ; FIXME GRP0 might not always be up to date (should update each entry?)
     ; FIXME GOTTA REVERSE THE GRAPHICS ALSO
-    cpx RamKernelGrp0
+    cmp RamKernelGrp0
     bne .op_start
     ; TODO if this is stx + NOP value, then register doesn't have to change as
     ; often in GEM1ASWITCH
-    ldx #BC_NOP
+    lda #BC_NOP
     rts
 
 .op_start:
-    cpx NibbleX
+    cmp NibbleX
     bne .op_else
-    ldx #BC_STX
+    lda #BC_STX
     rts
 .op_else:
-    cpx NibbleY
+    cmp NibbleY
     bne .op_end
-    ldx #BC_STY
+    lda #BC_STY
     rts
 .op_end:
 
 .set_start:
-    ldx NibbleX
-    cpx #SENTINEL
+    lda NibbleX
+    cmp #SENTINEL
     bne .set_else
 
     ; KA Missile opcode determination
@@ -130,15 +131,15 @@ Kernel_UpdateRegs: subroutine
 ;     stx NibbleMissile
 
     ; Set the X operator
-    stx NibbleX
-    ldx #BC_STX
+    sta NibbleX
+    lda #BC_STX
     rts
 .set_else
-    ldx NibbleY
-    cpx #SENTINEL
+    lda NibbleY
+    cmp #SENTINEL
     bne .set_end
-    stx NibbleY
-    ldx #BC_STY
+    sta NibbleY
+    lda #BC_STY
     rts
 .set_end:
     ; Failed all
@@ -146,6 +147,8 @@ Kernel_UpdateRegs: subroutine
     rts
 
     ; Populate the Nibble kernel values for the current row.
+    ; Args:
+    ;   Y = row index
 GameNibblePopulate: subroutine
     lda $f100
     sta DebugKernelID
@@ -172,38 +175,38 @@ gemini_builder: subroutine
         NIBBLE_VAR NibbleX
         NIBBLE_VAR NibbleY
 
-        ldx #SENTINEL ; sentinel
-        stx BuildKernelRST
+        lda #SENTINEL ; sentinel
+        sta BuildKernelRST
         NIBBLE_VAR_STY NibbleX
         NIBBLE_VAR_STY NibbleY
 
         ; FIXME don't hard code this?
-        ldx #BC_STX
+        lda #BC_STX
         NIBBLE_VAR_STY NibbleMissile
 
         ; Gemini 1A
 .K_1A:
-        ldx [DO_GEMS_A + 0]
+        lda [DO_GEMS_A + 0]
         jsr KernelA_GenReset
         NIBBLE_IF eq
             ; Special: Encoding RST0
             NIBBLE_WRITE_IMM [KernelA_B - $100], #BC_LDA_IMM
             NIBBLE_WRITE_IMM [KernelA_B - $100 + 1], #%10100000
             ; Store 1A in GRP0
-            ldx [DO_GEMS_A + 1]
+            lda [DO_GEMS_A + 1]
             NIBBLE_VAR_STY NibbleGrp0
-            stx RamKernelGrp0 ; For checking purposes
+            sta RamKernelGrp0 ; For checking purposes
             ; Gemini 1A is RESPx
             NIBBLE_WRITE_IMM [KernelA_C - $100 + 1], #EMERALD_SP_RESET
             ; Turn 3-cycle NOP into 4-cycle
             NIBBLE_WRITE_IMM [KernelA_D - $100], #$14 ; NOP zpx (4 cycles)
         NIBBLE_ELSE
             ; Store 0A in GRP0
-            ldx [DO_GEMS_A + 0]
+            lda [DO_GEMS_A + 0]
             NIBBLE_VAR_STY NibbleGrp0
-            stx RamKernelGrp0
+            sta RamKernelGrp0
 
-            ldx [DO_GEMS_A + 1]
+            lda [DO_GEMS_A + 1]
             jsr KernelA_GenReset
             NIBBLE_IF eq
                 ; GEM1ASWITCH
@@ -211,20 +214,20 @@ gemini_builder: subroutine
                 NIBBLE_WRITE_IMM [KernelA_D_W + 1], #RESP1 ; RESET
             NIBBLE_ELSE
                 ; Calculate the 1A value
-                ldx SHARD_LUT_RF1
-                cpx #1
+                lda SHARD_LUT_RF1
+                cmp #1
                 .byte $D0, #3 ; bne +3
-                ldx #RESP1
+                lda #RESP1
                 .byte $2C ; .bit (ABS)
-                ldx #GRP1
+                lda #GRP1
                 NIBBLE_VAR_STY NibbleGemini1Reg
 
                 ; Set opcode
-                ldx SHARD_LUT_RF1
-                cpx #1
-                ldx #BC_STX ; Don't allocate
+                lda SHARD_LUT_RF1
+                cmp #1
+                lda #BC_STX ; Don't allocate
                 .byte $F0, #5 ; beq +4
-                ldx [DO_GEMS_A + 1]
+                lda [DO_GEMS_A + 1]
                 jsr Kernel_UpdateRegs
                 NIBBLE_VAR_STY NibbleGemini1
 
@@ -234,30 +237,30 @@ gemini_builder: subroutine
         NIBBLE_END_IF
 
         ; Stop preserving GRP0
-        ldx #SENTINEL
-        stx RamKernelGrp0
+        lda #SENTINEL
+        sta RamKernelGrp0
 
         ; NibbleX, NibbleY are upgraded if not set
         ; Gemini 2A
 .K_2A
-        ldx [DO_GEMS_A + 2]
+        lda [DO_GEMS_A + 2]
         jsr KernelA_GenReset
         NIBBLE_IF eq
             NIBBLE_WRITE_IMM [KernelA_E_W + 1], #NOP_REG   ; NOP
             NIBBLE_WRITE_IMM [KernelA_G_W + 1], #RESP1 ; RESET
         NIBBLE_ELSE
             ; Set opcode
-            ldx [DO_GEMS_A + 2]
+            lda [DO_GEMS_A + 2]
             jsr Kernel_UpdateRegs
             NIBBLE_VAR_STY NibbleGemini2
 
             ; Set opcode target
-            ldx SHARD_LUT_RF1
-            cpx #2
+            lda SHARD_LUT_RF1
+            cmp #2
             .byte $D0, #3 ; bne +3
-            ldx #RESP1
+            lda #RESP1
             .byte $2C ; .bit (ABS)
-            ldx #GRP1
+            lda #GRP1
             NIBBLE_VAR_STY NibbleGemini2Reg
 
             NIBBLE_WRITE_IMM [KernelA_E_W + 1], #RESP1
@@ -267,23 +270,23 @@ gemini_builder: subroutine
 
         ; Gemini 3A
 .K_3A:
-        ldx [DO_GEMS_A + 3]
+        lda [DO_GEMS_A + 3]
         jsr KernelA_GenReset
         NIBBLE_IF eq
             NIBBLE_WRITE_IMM [KernelA_H_W + 1], #RESP1 ; RESET
         NIBBLE_ELSE
             ; Set opcode
-            ldx [DO_GEMS_A + 3]
+            lda [DO_GEMS_A + 3]
             jsr Kernel_UpdateRegs
             NIBBLE_VAR_STY NibbleGemini3
 
             ; Set opcode target
-            ldx SHARD_LUT_RF1
+            lda SHARD_LUT_RF1
             cpy #3
             .byte $D0, #3 ; bne +3
-            ldx #RESP1
+            lda #RESP1
             .byte $2C ; .bit (ABS)
-            ldx #GRP1
+            lda #GRP1
             NIBBLE_VAR_STY NibbleGemini3Reg
 
             NIBBLE_WRITE_VAR [KernelA_H_W + 0], NibbleGemini3
@@ -305,26 +308,26 @@ gemini_builder: subroutine
         NIBBLE_VAR NibblePhp
 
         ; VD1 default
-        ldx [DO_GEMS_A + 1]
+        lda [DO_GEMS_A + 1]
         NIBBLE_VAR_STY NibbleVdel1
 
         ; Gemini 4A 
-        ldx SHARD_LUT_VD1
-        cpx #4
+        lda SHARD_LUT_VD1
+        cmp #4
         NIBBLE_IF ne
             NIBBLE_WRITE_IMM [KernelA_I_W + 0], #BC_STA, #EMERALD_SP_RESET
             NIBBLE_WRITE_IMM [KernelA_J_W + 1], #BC_STA, #PF1
             NIBBLE_WRITE_IMM [KernelA_K_W + 1], #BC_PHP
 
             ; Set PHP
-            ldx #VDELP1
+            lda #VDELP1
             NIBBLE_VAR_STY NibblePhp
 
             ; Update VDEL1
-            ldx [DO_GEMS_A + 4]
+            lda [DO_GEMS_A + 4]
             NIBBLE_VAR_STY NibbleVdel1
         NIBBLE_ELSE
-            ldx [DO_GEMS_A + 4]
+            lda [DO_GEMS_A + 4]
             jsr Kernel_UpdateRegs
             NIBBLE_VAR_STY NibbleGemini4
 
@@ -334,7 +337,7 @@ gemini_builder: subroutine
             NIBBLE_WRITE_IMM [KernelA_K_W + 1], #EMERALD_SP
 
             ; Set PHP
-            ldx #RESP1
+            lda #RESP1
             NIBBLE_VAR_STY NibblePhp
         NIBBLE_END_IF
 
@@ -342,7 +345,7 @@ gemini_builder: subroutine
         ; TODO eventually...?
 
         ; Missile
-        ldx DO_MISS_A
+        lda DO_MISS_A
         ; FIXME Why doesn't this branch compile?
         ; bne .+4
         ; ldx #BC_NOP
@@ -515,14 +518,18 @@ DBG_NIBBLE_BUILD: subroutine
     jmp .kernel_b 
 .kernel_a:
     NIBBLE_gem_kernel_a_1_BUILD ; TODO can this be implied
+    lda RamNibbleBuildState
     sta NibbleVar1
     NIBBLE_gem_kernel_a_2_BUILD ; TODO can this be implied
+    lda RamNibbleBuildState
     sta NibbleVar2
     jmp .next
 .kernel_b:
     NIBBLE_gem_kernel_b_1_BUILD ; TODO can this be implied
+    lda RamNibbleBuildState
     sta NibbleVar1
     NIBBLE_gem_kernel_b_2_BUILD ; TODO can this be implied
+    lda RamNibbleBuildState
     sta NibbleVar2
 .next:
     rts

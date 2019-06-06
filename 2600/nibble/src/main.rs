@@ -144,6 +144,7 @@ impl KernelWalker for KernelBuild {
         // BUILD
         writeln!(&mut self.build, "    MAC NIBBLE_{}_BUILD", name);
         writeln!(&mut self.build, "    lda #0");
+        writeln!(&mut self.build, "    sta RamNibbleBuildState");
 
         // EVAL
         self.push_eval(EvalStep::Literal(format!("    MAC NIBBLE_{}", name)));
@@ -159,7 +160,7 @@ impl KernelWalker for KernelBuild {
         // BUILD
         writeln!(&mut self.build, "    ; [BIT DEPTH] Final: {} (out of 8 bits)", node.checkdepth);
         for i in node.checkdepth..8 {
-            writeln!(&mut self.build, "    rol");
+            writeln!(&mut self.build, "    rol RamNibbleBuildState");
         }
         writeln!(&mut self.build, "    ENDM\n\n\n\n");
 
@@ -175,7 +176,7 @@ impl KernelWalker for KernelBuild {
         writeln!(&mut self.build, ".if_{}:", index);
         writeln!(&mut self.build, "    b{} .else_{}", invert_cond(&cond), index);
         writeln!(&mut self.build, "    sec");
-        writeln!(&mut self.build, "    rol");
+        writeln!(&mut self.build, "    rol RamNibbleBuildState");
 
         // EVAL
         self.push_eval(EvalStep::Literal(format!("    asl")));
@@ -203,7 +204,7 @@ impl KernelWalker for KernelBuild {
         writeln!(&mut self.build, "    ; [BIT DEPTH] #{} If-End @ {}", index, checkdepth);
         writeln!(&mut self.build, ".else_{}:", index);
         writeln!(&mut self.build, "    clc");
-        writeln!(&mut self.build, "    rol");
+        writeln!(&mut self.build, "    rol RamNibbleBuildState");
 
         // EVAL
         self.push_eval(EvalStep::Token(then_node.index));
@@ -229,12 +230,12 @@ impl KernelWalker for KernelBuild {
             if else_node.checkdepth > then_node.checkdepth {
                 // then block needs to advance
                 for _ in then_node.checkdepth..else_node.checkdepth {
-                    if_token_replacement.push_str(&"    rol\n");
+                    if_token_replacement.push_str(&"    rol RamNibbleBuildState\n");
                 }
             } else if then_node.checkdepth > else_node.checkdepth {
                 // else block needs to advance
                 for _ in else_node.checkdepth..then_node.checkdepth {
-                    writeln!(&mut self.build, "    rol");
+                    writeln!(&mut self.build, "    rol RamNibbleBuildState");
                 }
             }
             // Replace token
@@ -303,8 +304,8 @@ impl KernelWalker for KernelBuild {
         // BUILD
         assert!(self.has_var(label), "Did not find var definition: {}", label);
 
-        writeln!(&mut self.build, "    stx {}", label);
-        // FIXME writeln!(&mut self.build, "    stx [CBSRAM_NIBBLE_WRITE + {} - NIBBLE_VAR_START],y", label);
+        // writeln!(&mut self.build, "    stx {},y", label);
+        writeln!(&mut self.build, "    NIBBLE_RAM_STORE sta, {}", label);
     }
 
     fn write(&mut self, parent_node: &mut Self::TNode, label: &str, values: &[String]) {

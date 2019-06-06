@@ -40,7 +40,7 @@ VerticalBlank: subroutine
     ; jsr NibbleCopyFromRam
 
     jsr GeminiPopulateFull
-    ldy #16
+    ldy #0
     ; FIXME this is what is next to enable, but it breaks:
     ; ldy #16
 .DBG_POPULATE:
