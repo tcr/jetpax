@@ -120,9 +120,7 @@
     stx [[KernelA_VDEL1 - $100] + 0]
     ldx [CBSRAM_NIBBLE_READ + NibbleGrp0 - NIBBLE_VAR_START],y
     stx [[KernelA_VDEL0 - $100] + 0]
-    ldx #[ #$ff ]
-    stx [NibblePs + 0]
-    ENDM ; 69 cycles max
+    ENDM ; 63 cycles max
 
 
 
@@ -215,9 +213,7 @@
     stx [KernelB_J_W + 0]
     ldx [CBSRAM_NIBBLE_READ + NibbleGrp0 - NIBBLE_VAR_START],y
     stx [[KernelB_VDEL0 - $100] + 0]
-    ldx #[ #$00 ]
-    stx [NibblePs + 0]
-    ENDM ; 44 cycles max
+    ENDM ; 38 cycles max
 
 
 

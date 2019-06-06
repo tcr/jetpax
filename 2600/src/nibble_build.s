@@ -5,11 +5,11 @@
     ; NIBBLE_VAR NibbleVdel1
     lda #SENTINEL
     sta BuildKernelRST
-    NIBBLE_RAM sta, NibbleX
-    NIBBLE_RAM sta, NibbleY
+    NIBBLE_RAM_STORE sta, NibbleX
+    NIBBLE_RAM_STORE sta, NibbleY
     ; FIXME don't hard code this?
     lda #BC_STX
-    NIBBLE_RAM sta, NibbleMissile
+    NIBBLE_RAM_STORE sta, NibbleMissile
     ; Gemini 1A
 .K_1A:
     lda [DO_GEMS_A + 0]
@@ -21,7 +21,7 @@
     ; Special: Encoding RST0
     ; Store 1A in GRP0
     lda [DO_GEMS_A + 1]
-    NIBBLE_RAM sta, NibbleGrp0
+    NIBBLE_RAM_STORE sta, NibbleGrp0
     sta RamKernelGrp0
     ; Gemini 1A is RESPx
     ; Turn 3-cycle NOP into 4-cycle
@@ -33,7 +33,7 @@
     rol RamNibbleBuildState
     ; Store 0A in GRP0
     lda [DO_GEMS_A + 0]
-    NIBBLE_RAM sta, NibbleGrp0
+    NIBBLE_RAM_STORE sta, NibbleGrp0
     sta RamKernelGrp0
     lda [DO_GEMS_A + 1]
     jsr KernelA_GenReset
@@ -54,7 +54,7 @@
     lda #RESP1
     .byte $2C
     lda #GRP1
-    NIBBLE_RAM sta, NibbleGemini1Reg
+    NIBBLE_RAM_STORE sta, NibbleGemini1Reg
     ; Set opcode
     lda SHARD_LUT_RF1
     cmp #1
@@ -62,7 +62,7 @@
     .byte $F0, #5
     lda [DO_GEMS_A + 1]
     jsr Kernel_UpdateRegs
-    NIBBLE_RAM sta, NibbleGemini1
+    NIBBLE_RAM_STORE sta, NibbleGemini1
     ; [BIT DEPTH] #2 *If-End @ 2
     ; [BIT DEPTH] #2 Else-End @ 2
 .endif_2:
@@ -89,7 +89,7 @@
     ; Set opcode
     lda [DO_GEMS_A + 2]
     jsr Kernel_UpdateRegs
-    NIBBLE_RAM sta, NibbleGemini2
+    NIBBLE_RAM_STORE sta, NibbleGemini2
     ; Set opcode target
     lda SHARD_LUT_RF1
     cmp #2
@@ -97,7 +97,7 @@
     lda #RESP1
     .byte $2C
     lda #GRP1
-    NIBBLE_RAM sta, NibbleGemini2Reg
+    NIBBLE_RAM_STORE sta, NibbleGemini2Reg
     ; [BIT DEPTH] #3 *If-End @ 3
     ; [BIT DEPTH] #3 Else-End @ 3
 .endif_3:
@@ -117,7 +117,7 @@
     ; Set opcode
     lda [DO_GEMS_A + 3]
     jsr Kernel_UpdateRegs
-    NIBBLE_RAM sta, NibbleGemini3
+    NIBBLE_RAM_STORE sta, NibbleGemini3
     ; Set opcode target
     lda SHARD_LUT_RF1
     cpy #3
@@ -125,7 +125,7 @@
     lda #RESP1
     .byte $2C
     lda #GRP1
-    NIBBLE_RAM sta, NibbleGemini3Reg
+    NIBBLE_RAM_STORE sta, NibbleGemini3Reg
     ; [BIT DEPTH] #4 *If-End @ 4
     ; [BIT DEPTH] #4 Else-End @ 4
 .endif_4:
@@ -150,7 +150,7 @@
     ; NIBBLE_VAR NibbleGemini3Reg
     ; VD1 default
     lda [DO_GEMS_A + 1]
-    NIBBLE_RAM sta, NibbleVdel1
+    NIBBLE_RAM_STORE sta, NibbleVdel1
     ; Gemini 4A
     lda SHARD_LUT_VD1
     cmp #4
@@ -160,10 +160,10 @@
     rol RamNibbleBuildState
     ; Set PHP
     lda #VDELP1
-    NIBBLE_RAM sta, NibblePhp
+    NIBBLE_RAM_STORE sta, NibblePhp
     ; Update VDEL1
     lda [DO_GEMS_A + 4]
-    NIBBLE_RAM sta, NibbleVdel1
+    NIBBLE_RAM_STORE sta, NibbleVdel1
     jmp .endif_1
     ; [BIT DEPTH] #1 If-End @ 1
 .else_1:
@@ -171,10 +171,10 @@
     rol RamNibbleBuildState
     lda [DO_GEMS_A + 4]
     jsr Kernel_UpdateRegs
-    NIBBLE_RAM sta, NibbleGemini4
+    NIBBLE_RAM_STORE sta, NibbleGemini4
     ; Set PHP
     lda #RESP1
-    NIBBLE_RAM sta, NibblePhp
+    NIBBLE_RAM_STORE sta, NibblePhp
     ; [BIT DEPTH] #1 *If-End @ 1
     ; [BIT DEPTH] #1 Else-End @ 1
 .endif_1:
@@ -188,6 +188,8 @@
     ; stx NibbleMissile
     ; VD1
     ; GRP0
+    lda #$ff
+    NIBBLE_RAM_STORE sta, NibblePs
     ; [BIT DEPTH] Final: 1 (out of 8 bits)
     rol RamNibbleBuildState
     rol RamNibbleBuildState
@@ -212,21 +214,21 @@
     ; NIBBLE_VAR NibbleMissile
     ; NIBBLE_VAR NibbleVdel1
     lda #SENTINEL
-    NIBBLE_RAM sta, NibbleX
-    NIBBLE_RAM sta, NibbleY
+    NIBBLE_RAM_STORE sta, NibbleX
+    NIBBLE_RAM_STORE sta, NibbleY
     sta BuildKernelRST
     ; Php target default
     lda #RESP1
-    NIBBLE_RAM sta, NibblePhp
+    NIBBLE_RAM_STORE sta, NibblePhp
     ; Gemini 0B
     ldy [DO_GEMS_B + 0]
-    NIBBLE_RAM sta, NibbleGrp0
+    NIBBLE_RAM_STORE sta, NibbleGrp0
     sty RamKernelGrp0
     ; NIBBLE_WRITE_IMM KernelB_D_W, RamKernelGemini0
     ; Gemini 1B
     lda [DO_GEMS_B + 1]
     jsr Kernel_UpdateRegs
-    NIBBLE_RAM sta, NibbleGemini1
+    NIBBLE_RAM_STORE sta, NibbleGemini1
     ; Gemini 2B
     ldy [DO_GEMS_B + 2]
     jsr KernelB_GenPhp
@@ -237,7 +239,7 @@
     CALC_REGS_AND_STORE 3, NibbleGemini3
     ; Write to PHP in 2B
     lda #EMERALD_SP
-    NIBBLE_RAM sta, NibblePhp
+    NIBBLE_RAM_STORE sta, NibblePhp
     ; Update Grp0
     lda BuildKernelRST
     sta RamKernelGrp0
@@ -257,10 +259,10 @@
     ; Write to PHP in 3B
     CALC_REGS_AND_STORE 2, NibbleGemini2
     lda #EMERALD_SP
-    NIBBLE_RAM sta, NibblePhp
+    NIBBLE_RAM_STORE sta, NibblePhp
      
     ; Update Grp0
-    NIBBLE_RAM lda, BuildKernelRST
+    NIBBLE_RAM_LOAD lda, BuildKernelRST
     sty RamKernelGrp0
     jmp .endif_2
     ; [BIT DEPTH] #2 If-End @ 2
@@ -325,7 +327,7 @@
     ; Gemini 4B
     lda [DO_GEMS_B + 4]
     jsr Kernel_UpdateRegs
-    NIBBLE_RAM sta, NibbleGemini4
+    NIBBLE_RAM_STORE sta, NibbleGemini4
     ; TODO if no PHP, rewrite previous section:
     ; NIBBLE_IF cs
     ;
@@ -335,12 +337,14 @@
     ;     NIBBLE_WRITE_IMM [KernelB_H_W + 0], #BC_STY, #EMERALD_SP
     ; NIBBLE_END_IF
     ; Make adjustments for sprites.
-    NIBBLE_RAM ror, NibbleGrp0
-    NIBBLE_RAM ror, NibbleX
-    NIBBLE_RAM ror, NibbleY
+    NIBBLE_RAM_STORE ror, NibbleGrp0
+    NIBBLE_RAM_STORE ror, NibbleX
+    NIBBLE_RAM_STORE ror, NibbleY
     ;
     ; NIBBLE_WRITE_IMM [KernelB_VDEL1 - $100], NibbleVdel1
     ; GRP0
+    lda #$00
+    NIBBLE_RAM_STORE sta, NibblePs
     ; [BIT DEPTH] Final: 1 (out of 8 bits)
     rol RamNibbleBuildState
     rol RamNibbleBuildState

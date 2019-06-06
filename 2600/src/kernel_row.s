@@ -62,7 +62,7 @@ row_2:
     sta COLUPF
 
     ; [[[Nibble VM.]]]
-    sleep 25
+    sleep 21
 
     ; Load PF1 value
     lda #%00111101
@@ -73,7 +73,7 @@ row_2:
 
     ; Set stack pointer for PHP use from NibblePhp.
     ; FIXME need to fix these and other Nibble references
-    NIBBLE_RAM ldx, NibblePhp
+    NIBBLE_RAM_LOAD ldx, NibblePhp
     dex
     txs
 
@@ -82,7 +82,7 @@ row_2:
     sta COLUPF
 
     ; Set overflow flag
-    NIBBLE_RAM bit, NibblePs
+    NIBBLE_RAM_LOAD bit, NibblePs
 
     ASSERT_RUNTIME "_scycles == #0"
 
@@ -107,8 +107,8 @@ row_3:
 
     ; Setup for kernel
     sec ; clear carry bit
-    NIBBLE_RAM ldx, NibbleX
-    NIBBLE_RAM ldy, NibbleY
+    NIBBLE_RAM_LOAD ldx, NibbleX
+    NIBBLE_RAM_LOAD ldy, NibbleY
 
     ; Jump immediately into scanlines 4-5 aka "kernel_gem"
     lda NibbleVdel1
@@ -156,7 +156,7 @@ row_7:
     ; sleep 71
 
     ; Run Kernel.
-    NIBBLE_RAM lda, NibbleVar2
+    NIBBLE_RAM_LOAD lda, NibbleVar2
     NIBBLE_gem_kernel_a_2
     ; sleep 5
 
@@ -168,7 +168,7 @@ row_8:
     ; jet_spritedata_calc
 
     ; [NIBBLE VM]
-    NIBBLE_RAM lda, NibbleVar1
+    NIBBLE_RAM_LOAD lda, NibbleVar1
     NIBBLE_gem_kernel_a_1
     ; sleep 3
 
