@@ -24,19 +24,18 @@
         seg CodeBank3
     endm
 
-
     ; Dynamic, runtime (Stella) assertions for "make debug"
-    mac NIBBLE_RAM_STORE
+    mac NIBBLE_RAM
 .KEY SET {2}
-    ; {1} [CBSRAM_NIBBLE_WRITE + .KEY - NIBBLE_VAR_START]
     {1} .KEY
     endm
 
-    ; Dynamic, runtime (Stella) assertions for "make debug"
-    mac NIBBLE_RAM_LOAD
-.KEY SET {2}
-    ; {1} [CBSRAM_NIBBLE_WRITE + .KEY - NIBBLE_VAR_START]
-    {1} .KEY
+    mac CALC_REGS_AND_STORE
+.OFFSET SET {1}
+.TARGET SET {2}
+    lda [DO_GEMS_B + .OFFSET]
+    jsr Kernel_UpdateRegs
+    sta .TARGET
     endm
 
 
