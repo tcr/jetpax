@@ -13,7 +13,7 @@ Overscan: subroutine
     jsr GameFrameKernelLoader
 
     ; Extract 26-bit string to full Gemini profile
-    jsr GeminiPopulate
+    jsr GeminiPopulateFull
 
     ; Wait out overscan.
     TIMER_WAIT
@@ -39,7 +39,7 @@ VerticalBlank: subroutine
     ; jsr NibbleCopyToRam
     ; jsr NibbleCopyFromRam
 
-    jsr GeminiPopulateFull
+    jsr GeminiPopulate
     ldy #16
     ; FIXME this is what is next to enable, but it breaks:
     ; ldy #16
