@@ -147,7 +147,7 @@ Bank3Start:
     include "kernel_loader.s"
     include "nibble_build.s"
     include "nibble_eval.s"
-    include "nibble_shard.s"
+    ; TODO include "nibble_shard.s"
     include "game_frame.s"
     include "game_input.s"
     include "game_nibble.s"

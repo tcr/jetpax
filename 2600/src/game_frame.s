@@ -41,8 +41,6 @@ VerticalBlank: subroutine
 
     jsr GeminiPopulate
     ldy #16
-    ; FIXME this is what is next to enable, but it breaks:
-    ; ldy #16
 .DBG_POPULATE:
     jsr GameNibblePopulate
     jsr GameNibbleRun

@@ -145,11 +145,20 @@ row_6:
     ldy #16
     sty RamRowOffset
 
-    ; Idle.
-    sta WSYNC
+    lda DebugKernelID
+    cmp #$a
+    beq row_7a
+    jmp row_7b
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Kernel A
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ; [scanline 7]
-row_7:
+row_7a: subroutine
+    ; Idle from previous scanline.
+    sta WSYNC
+
     ASSERT_RUNTIME "_scycles == #0"
 
     ; FIXME this should be enabled!
@@ -167,7 +176,7 @@ row_7:
     ; sleep 5
 
 ; [scanline 8]
-row_8:
+row_8a: subroutine
     ASSERT_RUNTIME "_scycles == #0"
 
     ; FIXME this should be enabled!
@@ -186,7 +195,57 @@ row_8:
     ASSERT_RUNTIME "_scycles == #0"
     ; Repeat loop until LoopCount < 0
     dec LoopCount
-    beq row_end
+    beq .row_end
     jmp row_start
-row_end:
+.row_end:
+    jmp border_bottom
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Kernel B
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; [scanline 7]
+row_7b: subroutine
+    ; Idle from previous scanline.
+    sta WSYNC
+
+    ASSERT_RUNTIME "_scycles == #0"
+
+    ; FIXME this should be enabled!
+    ; jet_spritedata_calc
+
+    lda #COL_BG
+    sta COLUPF
+
+    ; Idle.
+    ; sleep 71
+
+    ; Run Kernel.
+    NIBBLE_RAM_LOAD lda, NibbleVar2
+    NIBBLE_gem_kernel_a_2
+    ; sleep 5
+
+; [scanline 8]
+row_8b: subroutine
+    ASSERT_RUNTIME "_scycles == #0"
+
+    ; FIXME this should be enabled!
+    ; jet_spritedata_calc
+
+    ; [NIBBLE VM]
+    NIBBLE_RAM_LOAD lda, NibbleVar1
+    NIBBLE_gem_kernel_a_1
+    ; sleep 3
+
+    ; Idle.
+    ; sleep 51
+    ; sta WSYNC
+
+; [scanline 8-1]
+    ASSERT_RUNTIME "_scycles == #0"
+    ; Repeat loop until LoopCount < 0
+    dec LoopCount
+    beq .row_end
+    jmp row_start
+.row_end:
     jmp border_bottom
