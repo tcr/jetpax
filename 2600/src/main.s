@@ -26,11 +26,11 @@
 
     ; Dynamic, runtime (Stella) assertions for "make debug"
     mac NIBBLE_RAM_STORE
-        {1} [CBSRAM_NIBBLE_WRITE + {2} - NIBBLE_VAR_START]
+        {1} [CBSRAM_NIBBLE_WRITE + {2}]
     endm
 
     mac NIBBLE_RAM_LOAD
-        {1} [CBSRAM_NIBBLE_READ + {2} - NIBBLE_VAR_START]
+        {1} [CBSRAM_NIBBLE_READ + {2}]
     endif
     ; {1} .KEY
     endm
