@@ -28,7 +28,8 @@
     mac NIBBLE_RAM
 .KEY SET {2}
     ; {1} [CBSRAM_NIBBLE_WRITE + .KEY - NIBBLE_VAR_START]
-    {1} .KEY
+    ; {1} .KEY
+    {1} [.KEY + 1]
     endm
 
     mac CALC_REGS_AND_STORE
