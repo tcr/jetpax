@@ -52,7 +52,7 @@ KernelA_GenReset: subroutine
     rts
     ; Current Gemini = $00
 .start:
-    lda BuildKernelRST
+    NIBBLE_RAM_LOAD lda, BuildKernelRST
     cmp #SENTINEL
     bne .set_else
     ; We have found the first (and only) RST on this line, set the marker var
@@ -131,14 +131,14 @@ Kernel_UpdateRegs: subroutine
 ;     stx NibbleMissile
 
     ; Set the X operator
-    sta NibbleX
+    NIBBLE_RAM_STORE sta, NibbleX
     lda #BC_STX
     rts
 .set_else
-    lda NibbleY
+    NIBBLE_RAM_LOAD lda, NibbleY
     cmp #SENTINEL
     bne .set_end
-    sta NibbleY
+    NIBBLE_RAM_STORE sta, NibbleY
     lda #BC_STY
     rts
 .set_end:
@@ -373,10 +373,10 @@ gemini_builder: subroutine
         ; NIBBLE_VAR NibbleVdel1
         NIBBLE_VAR NibbleGrp0
 
-        ldx #SENTINEL ; sentinel
-        stx NibbleX
-        stx NibbleY
-        stx BuildKernelRST
+        lda #SENTINEL ; sentinel
+        NIBBLE_RAM_STORE sta, NibbleX
+        NIBBLE_RAM_STORE sta, NibbleY
+        sta BuildKernelRST
 
         ; Php target default
         ldy #RESP1
@@ -400,8 +400,8 @@ gemini_builder: subroutine
             CALC_REGS_AND_STORE 3, NibbleGemini3
 
             ; Write to PHP in 2B
-            ldx #EMERALD_SP
-            stx NibblePhp
+            lda #EMERALD_SP
+            sta NibblePhp
             NIBBLE_WRITE_IMM [KernelB_E_W + 0], #BC_STY
             NIBBLE_WRITE_IMM [KernelB_E_W + 1], #EMERALD_SP_RESET ; 2B
             NIBBLE_WRITE_IMM [KernelB_F_W + 1], #BC_PHP
@@ -411,17 +411,17 @@ gemini_builder: subroutine
             NIBBLE_WRITE_IMM [KernelB_H_W + 1], #EMERALD_SP ; 3B
 
             ; Update Grp0
-            ldy BuildKernelRST
-            sty RamKernelGrp0
+            lda BuildKernelRST
+            sta RamKernelGrp0
         NIBBLE_ELSE
             ; Gemini 3B
-            ldy [DO_GEMS_B + 3]
+            lda [DO_GEMS_B + 3]
             jsr KernelB_GenPhp
             NIBBLE_IF eq
                 ; Write to PHP in 3B
                 CALC_REGS_AND_STORE 2, NibbleGemini2
-                ldx #EMERALD_SP
-                stx NibblePhp
+                lda #EMERALD_SP
+                NIBBLE_RAM_STORE sta, NibblePhp
                 NIBBLE_WRITE_IMM [KernelB_E_W + 0], #BC_STY
                 NIBBLE_WRITE_IMM [KernelB_E_W + 1], #EMERALD_SP_RESET
                 NIBBLE_WRITE_VAR [KernelB_F_W + 1], NibbleGemini2
@@ -431,7 +431,7 @@ gemini_builder: subroutine
                 NIBBLE_WRITE_IMM [KernelB_H_W + 1], #BC_PHP ; 3B
                 
                 ; Update Grp0
-                ldy BuildKernelRST
+                NIBBLE_RAM_LOAD lda, BuildKernelRST
                 sty RamKernelGrp0
             NIBBLE_ELSE
                 ; Update 2B
@@ -450,7 +450,7 @@ gemini_builder: subroutine
 
     ; Nibble Kernel B
     NIBBLE_START_KERNEL gem_kernel_b_2, 40
-        ; NIBBLE_VAR NibbleGemini1
+        NIBBLE_VAR NibbleGemini1
         ; NIBBLE_VAR NibbleGemini1Reg
         ; NIBBLE_VAR NibbleGemini2
         ; NIBBLE_VAR NibbleGemini2Reg
@@ -462,7 +462,7 @@ gemini_builder: subroutine
         NIBBLE_VAR NibbleGrp0
 
         ; Gemini 1B
-        NIBBLE_WRITE_IMM KernelB_D_W, NibbleGemini1
+        NIBBLE_WRITE_VAR KernelB_D_W, NibbleGemini1
 
         ; Write out PHP flag comparison
         ldy BuildKernelRST
@@ -482,9 +482,9 @@ gemini_builder: subroutine
         ; NIBBLE_END_IF
 
         ; Gemini 4B
-        ldy [DO_GEMS_B + 4]
+        lda [DO_GEMS_B + 4]
         jsr Kernel_UpdateRegs
-        sty NibbleGemini4
+        NIBBLE_RAM_STORE sta, NibbleGemini4
         NIBBLE_WRITE_VAR KernelB_J_W, NibbleGemini4
 
         ; TODO if no PHP, rewrite previous section:
@@ -519,18 +519,18 @@ DBG_NIBBLE_BUILD: subroutine
 .kernel_a:
     NIBBLE_gem_kernel_a_1_BUILD ; TODO can this be implied
     lda RamNibbleBuildState
-    sta NibbleVar1
+    NIBBLE_RAM_STORE sta, NibbleVar1
     NIBBLE_gem_kernel_a_2_BUILD ; TODO can this be implied
     lda RamNibbleBuildState
-    sta NibbleVar2
+    NIBBLE_RAM_STORE sta, NibbleVar2
     jmp .next
 .kernel_b:
     NIBBLE_gem_kernel_b_1_BUILD ; TODO can this be implied
     lda RamNibbleBuildState
-    sta NibbleVar1
+    NIBBLE_RAM_STORE sta, NibbleVar1
     NIBBLE_gem_kernel_b_2_BUILD ; TODO can this be implied
     lda RamNibbleBuildState
-    sta NibbleVar2
+    NIBBLE_RAM_STORE sta, NibbleVar2
 .next:
     rts
     
@@ -569,15 +569,15 @@ GameNibbleRun: subroutine
     beq [. + 5]
     jmp .kernel_b
 .kernel_a:
-    lda NibbleVar1
+    NIBBLE_RAM_LOAD lda, NibbleVar1
     NIBBLE_gem_kernel_a_1
-    lda NibbleVar2
+    NIBBLE_RAM_LOAD lda, NibbleVar2
     NIBBLE_gem_kernel_a_2
     jmp .next
 .kernel_b:
-    lda NibbleVar1
+    NIBBLE_RAM_LOAD lda, NibbleVar1
     NIBBLE_gem_kernel_b_1
-    lda NibbleVar2
+    NIBBLE_RAM_LOAD lda, NibbleVar2
     NIBBLE_gem_kernel_b_2
 .next:
     rts

@@ -211,10 +211,10 @@
     ; NIBBLE_VAR NibbleGemini4
     ; NIBBLE_VAR NibbleMissile
     ; NIBBLE_VAR NibbleVdel1
-    ldx #SENTINEL
-    stx NibbleX
-    stx NibbleY
-    stx BuildKernelRST
+    lda #SENTINEL
+    NIBBLE_RAM_STORE sta, NibbleX
+    NIBBLE_RAM_STORE sta, NibbleY
+    sta BuildKernelRST
     ; Php target default
     ldy #RESP1
     sty NibblePhp
@@ -236,11 +236,11 @@
     rol RamNibbleBuildState
     CALC_REGS_AND_STORE 3, NibbleGemini3
     ; Write to PHP in 2B
-    ldx #EMERALD_SP
-    stx NibblePhp
+    lda #EMERALD_SP
+    sta NibblePhp
     ; Update Grp0
-    ldy BuildKernelRST
-    sty RamKernelGrp0
+    lda BuildKernelRST
+    sta RamKernelGrp0
     rol RamNibbleBuildState
     jmp .endif_1
     ; [BIT DEPTH] #1 If-End @ 1
@@ -248,7 +248,7 @@
     clc
     rol RamNibbleBuildState
     ; Gemini 3B
-    ldy [DO_GEMS_B + 3]
+    lda [DO_GEMS_B + 3]
     jsr KernelB_GenPhp
 .if_2:
     bne .else_2
@@ -256,11 +256,11 @@
     rol RamNibbleBuildState
     ; Write to PHP in 3B
     CALC_REGS_AND_STORE 2, NibbleGemini2
-    ldx #EMERALD_SP
-    stx NibblePhp
+    lda #EMERALD_SP
+    NIBBLE_RAM_STORE sta, NibblePhp
      
     ; Update Grp0
-    ldy BuildKernelRST
+    NIBBLE_RAM_LOAD lda, BuildKernelRST
     sty RamKernelGrp0
     jmp .endif_2
     ; [BIT DEPTH] #2 If-End @ 2
@@ -292,7 +292,6 @@
     MAC NIBBLE_gem_kernel_b_2_BUILD
     lda #0
     sta RamNibbleBuildState
-    ; NIBBLE_VAR NibbleGemini1
     ; NIBBLE_VAR NibbleGemini1Reg
     ; NIBBLE_VAR NibbleGemini2
     ; NIBBLE_VAR NibbleGemini2Reg
@@ -324,9 +323,9 @@
     ;     NIBBLE_WRITE_IMM [KernelB_K - $100], NibbleMissile
     ; NIBBLE_END_IF
     ; Gemini 4B
-    ldy [DO_GEMS_B + 4]
+    lda [DO_GEMS_B + 4]
     jsr Kernel_UpdateRegs
-    sty NibbleGemini4
+    NIBBLE_RAM_STORE sta, NibbleGemini4
     ; TODO if no PHP, rewrite previous section:
     ; NIBBLE_IF cs
     ;

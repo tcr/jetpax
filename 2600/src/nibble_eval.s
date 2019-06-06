@@ -193,23 +193,23 @@
 
 
     MAC NIBBLE_gem_kernel_b_2
-    ldx #[ NibbleGemini1 ]
+    ldx [CBSRAM_NIBBLE_READ + NibbleGemini1 - NIBBLE_VAR_START],y
     stx [KernelB_D_W + 0]
     asl
     bcc .else_1
-    ; parent: BuildState { index: 0, checkdepth: 0, cycles: 10 }
+    ; parent: BuildState { index: 0, checkdepth: 0, cycles: 12 }
 .if_1:
     ldx #[ #RamFFByte ]
     stx [[KernelB_C - $100 + 1] + 0]
     sleep 2
-    ; then: BuildState { index: 1, checkdepth: 1, cycles: 20 }
+    ; then: BuildState { index: 1, checkdepth: 1, cycles: 22 }
 
     jmp .endif_1
 .else_1:
     ldx #[ #RamPF1Value ]
     stx [[KernelB_C - $100 + 1] + 0]
     sleep 3
-    ; else: BuildState { index: 1, checkdepth: 1, cycles: 20 }
+    ; else: BuildState { index: 1, checkdepth: 1, cycles: 22 }
 .endif_1:
     ldx [CBSRAM_NIBBLE_READ + NibbleGemini4 - NIBBLE_VAR_START],y
     stx [KernelB_J_W + 0]
@@ -217,7 +217,7 @@
     stx [[KernelB_VDEL0 - $100] + 0]
     ldx #[ #$00 ]
     stx [NibblePs + 0]
-    ENDM ; 42 cycles max
+    ENDM ; 44 cycles max
 
 
 
