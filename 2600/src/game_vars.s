@@ -8,31 +8,6 @@ coolest_level           ds $3f
 
     align 16
 
-NIBBLE_VAR_START = .
-
-; Nibble Variables
-NibbleVar1              byte
-NibbleVar2              byte
-NibbleGemini1           byte
-NibbleGemini1Reg        byte
-NibbleGemini2           byte
-NibbleGemini2Reg        byte
-NibbleGemini3           byte
-NibbleGemini3Reg        byte
-NibbleGemini4           byte
-NibbleMissile           byte
-NibbleVdel1             byte
-NibbleGrp0              byte
-NibbleX                 byte
-NibbleY                 byte
-NibblePhp               byte
-NibblePs                byte
-
-NIBBLE_VAR_END = .
-NIBBLE_VAR_COUNT = NIBBLE_VAR_END - NIBBLE_VAR_START
-
-    align 16
-
 ; Misc Nibble support
 RamKernelGrp0           byte
 BuildKernelRST          byte

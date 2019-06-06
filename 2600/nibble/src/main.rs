@@ -95,7 +95,7 @@ impl KernelBuild {
                     writeln!(&mut output, "    ldx #[ {} ]", s);
                 }
                 LoadZero(s) => {
-                    writeln!(&mut output, "    ldx [CBSRAM_NIBBLE_READ + {} - NIBBLE_VAR_START],y", s);
+                    writeln!(&mut output, "    NIBBLE_RAM_LOAD ldx, {}", s);
                 }
                 StoreAbs(s) => {
                     writeln!(&mut output, "{}", s);

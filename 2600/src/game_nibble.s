@@ -529,27 +529,27 @@ DBG_NIBBLE_BUILD: subroutine
     rts
     
     
-NibbleCopyToRam: subroutine
-    ; Copy out
-    ldx #00
-    ldy #$00
-.loop:
-    lda NIBBLE_VAR_START,y
-    sta CBSRAM_NIBBLE_WRITE,y
-    stx NIBBLE_VAR_START,y
-    iny
-    cpy #NIBBLE_VAR_COUNT
-    bne .loop
-    rts
+; NibbleCopyToRam: subroutine
+;     ; Copy out
+;     ldx #00
+;     ldy #$00
+; .loop:
+;     lda NIBBLE_VAR_START,y
+;     sta CBSRAM_NIBBLE_WRITE,y
+;     stx NIBBLE_VAR_START,y
+;     iny
+;     cpy #NIBBLE_VAR_COUNT
+;     bne .loop
+;     rts
 
-NibbleCopyFromRam: subroutine
-.INDEX SET 0
-    REPEAT NIBBLE_VAR_COUNT
-        lda [CBSRAM_NIBBLE_READ + .INDEX]
-        sta [NIBBLE_VAR_START + .INDEX]
-.INDEX SET .INDEX + 1
-    REPEND
-    rts
+; NibbleCopyFromRam: subroutine
+; .INDEX SET 0
+;     REPEAT NIBBLE_VAR_COUNT
+;         lda [CBSRAM_NIBBLE_READ + .INDEX]
+;         sta [NIBBLE_VAR_START + .INDEX]
+; .INDEX SET .INDEX + 1
+;     REPEND
+;     rts
 
     ; Evaluate the kernel.
     ; TODO move this into the row kernel

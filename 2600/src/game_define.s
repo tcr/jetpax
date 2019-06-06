@@ -87,21 +87,21 @@ XPosStart = 88
 
 ; Nibble Variables
 
-; NibbleVar1              = 0
-; NibbleVar2              = 1
-; NibbleGemini1           = 2
-; NibbleGemini1Reg        = 3
-; NibbleGemini2           = 4
-; NibbleGemini2Reg        = 5
-; NibbleGemini3           = 6
-; NibbleGemini3Reg        = 7
-; NibbleGemini4           = 8
-; NibbleMissile           = 9
-; NibbleVdel1             = 10
-; NibbleGrp0              = 11
-; NibbleX                 = 12
-; NibbleY                 = 13
-; NibblePhp               = 14
-; NibblePs                = 15
+NibbleVar1              = 0
+NibbleVar2              = 1
+NibbleGemini1           = 2
+NibbleGemini1Reg        = 3
+NibbleGemini2           = 4
+NibbleGemini2Reg        = 5
+NibbleGemini3           = 6
+NibbleGemini3Reg        = 7
+NibbleGemini4           = 8
+NibbleMissile           = 9
+NibbleVdel1             = 10
+NibbleGrp0              = 11
+NibbleX                 = 12
+NibbleY                 = 13
+NibblePhp               = 14
+NibblePs                = 15
 
-; NIBBLE_VAR_COUNT = 1 + NibblePs
+NIBBLE_VAR_COUNT = 1 + NibblePs
