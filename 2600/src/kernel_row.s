@@ -62,7 +62,7 @@ row_2:
     sta COLUPF
 
     ; [[[Nibble VM.]]]
-    sleep 13
+    sleep 12
 
     ; Load PF1 value
     lda #%00111101
@@ -82,7 +82,7 @@ row_2:
     sta COLUPF
 
     ; Set overflow flag
-    ldy #0
+    ldy RamRowOffset
     NIBBLE_RAM_LOAD lda, NibblePs
     sta Temp2
     bit Temp2
@@ -142,7 +142,8 @@ row_6:
     jet_spritedata_calc
 
     ; Load nibble index.
-    ldy #0
+    ldy #16
+    sty RamRowOffset
 
     ; Idle.
     sta WSYNC

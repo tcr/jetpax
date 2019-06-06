@@ -40,6 +40,7 @@ RamStackBkp             byte
 RamPF1Value             byte
 
 RamRowJetpackIndex      byte ; sprite counter
+RamRowOffset            byte
 
 level_for_game byte
     byte

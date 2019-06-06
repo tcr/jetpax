@@ -185,4 +185,8 @@ FrameSetup: subroutine
     ldx #0
     jsr SetHorizPos
 
+    ; Set row offset to start with.
+    lda #0
+    sta RamRowOffset
+
     jmp VerticalBlankEnd
