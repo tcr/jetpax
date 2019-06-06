@@ -490,9 +490,9 @@ gemini_builder: subroutine
         ; NIBBLE_END_IF
 
         ; Make adjustments for sprites.
-        NIBBLE_RAM_STORE ror, NibbleGrp0
-        NIBBLE_RAM_STORE ror, NibbleX
-        NIBBLE_RAM_STORE ror, NibbleY
+        NIBBLE_RAM_ROR lda, sta, NibbleGrp0
+        NIBBLE_RAM_ROR lda, sta, NibbleX
+        NIBBLE_RAM_ROR lda, sta, NibbleY
 
         ; ; VD1
         ; NIBBLE_WRITE_IMM [KernelB_VDEL1 - $100], NibbleVdel1

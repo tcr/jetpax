@@ -62,7 +62,7 @@ row_2:
     sta COLUPF
 
     ; [[[Nibble VM.]]]
-    sleep 21
+    sleep 13
 
     ; Load PF1 value
     lda #%00111101
@@ -82,7 +82,10 @@ row_2:
     sta COLUPF
 
     ; Set overflow flag
-    NIBBLE_RAM_LOAD bit, NibblePs
+    ldy #0
+    NIBBLE_RAM_LOAD lda, NibblePs
+    sta Temp2
+    bit Temp2
 
     ASSERT_RUNTIME "_scycles == #0"
 
@@ -103,12 +106,14 @@ row_3:
 
     ; [[[Nibble VM.]]]
     ; Idle.
-    sleep 22
+    sleep 18
 
     ; Setup for kernel
     sec ; clear carry bit
-    NIBBLE_RAM_LOAD ldx, NibbleX
-    NIBBLE_RAM_LOAD ldy, NibbleY
+    NIBBLE_RAM_LOAD lda, NibbleX
+    tax
+    NIBBLE_RAM_LOAD lda, NibbleY
+    tay
 
     ; Jump immediately into scanlines 4-5 aka "kernel_gem"
     lda NibbleVdel1
