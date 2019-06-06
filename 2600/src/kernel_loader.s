@@ -2,24 +2,24 @@
 
     ; Copy Kernel A to CBSRAM
 LoadKernelA: subroutine
-    ldy #(kernel_1_end - kernel_1_start)-1
+    ldy #(kernel_1_end - KernelA_start)-1
 .loop:
-    lda kernel_1_start,Y
+    lda KernelA_start,Y
     sta $1000,Y
     dey
     bne .loop
-    lda kernel_1_start
+    lda KernelA_start
     sta $1000
     rts
 
     ; Copy Kernel B to CBSRAM
 LoadKernelB: subroutine
-    ldy #(kernel_2_end - kernel_2_start)-1
+    ldy #(kernel_2_end - KernelB_start)-1
 .loop:
-    lda kernel_2_start,Y
+    lda KernelB_start,Y
     sta $1000,Y
     dey
     bne .loop
-    lda kernel_2_start
+    lda KernelB_start
     sta $1000
     rts

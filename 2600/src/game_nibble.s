@@ -136,6 +136,7 @@ Kernel_UpdateRegs: subroutine
 .set_end:
     ; Failed all
     ASSERT_RUNTIME "0"
+    lda #BC_STX ; FIXME fallback
     rts
 
     ; Populate the Nibble kernel values for the current row.
@@ -376,9 +377,9 @@ gemini_builder: subroutine
         NIBBLE_RAM_STORE sta, NibblePhp
 
         ; Gemini 0B
-        ldy [DO_GEMS_B + 0]
+        lda [DO_GEMS_B + 0]
         NIBBLE_VAR_STY NibbleGrp0
-        sty RamKernelGrp0
+        sta RamKernelGrp0
         ; NIBBLE_WRITE_IMM KernelB_D_W, RamKernelGemini0
 
         ; Gemini 1B
@@ -387,7 +388,7 @@ gemini_builder: subroutine
         NIBBLE_RAM_STORE sta, NibbleGemini1
 
         ; Gemini 2B
-        ldy [DO_GEMS_B + 2]
+        lda [DO_GEMS_B + 2]
         jsr KernelB_GenPhp
         NIBBLE_IF eq
             CALC_REGS_AND_STORE 3, NibbleGemini3
@@ -425,7 +426,7 @@ gemini_builder: subroutine
                 
                 ; Update Grp0
                 NIBBLE_RAM_LOAD lda, BuildKernelRST
-                sty RamKernelGrp0
+                sta RamKernelGrp0
             NIBBLE_ELSE
                 ; Update 2B
                 CALC_REGS_AND_STORE 2, NibbleGemini2
@@ -458,8 +459,8 @@ gemini_builder: subroutine
         NIBBLE_WRITE_VAR KernelB_D_W, NibbleGemini1
 
         ; Write out PHP flag comparison
-        ldy BuildKernelRST
-        cpy #G01
+        lda BuildKernelRST
+        cmp #G01
         NIBBLE_IF eq
             NIBBLE_WRITE_IMM [KernelB_C - $100 + 1], #RamFFByte
         NIBBLE_ELSE
@@ -475,9 +476,7 @@ gemini_builder: subroutine
         ; NIBBLE_END_IF
 
         ; Gemini 4B
-        lda [DO_GEMS_B + 4]
-        jsr Kernel_UpdateRegs
-        NIBBLE_RAM_STORE sta, NibbleGemini4
+        CALC_REGS_AND_STORE 4, NibbleGemini4
         NIBBLE_WRITE_VAR KernelB_J_W, NibbleGemini4
 
         ; TODO if no PHP, rewrite previous section:

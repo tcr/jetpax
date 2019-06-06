@@ -221,16 +221,16 @@
     lda #RESP1
     NIBBLE_RAM_STORE sta, NibblePhp
     ; Gemini 0B
-    ldy [DO_GEMS_B + 0]
+    lda [DO_GEMS_B + 0]
     NIBBLE_RAM_STORE sta, NibbleGrp0
-    sty RamKernelGrp0
+    sta RamKernelGrp0
     ; NIBBLE_WRITE_IMM KernelB_D_W, RamKernelGemini0
     ; Gemini 1B
     lda [DO_GEMS_B + 1]
     jsr Kernel_UpdateRegs
     NIBBLE_RAM_STORE sta, NibbleGemini1
     ; Gemini 2B
-    ldy [DO_GEMS_B + 2]
+    lda [DO_GEMS_B + 2]
     jsr KernelB_GenPhp
 .if_1:
     bne .else_1
@@ -263,7 +263,7 @@
      
     ; Update Grp0
     NIBBLE_RAM_LOAD lda, BuildKernelRST
-    sty RamKernelGrp0
+    sta RamKernelGrp0
     jmp .endif_2
     ; [BIT DEPTH] #2 If-End @ 2
 .else_2:
@@ -303,8 +303,8 @@
     ; NIBBLE_VAR NibbleVdel1
     ; Gemini 1B
     ; Write out PHP flag comparison
-    ldy BuildKernelRST
-    cpy #G01
+    lda BuildKernelRST
+    cmp #G01
 .if_1:
     bne .else_1
     sec
@@ -325,9 +325,7 @@
     ;     NIBBLE_WRITE_IMM [KernelB_K - $100], NibbleMissile
     ; NIBBLE_END_IF
     ; Gemini 4B
-    lda [DO_GEMS_B + 4]
-    jsr Kernel_UpdateRegs
-    NIBBLE_RAM_STORE sta, NibbleGemini4
+    CALC_REGS_AND_STORE 4, NibbleGemini4
     ; TODO if no PHP, rewrite previous section:
     ; NIBBLE_IF cs
     ;

@@ -4,19 +4,24 @@
 ; Gems are displayed in alternating kernels. This chart shows
 ; which kernel is responsible for which gem, with missiles denoted.
 ;
-;  1:   |SS  SS  MSS  |SS   SS  SS  |        kernel 1 (S = Sprite, M = missile)
-;  2:   |  SS  SS   SS|  SSM  SS  SS|        kernel 2
-;  =    |1122112221122|1122111221122|        kernel #
+;  1:   |SS  SS  M|SS  SS   |SS  SS  |        kernel 1 (S = Sprite, M = missile)
+;  2:   |  SS  SS |  SS  SSM|  SS  SS|        kernel 2
+;  =    |112211222|112211221|11221122|        kernel #
 ;  #    0^      8^       17^       26^       gem index
 ;
-; The middle bar indicates where the pattern reverses.
+; The middle bars indicate when RESP1 is performed.
 ;
 ; Because we can repeat a sprite multiple times, and reset the sprite
 ; occurance mid-line, we can render close to half of the 26 gems a line
-; requires with a single sprite. By alternating sprites each frame with an...
-; acceptable amount of flicker (15Hz) we can render almost all the gems on each
-; line, except for two. These are instead rendered by the missile, which
-; corresponds to the sprite and must have the same color and repeat pattern.
+; requires with a single sprite. By alternating sprites each frame with an
+; "acceptable" amount of flicker (15Hz) we can render 24 out of 26 gems.
+; There is a TIA feature where RESP0 will offset the next sprite by 4 color
+; clocks, leaving two gaps in the row.
+;
+; Instead, we render the gems in these two gaps with the player's missile, which
+; shares the same color and repeat pattern as the player. The 3x repeat pattern
+; is mostly unused, by disabling the missile for the first two of its three
+; repetitions.
 
     ; for copying
     align 256
@@ -26,7 +31,7 @@
 ; GEM KERNEL A
 ;
 
-kernel_1_start: subroutine
+KernelA_start: subroutine
     rorg $f100
 
     ; Kernel Marker
@@ -118,14 +123,14 @@ KernelA_branch:
 
     rend
 kernel_1_end:
-    ASSERT_SIZE kernel_1_start, kernel_1_end, $40
+    ASSERT_SIZE KernelA_start, kernel_1_end, $40
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; GEM KERNEL B
 ;
 
-kernel_2_start: subroutine
+KernelB_start: subroutine
     rorg $f100
 
     ; Kernel Marker
@@ -209,4 +214,4 @@ KernelB_branch:
 
     rend
 kernel_2_end:
-    ASSERT_SIZE kernel_2_start, kernel_2_end, $40
+    ASSERT_SIZE KernelB_start, kernel_2_end, $40
