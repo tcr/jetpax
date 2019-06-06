@@ -41,7 +41,6 @@ VerticalBlank: subroutine
 
     jsr GeminiPopulate
     ldy #16
-.DBG_POPULATE:
     jsr GameNibblePopulate
     jsr GameNibbleRun
 

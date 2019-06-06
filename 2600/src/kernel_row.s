@@ -71,20 +71,20 @@ row_2:
     lda #4
     sta TIM64T
 
-    ; Set stack pointer for PHP use from NibblePhp.
-    NIBBLE_RAM_LOAD ldx, NibblePhp
-    dex
-    txs
-
     ; Enable playfield at end of scanline
     lda #COL_BG
     sta COLUPF
 
-    ; Set overflow flag
+    ; Load Nibble RAM offset
     ldy RamRowOffset
+    ; Set overflow flag
     NIBBLE_RAM_LOAD lda, NibblePs
     sta Temp2
     bit Temp2
+    ; Set stack pointer for PHP use from NibblePhp.
+    NIBBLE_RAM_LOAD ldx, NibblePhp
+    dex
+    txs
 
     ASSERT_RUNTIME "_scycles == #0"
 
@@ -145,7 +145,7 @@ row_6:
     sty RamRowOffset
 
     lda DebugKernelID
-    cmp #$a
+    cmp #$0a
     beq row_7a
     jmp row_7b
 

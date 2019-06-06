@@ -15,7 +15,7 @@ BC_STY = $84
 BC_PHP = $08
 BC_NOP = $04
 
-NOP_REG = $79 ; TODO is there a better reg to write to with NOP effects
+NOP_REG = Temp ; TODO is there a better reg to write to with NOP effects
 
 KernelA_D_W EQM [KernelA_D - $100]
 KernelA_E_W EQM [KernelA_E - $100]
