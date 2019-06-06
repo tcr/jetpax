@@ -88,7 +88,7 @@ Kernel_UpdateRegs: subroutine
     ; If equal to GRP0, return nop
     ; FIXME GRP0 might not always be up to date (should update each entry?)
     ; FIXME GOTTA REVERSE THE GRAPHICS ALSO
-    cmp RamKernelGrp0
+    cmp BuildNibbleGrp0
     bne .op_start
     ; TODO if this is stx + NOP value, then register doesn't have to change as
     ; often in GEM1ASWITCH
@@ -96,19 +96,19 @@ Kernel_UpdateRegs: subroutine
     rts
 
 .op_start:
-    NIBBLE_RAM_LOAD cmp, NibbleX
+    cmp BuildNibbleX
     bne .op_else
     lda #BC_STX
     rts
 .op_else:
-    NIBBLE_RAM_LOAD cmp, NibbleY
+    cmp BuildNibbleY
     bne .op_end
     lda #BC_STY
     rts
 .op_end:
 
 .set_start:
-    NIBBLE_RAM_LOAD lda, NibbleX
+    lda BuildNibbleX
     cmp #SENTINEL
     bne .set_else
 
@@ -124,13 +124,15 @@ Kernel_UpdateRegs: subroutine
 
     ; Set the X operator
     NIBBLE_RAM_STORE sta, NibbleX
+    sta BuildNibbleX ; save local value
     lda #BC_STX
     rts
 .set_else
-    NIBBLE_RAM_LOAD lda, NibbleY
+    lda BuildNibbleY
     cmp #SENTINEL
     bne .set_end
     NIBBLE_RAM_STORE sta, NibbleY
+    sta BuildNibbleY ; save local value
     lda #BC_STY
     rts
 .set_end:
@@ -188,7 +190,7 @@ gemini_builder: subroutine
             ; Store 1A in GRP0
             lda [DO_GEMS_A + 1]
             NIBBLE_VAR_STY NibbleGrp0
-            sta RamKernelGrp0 ; For checking purposes
+            sta BuildNibbleGrp0 ; For comparisons
             ; Gemini 1A is RESPx
             NIBBLE_WRITE_IMM [KernelA_C - $100 + 1], #EMERALD_SP_RESET
             ; Turn 3-cycle NOP into 4-cycle
@@ -197,7 +199,7 @@ gemini_builder: subroutine
             ; Store 0A in GRP0
             lda [DO_GEMS_A + 0]
             NIBBLE_VAR_STY NibbleGrp0
-            sta RamKernelGrp0
+            sta BuildNibbleGrp0
 
             lda [DO_GEMS_A + 1]
             jsr KernelA_GenReset
@@ -229,9 +231,9 @@ gemini_builder: subroutine
             NIBBLE_END_IF
         NIBBLE_END_IF
 
-        ; Stop preserving GRP0
+        ; Stop reusing GRP0 by trashing our temp value
         lda #SENTINEL
-        sta RamKernelGrp0
+        sta BuildNibbleGrp0
 
         ; NibbleX, NibbleY are upgraded if not set
         ; Gemini 2A
@@ -368,8 +370,8 @@ gemini_builder: subroutine
         NIBBLE_VAR NibbleGrp0
 
         lda #SENTINEL ; sentinel
-        NIBBLE_RAM_STORE sta, NibbleX
-        NIBBLE_RAM_STORE sta, NibbleY
+        sta BuildNibbleX
+        sta BuildNibbleY
         sta BuildKernelRST
 
         ; Php target default
@@ -379,7 +381,7 @@ gemini_builder: subroutine
         ; Gemini 0B
         lda [DO_GEMS_B + 0]
         NIBBLE_VAR_STY NibbleGrp0
-        sta RamKernelGrp0
+        sta BuildNibbleGrp0
         ; NIBBLE_WRITE_IMM KernelB_D_W, RamKernelGemini0
 
         ; Gemini 1B
@@ -406,7 +408,7 @@ gemini_builder: subroutine
 
             ; Update Grp0
             lda BuildKernelRST
-            sta RamKernelGrp0
+            sta BuildNibbleGrp0
         NIBBLE_ELSE
             ; Gemini 3B
             lda [DO_GEMS_B + 3]
@@ -426,7 +428,7 @@ gemini_builder: subroutine
                 
                 ; Update Grp0
                 NIBBLE_RAM_LOAD lda, BuildKernelRST
-                sta RamKernelGrp0
+                sta BuildNibbleGrp0
             NIBBLE_ELSE
                 ; Update 2B
                 CALC_REGS_AND_STORE 2, NibbleGemini2
@@ -489,9 +491,15 @@ gemini_builder: subroutine
         ; NIBBLE_END_IF
 
         ; Make adjustments for sprites.
-        NIBBLE_RAM_ROR lda, sta, NibbleGrp0
-        NIBBLE_RAM_ROR lda, sta, NibbleX
-        NIBBLE_RAM_ROR lda, sta, NibbleY
+        lda BuildNibbleGrp0
+        ror
+        NIBBLE_RAM_STORE sta, NibbleGrp0
+        lda BuildNibbleX
+        ror
+        NIBBLE_RAM_STORE sta, NibbleX
+        lda BuildNibbleY
+        ror
+        NIBBLE_RAM_STORE sta, NibbleY
 
         ; ; VD1
         ; NIBBLE_WRITE_IMM [KernelB_VDEL1 - $100], NibbleVdel1

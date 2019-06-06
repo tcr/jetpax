@@ -9,8 +9,10 @@ coolest_level           ds $3f
     align 16
 
 ; Misc Nibble support
-RamKernelGrp0           byte
 BuildKernelRST          byte
+BuildNibbleX            byte
+BuildNibbleY            byte
+BuildNibbleGrp0         byte
 
 Temp                    byte
 Temp2                   byte

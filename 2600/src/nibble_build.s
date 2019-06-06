@@ -22,7 +22,7 @@
     ; Store 1A in GRP0
     lda [DO_GEMS_A + 1]
     NIBBLE_RAM_STORE sta, NibbleGrp0
-    sta RamKernelGrp0
+    sta BuildNibbleGrp0
     ; Gemini 1A is RESPx
     ; Turn 3-cycle NOP into 4-cycle
     rol RamNibbleBuildState
@@ -34,7 +34,7 @@
     ; Store 0A in GRP0
     lda [DO_GEMS_A + 0]
     NIBBLE_RAM_STORE sta, NibbleGrp0
-    sta RamKernelGrp0
+    sta BuildNibbleGrp0
     lda [DO_GEMS_A + 1]
     jsr KernelA_GenReset
 .if_2:
@@ -69,9 +69,9 @@
     ; [BIT DEPTH] #1 *If-End @ 1
     ; [BIT DEPTH] #2 Else-End @ 2
 .endif_1:
-    ; Stop preserving GRP0
+    ; Stop reusing GRP0 by trashing our temp value
     lda #SENTINEL
-    sta RamKernelGrp0
+    sta BuildNibbleGrp0
     ; NibbleX, NibbleY are upgraded if not set
     ; Gemini 2A
 .K_2A
@@ -214,8 +214,8 @@
     ; NIBBLE_VAR NibbleMissile
     ; NIBBLE_VAR NibbleVdel1
     lda #SENTINEL
-    NIBBLE_RAM_STORE sta, NibbleX
-    NIBBLE_RAM_STORE sta, NibbleY
+    sta BuildNibbleX
+    sta BuildNibbleY
     sta BuildKernelRST
     ; Php target default
     lda #RESP1
@@ -223,7 +223,7 @@
     ; Gemini 0B
     lda [DO_GEMS_B + 0]
     NIBBLE_RAM_STORE sta, NibbleGrp0
-    sta RamKernelGrp0
+    sta BuildNibbleGrp0
     ; NIBBLE_WRITE_IMM KernelB_D_W, RamKernelGemini0
     ; Gemini 1B
     lda [DO_GEMS_B + 1]
@@ -242,7 +242,7 @@
     NIBBLE_RAM_STORE sta, NibblePhp
     ; Update Grp0
     lda BuildKernelRST
-    sta RamKernelGrp0
+    sta BuildNibbleGrp0
     rol RamNibbleBuildState
     jmp .endif_1
     ; [BIT DEPTH] #1 If-End @ 1
@@ -263,7 +263,7 @@
      
     ; Update Grp0
     NIBBLE_RAM_LOAD lda, BuildKernelRST
-    sta RamKernelGrp0
+    sta BuildNibbleGrp0
     jmp .endif_2
     ; [BIT DEPTH] #2 If-End @ 2
 .else_2:
@@ -335,9 +335,15 @@
     ;     NIBBLE_WRITE_IMM [KernelB_H_W + 0], #BC_STY, #EMERALD_SP
     ; NIBBLE_END_IF
     ; Make adjustments for sprites.
-    NIBBLE_RAM_ROR lda, sta, NibbleGrp0
-    NIBBLE_RAM_ROR lda, sta, NibbleX
-    NIBBLE_RAM_ROR lda, sta, NibbleY
+    lda BuildNibbleGrp0
+    ror
+    NIBBLE_RAM_STORE sta, NibbleGrp0
+    lda BuildNibbleX
+    ror
+    NIBBLE_RAM_STORE sta, NibbleX
+    lda BuildNibbleY
+    ror
+    NIBBLE_RAM_STORE sta, NibbleY
     ;
     ; NIBBLE_WRITE_IMM [KernelB_VDEL1 - $100], NibbleVdel1
     ; GRP0
