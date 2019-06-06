@@ -62,7 +62,7 @@ row_2:
     sta COLUPF
 
     ; [[[Nibble VM.]]]
-    sleep 12
+    sleep 14
 
     ; Load PF1 value
     lda #%00111101
@@ -72,7 +72,6 @@ row_2:
     sta TIM64T
 
     ; Set stack pointer for PHP use from NibblePhp.
-    ; FIXME need to fix these and other Nibble references
     NIBBLE_RAM_LOAD ldx, NibblePhp
     dex
     txs
@@ -106,7 +105,7 @@ row_3:
 
     ; [[[Nibble VM.]]]
     ; Idle.
-    sleep 18
+    sleep 16
 
     ; Setup for kernel
     sec ; clear carry bit
@@ -173,7 +172,7 @@ row_7a: subroutine
     ; Run Kernel.
     NIBBLE_RAM_LOAD lda, NibbleVar2
     NIBBLE_gem_kernel_a_2
-    ; sleep 5
+    sleep 3
 
 ; [scanline 8]
 row_8a: subroutine
@@ -222,8 +221,10 @@ row_7b: subroutine
 
     ; Run Kernel.
     NIBBLE_RAM_LOAD lda, NibbleVar2
-    NIBBLE_gem_kernel_a_2
+    NIBBLE_gem_kernel_b_2
     ; sleep 5
+
+    sta WSYNC
 
 ; [scanline 8]
 row_8b: subroutine
@@ -234,12 +235,12 @@ row_8b: subroutine
 
     ; [NIBBLE VM]
     NIBBLE_RAM_LOAD lda, NibbleVar1
-    NIBBLE_gem_kernel_a_1
+    NIBBLE_gem_kernel_b_1
     ; sleep 3
 
     ; Idle.
     ; sleep 51
-    ; sta WSYNC
+    sta WSYNC
 
 ; [scanline 8-1]
     ASSERT_RUNTIME "_scycles == #0"

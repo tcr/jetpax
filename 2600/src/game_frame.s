@@ -104,7 +104,6 @@ GameFrameKernelLoader: subroutine
     lda #01
     IFNCONST ONLY_KERNEL_B
     IFNCONST ONLY_KERNEL_A
-    ; FIXME Kernel B disabled for test
     and FrameCount
     bne .kernel_b
     ENDIF

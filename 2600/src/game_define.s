@@ -1,5 +1,6 @@
     seg.u CompileFlags
 
+; FIXME enable kernel B
 ONLY_KERNEL_A = 1
 ; ONLY_KERNEL_B = 1
 
