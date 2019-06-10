@@ -40,6 +40,14 @@
         NIBBLE_RAM_STORE {2}, {3}
     endm
 
+    mac CALC_REGS_AND_STORE_A
+.OFFSET SET {1}
+    lda [DO_GEMS_A + .OFFSET]
+    jsr Kernel_UpdateRegs
+    NIBBLE_RAM_STORE sta, {2}
+    endm
+
+
     mac CALC_REGS_AND_STORE
 .OFFSET SET {1}
     lda [DO_GEMS_B + .OFFSET]
