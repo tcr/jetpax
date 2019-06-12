@@ -215,3 +215,33 @@ KernelB_branch:
     rend
 kernel_2_end:
     ASSERT_SIZE KernelB_start, kernel_2_end, $40
+
+
+; Write definitions
+
+KERNEL_WRITE_OFFSSET = -$100
+
+KernelA_B_W         EQM [KernelA_B + KERNEL_WRITE_OFFSSET]
+KernelA_C_W         EQM [KernelA_C + KERNEL_WRITE_OFFSSET]
+KernelA_D_W         EQM [KernelA_D + KERNEL_WRITE_OFFSSET]
+KernelA_E_W         EQM [KernelA_E + KERNEL_WRITE_OFFSSET]
+KernelA_F_W         EQM [KernelA_F + KERNEL_WRITE_OFFSSET]
+KernelA_G_W         EQM [KernelA_G + KERNEL_WRITE_OFFSSET]
+KernelA_H_W         EQM [KernelA_H + KERNEL_WRITE_OFFSSET]
+KernelA_I_W         EQM [KernelA_I + KERNEL_WRITE_OFFSSET]
+KernelA_J_W         EQM [KernelA_J + KERNEL_WRITE_OFFSSET]
+KernelA_K_W         EQM [KernelA_K + KERNEL_WRITE_OFFSSET]
+KernelA_VDEL0_W     EQM [KernelA_VDEL0 + KERNEL_WRITE_OFFSSET]
+KernelA_VDEL1_W     EQM [KernelA_VDEL1 + KERNEL_WRITE_OFFSSET]
+KernelA_GRP0_W      EQM [KernelA_GRP0 + KERNEL_WRITE_OFFSSET]
+
+KernelB_C_W         EQM [KernelB_C + KERNEL_WRITE_OFFSSET]
+KernelB_D_W         EQM [KernelB_D + KERNEL_WRITE_OFFSSET]
+KernelB_E_W         EQM [KernelB_E + KERNEL_WRITE_OFFSSET]
+KernelB_F_W         EQM [KernelB_F + KERNEL_WRITE_OFFSSET]
+KernelB_G_W         EQM [KernelB_G + KERNEL_WRITE_OFFSSET]
+KernelB_H_W         EQM [KernelB_H + KERNEL_WRITE_OFFSSET]
+KernelB_I_W         EQM [KernelB_I + KERNEL_WRITE_OFFSSET]
+KernelB_J_W         EQM [KernelB_J + KERNEL_WRITE_OFFSSET]
+KernelB_K_W         EQM [KernelB_K + KERNEL_WRITE_OFFSSET]
+KernelB_VDEL0_W     EQM [KernelB_VDEL0 + KERNEL_WRITE_OFFSSET]

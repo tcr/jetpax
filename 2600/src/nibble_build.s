@@ -320,9 +320,9 @@
     ; Missile
     ; ldy DO_MISS_B
     ; NIBBLE_IF eq
-    ; NIBBLE_WRITE_IMM [KernelB_K - $100], #BC_STA
+    ; NIBBLE_WRITE_IMM [KernelB_K_W + 0], #BC_STA
     ; NIBBLE_ELSE
-    ;     NIBBLE_WRITE_IMM [KernelB_K - $100], NibbleMissile
+    ;     NIBBLE_WRITE_IMM [KernelB_K_W + 0], NibbleMissile
     ; NIBBLE_END_IF
     ; Gemini 4B
     CALC_REGS_AND_STORE 4, NibbleGemini4
@@ -345,7 +345,7 @@
     ror
     NIBBLE_RAM_STORE sta, NibbleY
     ;
-    ; NIBBLE_WRITE_IMM [KernelB_VDEL1 - $100], NibbleVdel1
+    ; NIBBLE_WRITE_IMM [KernelB_VDEL1_W + 0], NibbleVdel1
     ; GRP0
     lda #$00
     NIBBLE_RAM_STORE sta, NibblePs

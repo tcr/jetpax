@@ -17,23 +17,6 @@ BC_NOP = $04
 
 NOP_REG = Temp ; TODO is there a better reg to write to with NOP effects
 
-KernelA_D_W EQM [KernelA_D - $100]
-KernelA_E_W EQM [KernelA_E - $100]
-KernelA_G_W EQM [KernelA_G - $100]
-KernelA_H_W EQM [KernelA_H - $100]
-KernelA_I_W EQM [KernelA_I - $100]
-KernelA_J_W EQM [KernelA_J - $100]
-KernelA_K_W EQM [KernelA_K - $100]
-
-KernelB_D_W EQM [KernelB_D - $100]
-KernelB_E_W EQM [KernelB_E - $100]
-KernelB_F_W EQM [KernelB_F - $100]
-KernelB_G_W EQM [KernelB_G - $100]
-KernelB_H_W EQM [KernelB_H - $100]
-KernelB_I_W EQM [KernelB_I - $100]
-KernelB_J_W EQM [KernelB_J - $100]
-KernelB_K_W EQM [KernelB_K - $100]
-
     ; See if the current Gemini is g00. Allocate an RST to this Gemini if so
     ; processor flag Z is TRUE if this is RST.
     ; Args:
@@ -185,16 +168,16 @@ gemini_builder: subroutine
         jsr KernelA_GenReset
         NIBBLE_IF eq
             ; Special: Encoding RST0
-            NIBBLE_WRITE_IMM [KernelA_B - $100], #BC_LDA_IMM
-            NIBBLE_WRITE_IMM [KernelA_B - $100 + 1], #%10100000
+            NIBBLE_WRITE_IMM [KernelA_B_W + 0], #BC_LDA_IMM
+            NIBBLE_WRITE_IMM [KernelA_B_W + 1], #%10100000
             ; Store 1A in GRP0
             lda [DO_GEMS_A + 1]
             NIBBLE_VAR_STY NibbleGrp0
             sta BuildNibbleGrp0 ; For comparisons
             ; Gemini 1A is RESPx
-            NIBBLE_WRITE_IMM [KernelA_C - $100 + 1], #EMERALD_SP_RESET
+            NIBBLE_WRITE_IMM [KernelA_C_W + 1], #EMERALD_SP_RESET
             ; Turn 3-cycle NOP into 4-cycle
-            NIBBLE_WRITE_IMM [KernelA_D - $100], #$14 ; NOP zpx (4 cycles)
+            NIBBLE_WRITE_IMM [KernelA_D_W + 0], #$14 ; NOP zpx (4 cycles)
         NIBBLE_ELSE
             ; Store 0A in GRP0
             lda [DO_GEMS_A + 0]
@@ -345,12 +328,12 @@ gemini_builder: subroutine
         ; bne .+4
         ; ldx #BC_NOP
         ; stx NibbleMissile
-        NIBBLE_WRITE_VAR [KernelA_F - $100], NibbleMissile
+        NIBBLE_WRITE_VAR [KernelA_F_W + 0], NibbleMissile
 
         ; VD1
-        NIBBLE_WRITE_VAR [KernelA_VDEL1 - $100], NibbleVdel1
+        NIBBLE_WRITE_VAR [KernelA_VDEL1_W + 0], NibbleVdel1
         ; GRP0
-        NIBBLE_WRITE_VAR [KernelA_VDEL0 - $100], NibbleGrp0
+        NIBBLE_WRITE_VAR [KernelA_VDEL0_W + 0], NibbleGrp0
 
         lda #$ff
         NIBBLE_RAM_STORE sta, NibblePs
@@ -464,17 +447,17 @@ gemini_builder: subroutine
         lda BuildKernelRST
         cmp #G01
         NIBBLE_IF eq
-            NIBBLE_WRITE_IMM [KernelB_C - $100 + 1], #RamFFByte
+            NIBBLE_WRITE_IMM [KernelB_C_W + 1], #RamFFByte
         NIBBLE_ELSE
-            NIBBLE_WRITE_IMM [KernelB_C - $100 + 1], #RamPF1Value
+            NIBBLE_WRITE_IMM [KernelB_C_W + 1], #RamPF1Value
         NIBBLE_END_IF
 
         ; Missile
         ; ldy DO_MISS_B
         ; NIBBLE_IF eq ; Disabled
-            ; NIBBLE_WRITE_IMM [KernelB_K - $100], #BC_STA
+            ; NIBBLE_WRITE_IMM [KernelB_K_W + 0], #BC_STA
         ; NIBBLE_ELSE
-        ;     NIBBLE_WRITE_IMM [KernelB_K - $100], NibbleMissile
+        ;     NIBBLE_WRITE_IMM [KernelB_K_W + 0], NibbleMissile
         ; NIBBLE_END_IF
 
         ; Gemini 4B
@@ -502,9 +485,9 @@ gemini_builder: subroutine
         NIBBLE_RAM_STORE sta, NibbleY
 
         ; ; VD1
-        ; NIBBLE_WRITE_IMM [KernelB_VDEL1 - $100], NibbleVdel1
+        ; NIBBLE_WRITE_IMM [KernelB_VDEL1_W + 0], NibbleVdel1
         ; GRP0
-        NIBBLE_WRITE_VAR [KernelB_VDEL0 - $100], NibbleGrp0
+        NIBBLE_WRITE_VAR [KernelB_VDEL0_W + 0], NibbleGrp0
 
         lda #$00
         NIBBLE_RAM_STORE sta, NibblePs

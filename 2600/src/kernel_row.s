@@ -100,7 +100,7 @@ row_3:
     stx BuildNibbleGrp0
     dey
     ldx Frame0,Y
-    stx [KernelA_GRP0 - $100]
+    stx KernelA_GRP0_W
     sty RamRowJetpackIndex
 
     ; [[[Nibble VM.]]]

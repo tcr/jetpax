@@ -4,13 +4,13 @@
     ; parent: BuildState { index: 0, checkdepth: 0, cycles: 4 }
 .if_1:
     ldx #[ #BC_LDA_IMM ]
-    stx [[KernelA_B - $100] + 0]
+    stx [[KernelA_B_W + 0] + 0]
     ldx #[ #%10100000 ]
-    stx [[KernelA_B - $100 + 1] + 0]
+    stx [[KernelA_B_W + 1] + 0]
     ldx #[ #EMERALD_SP_RESET ]
-    stx [[KernelA_C - $100 + 1] + 0]
+    stx [[KernelA_C_W + 1] + 0]
     ldx #[ #$14 ]
-    stx [[KernelA_D - $100] + 0]
+    stx [[KernelA_D_W + 0] + 0]
     rol
     ; then: BuildState { index: 1, checkdepth: 1, cycles: 32 }
 
@@ -115,11 +115,11 @@
     ; else: BuildState { index: 1, checkdepth: 1, cycles: 39 }
 .endif_1:
     NIBBLE_RAM_LOAD ldx, NibbleMissile
-    stx [[KernelA_F - $100] + 0]
+    stx [[KernelA_F_W + 0] + 0]
     NIBBLE_RAM_LOAD ldx, NibbleVdel1
-    stx [[KernelA_VDEL1 - $100] + 0]
+    stx [[KernelA_VDEL1_W + 0] + 0]
     NIBBLE_RAM_LOAD ldx, NibbleGrp0
-    stx [[KernelA_VDEL0 - $100] + 0]
+    stx [[KernelA_VDEL0_W + 0] + 0]
     ENDM ; 63 cycles max
 
 
@@ -198,21 +198,21 @@
     ; parent: BuildState { index: 0, checkdepth: 0, cycles: 12 }
 .if_1:
     ldx #[ #RamFFByte ]
-    stx [[KernelB_C - $100 + 1] + 0]
+    stx [[KernelB_C_W + 1] + 0]
     sleep 2
     ; then: BuildState { index: 1, checkdepth: 1, cycles: 22 }
 
     jmp .endif_1
 .else_1:
     ldx #[ #RamPF1Value ]
-    stx [[KernelB_C - $100 + 1] + 0]
+    stx [[KernelB_C_W + 1] + 0]
     sleep 3
     ; else: BuildState { index: 1, checkdepth: 1, cycles: 22 }
 .endif_1:
     NIBBLE_RAM_LOAD ldx, NibbleGemini4
     stx [KernelB_J_W + 0]
     NIBBLE_RAM_LOAD ldx, NibbleGrp0
-    stx [[KernelB_VDEL0 - $100] + 0]
+    stx [[KernelB_VDEL0_W + 0] + 0]
     ENDM ; 38 cycles max
 
 
