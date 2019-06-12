@@ -1,12 +1,6 @@
     seg.u Variables
 
-    org $80
-
-DebugKernelID           byte ; which kernel are we running this frame? (for debugging)
-
-coolest_level           ds $3f
-
-    align 16
+    org $C0
 
 ; Misc Nibble support
 BuildKernelRST          byte

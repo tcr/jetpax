@@ -11,17 +11,19 @@ FrameSkip               = %111 ; Tick (every 8 frames)
 
 ; RAM+ memory map
 
+
+
 CBSRAM_KERNEL_WRITE     = $f000
 CBSRAM_KERNEL_READ      = $f100
 CBSRAM_KERNEL_READ_ID   = CBSRAM_KERNEL_READ
 CBSRAM_KERNEL_ENTRY     = [CBSRAM_KERNEL_READ + 4]
 CBSRAM_KERNEL_READ_END  = [CBSRAM_KERNEL_READ + $40]
 
-RAMP_STORAGE_W          = $f040 ; is this just max(frame_1_end, frame_2_end) ?
-RAMP_STORAGE_R          = $f140
-
 CBSRAM_NIBBLE_WRITE     = $f080
 CBSRAM_NIBBLE_READ      = $f180
+
+
+DebugKernelID           = CBSRAM_KERNEL_READ ; which kernel are we running this frame? (for debugging)
 
 
 ; NUSIZ values

@@ -5,11 +5,11 @@ LoadKernelA: subroutine
     ldy #(kernel_1_end - KernelA_start)-1
 .loop:
     lda KernelA_start,Y
-    sta $1000,Y
+    sta CBSRAM_KERNEL_WRITE,Y
     dey
     bne .loop
     lda KernelA_start
-    sta $1000
+    sta CBSRAM_KERNEL_WRITE
     rts
 
     ; Copy Kernel B to CBSRAM
@@ -17,9 +17,9 @@ LoadKernelB: subroutine
     ldy #(kernel_2_end - KernelB_start)-1
 .loop:
     lda KernelB_start,Y
-    sta $1000,Y
+    sta CBSRAM_KERNEL_WRITE,Y
     dey
     bne .loop
     lda KernelB_start
-    sta $1000
+    sta CBSRAM_KERNEL_WRITE
     rts

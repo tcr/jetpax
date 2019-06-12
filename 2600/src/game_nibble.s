@@ -128,8 +128,8 @@ Kernel_UpdateRegs: subroutine
     ; Args:
     ;   Y = row index
 GameNibblePopulate: subroutine
-    lda $f100
-    sta DebugKernelID
+    ; lda $f100
+    ; sta DebugKernelID
 
     lda shard_map
     ldx #1 ; gemini counter, starting at 1
