@@ -120,8 +120,12 @@ Kernel_UpdateRegs: subroutine
     rts
 .set_end:
     ; Failed all
-    ; ASSERT_RUNTIME "0"
-    lda #BC_STX ; FIXME fallback
+    ASSERT_RUNTIME "0"
+
+    brk
+
+    ; Fallback
+    lda #BC_STX
     rts
 
     ; Populate the Nibble kernel values for the current row.
@@ -155,7 +159,9 @@ gemini_builder: subroutine
 
         lda #SENTINEL ; sentinel
         sta BuildKernelRST
+        sta BuildNibbleX
         NIBBLE_VAR_STY NibbleX
+        sta BuildNibbleY
         NIBBLE_VAR_STY NibbleY
 
         ; FIXME don't hard code this?
@@ -353,9 +359,11 @@ gemini_builder: subroutine
         NIBBLE_VAR NibbleGrp0
 
         lda #SENTINEL ; sentinel
-        sta BuildNibbleX
-        sta BuildNibbleY
         sta BuildKernelRST
+        sta BuildNibbleX
+        ; NIBBLE_VAR_STY NibbleX
+        sta BuildNibbleY
+        ; NIBBLE_VAR_STY NibbleY
 
         ; Php target default
         lda #RESP1

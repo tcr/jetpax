@@ -5,7 +5,9 @@
     ; NIBBLE_VAR NibbleVdel1
     lda #SENTINEL
     sta BuildKernelRST
+    sta BuildNibbleX
     NIBBLE_RAM_STORE sta, NibbleX
+    sta BuildNibbleY
     NIBBLE_RAM_STORE sta, NibbleY
     ; FIXME don't hard code this?
     lda #BC_STX
@@ -214,9 +216,11 @@
     ; NIBBLE_VAR NibbleMissile
     ; NIBBLE_VAR NibbleVdel1
     lda #SENTINEL
-    sta BuildNibbleX
-    sta BuildNibbleY
     sta BuildKernelRST
+    sta BuildNibbleX
+    ; NIBBLE_VAR_STY NibbleX
+    sta BuildNibbleY
+    ; NIBBLE_VAR_STY NibbleY
     ; Php target default
     lda #RESP1
     NIBBLE_RAM_STORE sta, NibblePhp
