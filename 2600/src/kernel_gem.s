@@ -219,7 +219,7 @@ kernel_2_end:
 
 ; Write definitions
 
-KERNEL_WRITE_OFFSET = -$100
+KERNEL_WRITE_OFFSET = CBSRAM_KERNEL_WRITE - CBSRAM_KERNEL_READ
 
 KernelA_B_W         EQM [KernelA_B + KERNEL_WRITE_OFFSET]
 KernelA_C_W         EQM [KernelA_C + KERNEL_WRITE_OFFSET]

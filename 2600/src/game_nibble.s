@@ -496,7 +496,7 @@ gemini_builder: subroutine
 
     ; TODO do this for all rows
 DBG_NIBBLE_BUILD: subroutine
-    ldx $f100
+    ldx CBSRAM_KERNEL_READ_ID
     cpx #$a
     beq [. + 5]
     jmp .kernel_b 
@@ -548,7 +548,7 @@ GameNibbleRun: subroutine
     ldy #0
 
     ; Select kernel A or B.
-    ldx $f100
+    ldx CBSRAM_KERNEL_READ_ID
     cpx #$a
     beq [. + 5]
     jmp .kernel_b
