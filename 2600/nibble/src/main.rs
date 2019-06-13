@@ -4,7 +4,7 @@ use std::collections::VecDeque;
 use std::fmt::Write;
 use std::collections::HashMap;
 
-const IS_ZERO_PAGE: bool = false;
+const IS_ZERO_PAGE: bool = true;
 
 #[derive(Debug, Clone)]
 enum Parse {
@@ -209,7 +209,7 @@ impl KernelWalker for KernelBuild {
         // EVAL
         self.push_eval(EvalStep::Token(then_node.index));
         self.push_eval(EvalStep::Literal(format!("    jmp .endif_{}", index)));
-        then_node.cycles += 2;
+        then_node.cycles += 3;
         self.push_eval(EvalStep::Literal(format!(".else_{}:", index)));
 
         parent_node

@@ -12,7 +12,7 @@
     ldx #[ #$14 ]
     stx [[KernelA_D_W + 0] + 0]
     rol
-    ; then: BuildState { index: 1, checkdepth: 1, cycles: 32 }
+    ; then: BuildState { index: 1, checkdepth: 1, cycles: 29 }
 
     jmp .endif_1
 .else_1:
@@ -24,8 +24,8 @@
     stx [[KernelA_D_W + 0] + 0]
     ldx #[ #RESP1 ]
     stx [[KernelA_D_W + 1] + 0]
-    sleep 3
-    ; then: BuildState { index: 2, checkdepth: 2, cycles: 26 }
+    sleep 2
+    ; then: BuildState { index: 2, checkdepth: 2, cycles: 24 }
 
     jmp .endif_2
 .else_2:
@@ -33,21 +33,21 @@
     stx [[KernelA_D_W + 0] + 0]
     NIBBLE_RAM_LOAD ldx, NibbleGemini1Reg
     stx [[KernelA_D_W + 1] + 0]
-    ; else: BuildState { index: 2, checkdepth: 2, cycles: 26 }
+    ; else: BuildState { index: 2, checkdepth: 2, cycles: 24 }
 .endif_2:
-    sleep 6
-    ; else: BuildState { index: 2, checkdepth: 2, cycles: 32 }
+    sleep 5
+    ; else: BuildState { index: 2, checkdepth: 2, cycles: 29 }
 .endif_1:
     asl
     bcc .else_3
-    ; parent: BuildState { index: 2, checkdepth: 2, cycles: 36 }
+    ; parent: BuildState { index: 2, checkdepth: 2, cycles: 33 }
 .if_3:
     ldx #[ #NOP_REG ]
     stx [[KernelA_E_W + 1] + 0]
     ldx #[ #RESP1 ]
     stx [[KernelA_G_W + 1] + 0]
-    sleep 9
-    ; then: BuildState { index: 3, checkdepth: 3, cycles: 59 }
+    sleep 7
+    ; then: BuildState { index: 3, checkdepth: 3, cycles: 53 }
 
     jmp .endif_3
 .else_3:
@@ -57,16 +57,16 @@
     stx [[KernelA_G_W + 0] + 0]
     NIBBLE_RAM_LOAD ldx, NibbleGemini2Reg
     stx [[KernelA_G_W + 1] + 0]
-    ; else: BuildState { index: 3, checkdepth: 3, cycles: 59 }
+    ; else: BuildState { index: 3, checkdepth: 3, cycles: 53 }
 .endif_3:
     asl
     bcc .else_4
-    ; parent: BuildState { index: 3, checkdepth: 3, cycles: 63 }
+    ; parent: BuildState { index: 3, checkdepth: 3, cycles: 57 }
 .if_4:
     ldx #[ #RESP1 ]
     stx [[KernelA_H_W + 1] + 0]
-    sleep 9
-    ; then: BuildState { index: 4, checkdepth: 4, cycles: 80 }
+    sleep 7
+    ; then: BuildState { index: 4, checkdepth: 4, cycles: 72 }
 
     jmp .endif_4
 .else_4:
@@ -74,9 +74,9 @@
     stx [[KernelA_H_W + 0] + 0]
     NIBBLE_RAM_LOAD ldx, NibbleGemini3Reg
     stx [[KernelA_H_W + 1] + 0]
-    ; else: BuildState { index: 4, checkdepth: 4, cycles: 80 }
+    ; else: BuildState { index: 4, checkdepth: 4, cycles: 72 }
 .endif_4:
-    ENDM ; 80 cycles max
+    ENDM ; 72 cycles max
 
 
 
@@ -96,8 +96,7 @@
     stx [[KernelA_J_W + 1] + 1]
     ldx #[ #BC_PHP ]
     stx [[KernelA_K_W + 1] + 0]
-    sleep 3
-    ; then: BuildState { index: 1, checkdepth: 1, cycles: 39 }
+    ; then: BuildState { index: 1, checkdepth: 1, cycles: 32 }
 
     jmp .endif_1
 .else_1:
@@ -111,8 +110,7 @@
     stx [[KernelA_K_W + 0] + 0]
     ldx #[ #EMERALD_SP ]
     stx [[KernelA_K_W + 1] + 0]
-    sleep 2
-    ; else: BuildState { index: 1, checkdepth: 1, cycles: 39 }
+    ; else: BuildState { index: 1, checkdepth: 1, cycles: 32 }
 .endif_1:
     NIBBLE_RAM_LOAD ldx, NibbleMissile
     stx [[KernelA_F_W + 0] + 0]
@@ -120,7 +118,7 @@
     stx [[KernelA_VDEL1_W + 0] + 0]
     NIBBLE_RAM_LOAD ldx, NibbleGrp0
     stx [[KernelA_VDEL0_W + 0] + 0]
-    ENDM ; 63 cycles max
+    ENDM ; 53 cycles max
 
 
 
@@ -146,7 +144,7 @@
     stx [[KernelB_H_W + 1] + 0]
     rol
     sleep 3
-    ; then: BuildState { index: 1, checkdepth: 1, cycles: 55 }
+    ; then: BuildState { index: 1, checkdepth: 1, cycles: 49 }
 
     jmp .endif_1
 .else_1:
@@ -168,7 +166,7 @@
     stx [[KernelB_G_W + 2] + 0]
     ldx #[ #BC_PHP ]
     stx [[KernelB_H_W + 1] + 0]
-    ; then: BuildState { index: 2, checkdepth: 2, cycles: 55 }
+    ; then: BuildState { index: 2, checkdepth: 2, cycles: 49 }
 
     jmp .endif_2
 .else_2:
@@ -180,12 +178,12 @@
     stx [[KernelB_H_W + 0] + 0]
     ldx #[ #EMERALD_SP ]
     stx [[KernelB_H_W + 1] + 0]
-    sleep 17
-    ; else: BuildState { index: 2, checkdepth: 2, cycles: 55 }
+    sleep 15
+    ; else: BuildState { index: 2, checkdepth: 2, cycles: 49 }
 .endif_2:
-    ; else: BuildState { index: 2, checkdepth: 2, cycles: 55 }
+    ; else: BuildState { index: 2, checkdepth: 2, cycles: 49 }
 .endif_1:
-    ENDM ; 55 cycles max
+    ENDM ; 49 cycles max
 
 
 
@@ -195,25 +193,24 @@
     stx [KernelB_D_W + 0]
     asl
     bcc .else_1
-    ; parent: BuildState { index: 0, checkdepth: 0, cycles: 12 }
+    ; parent: BuildState { index: 0, checkdepth: 0, cycles: 11 }
 .if_1:
     ldx #[ #RamFFByte ]
     stx [[KernelB_C_W + 1] + 0]
-    sleep 2
-    ; then: BuildState { index: 1, checkdepth: 1, cycles: 22 }
+    ; then: BuildState { index: 1, checkdepth: 1, cycles: 19 }
 
     jmp .endif_1
 .else_1:
     ldx #[ #RamPF1Value ]
     stx [[KernelB_C_W + 1] + 0]
-    sleep 3
-    ; else: BuildState { index: 1, checkdepth: 1, cycles: 22 }
+    sleep 2
+    ; else: BuildState { index: 1, checkdepth: 1, cycles: 19 }
 .endif_1:
     NIBBLE_RAM_LOAD ldx, NibbleGemini4
     stx [KernelB_J_W + 0]
     NIBBLE_RAM_LOAD ldx, NibbleGrp0
     stx [[KernelB_VDEL0_W + 0] + 0]
-    ENDM ; 38 cycles max
+    ENDM ; 33 cycles max
 
 
 

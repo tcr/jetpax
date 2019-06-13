@@ -120,7 +120,7 @@ Kernel_UpdateRegs: subroutine
     rts
 .set_end:
     ; Failed all
-    ASSERT_RUNTIME "0"
+    ; ASSERT_RUNTIME "0"
     lda #BC_STX ; FIXME fallback
     rts
 

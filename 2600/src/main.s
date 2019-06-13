@@ -153,6 +153,7 @@ Bank3Start:
     ; Bank 3 source code
     include "game_init.s"
     include "kernel_loader.s"
+    include "kernel_gem.s"
     include "nibble_build.s"
     include "nibble_eval.s"
     ; TODO include "nibble_shard.s"
@@ -160,9 +161,8 @@ Bank3Start:
     include "game_input.s"
     include "game_nibble.s"
     include "game_state.s"
-    include "kernel_border.s"
     include "kernel_row.s"
-    include "kernel_gem.s"
+    include "kernel_border.s"
     include "data_sprites.s"
     include "data_levels.s"
 

@@ -105,7 +105,7 @@ row_3:
 
     ; [[[Nibble VM.]]]
     ; Idle.
-    sleep 16
+    sleep 17
 
     ; Setup for kernel
     sec ; clear carry bit
@@ -172,7 +172,7 @@ row_7a: subroutine
     ; Run Kernel.
     NIBBLE_RAM_LOAD lda, NibbleVar2
     NIBBLE_gem_kernel_a_2
-    sleep 3
+    sleep 14
 
 ; [scanline 8]
 row_8a: subroutine
@@ -184,7 +184,6 @@ row_8a: subroutine
     ; [NIBBLE VM]
     NIBBLE_RAM_LOAD lda, NibbleVar1
     NIBBLE_gem_kernel_a_1
-    ; sleep 3
 
     ; Idle.
     ; sleep 51
