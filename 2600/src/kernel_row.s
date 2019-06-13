@@ -105,10 +105,13 @@ row_3:
 
     ; [[[Nibble VM.]]]
     ; Idle.
-    sleep 17
+    sleep 14
 
-    ; Setup for kernel
     sec ; clear carry bit
+    
+    ; Load Nibble RAM offset
+    ldy RamRowOffset
+    ; Setup for kernel
     NIBBLE_RAM_LOAD lda, NibbleX
     tax
     NIBBLE_RAM_LOAD lda, NibbleY

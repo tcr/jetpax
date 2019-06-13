@@ -37,9 +37,10 @@ KernelA_GenReset: subroutine
     lda #$00
     rts
 
-; Y=Gemini Sprite
-; See if the current Gemini is g00. Allocate an RST to this Gemini if so
-; processor flag Z is TRUE if this is RST.
+; A=Gemini Sprite
+; See if the current Gemini is g01 or g11. Allocate a PHP opcode to this Gemini
+; Returns:
+;    processor flag Z is TRUE if this is RST.
 KernelB_GenPhp: subroutine
     cmp #G01
     beq .start
@@ -48,11 +49,10 @@ KernelB_GenPhp: subroutine
     rts
     ; Current Gemini = $00
 .start:
-    lda BuildKernelRST
-    cmp #SENTINEL
+    ldx BuildKernelRST
+    cpx #SENTINEL
     bne .set_else
     ; We have found the first (and only) RST on this line, set the marker var
-    lda #$ff
     sta BuildKernelRST
 
     ; Set Z flag
