@@ -482,6 +482,7 @@ gemini_builder: subroutine
         ; NIBBLE_END_IF
 
         ; Make adjustments for sprites.
+        clc
         lda BuildNibbleGrp0
         ror
         NIBBLE_RAM_STORE sta, NibbleGrp0

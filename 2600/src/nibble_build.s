@@ -339,6 +339,7 @@
     ;     NIBBLE_WRITE_IMM [KernelB_H_W + 0], #BC_STY, #EMERALD_SP
     ; NIBBLE_END_IF
     ; Make adjustments for sprites.
+    clc
     lda BuildNibbleGrp0
     ror
     NIBBLE_RAM_STORE sta, NibbleGrp0
