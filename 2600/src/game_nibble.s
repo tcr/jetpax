@@ -61,11 +61,11 @@ KernelB_GenPhp: subroutine
     rts
 
 ; Allocates build-time registers for a new Gemini sprite value.
-; register Y = the storage opcode to write to the result
 ;
 ; NibbleGrp0, NibbleX, NibbleY are compared in that order.
 ; NibbleX, NibbleY are upgraded if not set.
-; Y=Gemini Sprite
+; A=Gemini Sprite
+; returns A = the storage opcode to write to the result
 Kernel_UpdateRegs: subroutine
 
     ; If equal to GRP0, return nop
@@ -91,8 +91,8 @@ Kernel_UpdateRegs: subroutine
 .op_end:
 
 .set_start:
-    lda BuildNibbleX
-    cmp #SENTINEL
+    ldx BuildNibbleX
+    cpx #SENTINEL
     bne .set_else
 
     ; KA Missile opcode determination
@@ -111,8 +111,8 @@ Kernel_UpdateRegs: subroutine
     lda #BC_STX
     rts
 .set_else
-    lda BuildNibbleY
-    cmp #SENTINEL
+    ldx BuildNibbleY
+    cpx #SENTINEL
     bne .set_end
     NIBBLE_RAM_STORE sta, NibbleY
     sta BuildNibbleY ; save local value

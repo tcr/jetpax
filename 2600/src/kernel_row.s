@@ -45,13 +45,6 @@ row_1:
     sbc #8
     sta SpriteEnd
 
-    ldy LoopCount
-    dey
-    lda NibbleRamOffsetsByRow,y
-    sta RamRowOffset
-    lda NibbleRamColorsByRow,y
-    sta RamRowColor
-
     ; Idle.
     sta WSYNC
     ; sleep 33
@@ -153,8 +146,13 @@ row_6:
     jet_spritedata_calc
 
     ; Load nibble index.
-    ldy RamRowOffset
-    ; sty RamRowOffset
+    ldy LoopCount
+    dey
+    lda NibbleRamColorsByRow,y
+    sta RamRowColor
+    lda NibbleRamOffsetsByRow,y
+    sta RamRowOffset
+    tay
 
     lda DebugKernelID
     cmp #$0a
@@ -265,8 +263,15 @@ row_8b: subroutine
 
     align 16
 NibbleRamOffsetsByRow:
+    .byte #0 ; skipped
     .byte #0
     .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #16
+    .byte #16
     .byte #0
     .byte #0
     .byte #0
@@ -274,16 +279,9 @@ NibbleRamOffsetsByRow:
     .byte #0
     .byte #32
     .byte #16
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
-    .byte #0
 
 NibbleRamColorsByRow:
-    .byte #0
+    .byte #COL_EMERALD ; skipped
     .byte #0
     .byte #0
     .byte #0
