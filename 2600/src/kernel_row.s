@@ -45,6 +45,13 @@ row_1:
     sbc #8
     sta SpriteEnd
 
+    ldy LoopCount
+    dey
+    lda NibbleRamOffsetsByRow,y
+    sta RamRowOffset
+    lda NibbleRamColorsByRow,y
+    sta RamRowColor
+
     ; Idle.
     sta WSYNC
     ; sleep 33
@@ -62,7 +69,7 @@ row_2:
     sta COLUPF
 
     ; [[[Nibble VM.]]]
-    sleep 14
+    sleep 8
 
     ; Load PF1 value
     lda #%00111101
@@ -76,6 +83,8 @@ row_2:
     sta COLUPF
 
     ; Load Nibble RAM offset
+    lda RamRowColor
+    sta EMERALD_SP_COLOR
     ldy RamRowOffset
     ; Set overflow flag
     NIBBLE_RAM_LOAD lda, NibblePs
@@ -108,7 +117,7 @@ row_3:
     sleep 14
 
     sec ; clear carry bit
-    
+
     ; Load Nibble RAM offset
     ldy RamRowOffset
     ; Setup for kernel
@@ -144,8 +153,8 @@ row_6:
     jet_spritedata_calc
 
     ; Load nibble index.
-    ldy #16
-    sty RamRowOffset
+    ldy RamRowOffset
+    ; sty RamRowOffset
 
     lda DebugKernelID
     cmp #$0a
@@ -252,3 +261,41 @@ row_8b: subroutine
     jmp row_start
 .row_end:
     jmp border_bottom
+
+
+    align 16
+NibbleRamOffsetsByRow:
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #32
+    .byte #16
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+
+NibbleRamColorsByRow:
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #COL_EMERALD
+    .byte #COL_EMERALD
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #0
+    .byte #COL_EMERALD
+    .byte #COL_EMERALD

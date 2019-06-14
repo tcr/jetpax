@@ -33,9 +33,14 @@ VerticalBlank: subroutine
     ; Load row number
     ; Extract 26-bit string to full Gemini profile
 
+    jsr GeminiPopulateFull
+    ldy #32
+    jsr GameNibblePopulate
+
     jsr GeminiPopulate
     ldy #16
     jsr GameNibblePopulate
+    
     ; We'll run this later.
     ; jsr GameNibbleRun
     ; jsr NibbleCopyToRam
@@ -188,5 +193,7 @@ FrameSetup: subroutine
     ; Set row offset to start with.
     lda #0
     sta RamRowOffset
+    lda #COL_EMERALD
+    sta RamRowColor
 
     jmp VerticalBlankEnd

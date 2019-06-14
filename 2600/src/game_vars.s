@@ -37,6 +37,7 @@ RamPF1Value             byte
 
 RamRowJetpackIndex      byte ; sprite counter
 RamRowOffset            byte
+RamRowColor             byte
 
 level_for_game byte
     byte
