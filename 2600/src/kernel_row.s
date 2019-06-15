@@ -191,11 +191,11 @@ row_7a: subroutine
     ; Run Kernel.
     NIBBLE_RAM_LOAD lda, NibbleVar2
     NIBBLE_gem_kernel_a_2
-    sleep 14
+    sleep 8
 
 ; [scanline 8]
 row_8a: subroutine
-    ASSERT_RUNTIME "_scycles == #0"
+    ASSERT_RUNTIME "_scycles == #70"
 
     ; FIXME this should be enabled!
     ; jet_spritedata_calc
