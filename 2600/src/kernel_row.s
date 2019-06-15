@@ -62,7 +62,10 @@ row_2:
     sta COLUPF
 
     ; [[[Nibble VM.]]]
-    sleep 8
+    sleep 3
+
+    lda #%00001000
+    sta REFP1
 
     ; Load PF1 value
     lda #%00111101
@@ -74,6 +77,10 @@ row_2:
     ; Enable playfield at end of scanline
     lda #COL_BG
     sta COLUPF
+
+    ; Register config
+    ; lda #%00000000
+    ; sta REFP1
 
     ; Load Nibble RAM offset
     lda RamRowColor
