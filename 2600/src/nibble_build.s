@@ -313,6 +313,8 @@
     bne .else_1
     sec
     rol RamNibbleBuildState
+    lda BuildKernelRST
+    sta BuildNibbleGrp0
     jmp .endif_1
     ; [BIT DEPTH] #1 If-End @ 1
 .else_1:

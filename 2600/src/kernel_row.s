@@ -107,12 +107,15 @@ row_3:
 
     ; [[[Nibble VM.]]]
     ; Idle.
-    sleep 14
+    sleep 13
 
     sec ; clear carry bit
 
     ; Load Nibble RAM offset
     ldy RamRowOffset
+    ; Load VDEL GRP1
+    NIBBLE_RAM_LOAD lda, NibbleVdel1
+    sta EMERALD_SP
     ; Setup for kernel
     NIBBLE_RAM_LOAD lda, NibbleX
     tax
@@ -120,8 +123,6 @@ row_3:
     tay
 
     ; Jump immediately into scanlines 4-5 aka "kernel_gem"
-    lda NibbleVdel1
-    sta EMERALD_SP
     lda BuildNibbleGrp0 ; Load sprite 2 into A
 ; [scanline 4]
 ; [scanline 5]

@@ -456,6 +456,8 @@ gemini_builder: subroutine
         cmp #G01
         NIBBLE_IF eq
             NIBBLE_WRITE_IMM [KernelB_C_W + 1], #RamFFByte
+            lda BuildKernelRST
+            sta BuildNibbleGrp0
         NIBBLE_ELSE
             NIBBLE_WRITE_IMM [KernelB_C_W + 1], #RamPF1Value
         NIBBLE_END_IF
