@@ -301,9 +301,9 @@ impl KernelWalker for KernelBuild {
     }
 
     fn var_sty(&mut self, parent_node: &mut Self::TNode, label: &str) {
-        // BUILD
         assert!(self.has_var(label), "Did not find var definition: {}", label);
 
+        // BUILD
         // writeln!(&mut self.build, "    stx {},y", label);
         writeln!(&mut self.build, "    NIBBLE_RAM_STORE sta, {}", label);
     }
@@ -422,9 +422,9 @@ fn walk_kernel(lines: &[Parse]) -> Result<KernelBuild, Box<dyn Error>> {
         }
     }
 
-    for (key, value) in &code.vars {
-        assert!(*value > 0, "Expected use of {:?} but did not find it.", key);
-    }
+    // for (key, value) in &code.vars {
+    //     assert!(*value > 0, "Expected use of {:?} but did not find it.", key);
+    // }
 
     Ok(code)
 }

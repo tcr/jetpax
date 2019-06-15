@@ -74,17 +74,11 @@ row_2:
     lda #4
     sta TIM64T
 
-    ; Enable playfield at end of scanline
-    lda #COL_BG
-    sta COLUPF
-
     ; Register config
     ; lda #%00000000
     ; sta REFP1
 
     ; Load Nibble RAM offset
-    lda RamRowColor
-    sta EMERALD_SP_COLOR
     ldy RamRowOffset
     ; Set overflow flag
     NIBBLE_RAM_LOAD lda, NibblePs
@@ -94,6 +88,13 @@ row_2:
     NIBBLE_RAM_LOAD ldx, NibblePhp
     dex
     txs
+
+    ; Enable playfield at end of scanline
+    lda #COL_BG
+    sta COLUPF
+    ; Change player color
+    lda RamRowColor
+    sta EMERALD_SP_COLOR
 
     ASSERT_RUNTIME "_scycles == #0"
 

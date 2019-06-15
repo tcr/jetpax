@@ -219,9 +219,9 @@
     lda #SENTINEL
     sta BuildKernelRST
     sta BuildNibbleX
-    ; NIBBLE_VAR_STY NibbleX
+    ; NIBBLE_RAM_STORE sta, NibbleX
     sta BuildNibbleY
-    ; NIBBLE_VAR_STY NibbleY
+    ; NIBBLE_RAM_STORE sta, NibbleY
     ; Php target default
     lda #RESP1
     NIBBLE_RAM_STORE sta, NibblePhp

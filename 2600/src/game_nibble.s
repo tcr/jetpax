@@ -161,13 +161,13 @@ gemini_builder: subroutine
         lda #SENTINEL ; sentinel
         sta BuildKernelRST
         sta BuildNibbleX
-        NIBBLE_VAR_STY NibbleX
+        NIBBLE_RAM_STORE sta, NibbleX
         sta BuildNibbleY
-        NIBBLE_VAR_STY NibbleY
+        NIBBLE_RAM_STORE sta, NibbleY
 
         ; FIXME don't hard code this?
         lda #BC_STX
-        NIBBLE_VAR_STY NibbleMissile
+        NIBBLE_RAM_STORE sta, NibbleMissile
 
         ; Gemini 1A
 .K_1A:
@@ -176,7 +176,7 @@ gemini_builder: subroutine
         NIBBLE_IF eq
             ; Store 1A in GRP0
             lda [DO_GEMS_A + 1]
-            NIBBLE_VAR_STY NibbleGrp0
+            NIBBLE_RAM_STORE sta, NibbleGrp0
             sta BuildNibbleGrp0 ; For comparisons
 
             ; Special: Encoding RST0
@@ -190,10 +190,11 @@ gemini_builder: subroutine
         NIBBLE_ELSE
             ; Store 0A in GRP0
             lda [DO_GEMS_A + 0]
-            NIBBLE_VAR_STY NibbleGrp0
+            NIBBLE_RAM_STORE sta, NibbleGrp0
             sta BuildNibbleGrp0
 
             NIBBLE_WRITE_IMM [KernelA_B_W + 0], #BC_LDA
+            NIBBLE_WRITE_IMM [KernelA_C_W + 1], #VDELP1
 
             lda [DO_GEMS_A + 1]
             jsr KernelA_GenReset
@@ -209,7 +210,7 @@ gemini_builder: subroutine
                 lda #RESP1
                 .byte $2C ; .bit (ABS)
                 lda #GRP1
-                NIBBLE_VAR_STY NibbleGemini1Reg
+                NIBBLE_RAM_STORE sta, NibbleGemini1Reg
 
                 ; Set opcode
                 lda SHARD_LUT_RF1
@@ -218,7 +219,7 @@ gemini_builder: subroutine
                 .byte $F0, #5 ; beq +4
                 lda [DO_GEMS_A + 1]
                 jsr Kernel_UpdateRegs
-                NIBBLE_VAR_STY NibbleGemini1
+                NIBBLE_RAM_STORE sta, NibbleGemini1
 
                 NIBBLE_WRITE_VAR [KernelA_D_W + 0], NibbleGemini1
                 NIBBLE_WRITE_VAR [KernelA_D_W + 1], NibbleGemini1Reg
@@ -241,7 +242,7 @@ gemini_builder: subroutine
             ; Set opcode
             lda [DO_GEMS_A + 2]
             jsr Kernel_UpdateRegs
-            NIBBLE_VAR_STY NibbleGemini2
+            NIBBLE_RAM_STORE sta, NibbleGemini2
 
             ; Set opcode target
             lda SHARD_LUT_RF1
@@ -250,7 +251,7 @@ gemini_builder: subroutine
             lda #RESP1
             .byte $2C ; .bit (ABS)
             lda #GRP1
-            NIBBLE_VAR_STY NibbleGemini2Reg
+            NIBBLE_RAM_STORE sta, NibbleGemini2Reg
 
             NIBBLE_WRITE_IMM [KernelA_E_W + 1], #RESP1
             NIBBLE_WRITE_VAR [KernelA_G_W + 0], NibbleGemini2
@@ -267,7 +268,7 @@ gemini_builder: subroutine
             ; Set opcode
             lda [DO_GEMS_A + 3]
             jsr Kernel_UpdateRegs
-            NIBBLE_VAR_STY NibbleGemini3
+            NIBBLE_RAM_STORE sta, NibbleGemini3
 
             ; Set opcode target
             lda SHARD_LUT_RF1
@@ -276,7 +277,7 @@ gemini_builder: subroutine
             lda #RESP1
             .byte $2C ; .bit (ABS)
             lda #GRP1
-            NIBBLE_VAR_STY NibbleGemini3Reg
+            NIBBLE_RAM_STORE sta, NibbleGemini3Reg
 
             NIBBLE_WRITE_VAR [KernelA_H_W + 0], NibbleGemini3
             NIBBLE_WRITE_VAR [KernelA_H_W + 1], NibbleGemini3Reg
@@ -298,7 +299,7 @@ gemini_builder: subroutine
 
         ; VD1 default
         lda [DO_GEMS_A + 1]
-        NIBBLE_VAR_STY NibbleVdel1
+        NIBBLE_RAM_STORE sta, NibbleVdel1
 
         ; Gemini 4A 
         lda SHARD_LUT_VD1
@@ -310,15 +311,15 @@ gemini_builder: subroutine
 
             ; Set PHP
             lda #VDELP1
-            NIBBLE_VAR_STY NibblePhp
+            NIBBLE_RAM_STORE sta, NibblePhp
 
             ; Update VDEL1
             lda [DO_GEMS_A + 4]
-            NIBBLE_VAR_STY NibbleVdel1
+            NIBBLE_RAM_STORE sta, NibbleVdel1
         NIBBLE_ELSE
             lda [DO_GEMS_A + 4]
             jsr Kernel_UpdateRegs
-            NIBBLE_VAR_STY NibbleGemini4
+            NIBBLE_RAM_STORE sta, NibbleGemini4
 
             NIBBLE_WRITE_IMM [KernelA_I_W + 0], #BC_PHP
             NIBBLE_WRITE_IMM [KernelA_J_W + 0], #BC_STA, #PF1
@@ -327,7 +328,7 @@ gemini_builder: subroutine
 
             ; Set PHP
             lda #RESP1
-            NIBBLE_VAR_STY NibblePhp
+            NIBBLE_RAM_STORE sta, NibblePhp
         NIBBLE_END_IF
 
         ; Gemini 5A
@@ -366,9 +367,9 @@ gemini_builder: subroutine
         lda #SENTINEL ; sentinel
         sta BuildKernelRST
         sta BuildNibbleX
-        ; NIBBLE_VAR_STY NibbleX
+        ; NIBBLE_RAM_STORE sta, NibbleX
         sta BuildNibbleY
-        ; NIBBLE_VAR_STY NibbleY
+        ; NIBBLE_RAM_STORE sta, NibbleY
 
         ; Php target default
         lda #RESP1
@@ -376,7 +377,7 @@ gemini_builder: subroutine
 
         ; Gemini 0B
         lda [DO_GEMS_B + 0]
-        NIBBLE_VAR_STY NibbleGrp0
+        NIBBLE_RAM_STORE sta, NibbleGrp0
         sta BuildNibbleGrp0
         ; NIBBLE_WRITE_IMM KernelB_D_W, RamKernelGemini0
 
