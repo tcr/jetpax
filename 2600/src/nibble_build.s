@@ -266,7 +266,8 @@
     NIBBLE_RAM_STORE sta, NibblePhp
      
     ; Update Grp0
-    NIBBLE_RAM_LOAD lda, BuildKernelRST
+    ; NIBBLE_RAM_LOAD lda, BuildKernelRST
+    lda [DO_GEMS_B + 3]
     sta BuildNibbleGrp0
     jmp .endif_2
     ; [BIT DEPTH] #2 If-End @ 2

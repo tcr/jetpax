@@ -46,7 +46,7 @@ VerticalBlank: subroutine
     ; jsr NibbleCopyToRam
     ; jsr NibbleCopyFromRam
 
-    jsr GeminiPopulateFull
+    jsr GeminiPopulate
     ldy #0
     jsr GameNibblePopulate
 

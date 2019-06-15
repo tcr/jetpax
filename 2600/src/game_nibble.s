@@ -418,7 +418,8 @@ gemini_builder: subroutine
                 NIBBLE_WRITE_IMM [KernelB_H_W + 1], #BC_PHP ; 3B
                 
                 ; Update Grp0
-                NIBBLE_RAM_LOAD lda, BuildKernelRST
+                ; NIBBLE_RAM_LOAD lda, BuildKernelRST
+                lda [DO_GEMS_B + 3]
                 sta BuildNibbleGrp0
             NIBBLE_ELSE
                 ; Update 2B
@@ -520,6 +521,7 @@ DBG_NIBBLE_BUILD: subroutine
     NIBBLE_RAM_STORE sta, NibbleVar2
     jmp .next
 .kernel_b:
+DBG_K:
     NIBBLE_gem_kernel_b_1_BUILD ; TODO can this be implied
     lda RamNibbleBuildState
     NIBBLE_RAM_STORE sta, NibbleVar1

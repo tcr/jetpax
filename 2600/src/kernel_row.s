@@ -270,8 +270,9 @@ row_8b: subroutine
 
 
     align 16
+    .byte #0 ; extra 
 NibbleRamOffsetsByRow:
-    .byte #0 ; skipped
+    .byte #0
     .byte #0
     .byte #0
     .byte #0
@@ -288,6 +289,7 @@ NibbleRamOffsetsByRow:
     .byte #32
     .byte #16
 
+    .byte #0 ; extra
 NibbleRamColorsByRow:
     .byte #COL_EMERALD ; skipped
     .byte #0
