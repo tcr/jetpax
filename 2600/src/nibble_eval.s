@@ -16,16 +16,18 @@
 
     jmp .endif_1
 .else_1:
+    ldx #[ #BC_LDA ]
+    stx [[KernelA_B_W + 0] + 0]
     asl
     bcc .else_2
-    ; parent: BuildState { index: 1, checkdepth: 1, cycles: 9 }
+    ; parent: BuildState { index: 1, checkdepth: 1, cycles: 14 }
 .if_2:
     ldx #[ #BC_STX ]
     stx [[KernelA_D_W + 0] + 0]
     ldx #[ #RESP1 ]
     stx [[KernelA_D_W + 1] + 0]
     sleep 2
-    ; then: BuildState { index: 2, checkdepth: 2, cycles: 24 }
+    ; then: BuildState { index: 2, checkdepth: 2, cycles: 29 }
 
     jmp .endif_2
 .else_2:
@@ -33,9 +35,8 @@
     stx [[KernelA_D_W + 0] + 0]
     NIBBLE_RAM_LOAD ldx, NibbleGemini1Reg
     stx [[KernelA_D_W + 1] + 0]
-    ; else: BuildState { index: 2, checkdepth: 2, cycles: 24 }
+    ; else: BuildState { index: 2, checkdepth: 2, cycles: 29 }
 .endif_2:
-    sleep 5
     ; else: BuildState { index: 2, checkdepth: 2, cycles: 29 }
 .endif_1:
     asl

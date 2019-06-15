@@ -8,6 +8,7 @@ G01 = %01100000
 G10 = %00000110
 G11 = %01100110
 
+BC_LDA = $a5
 BC_LDA_IMM = $a9
 BC_STA = $85
 BC_STX = $86
@@ -173,13 +174,15 @@ gemini_builder: subroutine
         lda [DO_GEMS_A + 0]
         jsr KernelA_GenReset
         NIBBLE_IF eq
-            ; Special: Encoding RST0
-            NIBBLE_WRITE_IMM [KernelA_B_W + 0], #BC_LDA_IMM
-            NIBBLE_WRITE_IMM [KernelA_B_W + 1], #%10100000
             ; Store 1A in GRP0
             lda [DO_GEMS_A + 1]
             NIBBLE_VAR_STY NibbleGrp0
             sta BuildNibbleGrp0 ; For comparisons
+
+            ; Special: Encoding RST0
+            ; We make B two cycles, store 
+            NIBBLE_WRITE_IMM [KernelA_B_W + 0], #BC_LDA_IMM
+            NIBBLE_WRITE_IMM [KernelA_B_W + 1], #%10100000
             ; Gemini 1A is RESPx
             NIBBLE_WRITE_IMM [KernelA_C_W + 1], #EMERALD_SP_RESET
             ; Turn 3-cycle NOP into 4-cycle
@@ -189,6 +192,8 @@ gemini_builder: subroutine
             lda [DO_GEMS_A + 0]
             NIBBLE_VAR_STY NibbleGrp0
             sta BuildNibbleGrp0
+
+            NIBBLE_WRITE_IMM [KernelA_B_W + 0], #BC_LDA
 
             lda [DO_GEMS_A + 1]
             jsr KernelA_GenReset

@@ -20,11 +20,12 @@
     bne .else_1
     sec
     rol RamNibbleBuildState
-    ; Special: Encoding RST0
     ; Store 1A in GRP0
     lda [DO_GEMS_A + 1]
     NIBBLE_RAM_STORE sta, NibbleGrp0
     sta BuildNibbleGrp0
+    ; Special: Encoding RST0
+    ; We make B two cycles, store
     ; Gemini 1A is RESPx
     ; Turn 3-cycle NOP into 4-cycle
     rol RamNibbleBuildState

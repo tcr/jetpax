@@ -68,7 +68,7 @@ JET_SP_HMOVE            = HMP0
 JET_SP_COLOR            = COLUP0
 
 
-; Game dimensionsn
+; Game dimensions
 
 ; Spriteend is HEIGHT_OFFSET - YPos
 SPRITE_HEIGHT           = 8
@@ -80,7 +80,7 @@ CEILING_OFFSET = 192
 
 ; Starting player position
 YPosStart = 72
-XPosStart = 88
+XPosStart = 78
 
 ; Top left corner
 ; YPosStart equ 190
