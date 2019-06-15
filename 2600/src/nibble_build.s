@@ -343,7 +343,7 @@
     ; NIBBLE_END_IF
     ; Make adjustments for sprites.
     clc
-    lda BuildNibbleGrp0
+    NIBBLE_RAM_LOAD lda, NibbleGrp0
     ror
     NIBBLE_RAM_STORE sta, NibbleGrp0
     lda BuildNibbleX
