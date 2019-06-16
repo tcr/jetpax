@@ -304,4 +304,4 @@ NibbleRamColorsByRow:
     .byte #$52
     .byte #$50
     .byte #$50
-    .byte #COL_EMERALD
+    .byte #$1c
