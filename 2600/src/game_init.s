@@ -48,14 +48,9 @@ InitSetup:
     sta Speed2
     sta YPos2
 
-    lda #0
-    sta ROW_DEMO_INDEX
-
     ; Store 0 into RamZeroByte
     lda #0
     sta RamZeroByte
-    lda #%00111111
-    sta RamLowerSixByte
     lda #$ff
     sta RamFFByte
 

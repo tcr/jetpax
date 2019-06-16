@@ -1,44 +1,42 @@
     seg.u Variables
 
+    ; RAM not used by the gem kernel starts at $C0
     org $C0
+
+; Zero-page access
+RamZeroByte             byte    ; to load $00 from zero page
+RamFFByte               byte    ; to load $ff from zero page
+
+; Locally allocated
+Temp                    byte
+Temp2                   byte
 
 ; Misc Nibble support
 BuildKernelRST          byte
 BuildNibbleX            byte
 BuildNibbleY            byte
 BuildNibbleGrp0         byte
-
-Temp                    byte
-Temp2                   byte
+RamNibbleBuildState     byte    ; Nibble build state
 
 ; Counters
 LoopCount               byte
 FrameCount              byte
 
+; Sprite data
 SpriteEnd               byte
 XPos                    byte    ; X position of player sprite
-
-
+YPos                    byte    ; Y position of player sprite
+YPos2                   byte
 Speed1                  byte
 Speed2                  byte
 
-YPos                    byte    ; Y position of player sprite
-YPos2                   byte
-
-ROW_DEMO_INDEX          byte
-
-RamNibbleBuildState     byte    ; Nibble build state
-
-RamZeroByte             byte
-RamLowerSixByte         byte
-RamFFByte               byte
-RamStackBkp             byte
-RamPF1Value             byte
-
-RamRowJetpackIndex      byte ; sprite counter
-RamRowOffset            byte
-RamRowColor             byte
-RamRowPs                byte
+; Row generated data
+RamRowJetpackIndex      byte    ; sprite scanline offset
+RamRowOffset            byte    ; row index (offset into nibble vars)
+RamRowColor             byte    ; row color (for testing)
+RamRowPs                byte    ; global PS value for this kernel
+RamStackBkp             byte    ; cached stack value before kernel
+RamPF1Value             byte    ; loaded PF1 value for kernel
 
 level_for_game byte
     byte
@@ -60,5 +58,5 @@ DO_GEMS_B byte
     byte
     byte
 
-    ; Protect the stack
+    ; We intentionally only allow stack variables past $f0 for now
     org $f0
