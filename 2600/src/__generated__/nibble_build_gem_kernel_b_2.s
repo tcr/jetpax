@@ -56,8 +56,6 @@
     ;
     ; NIBBLE_WRITE_IMM [KernelB_VDEL1_W + 0], NibbleVdel1
     ; GRP0
-    lda #$00
-    NIBBLE_RAM_STORE sta, NibblePs
     ; [BIT DEPTH] Final: 1 (out of 8 bits)
     rol RamNibbleBuildState
     rol RamNibbleBuildState

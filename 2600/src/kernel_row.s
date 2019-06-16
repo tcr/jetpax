@@ -74,6 +74,8 @@ row_2:
     lda #4
     sta TIM64T
 
+    sleep 7
+
     ; Register config
     ; lda #%00000000
     ; sta REFP1
@@ -81,9 +83,8 @@ row_2:
     ; Load Nibble RAM offset
     ldy RamRowOffset
     ; Set overflow flag
-    NIBBLE_RAM_LOAD lda, NibblePs
-    sta Temp2
-    bit Temp2
+    ; NIBBLE_RAM_LOAD lda, NibblePs
+    bit RamRowPs
     ; Set stack pointer for PHP use from NibblePhp.
     NIBBLE_RAM_LOAD ldx, NibblePhp
     dex

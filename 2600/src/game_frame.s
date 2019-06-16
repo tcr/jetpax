@@ -142,6 +142,10 @@ GameFrameSetup: subroutine
     ldx #COL_EMERALD
     stx EMERALD_SP_COLOR
 
+    ; Set RamRowPs for Kernel A
+    ldx #$ff
+    stx RamRowPs
+
     jmp .complete
 
 .kernel_b:
@@ -151,6 +155,10 @@ GameFrameSetup: subroutine
     sta EMERALD_MI_RESET
     lda #KERNEL_B_MISSILE_HMOVE
     sta EMERALD_MI_HMOVE
+
+    ; Set RamRowPs for Kernel B
+    ldx #$00
+    stx RamRowPs
 
     ; Possibly override Missile position.
     ; TODO Document use of DO_MISS_B here, to check if M1 should be reset to a

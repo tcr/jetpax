@@ -346,9 +346,6 @@ gemini_builder: subroutine
         NIBBLE_WRITE_VAR [KernelA_VDEL1_W + 0], NibbleVdel1
         ; GRP0
         NIBBLE_WRITE_VAR [KernelA_VDEL0_W + 0], NibbleGrp0
-
-        lda #$ff
-        NIBBLE_RAM_STORE sta, NibblePs
     NIBBLE_END_KERNEL
 
     ; Nibble Kernel B
@@ -506,10 +503,6 @@ gemini_builder: subroutine
         ; NIBBLE_WRITE_IMM [KernelB_VDEL1_W + 0], NibbleVdel1
         ; GRP0
         NIBBLE_WRITE_VAR [KernelB_VDEL0_W + 0], NibbleGrp0
-
-        lda #$00
-        NIBBLE_RAM_STORE sta, NibblePs
-
     NIBBLE_END_KERNEL
 
     ; TODO do this for all rows

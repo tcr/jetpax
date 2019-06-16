@@ -38,6 +38,7 @@ RamPF1Value             byte
 RamRowJetpackIndex      byte ; sprite counter
 RamRowOffset            byte
 RamRowColor             byte
+RamRowPs                byte
 
 level_for_game byte
     byte
@@ -58,3 +59,6 @@ DO_GEMS_B byte
     byte
     byte
     byte
+
+    ; Protect the stack
+    org $f0

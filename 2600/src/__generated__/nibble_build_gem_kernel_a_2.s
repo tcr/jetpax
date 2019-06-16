@@ -46,8 +46,6 @@
     ; stx NibbleMissile
     ; VD1
     ; GRP0
-    lda #$ff
-    NIBBLE_RAM_STORE sta, NibblePs
     ; [BIT DEPTH] Final: 1 (out of 8 bits)
     rol RamNibbleBuildState
     rol RamNibbleBuildState

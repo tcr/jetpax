@@ -103,6 +103,5 @@ NibbleGrp0              = 11
 NibbleX                 = 12
 NibbleY                 = 13
 NibblePhp               = 14
-NibblePs                = 15
 
-NIBBLE_VAR_COUNT = 1 + NibblePs
+NIBBLE_VAR_COUNT = 1 + NibblePhp
