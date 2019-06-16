@@ -517,24 +517,26 @@ DBG_NIBBLE_BUILD: subroutine
     ldx CBSRAM_KERNEL_READ_ID
     cpx #$a
     beq [. + 5]
-    jmp .kernel_b 
-.kernel_a:
-    NIBBLE_gem_kernel_a_1_BUILD ; TODO can this be implied
+    jmp GameNibbleBuildKernelB1 
+
+GameNibbleBuildKernelA1: subroutine
+    include "nibble_build_gem_kernel_a_1.s"
     lda RamNibbleBuildState
     NIBBLE_RAM_STORE sta, NibbleVar1
-    NIBBLE_gem_kernel_a_2_BUILD ; TODO can this be implied
+GameNibbleBuildKernelA2: subroutine
+    include "nibble_build_gem_kernel_a_2.s"
     lda RamNibbleBuildState
     NIBBLE_RAM_STORE sta, NibbleVar2
-    jmp .next
-.kernel_b:
-DBG_K:
-    NIBBLE_gem_kernel_b_1_BUILD ; TODO can this be implied
+    rts
+
+GameNibbleBuildKernelB1: subroutine
+    include "nibble_build_gem_kernel_b_1.s"
     lda RamNibbleBuildState
     NIBBLE_RAM_STORE sta, NibbleVar1
-    NIBBLE_gem_kernel_b_2_BUILD ; TODO can this be implied
+GameNibbleBuildKernelB2: subroutine
+    include "nibble_build_gem_kernel_b_2.s"
     lda RamNibbleBuildState
     NIBBLE_RAM_STORE sta, NibbleVar2
-.next:
     rts
     
     
@@ -570,19 +572,22 @@ GameNibbleRun: subroutine
     ldx CBSRAM_KERNEL_READ_ID
     cpx #$a
     beq [. + 5]
-    jmp .kernel_b
-.kernel_a:
+    jmp GameNibbleRunKernelB1
+
+GameNibbleRunKernelA1: subroutine
     NIBBLE_RAM_LOAD lda, NibbleVar1
-    NIBBLE_gem_kernel_a_1
+    include "nibble_eval_gem_kernel_a_1.s"
+GameNibbleRunKernelA2: subroutine
     NIBBLE_RAM_LOAD lda, NibbleVar2
-    NIBBLE_gem_kernel_a_2
-    jmp .next
-.kernel_b:
+    include "nibble_eval_gem_kernel_a_2.s"
+    rts
+
+GameNibbleRunKernelB1: subroutine
     NIBBLE_RAM_LOAD lda, NibbleVar1
-    NIBBLE_gem_kernel_b_1
+    include "nibble_eval_gem_kernel_b_1.s"
+GameNibbleRunKernelB2: subroutine
     NIBBLE_RAM_LOAD lda, NibbleVar2
-    NIBBLE_gem_kernel_b_2
-.next:
+    include "nibble_eval_gem_kernel_b_2.s"
     rts
 
 

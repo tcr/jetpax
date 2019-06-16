@@ -190,7 +190,7 @@ row_7a: subroutine
 
     ; Run Kernel.
     NIBBLE_RAM_LOAD lda, NibbleVar2
-    NIBBLE_gem_kernel_a_2
+    include "nibble_eval_gem_kernel_a_2.s"
     sleep 8
 
 ; [scanline 8]
@@ -202,7 +202,7 @@ row_8a: subroutine
 
     ; [NIBBLE VM]
     NIBBLE_RAM_LOAD lda, NibbleVar1
-    NIBBLE_gem_kernel_a_1
+    include "nibble_eval_gem_kernel_a_1.s"
 
     ; Idle.
     ; sleep 51
@@ -239,7 +239,7 @@ row_7b: subroutine
 
     ; Run Kernel.
     NIBBLE_RAM_LOAD lda, NibbleVar2
-    NIBBLE_gem_kernel_b_2
+    include "nibble_eval_gem_kernel_b_2.s"
     ; sleep 5
 
     sta WSYNC
@@ -253,7 +253,7 @@ row_8b: subroutine
 
     ; [NIBBLE VM]
     NIBBLE_RAM_LOAD lda, NibbleVar1
-    NIBBLE_gem_kernel_b_1
+    include "nibble_eval_gem_kernel_b_1.s"
     ; sleep 3
 
     ; Idle.

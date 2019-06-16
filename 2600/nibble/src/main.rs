@@ -35,14 +35,16 @@ trait KernelWalker {
 }
 
 struct KernelBuild {
+    name: String,
     vars: HashMap<String, usize>,
     build: String,
     eval: Vec<EvalStep>,
 }
 
 impl KernelBuild {
-    fn new() -> Self {
+    fn new(name: &str) -> Self {
         Self {
+            name: name.to_owned(),
             vars: HashMap::new(),
             build: String::new(),
             eval: vec![],
@@ -139,12 +141,12 @@ impl KernelWalker for KernelBuild {
 
     fn start(&mut self, name: &str, cycles: usize) -> Self::TNode {
         // BUILD
-        writeln!(&mut self.build, "    MAC NIBBLE_{}_BUILD", name);
+        // writeln!(&mut self.build, "nibble_build_{}: subroutine", name);
         writeln!(&mut self.build, "    lda #0");
         writeln!(&mut self.build, "    sta RamNibbleBuildState");
 
         // EVAL
-        self.push_eval(EvalStep::Literal(format!("    MAC NIBBLE_{}", name)));
+        // self.push_eval(EvalStep::Literal(format!("nibble_eval_{}: subroutine", name)));
         
         BuildState { index: 0, cycles: 0, checkdepth: 0 }
     }
@@ -159,10 +161,9 @@ impl KernelWalker for KernelBuild {
         for i in node.checkdepth..8 {
             writeln!(&mut self.build, "    rol RamNibbleBuildState");
         }
-        writeln!(&mut self.build, "    ENDM\n\n\n\n");
 
         // EVAL
-        self.push_eval(EvalStep::Literal(format!("    ENDM ; {} cycles max\n\n\n\n", node.cycles)));
+        self.push_eval(EvalStep::Literal(format!("    ; end: {} cycles", node.cycles)));
     }
 
     fn if_start(&mut self, parent_node: &mut Self::TNode, cond: &str) -> Self::TNode {
@@ -344,12 +345,13 @@ fn invert_cond(cond: &str) -> &'static str {
 }
 
 fn walk_kernel(lines: &[Parse]) -> Result<KernelBuild, Box<dyn Error>> {
-    let mut code = KernelBuild::new();
+    let mut code = KernelBuild::new("null");
     let mut code_queue = VecDeque::new();
     for line in lines {
         match line {
             Parse::NibbleStartKernel(name, cycles) => {
                 // Push new node.
+                code.name = name.to_owned();
                 code_queue.push_front(code.start(&name, *cycles as usize));
             }
             Parse::NibbleVar(label) => {
@@ -497,21 +499,14 @@ fn main() -> Result<(), Box<dyn Error>> {
     let output_eval = "../src/nibble_eval.s";
 
     let kernels = parse_kernels(&input_file)?;
-
-    let mut kernel_build = String::new();
-    let mut kernel_eval = String::new();
     for lines in &kernels {
         let kernel = walk_kernel(&lines)?;
-        kernel_build.push_str(&kernel.build);
-        kernel_eval.push_str(&kernel.eval_output());
+        let build = kernel.build.to_owned();
+        let eval = kernel.eval_output();
+
+        std::fs::write(&format!("../src/__generated__/nibble_build_{}.s", kernel.name), &build)?;
+        std::fs::write(&format!("../src/__generated__/nibble_eval_{}.s", kernel.name), &eval)?;
     }
-
-    std::fs::write(&output_build, &kernel_build)?;
-    std::fs::write(&output_eval, &kernel_eval)?;
-
-    println!("{}", output_build);
-    println!("{}", kernel_build);
-    println!("{}", kernel_eval);
 
     Ok(())
 }

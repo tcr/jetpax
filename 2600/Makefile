@@ -1,6 +1,6 @@
 all:
 	cd nibble; cargo run
-	cd src; dasm main.s -f3 -v5 -I../include -o../bin/jetpack.bin -l../bin/jetpack.lst -s../bin/jetpack.sym
+	cd src; dasm main.s -f3 -v5 -I../include -I./__generated__/ -o../bin/jetpack.bin -l../bin/jetpack.lst -s../bin/jetpack.sym
 	python assertions.py
 
 play:
