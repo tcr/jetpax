@@ -14,7 +14,6 @@ enum Parse {
     NibbleElse,
     NibbleEndIf,
     NibbleVar(String),
-    NibbleVarSty(String),
     NibbleWrite(String, Vec<String>),
     NibbleWriteZeroPage(String, Vec<String>),
     Opcode(String),
@@ -29,8 +28,6 @@ trait KernelWalker {
     fn if_start(&mut self, parent: &mut Self::TNode, cond: &str) -> Self::TNode;
     fn if_else(&mut self, parent: &mut Self::TNode, then_node: &mut Self::TNode) -> Self::TNode;
     fn if_end(&mut self, parent: &mut Self::TNode, then_node: Self::TNode, else_node: Self::TNode);
-
-    fn var_sty(&mut self, parent: &mut Self::TNode, label: &str);
 
     fn write(&mut self, parent: &mut Self::TNode, label: &str, values: &[String]);
     fn write_zero_page(&mut self, parent: &mut Self::TNode, label: &str, values: &[String]);
@@ -300,14 +297,6 @@ impl KernelWalker for KernelBuild {
         parent_node.cycles = std::cmp::max(then_node.cycles, else_node.cycles);
     }
 
-    fn var_sty(&mut self, parent_node: &mut Self::TNode, label: &str) {
-        assert!(self.has_var(label), "Did not find var definition: {}", label);
-
-        // BUILD
-        // writeln!(&mut self.build, "    stx {},y", label);
-        writeln!(&mut self.build, "    NIBBLE_RAM_STORE sta, {}", label);
-    }
-
     fn write(&mut self, parent_node: &mut Self::TNode, label: &str, values: &[String]) {
         // EVAL
         for (i, value) in values.iter().enumerate() {
@@ -413,12 +402,6 @@ fn walk_kernel(lines: &[Parse]) -> Result<KernelBuild, Box<dyn Error>> {
                 let end_node = code_queue.pop_front().unwrap();
                 code.end(end_node);
             }
-            Parse::NibbleVarSty(label) => {
-                // Write to node.
-                let mut parent_node = code_queue.pop_front().unwrap();
-                code.var_sty(&mut parent_node, &label);
-                code_queue.push_front(parent_node);
-            }
         }
     }
 
@@ -440,7 +423,6 @@ fn parse_kernels(
     let re_nibble_else = Regex::new(r"^NIBBLE_ELSE")?;
     let re_nibble_end_if = Regex::new(r"^NIBBLE_END_IF")?;
     let re_nibble_var = Regex::new(r"^NIBBLE_VAR\s+([^,]+)\s*")?;
-    let re_nibble_var_sty = Regex::new(r"^NIBBLE_VAR_STY\s+([^,]+)\s*")?;
     let re_nibble_write_imm = Regex::new(r"^NIBBLE_WRITE_IMM\s+([^,]+)(?:\s*,\s*([^,]+))+")?;
     let re_nibble_write_var = Regex::new(r"^NIBBLE_WRITE_VAR\s+([^,]+)(?:\s*,\s*([^,]+))+")?;
     let re_nibble_write_args = Regex::new(r",\s*([^,]+)")?;
@@ -479,8 +461,6 @@ fn parse_kernels(
             Parse::NibbleEndIf
         } else if let Some(m) = re_nibble_var.captures(&line) {
             Parse::NibbleVar(m[1].to_string())
-        } else if let Some(m) = re_nibble_var_sty.captures(&line) {
-            Parse::NibbleVarSty(m[1].to_string())
         } else if let Some(m) = re_nibble_write_imm.captures(&line) {
             // eprintln!("line {:?}", line);
             let selection = re_nibble_write_args

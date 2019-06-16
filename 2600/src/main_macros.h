@@ -4,8 +4,6 @@
     endm
     mac NIBBLE_VAR
     endm
-    mac NIBBLE_VAR_STY
-    endm
     mac NIBBLE_IF
     endm
     mac NIBBLE_WRITE_IMM
