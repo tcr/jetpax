@@ -102,5 +102,9 @@ NibbleX                 = 9   ; X value
 NibbleY                 = 10  ; Y value
 NibblePhp               = 11  ; Processor value
 ; 12, 13, 14, 15 all are the gem storage
+NibbleGeminiMap1        = 12
+NibbleGeminiMap2        = 13
+NibbleGeminiMap3        = 14
+NibbleGeminiMap4        = 15
 
-NIBBLE_VAR_COUNT = 1 + NibblePhp
+NIBBLE_VAR_COUNT = 1 + NibbleGeminiMap4
