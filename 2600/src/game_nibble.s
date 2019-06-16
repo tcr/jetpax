@@ -92,6 +92,7 @@ Kernel_UpdateRegs: subroutine
 .op_end:
 
 .set_start:
+    ; Set the X value + operator
     ldx BuildNibbleX
     cpx #SENTINEL
     bne .set_else
@@ -106,12 +107,12 @@ Kernel_UpdateRegs: subroutine
 ;     ldx #BC_STY
 ;     stx NibbleMissile
 
-    ; Set the X operator
     NIBBLE_RAM_STORE sta, NibbleX
     sta BuildNibbleX ; save local value
     lda #BC_STX
     rts
 .set_else
+    ; Set the Y value + operator
     ldx BuildNibbleY
     cpx #SENTINEL
     bne .set_end

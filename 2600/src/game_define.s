@@ -86,6 +86,7 @@ XPosStart = 78
 ; YPosStart equ 190
 ; XPosStart equ 28
 
+
 ; Nibble Variables
 
 NibbleVar1              = 0
@@ -97,11 +98,11 @@ NibbleGemini2Reg        = 5
 NibbleGemini3           = 6
 NibbleGemini3Reg        = 7
 NibbleGemini4           = 8
-NibbleMissile           = 9
-NibbleVdel1             = 10
-NibbleGrp0              = 11
-NibbleX                 = 12
-NibbleY                 = 13
-NibblePhp               = 14
+NibbleMissile           = 9   ; Missile opcode
+NibbleVdel1             = 10  ; GRP0 w/ VDEL value
+NibbleGrp0              = 11  ; GRP0 value
+NibbleX                 = 12  ; X value
+NibbleY                 = 13  ; Y value
+NibblePhp               = 14  ; Processor value
 
 NIBBLE_VAR_COUNT = 1 + NibblePhp
