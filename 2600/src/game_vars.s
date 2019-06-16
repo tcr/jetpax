@@ -10,6 +10,7 @@ RamFFByte               byte    ; to load $ff from zero page
 ; Locally allocated
 Temp                    byte
 Temp2                   byte
+Temp3                   byte
 
 ; Misc Nibble support
 BuildKernelRST          byte

@@ -100,11 +100,25 @@ game_state_mask:
     .byte #%11111110
 
 game_state_tick: subroutine
-    jmp RemoveGemAtXPosition ; trailing jsr
+    ldy #16
+    jsr RemoveGemAtXPosition
+
+    ; TODO enable row selection
+CALC:
+    lda YPos
+    cmp #$5a
+    bpl .skip
+    cmp #$54
+    bmi .skip
+    ldy #32
+    jsr RemoveGemAtXPosition
+.skip:
+    rts
 
 RemoveGemAtXPosition:
+    ; Store Y value
+    sty Temp3
     ; Read this from Nibble ram (slow)
-    ldy #16
     NIBBLE_RAM_LOAD lda, NibbleGeminiMap1
     sta [level_for_game + 0]
     NIBBLE_RAM_LOAD lda, NibbleGeminiMap2
@@ -139,7 +153,7 @@ RemoveGemAtXPosition:
     sta level_for_game,y
 
     ; write it back into Nibble ram (slow)
-    ldy #16
+    ldy Temp3
     lda [level_for_game + 0]
     NIBBLE_RAM_STORE sta, NibbleGeminiMap1
     lda [level_for_game + 1]

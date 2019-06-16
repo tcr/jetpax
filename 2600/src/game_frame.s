@@ -28,34 +28,25 @@ VerticalBlank: subroutine
     TIMER_SETUP 37
     inc FrameCount
 
-    ; Pattern:
-    ; Populate the Nibble kernel values for the current row.
-    ; Load row number
-    ; Extract 26-bit string to full Gemini profile
-
+ComputeRow3:
     ldy #32
-    jsr GeminiPopulateFull
-    ldy #32
+    jsr GeminiPopulate
     jsr GameNibblePopulate
 
+ComputeRow2:
     ldy #16
     jsr GeminiPopulate
-    ldy #16
     jsr GameNibblePopulate
-    
-    ; We'll run this later.
-    ; jsr GameNibbleRun
-    ; jsr NibbleCopyToRam
-    ; jsr NibbleCopyFromRam
 
+ComputeRow1:
     ldy #0
     jsr GeminiPopulate
-    ldy #0
     jsr GameNibblePopulate
 
     ; Immediately run populate for row 0.
     jsr GameNibbleRun
 
+.continue:
     ; Setup frame. Jump and return
     jmp GameFrameSetup
 

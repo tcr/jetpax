@@ -63,6 +63,7 @@
 .else_2:
     clc
     rol RamNibbleBuildState
+    ; Reset other instructions.
     ; Update 2B
     CALC_REGS_AND_STORE 2, NibbleGemini2
     ; Update 3B

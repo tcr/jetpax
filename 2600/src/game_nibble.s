@@ -406,6 +406,11 @@ gemini_builder: subroutine
                 lda [DO_GEMS_B + 3]
                 sta BuildNibbleGrp0
             NIBBLE_ELSE
+                ; Reset other instructions.
+                NIBBLE_WRITE_IMM [KernelB_E_W + 0], #BC_PHP
+                NIBBLE_WRITE_IMM [KernelB_G_W + 0], #BC_STA
+                NIBBLE_WRITE_IMM [KernelB_G_W + 1], #PF1
+
                 ; Update 2B
                 CALC_REGS_AND_STORE 2, NibbleGemini2
                 NIBBLE_WRITE_VAR [KernelB_F_W + 0], NibbleGemini2

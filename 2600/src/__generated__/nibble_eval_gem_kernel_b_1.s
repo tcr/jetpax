@@ -44,6 +44,12 @@
 
     jmp .endif_2
 .else_2:
+    ldx #[ #BC_PHP ]
+    stx [[KernelB_E_W + 0] + 0]
+    ldx #[ #BC_STA ]
+    stx [[KernelB_G_W + 0] + 0]
+    ldx #[ #PF1 ]
+    stx [[KernelB_G_W + 1] + 0]
     NIBBLE_RAM_LOAD ldx, NibbleGemini2
     stx [[KernelB_F_W + 0] + 0]
     ldx #[ #EMERALD_SP ]
@@ -52,7 +58,6 @@
     stx [[KernelB_H_W + 0] + 0]
     ldx #[ #EMERALD_SP ]
     stx [[KernelB_H_W + 1] + 0]
-    sleep 15
     ; else: BuildState { index: 2, checkdepth: 2, cycles: 49 }
 .endif_2:
     ; else: BuildState { index: 2, checkdepth: 2, cycles: 49 }
