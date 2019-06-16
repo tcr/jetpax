@@ -25,8 +25,15 @@ FrameStart: subroutine
 
 VerticalBlank: subroutine
     ; Setup frame timer and increment frame counter.
-    TIMER_SETUP 37
+    ; FIXME TIMER_SETUP 37
+    TIMER_SETUP 45
     inc FrameCount
+
+    ; TODO Show TWO distinct gem rows, #32 and #48
+ComputeRow4:
+    ldy #48
+    jsr GeminiPopulate
+    jsr GameNibblePopulate
 
 ComputeRow3:
     ldy #32

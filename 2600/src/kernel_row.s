@@ -274,8 +274,8 @@ NibbleRamOffsetsByRow:
     .byte #0 ; skipped
     .byte #0
     .byte #0
+    .byte #48
     .byte #32
-    .byte #16
     .byte #16
     .byte #16
     .byte #16
@@ -293,7 +293,7 @@ NibbleRamColorsByRow:
     .byte #0
     .byte #0
     .byte #COL_EMERALD
-    .byte #$60
+    .byte #COL_EMERALD
     .byte #$62
     .byte #$62
     .byte #$64

@@ -107,12 +107,22 @@ game_state_tick: subroutine
 CALC:
     lda YPos
     cmp #$5a
-    bpl .skip
+    bpl .skip_32
     cmp #$54
-    bmi .skip
+    bmi .skip_32
+    ldy #48
+    jsr RemoveGemAtXPosition
+.skip_32:
+
+    lda YPos
+    cmp #$62
+    bpl .skip_48
+    cmp #$5a
+    bmi .skip_48
     ldy #32
     jsr RemoveGemAtXPosition
-.skip:
+
+.skip_48:
     rts
 
 RemoveGemAtXPosition:
