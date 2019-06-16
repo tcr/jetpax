@@ -38,6 +38,7 @@ RamRowPs                byte    ; global PS value for this kernel
 RamStackBkp             byte    ; cached stack value before kernel
 RamPF1Value             byte    ; loaded PF1 value for kernel
 
+; Temp storage for GeminiPopulate
 level_for_game byte
     byte
     byte

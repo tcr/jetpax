@@ -1,12 +1,12 @@
     processor 6502
 
-    ; Global headers
+    ; Universal headers
     include "vcs.h"
     include "macro.h"
     include "xmacro.h"
-    include "main_macros.h"
 
-    ; RAM and constants
+    ; Macros, RAM, constants
+    include "main_macros.s"
     include "game_define.s"
     include "game_vars.s"
 

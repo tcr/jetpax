@@ -33,10 +33,12 @@ VerticalBlank: subroutine
     ; Load row number
     ; Extract 26-bit string to full Gemini profile
 
+    ldy #32
     jsr GeminiPopulateFull
     ldy #32
     jsr GameNibblePopulate
 
+    ldy #16
     jsr GeminiPopulate
     ldy #16
     jsr GameNibblePopulate
@@ -46,6 +48,7 @@ VerticalBlank: subroutine
     ; jsr NibbleCopyToRam
     ; jsr NibbleCopyFromRam
 
+    ldy #0
     jsr GeminiPopulate
     ldy #0
     jsr GameNibblePopulate

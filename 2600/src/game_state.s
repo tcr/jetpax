@@ -61,16 +61,31 @@ game_state_adder:
 		 STA .RES+0
 		ENDM
 
-game_state_setup:
+SetupNibbleGeminiMap:
     ; Set up the level
     lda #%11111011
-    sta [level_for_game + 0]
+    NIBBLE_RAM_STORE sta, NibbleGeminiMap1
     lda #%11111111
-    sta [level_for_game + 1]
+    NIBBLE_RAM_STORE sta, NibbleGeminiMap2
     lda #%11111111
-    sta [level_for_game + 2]
+    NIBBLE_RAM_STORE sta, NibbleGeminiMap3
     lda #%11111111
-    sta [level_for_game + 3]
+    NIBBLE_RAM_STORE sta, NibbleGeminiMap4
+    rts
+
+game_state_setup: subroutine
+    ; Set up row gemini maps
+    ldy #0
+.next_row:
+    jsr SetupNibbleGeminiMap
+    tya
+    clc
+    adc #$10 ; Every 16 bytes
+    beq .finish_setup
+    tay
+    jmp .next_row
+.finish_setup:
+    ldy #$10
     rts
 
    align 16
@@ -85,7 +100,19 @@ game_state_mask:
     .byte #%11111110
 
 game_state_tick: subroutine
-    ; jsr game_state_setup
+    jmp RemoveGemAtXPosition ; trailing jsr
+
+RemoveGemAtXPosition:
+    ; Read this from Nibble ram (slow)
+    ldy #16
+    NIBBLE_RAM_LOAD lda, NibbleGeminiMap1
+    sta [level_for_game + 0]
+    NIBBLE_RAM_LOAD lda, NibbleGeminiMap2
+    sta [level_for_game + 1]
+    NIBBLE_RAM_LOAD lda, NibbleGeminiMap3
+    sta [level_for_game + 2]
+    NIBBLE_RAM_LOAD lda, NibbleGeminiMap4
+    sta [level_for_game + 3]
 
     ; Get index [0, 25]
     clc
@@ -110,11 +137,23 @@ game_state_tick: subroutine
     lda Temp2
     and level_for_game,y
     sta level_for_game,y
+
+    ; write it back into Nibble ram (slow)
+    ldy #16
+    lda [level_for_game + 0]
+    NIBBLE_RAM_STORE sta, NibbleGeminiMap1
+    lda [level_for_game + 1]
+    NIBBLE_RAM_STORE sta, NibbleGeminiMap2
+    lda [level_for_game + 2]
+    NIBBLE_RAM_STORE sta, NibbleGeminiMap3
+    lda [level_for_game + 3]
+    NIBBLE_RAM_STORE sta, NibbleGeminiMap4
+
     rts
 
-game_state_tick_1: subroutine
-    _ADD32 level_for_game, game_state_adder, level_for_game
-    rts
+; game_state_tick_1: subroutine
+;     _ADD32 level_for_game, game_state_adder, level_for_game
+;     rts
 
 ; game_state_tick:
 ;     lda FrameCount

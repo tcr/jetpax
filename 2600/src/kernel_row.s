@@ -185,8 +185,7 @@ row_7a: subroutine
 
     ; FIXME this should be enabled!
     ; jet_spritedata_calc
-    sta COLUPF
-    sleep 2
+    sta.w COLUPF
 
     ; Idle.
 
@@ -196,7 +195,7 @@ row_7a: subroutine
 
 ; [scanline 8]
 row_8a: subroutine
-    ASSERT_RUNTIME "_scycles == #62" ; weird timing
+    ASSERT_RUNTIME "_scycles == #61" ; weird timing
 
     ; FIXME this should be enabled!
     ; jet_spritedata_calc

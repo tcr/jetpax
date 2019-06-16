@@ -562,7 +562,7 @@ GameNibbleRunKernelB2: subroutine
     rts
 
 
-; Populate Gemini array from level_for_game
+; Populate Gemini map
 
     mac GEMINI_POPULATE
 .TARGET SET {1}
@@ -581,6 +581,18 @@ GameNibbleRunKernelB2: subroutine
     align 256
 
 GeminiPopulate: subroutine
+    sty Temp ; Cache this
+
+    ; Load from Nibble and row
+    NIBBLE_RAM_LOAD lda, NibbleGeminiMap1
+    sta [level_for_game + 0]
+    NIBBLE_RAM_LOAD lda, NibbleGeminiMap2
+    sta [level_for_game + 1]
+    NIBBLE_RAM_LOAD lda, NibbleGeminiMap3
+    sta [level_for_game + 2]
+    NIBBLE_RAM_LOAD lda, NibbleGeminiMap4
+    sta [level_for_game + 3]
+
     lda level_for_game + 3
     GEMINI_POPULATE DO_GEMS_B + 5
     ror
@@ -632,6 +644,9 @@ GeminiPopulate: subroutine
     GEMINI_POPULATE DO_GEMS_A + 0
     ; ror
     ; ror
+
+    ; Load saved row index.
+    ldy Temp
 
     rts
 gemini_populate_end:
