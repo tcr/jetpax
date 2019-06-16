@@ -92,17 +92,15 @@ XPosStart = 78
 NibbleVar1              = 0
 NibbleVar2              = 1
 NibbleGemini1           = 2
-NibbleGemini1Reg        = 3
-NibbleGemini2           = 4
-NibbleGemini2Reg        = 5
-NibbleGemini3           = 6
-NibbleGemini3Reg        = 7
-NibbleGemini4           = 8
-NibbleMissile           = 9   ; Missile opcode
-NibbleVdel1             = 10  ; GRP0 w/ VDEL value
-NibbleGrp0              = 11  ; GRP0 value
-NibbleX                 = 12  ; X value
-NibbleY                 = 13  ; Y value
-NibblePhp               = 14  ; Processor value
+NibbleGemini2           = 3
+NibbleGemini3           = 4
+NibbleGemini4           = 5
+NibbleMissile           = 6   ; Missile opcode
+NibbleVdel1             = 7   ; GRP0 w/ VDEL value
+NibbleGrp0              = 8   ; GRP0 value
+NibbleX                 = 9   ; X value
+NibbleY                 = 10  ; Y value
+NibblePhp               = 11  ; Processor value
+; 12, 13, 14, 15 all are the gem storage
 
 NIBBLE_VAR_COUNT = 1 + NibblePhp

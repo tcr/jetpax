@@ -173,30 +173,30 @@ row_6:
 ; Kernel A
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+    align 16
+
 ; [scanline 7]
 row_7a: subroutine
     ; Idle from previous scanline.
+    lda #COL_BG
     sta WSYNC
 
     ASSERT_RUNTIME "_scycles == #0"
 
     ; FIXME this should be enabled!
     ; jet_spritedata_calc
-
-    lda #COL_BG
     sta COLUPF
+    sleep 2
 
     ; Idle.
-    ; sleep 71
 
     ; Run Kernel.
     NIBBLE_RAM_LOAD lda, NibbleVar2
     include "nibble_eval_gem_kernel_a_2.s"
-    sleep 8
 
 ; [scanline 8]
 row_8a: subroutine
-    ASSERT_RUNTIME "_scycles == #70"
+    ASSERT_RUNTIME "_scycles == #62" ; weird timing
 
     ; FIXME this should be enabled!
     ; jet_spritedata_calc
@@ -225,14 +225,13 @@ row_8a: subroutine
 ; [scanline 7]
 row_7b: subroutine
     ; Idle from previous scanline.
+    lda #COL_BG
     sta WSYNC
 
     ASSERT_RUNTIME "_scycles == #0"
 
     ; FIXME this should be enabled!
     ; jet_spritedata_calc
-
-    lda #COL_BG
     sta COLUPF
 
     ; Idle.

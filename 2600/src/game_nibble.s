@@ -147,11 +147,8 @@ gemini_builder: subroutine
     ; Nibble Kernel A
     NIBBLE_START_KERNEL gem_kernel_a_1, 40
         NIBBLE_VAR NibbleGemini1
-        NIBBLE_VAR NibbleGemini1Reg
         NIBBLE_VAR NibbleGemini2
-        NIBBLE_VAR NibbleGemini2Reg
         NIBBLE_VAR NibbleGemini3
-        NIBBLE_VAR NibbleGemini3Reg
         ; NIBBLE_VAR NibbleGemini4
         NIBBLE_VAR NibbleMissile
         ; NIBBLE_VAR NibbleVdel1
@@ -207,23 +204,17 @@ gemini_builder: subroutine
                 ; Calculate the 1A value
                 lda SHARD_LUT_RF1
                 cmp #1
-                .byte $D0, #3 ; bne +3
-                lda #RESP1
-                .byte $2C ; .bit (ABS)
-                lda #GRP1
-                NIBBLE_RAM_STORE sta, NibbleGemini1Reg
+                NIBBLE_IF eq
+                    NIBBLE_WRITE_IMM [KernelA_D_W + 0], #BC_STX ; don't allocate any new register
+                    NIBBLE_WRITE_IMM [KernelA_D_W + 1], #REFP1
+                NIBBLE_ELSE
+                    lda [DO_GEMS_A + 1]
+                    jsr Kernel_UpdateRegs
+                    NIBBLE_RAM_STORE sta, NibbleGemini1
+                    NIBBLE_WRITE_VAR [KernelA_D_W + 0], NibbleGemini1
 
-                ; Set opcode
-                lda SHARD_LUT_RF1
-                cmp #1
-                lda #BC_STX ; Don't allocate
-                .byte $F0, #5 ; beq +4
-                lda [DO_GEMS_A + 1]
-                jsr Kernel_UpdateRegs
-                NIBBLE_RAM_STORE sta, NibbleGemini1
-
-                NIBBLE_WRITE_VAR [KernelA_D_W + 0], NibbleGemini1
-                NIBBLE_WRITE_VAR [KernelA_D_W + 1], NibbleGemini1Reg
+                    NIBBLE_WRITE_IMM [KernelA_D_W + 1], #GRP1
+                NIBBLE_END_IF
             NIBBLE_END_IF
         NIBBLE_END_IF
 
@@ -240,23 +231,21 @@ gemini_builder: subroutine
             NIBBLE_WRITE_IMM [KernelA_E_W + 1], #NOP_REG   ; NOP
             NIBBLE_WRITE_IMM [KernelA_G_W + 1], #RESP1 ; RESET
         NIBBLE_ELSE
-            ; Set opcode
-            lda [DO_GEMS_A + 2]
-            jsr Kernel_UpdateRegs
-            NIBBLE_RAM_STORE sta, NibbleGemini2
+            NIBBLE_WRITE_IMM [KernelA_E_W + 1], #RESP1
 
             ; Set opcode target
             lda SHARD_LUT_RF1
             cmp #2
-            .byte $D0, #3 ; bne +3
-            lda #RESP1
-            .byte $2C ; .bit (ABS)
-            lda #GRP1
-            NIBBLE_RAM_STORE sta, NibbleGemini2Reg
-
-            NIBBLE_WRITE_IMM [KernelA_E_W + 1], #RESP1
-            NIBBLE_WRITE_VAR [KernelA_G_W + 0], NibbleGemini2
-            NIBBLE_WRITE_VAR [KernelA_G_W + 1], NibbleGemini2Reg ; STX
+            NIBBLE_IF eq
+                NIBBLE_WRITE_IMM [KernelA_G_W + 1], #RESP1
+            NIBBLE_ELSE
+                ; Set opcode and write to sprite
+                lda [DO_GEMS_A + 2]
+                jsr Kernel_UpdateRegs
+                NIBBLE_RAM_STORE sta, NibbleGemini2
+                NIBBLE_WRITE_VAR [KernelA_G_W + 0], NibbleGemini2
+                NIBBLE_WRITE_IMM [KernelA_G_W + 1], #GRP1
+            NIBBLE_END_IF
         NIBBLE_END_IF
 
         ; Gemini 3A
@@ -266,32 +255,26 @@ gemini_builder: subroutine
         NIBBLE_IF eq
             NIBBLE_WRITE_IMM [KernelA_H_W + 1], #RESP1 ; RESET
         NIBBLE_ELSE
-            ; Set opcode
-            lda [DO_GEMS_A + 3]
-            jsr Kernel_UpdateRegs
-            NIBBLE_RAM_STORE sta, NibbleGemini3
-
             ; Set opcode target
             lda SHARD_LUT_RF1
             cpy #3
-            .byte $D0, #3 ; bne +3
-            lda #RESP1
-            .byte $2C ; .bit (ABS)
-            lda #GRP1
-            NIBBLE_RAM_STORE sta, NibbleGemini3Reg
-
-            NIBBLE_WRITE_VAR [KernelA_H_W + 0], NibbleGemini3
-            NIBBLE_WRITE_VAR [KernelA_H_W + 1], NibbleGemini3Reg
+            NIBBLE_IF eq
+                NIBBLE_WRITE_IMM [KernelA_H_W + 1], #RESP1
+            NIBBLE_ELSE
+                ; Set opcode and write to sprite
+                lda [DO_GEMS_A + 3]
+                jsr Kernel_UpdateRegs
+                NIBBLE_RAM_STORE sta, NibbleGemini3
+                NIBBLE_WRITE_VAR [KernelA_H_W + 0], NibbleGemini3
+                NIBBLE_WRITE_IMM [KernelA_H_W + 1], #GRP1
+            NIBBLE_END_IF
         NIBBLE_END_IF
     NIBBLE_END_KERNEL
 
     NIBBLE_START_KERNEL gem_kernel_a_2, 40
         ; NIBBLE_VAR NibbleGemini1
-        ; NIBBLE_VAR NibbleGemini1Reg
         ; NIBBLE_VAR NibbleGemini2
-        ; NIBBLE_VAR NibbleGemini2Reg
         ; NIBBLE_VAR NibbleGemini3
-        ; NIBBLE_VAR NibbleGemini3Reg
         NIBBLE_VAR NibbleGemini4
         NIBBLE_VAR NibbleMissile
         NIBBLE_VAR NibbleVdel1
@@ -352,11 +335,8 @@ gemini_builder: subroutine
     ; Nibble Kernel B
     NIBBLE_START_KERNEL gem_kernel_b_1, 40
         ; NIBBLE_VAR NibbleGemini1
-        ; NIBBLE_VAR NibbleGemini1Reg
         NIBBLE_VAR NibbleGemini2
-        ; NIBBLE_VAR NibbleGemini2Reg
         NIBBLE_VAR NibbleGemini3
-        ; NIBBLE_VAR NibbleGemini3Reg
         ; NIBBLE_VAR NibbleGemini4
         ; NIBBLE_VAR NibbleMissile
         ; NIBBLE_VAR NibbleVdel1
@@ -443,11 +423,8 @@ gemini_builder: subroutine
     ; Nibble Kernel B
     NIBBLE_START_KERNEL gem_kernel_b_2, 40
         NIBBLE_VAR NibbleGemini1
-        ; NIBBLE_VAR NibbleGemini1Reg
         ; NIBBLE_VAR NibbleGemini2
-        ; NIBBLE_VAR NibbleGemini2Reg
         ; NIBBLE_VAR NibbleGemini3
-        ; NIBBLE_VAR NibbleGemini3Reg
         NIBBLE_VAR NibbleGemini4
         ; NIBBLE_VAR NibbleMissile
         ; NIBBLE_VAR NibbleVdel1

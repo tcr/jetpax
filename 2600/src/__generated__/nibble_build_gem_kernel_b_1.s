@@ -1,9 +1,6 @@
     lda #0
     sta RamNibbleBuildState
     ; NIBBLE_VAR NibbleGemini1
-    ; NIBBLE_VAR NibbleGemini1Reg
-    ; NIBBLE_VAR NibbleGemini2Reg
-    ; NIBBLE_VAR NibbleGemini3Reg
     ; NIBBLE_VAR NibbleGemini4
     ; NIBBLE_VAR NibbleMissile
     ; NIBBLE_VAR NibbleVdel1
